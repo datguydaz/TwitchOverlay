@@ -164,12 +164,11 @@ export const scavengerSvg = `
       <rect x="58" y="278" width="176" height="2.5" fill="#c7923a" opacity="0.55"/>
     </g>
 
-    <!-- Single field mouse under right hand only -->
+    <!-- ONE mouse only — under right hand (right side of desk) -->
     <g id="prop-mouse">
-      <path d="M286 248 Q304 238 322 250 L324 268 Q304 280 284 268 Z" fill="#161a14" stroke="#d4c8b0" stroke-width="1.6"/>
-      <path d="M304 242 V264" stroke="#6b7355" stroke-width="1.4"/>
-      <path d="M292 254 Q304 248 316 254" fill="none" stroke="#4a5240" stroke-width="1.1"/>
-      <ellipse cx="304" cy="272" rx="8" ry="4" fill="#2a2e24" stroke="#5a6450" stroke-width="0.9"/>
+      <path d="M292 250 Q308 242 320 252 L321 266 Q308 276 291 266 Z" fill="#161a14" stroke="#9a8f78" stroke-width="1.4"/>
+      <path d="M306 246 V262" stroke="#6b7355" stroke-width="1.2"/>
+      <ellipse cx="306" cy="270" rx="7" ry="3.5" fill="#2a2e24" stroke="#5a6450" stroke-width="0.8"/>
     </g>
 
     <g id="desk-lights">
@@ -180,18 +179,22 @@ export const scavengerSvg = `
       <circle class="eq-light" cx="362" cy="268" r="4" fill="#c7923a" opacity="0.35"/>
     </g>
 
+    <!-- Left hand: typing on keyboard only (finger shapes, not a mouse blob) -->
     <g id="hand-left">
-      <path d="M88 246 Q116 232 150 244 Q158 256 138 264 Q108 268 90 256 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
-      <path d="M104 244 L108 258 M116 242 L120 258 M128 244 L130 258" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
-      <ellipse cx="96" cy="250" rx="7" ry="6" fill="#3a3630"/>
-      <path d="M98 240 Q120 230 142 242" fill="none" stroke="#c7923a" stroke-width="2"/>
+      <path d="M72 238 Q78 232 92 236 L98 248 Q88 254 76 250 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.2"/>
+      <path d="M96 236 L100 258" stroke="#4a463c" stroke-width="7" stroke-linecap="round"/>
+      <path d="M110 234 L114 260" stroke="#4a463c" stroke-width="7" stroke-linecap="round"/>
+      <path d="M124 236 L126 258" stroke="#4a463c" stroke-width="7" stroke-linecap="round"/>
+      <path d="M136 238 L138 256" stroke="#4a463c" stroke-width="6.5" stroke-linecap="round"/>
+      <path d="M100 258 L114 260 L126 258 L138 256" fill="none" stroke="#2a261c" stroke-width="1.2"/>
+      <ellipse cx="82" cy="242" rx="6" ry="5" fill="#3a3630"/>
     </g>
 
+    <!-- Right hand resting on the single mouse -->
     <g id="hand-right">
-      <path d="M278 246 Q304 230 328 248 Q334 260 310 268 Q282 270 276 254 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
-      <path d="M292 244 L294 260 M302 242 L306 260 M314 246 L316 256" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
-      <ellipse cx="284" cy="250" rx="7" ry="6" fill="#3a3630"/>
-      <path d="M286 238 Q306 228 322 244" fill="none" stroke="#c7923a" stroke-width="2"/>
+      <path d="M288 240 Q300 232 318 242 L320 258 Q304 266 286 256 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.2"/>
+      <path d="M298 240 L300 258 M308 238 L310 260 M316 242 L318 256" stroke="#2a261c" stroke-width="2.2" stroke-linecap="round"/>
+      <ellipse cx="292" cy="246" rx="6" ry="5" fill="#3a3630"/>
     </g>
   </g>
   </g>
