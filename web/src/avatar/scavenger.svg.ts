@@ -181,31 +181,14 @@ export const scavengerSvg = `
     <g id="layer-head">
       <g id="head-sit" transform="translate(0 18)">
       <g id="head-scale" transform="translate(200 140) scale(0.74) translate(-200 -140)">
-      <!-- Single continuous shell: shallow crown → tall flat front → chin (integrated faceplate) -->
-      <path id="helm-dome" d="M172 70
-        Q200 52 228 70
-        L236 84
-        L238 178
-        L228 188
-        L172 188
-        L162 178
-        L164 84
-        Z" fill="url(#helmDome)" stroke="#1a1a1a" stroke-width="1.55"/>
-      <!-- Same silhouette inset = flat metal face plane (NOT a separate square) -->
-      <path id="helm-faceplate" d="M176 76
-        Q200 60 224 76
-        L230 88
-        L232 172
-        L224 182
-        L176 182
-        L168 172
-        L170 88
-        Z" fill="url(#plateMetal)" stroke="#121212" stroke-width="1.1"/>
-      <path d="M178 78 Q200 64 222 78 L224 86 L176 86 Z" fill="#000" opacity="0.18"/>
-      <!-- Soft side shade along continuous shell (no ear/cheek blobs) -->
-      <path id="helm-cheek-l" d="M164 90 L168 96 L166 170 L162 168 Z" fill="#000" opacity="0.18"/>
-      <path id="helm-cheek-r" d="M236 90 L232 96 L234 170 L238 168 Z" fill="#000" opacity="0.18"/>
-      <g id="helm-metal-grain" fill="none" stroke-linecap="round" opacity="0.3">
+      <!-- ONE continuous tall Maska shell (same path for dome+faceplane — no stacked silhouette) -->
+      <path id="helm-dome" d="M172 70 Q200 52 228 70 L236 84 L238 178 L228 188 L172 188 L162 178 L164 84 Z" fill="url(#plateMetal)" stroke="#1a1a1a" stroke-width="1.6"/>
+      <path id="helm-faceplate" d="M172 70 Q200 52 228 70 L236 84 L238 178 L228 188 L172 188 L162 178 L164 84 Z" fill="url(#plateMetal)" opacity="0"/>
+      <!-- Soft top shade on the same shell only -->
+      <path d="M176 76 Q200 58 224 76 L222 86 Q200 74 178 86 Z" fill="#000" opacity="0.16"/>
+      <path id="helm-cheek-l" d="M164 92 L167 98 L165 172 L162 170 Z" fill="#000" opacity="0.12"/>
+      <path id="helm-cheek-r" d="M236 92 L233 98 L235 172 L238 170 Z" fill="#000" opacity="0.12"/>
+      <g id="helm-metal-grain" fill="none" stroke-linecap="round" opacity="0.28">
         <path d="M180 100 L190 108" stroke="#8a8a8a" stroke-width="0.4"/>
         <path d="M210 102 L222 110" stroke="#7a7a7a" stroke-width="0.35"/>
         <path d="M178 150 L190 158" stroke="#9a9a9a" stroke-width="0.4"/>
