@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gameplay Overlay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/fonts.css" />
+    <link rel="stylesheet" href="/src/styles/zone.css" />
+  </head>
+  <body>
+    <div id="stage">
+      <div class="module identity-plate" id="mod-identity">
+        <div class="identity-name" data-streamer-name>datguydaz</div>
+        <div class="identity-meta">
+          <span>ZONE OPS</span>
+          <span>OPERATOR ONLINE</span>
+        </div>
+      </div>
+
+      <div class="module webcam-frame" id="mod-webcam">
+        <div class="webcam-corners">
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="module events-rail" id="mod-events">
+        <div id="events-rail"></div>
+      </div>
+
+      <div class="module" id="mod-avatar">
+        <div id="avatar-mount"></div>
+      </div>
+
+      <div class="conn-pill" id="conn-pill" data-state="offline">INPUT // IDLE</div>
+    </div>
+    <script type="module" src="/src/pages/gameplay.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+/* Self-contained fallbacks; Google Fonts linked from pages when online. */
+@font-face {
+  font-family: "Zone Display";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local("Oswald SemiBold"), local("Oswald"), local("Arial Narrow");
+}
+
+@font-face {
+  font-family: "Zone Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Share Tech Mono"), local("Consolas"), local("Courier New");
+}

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zone Overlay Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/fonts.css" />
+    <link rel="stylesheet" href="/src/styles/zone.css" />
+    <link rel="stylesheet" href="/src/styles/dashboard.css" />
+  </head>
+  <body class="dash-body">
+    <header class="dash-header">
+      <div>
+        <p class="eyebrow">LOCAL CONTROL // NOT AN OBS SOURCE</p>
+        <h1>ZONE OPS DASHBOARD</h1>
+      </div>
+      <div class="header-actions">
+        <button type="button" id="btn-save" class="btn primary">Save settings</button>
+        <button type="button" id="btn-reset" class="btn">Reset defaults</button>
+      </div>
+    </header>
+
+    <main class="dash-grid">
+      <section class="dash-panel">
+        <h2>Identity & colours</h2>
+        <label>Streamer name <input id="streamerName" type="text" /></label>
+        <label>Accent (amber) <input id="accentColor" type="color" /></label>
+        <label>Olive <input id="oliveColor" type="color" /></label>
+        <label>Beige <input id="beigeColor" type="color" /></label>
+        <label>Charcoal <input id="charcoalColor" type="color" /></label>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Scene text</h2>
+        <label>Starting soon title <input id="startingSoonTitle" type="text" /></label>
+        <label>Starting soon sub <input id="startingSoonSub" type="text" /></label>
+        <label>BRB title <input id="brbTitle" type="text" /></label>
+        <label>BRB sub <input id="brbSub" type="text" /></label>
+        <label>Ending title <input id="endingTitle" type="text" /></label>
+        <label>Ending sub <input id="endingSub" type="text" /></label>
+        <label>Countdown minutes <input id="countdownMinutes" type="number" min="1" max="180" /></label>
+        <button type="button" id="btn-countdown-now" class="btn">Start countdown from now</button>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Modules</h2>
+        <div class="mod-editor" data-mod="identity">
+          <strong>Identity</strong>
+          <label class="inline"><input type="checkbox" data-field="visible" /> Visible</label>
+          <label>X <input type="number" data-field="x" /></label>
+          <label>Y <input type="number" data-field="y" /></label>
+          <label>Scale <input type="number" step="0.05" min="0.2" max="3" data-field="scale" /></label>
+        </div>
+        <div class="mod-editor" data-mod="webcam">
+          <strong>Webcam frame</strong>
+          <label class="inline"><input type="checkbox" data-field="visible" /> Visible</label>
+          <label>X <input type="number" data-field="x" /></label>
+          <label>Y <input type="number" data-field="y" /></label>
+          <label>Scale <input type="number" step="0.05" min="0.2" max="3" data-field="scale" /></label>
+        </div>
+        <div class="mod-editor" data-mod="events">
+          <strong>Events</strong>
+          <label class="inline"><input type="checkbox" data-field="visible" /> Visible</label>
+          <label>X <input type="number" data-field="x" /></label>
+          <label>Y <input type="number" data-field="y" /></label>
+          <label>Scale <input type="number" step="0.05" min="0.2" max="3" data-field="scale" /></label>
+        </div>
+        <div class="mod-editor" data-mod="avatar">
+          <strong>Avatar</strong>
+          <label class="inline"><input type="checkbox" data-field="visible" /> Visible</label>
+          <label>X <input type="number" data-field="x" /></label>
+          <label>Y <input type="number" data-field="y" /></label>
+          <label>Scale <input type="number" step="0.05" min="0.2" max="3" data-field="scale" /></label>
+        </div>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Avatar & input</h2>
+        <label>Animation intensity <input id="intensity" type="range" min="0.2" max="2" step="0.1" /></label>
+        <label class="inline"><input id="lightsEnabled" type="checkbox" /> Equipment lights</label>
+        <div class="status-block">
+          <p id="conn-status">Companion: unknown</p>
+          <p class="hint">Demo preview is local to this page and never reports as a live companion.</p>
+        </div>
+        <div class="btn-row">
+          <button type="button" id="btn-demo-toggle" class="btn">Enable demo preview</button>
+          <button type="button" id="btn-demo-key" class="btn">Demo key</button>
+          <button type="button" id="btn-demo-hold" class="btn">Demo key hold</button>
+          <button type="button" id="btn-demo-l" class="btn">Demo L-click</button>
+          <button type="button" id="btn-demo-r" class="btn">Demo R-click</button>
+        </div>
+        <div class="btn-row">
+          <button type="button" id="btn-pause" class="btn">Pause capture</button>
+          <button type="button" id="btn-resume" class="btn">Resume capture</button>
+        </div>
+        <div id="dash-avatar" class="dash-avatar-wrap"></div>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Scene previews</h2>
+        <p class="hint">OBS sources use these URLs at 1920×1080 with transparent background (except BRB / starting / ending which are opaque scenes).</p>
+        <ul class="url-list">
+          <li><a href="/gameplay.html" target="_blank" rel="noopener">/gameplay.html</a></li>
+          <li><a href="/starting-soon.html" target="_blank" rel="noopener">/starting-soon.html</a></li>
+          <li><a href="/brb.html" target="_blank" rel="noopener">/brb.html</a></li>
+          <li><a href="/ending.html" target="_blank" rel="noopener">/ending.html</a></li>
+          <li><a href="/avatar.html" target="_blank" rel="noopener">/avatar.html</a></li>
+        </ul>
+        <p class="warn">Do not add <strong>dashboard.html</strong> as an OBS browser source.</p>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Sample alerts (preview only)</h2>
+        <p class="hint">Visual samples — Twitch/Kick live events are NOT connected.</p>
+        <div class="btn-row">
+          <button type="button" class="btn" data-sample="follow">Sample follow</button>
+          <button type="button" class="btn" data-sample="sub">Sample sub</button>
+          <button type="button" class="btn" data-sample="donation">Sample donation</button>
+        </div>
+        <div id="sample-rail" class="events-rail"></div>
+        <div class="integrations">
+          <h3>Future integrations</h3>
+          <p>Twitch EventSub / Kick events require app credentials stored only on a future local bridge — never in browser overlay code. See README.</p>
+        </div>
+      </section>
+    </main>
+
+    <p id="toast" class="toast" hidden></p>
+    <script type="module" src="/src/pages/dashboard.ts"></script>
+  </body>
+</html>
