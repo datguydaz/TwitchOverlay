@@ -41,9 +41,9 @@ export const scavengerSvg = `
     <clipPath id="visor-clip">
       <rect x="168" y="124" width="64" height="10" rx="1"/>
     </clipPath>
-    <!-- Canonical sleeve silhouettes (fill + clip share these) -->
-    <path id="sleeve-left-shape" d="M120 155 Q75 178 62 212 Q60 238 90 250 L112 242 Q88 224 86 205 Q94 180 124 162 Z"/>
-    <path id="sleeve-right-shape" d="M280 155 Q315 172 332 202 Q338 224 316 238 L296 230 Q314 214 316 198 Q308 176 276 162 Z"/>
+    <!-- Canonical sleeve silhouettes (fill + clip share these) — compact so fabric reads vs bg -->
+    <path id="sleeve-left-shape" d="M118 158 Q88 180 78 212 Q76 236 98 246 L114 238 Q96 220 96 200 Q102 178 122 164 Z"/>
+    <path id="sleeve-right-shape" d="M282 158 Q308 176 318 204 Q322 226 306 238 L292 230 Q308 214 308 196 Q302 176 278 164 Z"/>
     <clipPath id="clip-sleeve-left" clipPathUnits="userSpaceOnUse">
       <use href="#sleeve-left-shape"/>
     </clipPath>
@@ -68,10 +68,10 @@ export const scavengerSvg = `
     <g id="layer-torso">
       <path d="M78 148 L118 132 L200 124 L282 132 L322 148 L338 236 L62 236 Z" fill="url(#suitDark)" stroke="#050505" stroke-width="1.5"/>
       <!-- Black sleeves from shared shapes; stripes clipped to same shapes -->
-      <use id="sleeve-left-fill" href="#sleeve-left-shape" fill="#1a1a1a" stroke="#050505" stroke-width="1.2"/>
-      <use id="sleeve-right-fill" href="#sleeve-right-shape" fill="#1a1a1a" stroke="#050505" stroke-width="1.2"/>
-      <path d="M86 230 Q96 240 108 246" fill="none" stroke="#222222" stroke-width="10" stroke-linecap="round"/>
-      <path d="M310 222 Q306 232 298 238" fill="none" stroke="#222222" stroke-width="9" stroke-linecap="butt"/>
+      <use id="sleeve-left-fill" href="#sleeve-left-shape" fill="#242424" stroke="#0a0a0a" stroke-width="1.4"/>
+      <use id="sleeve-right-fill" href="#sleeve-right-shape" fill="#242424" stroke="#0a0a0a" stroke-width="1.4"/>
+      <path d="M90 228 Q98 238 108 244" fill="none" stroke="#2e2e2e" stroke-width="9" stroke-linecap="round"/>
+      <path d="M308 220 Q304 230 296 236" fill="none" stroke="#2e2e2e" stroke-width="8" stroke-linecap="butt"/>
       <!-- Slim near-black vest (vibe only — no logos) -->
       <path d="M108 146 L132 134 L200 128 L268 134 L292 146 L300 220 L100 220 Z" fill="url(#armorOlive)" stroke="#050505" stroke-width="1.4"/>
       <path d="M158 132 Q200 144 242 132 L238 152 Q200 160 162 152 Z" fill="#1a1a1a" stroke="#050505" stroke-width="1"/>
@@ -83,16 +83,16 @@ export const scavengerSvg = `
         <rect x="270" y="142" width="58" height="32" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
         <rect x="276" y="150" width="46" height="8" rx="1.5" fill="#0a0a0a" opacity="0.65"/>
       </g>
-      <!-- Three white track stripes on mid/lower arms (below shoulders), clipped to sleeve shapes -->
-      <g id="sleeve-stripes-left" clip-path="url(#clip-sleeve-left)" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-width="3.1" opacity="0.95">
-        <path d="M95 186 Q80 214 94 242"/>
-        <path d="M102 184 Q87 213 101 240"/>
-        <path d="M109 182 Q94 212 108 238"/>
+      <!-- Three white track stripes inset on fabric (toward torso), clipped to sleeve shapes -->
+      <g id="sleeve-stripes-left" clip-path="url(#clip-sleeve-left)" fill="none" stroke="#f5f5f5" stroke-linecap="round" stroke-width="2.8" opacity="0.95">
+        <path d="M100 188 Q92 214 100 238"/>
+        <path d="M106 186 Q98 213 106 236"/>
+        <path d="M112 184 Q104 212 112 234"/>
       </g>
-      <g id="sleeve-stripes-right" clip-path="url(#clip-sleeve-right)" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-width="2.9" opacity="0.95">
-        <path d="M305 186 Q318 210 306 234"/>
-        <path d="M298 184 Q311 209 299 232"/>
-        <path d="M291 182 Q304 208 292 230"/>
+      <g id="sleeve-stripes-right" clip-path="url(#clip-sleeve-right)" fill="none" stroke="#f5f5f5" stroke-linecap="round" stroke-width="2.6" opacity="0.95">
+        <path d="M300 188 Q308 210 300 234"/>
+        <path d="M294 186 Q302 209 294 232"/>
+        <path d="M288 184 Q296 208 288 230"/>
       </g>
       <!-- Slim pouches -->
       <g id="chest-rig">
