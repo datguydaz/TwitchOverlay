@@ -107,13 +107,18 @@ const meta = await page.evaluate(() => {
     torsoSit: document.querySelector("#torso-sit")?.getAttribute("transform") || "",
     torsoClip: document.querySelector("#torso-sit")?.getAttribute("clip-path") || "",
     headScale: document.querySelector("#head-scale")?.getAttribute("transform") || "",
-    headSmaller: /scale\(0\.8[5-9]|0\.9[0-2]\)/.test(
+    headSmaller: /scale\(0\.8[4-9]\)/.test(
       document.querySelector("#head-scale")?.getAttribute("transform") || "",
     ),
     headScaleVal: (document.querySelector("#head-scale")?.getAttribute("transform") || "").match(
       /scale\(([\d.]+)\)/,
     )?.[1] || "",
     hasDeskRgb: !!document.querySelector("#desk-rgb"),
+    deskLedChase: !!document.querySelector(".desk-led-chase"),
+    deskLedAnim: (() => {
+      const el = document.querySelector(".desk-led-chase");
+      return el ? getComputedStyle(el).animationName : "";
+    })(),
     skinHands: (() => {
       const p = document.querySelector("#hand-left-sit path");
       const fill = p?.getAttribute("fill") || "";
@@ -187,6 +192,8 @@ const pass =
   String(meta.torsoClip).includes("torso-above-desk") &&
   meta.headSmaller &&
   meta.hasDeskRgb &&
+  meta.deskLedChase &&
+  String(meta.deskLedAnim).includes("desk-led-chase") &&
   meta.skinHands;
 
 const note = { ts, pass, meta, files };
@@ -201,7 +208,9 @@ console.log(
     rightOnMouse: meta.rightOnMouse,
     killaUnderPouches: meta.killaUnderPouches,
     headSmaller: meta.headSmaller,
+    headScaleVal: meta.headScaleVal,
     hasDeskRgb: meta.hasDeskRgb,
+    deskLedAnim: meta.deskLedAnim,
     skinHands: meta.skinHands,
   }),
 );

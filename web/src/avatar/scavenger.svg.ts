@@ -56,6 +56,9 @@ export const scavengerSvg = `
       <!-- Keep pouches + KILLA; cut sleeves/belt that would pierce desk (local y) -->
       <rect x="40" y="100" width="320" height="128"/>
     </clipPath>
+    <clipPath id="desk-led-clip">
+      <rect x="58" y="293.5" width="284" height="2.2" rx="0.8"/>
+    </clipPath>
   </defs>
 
   <ellipse cx="200" cy="318" rx="140" ry="14" fill="#000" opacity="0.45"/>
@@ -172,7 +175,7 @@ export const scavengerSvg = `
          Subtle scale-down (~6%) around helm center; still bulky Killa. -->
     <g id="layer-head">
       <g id="head-sit" transform="translate(0 38)">
-      <g id="head-scale" transform="translate(200 120) scale(0.90) translate(-200 -120)">
+      <g id="head-scale" transform="translate(200 120) scale(0.86) translate(-200 -120)">
       <ellipse cx="200" cy="108" rx="72" ry="58" fill="url(#helmDark)" stroke="#0a0c08" stroke-width="2"/>
       <path d="M188 58 Q200 48 212 58 L208 118 L192 118 Z" fill="#efe6d2"/>
       <path d="M170 64 Q180 52 186 66 L182 120 L168 118 Z" fill="#efe6d2" opacity="0.95"/>
@@ -245,14 +248,24 @@ export const scavengerSvg = `
       <path id="desk-apron" d="M38 290 H362 L352 316 H48 Z" fill="url(#deskEdgeGrad)" stroke="#1a1c18" stroke-width="1.2"/>
       <path d="M40 292 H360" stroke="#5a6355" stroke-width="1.1" opacity="0.4"/>
       <path d="M48 316 H352" stroke="#050605" stroke-width="1.3" opacity="0.6"/>
-      <!-- Restrained Zone Ops desk LED strip (amber/olive, under front lip) -->
-      <g id="desk-rgb" opacity="0.9">
+      <!-- Restrained Zone Ops desk LED strip — soft amber/olive chase under front lip -->
+      <g id="desk-rgb" opacity="0.92">
         <rect x="56" y="293.5" width="288" height="2.2" rx="1.1" fill="#1a1408" stroke="#0a0a08" stroke-width="0.35"/>
-        <rect id="desk-led-core" x="58" y="293.8" width="284" height="1.5" rx="0.75" fill="#c7923a" opacity="0.55"/>
-        <rect x="58" y="293.8" width="90" height="1.5" rx="0.75" fill="#6b7355" opacity="0.35"/>
-        <rect x="200" y="293.8" width="70" height="1.5" rx="0.75" fill="#a87830" opacity="0.4"/>
-        <ellipse cx="200" cy="296" rx="120" ry="4.5" fill="#c7923a" opacity="0.12"/>
-        <ellipse cx="140" cy="296" rx="50" ry="3.2" fill="#6b7355" opacity="0.1"/>
+        <g id="desk-led-strip" clip-path="url(#desk-led-clip)">
+          <rect id="desk-led-core" class="desk-led-core" x="58" y="293.8" width="284" height="1.5" rx="0.75" fill="#c7923a" opacity="0.42"/>
+          <g class="desk-led-chase">
+            <rect x="58" y="293.8" width="48" height="1.5" rx="0.75" fill="#e0b050" opacity="0.85"/>
+            <rect x="118" y="293.8" width="36" height="1.5" rx="0.75" fill="#6b7355" opacity="0.7"/>
+            <rect x="168" y="293.8" width="48" height="1.5" rx="0.75" fill="#c7923a" opacity="0.8"/>
+            <rect x="230" y="293.8" width="36" height="1.5" rx="0.75" fill="#8a9060" opacity="0.65"/>
+            <rect x="280" y="293.8" width="48" height="1.5" rx="0.75" fill="#a87830" opacity="0.75"/>
+            <!-- duplicate for seamless chase wrap -->
+            <rect x="342" y="293.8" width="48" height="1.5" rx="0.75" fill="#e0b050" opacity="0.85"/>
+            <rect x="402" y="293.8" width="36" height="1.5" rx="0.75" fill="#6b7355" opacity="0.7"/>
+          </g>
+        </g>
+        <ellipse class="desk-led-glow" cx="200" cy="296" rx="120" ry="4.5" fill="#c7923a" opacity="0.14"/>
+        <ellipse class="desk-led-glow-b" cx="160" cy="296" rx="55" ry="3.2" fill="#6b7355" opacity="0.1"/>
       </g>
       <path d="M52 316 V340 H78 V316 M322 316 V340 H348 V316" fill="#0c0e0c" stroke="#2a2e28"/>
       <path d="M28 258 H372" stroke="#6b7355" stroke-width="1.05" opacity="0.35"/>

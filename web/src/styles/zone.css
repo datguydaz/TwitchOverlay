@@ -684,6 +684,63 @@ body.scene-opaque {
   transition: opacity 160ms linear;
 }
 
+/* Desk lip LED — soft amber/olive chase + glow pulse (not disco) */
+.desk-led-chase {
+  animation: desk-led-chase 4.8s linear infinite;
+}
+
+.desk-led-core {
+  animation: desk-led-core-pulse 3.6s ease-in-out infinite;
+}
+
+.desk-led-glow {
+  animation: desk-led-glow-pulse 3.6s ease-in-out infinite;
+}
+
+.desk-led-glow-b {
+  animation: desk-led-glow-pulse 3.6s ease-in-out infinite 0.9s;
+}
+
+.avatar-root[data-lights="0"] #desk-rgb {
+  opacity: 0.25;
+}
+
+.avatar-root[data-lights="0"] .desk-led-chase,
+.avatar-root[data-lights="0"] .desk-led-core,
+.avatar-root[data-lights="0"] .desk-led-glow,
+.avatar-root[data-lights="0"] .desk-led-glow-b {
+  animation: none;
+}
+
+@keyframes desk-led-chase {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-142px);
+  }
+}
+
+@keyframes desk-led-core-pulse {
+  0%,
+  100% {
+    opacity: 0.32;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes desk-led-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.08;
+  }
+  50% {
+    opacity: 0.18;
+  }
+}
+
 /* Quiet chest breath — head carries most of the idle life */
 @keyframes breath {
   0%,
@@ -956,6 +1013,10 @@ body.scene-opaque {
   #eye-look,
   .eyelid,
   .signal-noise,
+  .desk-led-chase,
+  .desk-led-core,
+  .desk-led-glow,
+  .desk-led-glow-b,
   .avatar-root[data-key="1"] #hand-left,
   .avatar-root[data-key="1"][data-key-pulse="1"] #hand-left,
   .avatar-root[data-mouse-l="1"] #hand-right,
