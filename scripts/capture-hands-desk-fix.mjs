@@ -173,11 +173,11 @@ const meta = await page.evaluate(() => {
       const yR = Number((right.match(/M\s*[\d.]+\s+([\d.]+)/) || [])[1] || 0);
       // Mid-vest roots (below helm ~180); short path ends near wrist ~268
       return (
-        yL >= 205 &&
-        yL <= 230 &&
-        yR >= 205 &&
-        yR <= 230 &&
-        pivotL.includes("214") &&
+        yL >= 212 &&
+        yL <= 235 &&
+        yR >= 212 &&
+        yR <= 235 &&
+        pivotL.includes("220") &&
         left.includes("268") &&
         right.includes("268")
       );
@@ -249,7 +249,7 @@ const keyAim = await page.evaluate(() => {
   const sleeveInHand = !!document.querySelector("#hand-left-sit #arm-left #sleeve-left-fill");
   // Valid SVG rotate() scale() — not the broken rotate(a scale(s)) form
   const txOk = /rotate\([^)]+\)\s*scale\([^)]+\)/.test(tx);
-  const vestRooted = rootY >= 205 && rootY <= 230;
+      const vestRooted = rootY >= 212 && rootY <= 235;
   return { ok: txOk && sleeveInHand && vestRooted, tx, sleeveInHand, rootY, vestRooted };
 });
 await page.waitForTimeout(180);

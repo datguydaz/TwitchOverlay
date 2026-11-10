@@ -556,7 +556,7 @@ export class ReactiveAvatar {
   private applyHandToSlot(): void {
     if (!this.handLeftAim) return;
     // Vest-side root (must match #hand-left-pivot). Valid SVG: rotate(a) scale(s).
-    const shoulder = { x: 122, y: 214 };
+    const shoulder = { x: 128, y: 220 };
     const home = HAND_HOME;
     let next: string;
     if (this.keyHeld > 0 && this.activeSlot != null) {
