@@ -95,6 +95,19 @@
         <label class="inline"><input id="chatEnabled" type="checkbox" /> Show chat</label>
         <label class="inline"><input id="chatDemoAuto" type="checkbox" /> Random trash-talk timer</label>
         <label>Trash-talk interval (ms) <input id="chatIntervalMs" type="number" min="6000" max="90000" step="1000" /></label>
+        <label>Chat position
+          <select id="chatPlacement">
+            <option value="bottom-left">Bottom left</option>
+            <option value="bottom-right">Bottom right</option>
+            <option value="top-left">Top left</option>
+            <option value="top-right">Top right</option>
+            <option value="mid-left">Mid left</option>
+            <option value="mid-right">Mid right</option>
+          </select>
+        </label>
+        <label>Inset X % <input id="chatOffsetX" type="number" min="0" max="40" step="1" title="Distance from left/right edge" /></label>
+        <label>Inset Y % <input id="chatOffsetY" type="number" min="0" max="40" step="1" title="Distance from top/bottom edge" /></label>
+        <p class="hint">Position applies to avatar + ultrawide chat bubbles and is saved with settings.</p>
         <label>Games he “plays” (one per line — canned match talk only, not live game reading)
           <textarea id="chatGames" rows="5" placeholder="Tarkov&#10;DayZ&#10;Arena Breakout"></textarea>
         </label>
@@ -108,11 +121,11 @@
 
       <section class="dash-panel">
         <h2>Latest follow / sub</h2>
-        <p class="hint">Sit in the ultrawide <strong>top bar</strong> corners (replacing FIELD NET / uplink). Leave blank or “—” until Twitch/Kick is wired — no fake demo names.</p>
+        <p class="hint">Sit in the ultrawide <strong>top bar</strong> corners (replacing FIELD NET / uplink). Leave blank until Twitch/Kick is wired — no fake demo names or dash placeholders.</p>
         <label class="inline"><input id="socialShowFollower" type="checkbox" /> Show latest follower</label>
         <label class="inline"><input id="socialShowSubscriber" type="checkbox" /> Show latest subscriber</label>
-        <label>Latest follower <input id="socialFollowerName" type="text" placeholder="—" /></label>
-        <label>Latest subscriber <input id="socialSubscriberName" type="text" placeholder="—" /></label>
+        <label>Latest follower <input id="socialFollowerName" type="text" placeholder="name" /></label>
+        <label>Latest subscriber <input id="socialSubscriberName" type="text" placeholder="name" /></label>
       </section>
 
       <section class="dash-panel">

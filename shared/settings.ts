@@ -12,6 +12,24 @@ export type SocialPlacement =
   | "bottom-left"
   | "bottom-right";
 
+/** AI bot chat corner on avatar + ultrawide overlays (dashboard-editable). */
+export type ChatPlacement =
+  | "bottom-left"
+  | "bottom-right"
+  | "top-left"
+  | "top-right"
+  | "mid-left"
+  | "mid-right";
+
+export const CHAT_PLACEMENTS: readonly ChatPlacement[] = [
+  "bottom-left",
+  "bottom-right",
+  "top-left",
+  "top-right",
+  "mid-left",
+  "mid-right",
+] as const;
+
 export interface ModuleTransform {
   visible: boolean;
   x: number;
@@ -50,6 +68,12 @@ export interface ChatSettings {
    * One display name per entry — edited in dashboard.
    */
   games: string[];
+  /** Corner / side for the AI bot chat bubble (persisted). */
+  placement: ChatPlacement;
+  /** Inset from the chosen horizontal edge, percent of overlay width (0–40). */
+  offsetXPct: number;
+  /** Inset from the chosen vertical edge, percent of overlay height (0–40). */
+  offsetYPct: number;
 }
 
 /** Default roster for "playing his own games" chat flavor. */
@@ -65,7 +89,7 @@ export interface SocialSettings {
   showFollower: boolean;
   showSubscriber: boolean;
   /**
-   * Display name for latest follower. Empty / "—" until Twitch/Kick is wired.
+   * Display name for latest follower. Empty until Twitch/Kick is wired.
    * (Kept as latestFollowerSample in persisted JSON via merge for compat.)
    */
   latestFollower: string;
@@ -153,12 +177,15 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     demoAuto: true,
     intervalMs: 14000,
     games: [...DEFAULT_CHAT_GAMES],
+    placement: "bottom-left",
+    offsetXPct: 4,
+    offsetYPct: 6,
   },
   social: {
     showFollower: true,
     showSubscriber: true,
-    latestFollower: "—",
-    latestSubscriber: "—",
+    latestFollower: "",
+    latestSubscriber: "",
   },
   ultrawide: {
     canvasWidth: 3440,
@@ -200,26 +227,41 @@ export function mergeSettings(
         .map((g) => String(g ?? "").trim())
         .filter(Boolean)
         .slice(0, 24);
-      return { ...c, games: games.length ? games : [...DEFAULT_CHAT_GAMES] };
+      const placementRaw = String(partial.chat?.placement ?? c.placement ?? "bottom-left");
+      const placement = (CHAT_PLACEMENTS as readonly string[]).includes(placementRaw)
+        ? (placementRaw as ChatPlacement)
+        : "bottom-left";
+      const clampPct = (n: unknown, fallback: number) => {
+        const v = Number(n);
+        if (!Number.isFinite(v)) return fallback;
+        return Math.max(0, Math.min(40, v));
+      };
+      return {
+        ...c,
+        games: games.length ? games : [...DEFAULT_CHAT_GAMES],
+        placement,
+        offsetXPct: clampPct(partial.chat?.offsetXPct ?? c.offsetXPct, 4),
+        offsetYPct: clampPct(partial.chat?.offsetYPct ?? c.offsetYPct, 6),
+      };
     })(),
     social: (() => {
       const s = { ...base.social, ...partial.social };
       // Migrate old SAMPLE fields → empty placeholders
       const fol =
-        (partial.social?.latestFollower ??
-          partial.social?.latestFollowerSample ??
-          s.latestFollower) ||
-        "—";
+        partial.social?.latestFollower ??
+        partial.social?.latestFollowerSample ??
+        s.latestFollower ??
+        "";
       const sub =
-        (partial.social?.latestSubscriber ??
-          partial.social?.latestSubscriberSample ??
-          s.latestSubscriber) ||
-        "—";
+        partial.social?.latestSubscriber ??
+        partial.social?.latestSubscriberSample ??
+        s.latestSubscriber ??
+        "";
       const scrub = (v: string) => {
-        const t = v.trim();
-        if (!t) return "—";
+        const t = String(v ?? "").trim();
+        if (!t || t === "—" || t === "--" || t === "-") return "";
         if (/^sample/i.test(t) || t === "GhostPing_42" || t === "RaidMama" || t === "SAMPLE_USER" || t === "SAMPLE_SUB") {
-          return "—";
+          return "";
         }
         return t;
       };

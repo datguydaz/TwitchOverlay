@@ -137,6 +137,7 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
       chatEnabled: settings.chat.enabled,
     });
     avatar.setGameList(settings.chat.games ?? []);
+    avatar.setChatPlacement(settings.chat);
     input = new InputClient({
       avatar,
       onConnection: setConnPill,
@@ -176,6 +177,7 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
       avatar.setStreamerName(settings.streamerName);
       avatar.setChatEnabled(settings.chat.enabled);
       avatar.setGameList(settings.chat.games ?? []);
+      avatar.setChatPlacement(settings.chat);
       const hidden = !settings.modules.avatar.visible && opts.scene !== "avatar";
       if (hidden) {
         avatar.dispose();

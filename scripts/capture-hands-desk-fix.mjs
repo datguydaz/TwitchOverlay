@@ -75,6 +75,12 @@ const meta = await page.evaluate(() => {
   );
   const killaIdx = coreKids.indexOf("chest-killa");
   const rigIdx = coreKids.indexOf("chest-rig");
+  const killaY = Number(killa?.getAttribute("y") || 0);
+  const pouchY = Number(
+    (document.querySelector("#stanag-0")?.getAttribute("transform") || "").match(
+      /translate\(\s*[\d.]+\s+([\d.]+)/,
+    )?.[1] || 0,
+  );
   const kb = document.querySelector("#prop-keyboard > rect");
   const molle = document.querySelector("#molle-plate");
   const deskFill = deskTop?.getAttribute("fill") || "";
@@ -94,14 +100,21 @@ const meta = await page.evaluate(() => {
     hasDeskTop: !!deskTop,
     hasApron: !!apronEl,
     stanag,
-    stanagCentered: stanag.join("|") ===
-      "translate(134 166)|translate(168 166)|translate(202 166)|translate(236 166)",
-    killaUnderPouches: killaIdx >= 0 && rigIdx > killaIdx,
+    stanagCentered: stanag.length === 4 && stanag.every((t) => /translate\(\s*\d+\s+180\)/.test(t || "")),
+    killaAbovePouches: killaIdx >= 0 && rigIdx > killaIdx && killaY > 0 && pouchY > killaY,
     killaY: killa?.getAttribute("y"),
     killaSize: killa?.getAttribute("font-size"),
     killaTextLength: killa?.getAttribute("textLength"),
-    killaWide: Number(killa?.getAttribute("font-size") || 0) >= 14 &&
+    killaWide: Number(killa?.getAttribute("font-size") || 0) >= 13 &&
       Number(killa?.getAttribute("textLength") || 0) >= 140,
+    hasPaddedCollar: !!document.querySelector("#padded-collar"),
+    oliveVest: (() => {
+      const stops = [...document.querySelectorAll("#armorOlive stop")].map((s) =>
+        (s.getAttribute("stop-color") || "").toLowerCase(),
+      );
+      // Must not be pure gray — olive/khaki channel
+      return stops.some((c) => /#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/.test(c) && c !== "#2a2a2a");
+    })(),
     hasKilla: killa?.textContent === "KILLA",
     hasMolle: !!molle,
     hasVestWear: !!document.querySelector("#vest-wear"),
@@ -155,6 +168,32 @@ const meta = await page.evaluate(() => {
       const helm = "#efe6d2";
       return killa.toLowerCase() === helm && stripe.toLowerCase() === helm;
     })(),
+    helmCoversHead: (() => {
+      const dome = document.querySelector("#helm-dome");
+      const brow = document.querySelector("#helm-brow-rim");
+      const plate = document.querySelector("#helm-faceplate");
+      const cheekL = document.querySelector("#helm-cheek-l");
+      const stripes = document.querySelector("#helm-stripes");
+      if (!dome || !brow || !plate || !cheekL || !stripes) return false;
+      const rx = Number(dome.getAttribute("rx") || 0);
+      const ry = Number(dome.getAttribute("ry") || 0);
+      const plateW = Number(plate.getAttribute("width") || 0);
+      const stripeCount = stripes.querySelectorAll("path").length;
+      return rx >= 70 && ry >= 58 && plateW >= 100 && stripeCount === 3;
+    })(),
+    noFingerGlowCss: (() => {
+      const css = [...document.styleSheets]
+        .map((s) => {
+          try {
+            return [...(s.cssRules || [])].map((r) => r.cssText).join("\n");
+          } catch {
+            return "";
+          }
+        })
+        .join("\n");
+      // Must not amber the fingers on mouse hold
+      return !/#finger-lmb[^\{]*\{[^\}]*c7923a/i.test(css) && !/data-mouse-l="1"[^\{]*#finger-lmb/i.test(css);
+    })(),
     fullStripes: (() => {
       const sleeve = document.querySelector("#sleeve-left-fill")?.getAttribute("d") || "";
       const stripe = document.querySelector("#sleeve-stripes-left path")?.getAttribute("d") || "";
@@ -199,9 +238,14 @@ const meta = await page.evaluate(() => {
       };
       return rot(label) && rot(num) && rot(deco);
     })(),
-    farReachCss: (() => {
-      const t = getComputedStyle(document.querySelector("#hand-left-aim") || document.body).transitionProperty;
-      return String(t).includes("transform") || t === "all";
+    svgPolarAim: (() => {
+      // Left aim must NOT rely on CSS fill-box transforms (that flung W off desk)
+      const aim = document.querySelector("#hand-left-aim");
+      if (!aim) return false;
+      const cs = getComputedStyle(aim);
+      const cssTx = cs.transform;
+      const cssNone = !cssTx || cssTx === "none";
+      return cssNone;
     })(),
     skinHands: (() => {
       const p = document.querySelector("#hand-left-sit > path");
@@ -263,28 +307,74 @@ files.push(
   }),
 );
 
-// Prove left continuous arm tracks a key slot via #hand-left-aim SVG pivot
-const keyAim = await page.evaluate(() => {
+// Exact palm landing: rotate lean + residual translate (matches reactiveAvatar)
+const aimToSlot = (slotCx, slotCy) => {
+  const shoulder = { x: 128, y: 220 };
+  const home = { cx: 118, cy: 268 };
+  const kbMinX = 64,
+    kbMaxX = 214,
+    kbMinY = 266,
+    kbMaxY = 282;
+  const targetCx = Math.min(kbMaxX, Math.max(kbMinX, slotCx));
+  const targetCy = Math.min(kbMaxY, Math.max(kbMinY, slotCy - 6));
+  const homeAng = Math.atan2(home.cy - shoulder.y, home.cx - shoulder.x);
+  const tgtAng = Math.atan2(targetCy - shoulder.y, targetCx - shoulder.x);
+  const rotDeg = ((tgtAng - homeAng) * 180) / Math.PI;
+  const hx = home.cx - shoulder.x;
+  const hy = home.cy - shoulder.y;
+  const rad = (rotDeg * Math.PI) / 180;
+  const tipX = shoulder.x + hx * Math.cos(rad) - hy * Math.sin(rad);
+  const tipY = shoulder.y + hx * Math.sin(rad) + hy * Math.cos(rad);
+  const dx = targetCx - tipX;
+  const dy = targetCy - tipY;
+  return {
+    tx: `translate(${dx.toFixed(1)} ${dy.toFixed(1)}) rotate(${rotDeg.toFixed(2)})`,
+    rotDeg,
+    dx,
+    dy,
+    targetCx,
+    targetCy,
+  };
+};
+
+const keyAim = await page.evaluate((aims) => {
   const root = document.querySelector(".avatar-root");
   const aim = document.querySelector("#hand-left-aim");
   if (!root || !aim) return { ok: false };
-  root.dataset.key = "1";
-  root.dataset.keySlot = "2";
-  // Far key (slot 10 ≈ Å) — stretch + residual translate so short arm lands
-  aim.style.transformOrigin = "0px 0px";
-  aim.style.transition = "transform 140ms cubic-bezier(0.22, 0.61, 0.36, 1)";
-  aim.style.transform = "translate(-12px, 6px) rotate(22deg) scale(1.28)";
-  aim.removeAttribute("transform");
-  const tx = aim.style.transform || "";
   const sleeve = document.querySelector("#sleeve-left-fill");
   const sleeveD = sleeve?.getAttribute("d") || "";
   const rootY = Number((sleeveD.match(/M\s*[\d.]+\s+([\d.]+)/) || [])[1] || 0);
   const sleeveInHand = !!document.querySelector("#hand-left-sit #arm-left #sleeve-left-fill");
-  const txOk = /translate\(/.test(tx) && /rotate\(/.test(tx) && /scale\(1\.(2|3|4)/.test(tx);
   const vestRooted = rootY >= 212 && rootY <= 235;
-  return { ok: txOk && sleeveInHand && vestRooted, tx, sleeveInHand, rootY, vestRooted };
+
+  const applySvg = (tx) => {
+    aim.style.transform = "";
+    aim.style.transition = "";
+    aim.setAttribute("transform", tx);
+  };
+
+  applySvg(aims.near.tx);
+  const nearTx = aim.getAttribute("transform") || "";
+  applySvg(aims.far.tx);
+  const farTx = aim.getAttribute("transform") || "";
+  const hasTranslate = (t) => t.includes("translate(") && t.includes("rotate(");
+  const noScale = (t) => !t.includes("scale(");
+  // CSS style.transform must stay empty (SVG attr only). getComputedStyle may mirror SVG matrix — ignore it.
+  const noCssTx = !aim.style.transform;
+  return {
+    ok: sleeveInHand && vestRooted && hasTranslate(nearTx) && hasTranslate(farTx) && noScale(nearTx) && noScale(farTx) && noCssTx,
+    nearTx,
+    farTx,
+    sleeveInHand,
+    rootY,
+    vestRooted,
+    noCssTx,
+  };
+}, {
+  near: aimToSlot(76, 268), // Z / near
+  far: aimToSlot(210.5, 273.8), // Ä / far
 });
-await page.waitForTimeout(180);
+await page.waitForTimeout(120);
 files.push(
   await shot("key-aim-arm", {
     x: box.x + box.width * 0.02,
@@ -295,32 +385,262 @@ files.push(
 );
 meta.keyAim = keyAim;
 
-// Prove mouse press keeps continuous right arm (aim pivot, not outer wrapper translate)
-const mousePress = await page.evaluate(() => {
+// W press (slot 1 @ 81.75,279.5) — CTM-mapped palm on KB near W, not past desk lip
+const wPress = await page.evaluate((aimInfo) => {
+  const aim = document.querySelector("#hand-left-aim");
+  const root = document.querySelector(".avatar-root");
+  const svg = document.querySelector(".avatar-root svg");
+  if (!aim || !root || !svg) return { ok: false };
+  root.dataset.key = "1";
+  root.dataset.keySlot = "1";
+  aim.style.removeProperty("transform");
+  aim.style.removeProperty("transition");
+  aim.setAttribute("transform", aimInfo.tx);
+  // Force layout so getCTM sees the new SVG transform
+  void aim.getBoundingClientRect();
+  const palm = document.querySelector("#hand-left-sit > path");
+  const kb = document.querySelector("#prop-keyboard");
+  const apron = document.querySelector("#desk-apron");
+  let onKb = false;
+  let nearW = false;
+  let palmScreen = null;
+  let notPastLip = true;
+  if (palm && kb) {
+    const bb = palm.getBBox();
+    const ctm = palm.getCTM();
+    const pt = svg.createSVGPoint();
+    pt.x = bb.x + bb.width / 2;
+    pt.y = bb.y + bb.height / 2;
+    const sp = pt.matrixTransform(ctm);
+    palmScreen = { x: +sp.x.toFixed(1), y: +sp.y.toFixed(1) };
+    const kbb = kb.getBBox();
+    const kctm = kb.getCTM();
+    const corners = [
+      [kbb.x, kbb.y],
+      [kbb.x + kbb.width, kbb.y],
+      [kbb.x, kbb.y + kbb.height],
+      [kbb.x + kbb.width, kbb.y + kbb.height],
+    ].map(([x, y]) => {
+      const p = svg.createSVGPoint();
+      p.x = x;
+      p.y = y;
+      return p.matrixTransform(kctm);
+    });
+    const minX = Math.min(...corners.map((c) => c.x));
+    const maxX = Math.max(...corners.map((c) => c.x));
+    const minY = Math.min(...corners.map((c) => c.y));
+    const maxY = Math.max(...corners.map((c) => c.y));
+    onKb = sp.x >= minX && sp.x <= maxX && sp.y >= minY && sp.y <= maxY;
+    // Palm near W target in pre-scale user space (viewBox is ×3)
+    const localX = sp.x / 3;
+    const localY = sp.y / 3;
+    nearW = Math.hypot(localX - aimInfo.targetCx, localY - aimInfo.targetCy) < 14;
+    if (apron) {
+      const abb = apron.getBBox();
+      const actm = apron.getCTM();
+      const ap = svg.createSVGPoint();
+      ap.x = abb.x;
+      ap.y = abb.y;
+      const as = ap.matrixTransform(actm);
+      notPastLip = sp.y <= as.y + 6;
+    }
+  }
+  const noCssTx = !aim.style.transform;
+  const tx = aim.getAttribute("transform") || "";
+  return {
+    ok: onKb && nearW && notPastLip && noCssTx && tx.includes("translate(") && !tx.includes("scale("),
+    onKb,
+    nearW,
+    notPastLip,
+    noCssTx,
+    tx,
+    palmScreen,
+    target: { x: aimInfo.targetCx, y: aimInfo.targetCy },
+  };
+}, aimToSlot(81.75, 279.5));
+await page.waitForTimeout(160);
+files.push(
+  await shot("w-key-on-desk", {
+    x: box.x + box.width * 0.02,
+    y: box.y + box.height * 0.4,
+    width: box.width * 0.7,
+    height: box.height * 0.45,
+  }),
+);
+meta.wPress = wPress;
+
+// Near-slot (Shift/Z) stays on KB
+const nearPress = await page.evaluate((aimInfo) => {
+  const aim = document.querySelector("#hand-left-aim");
+  const root = document.querySelector(".avatar-root");
+  if (!aim || !root) return { ok: false };
+  root.dataset.key = "1";
+  root.dataset.keySlot = "22";
+  aim.style.transform = "";
+  aim.setAttribute("transform", aimInfo.tx);
+  // Use CTM-mapped palm center — getBBox ignores ancestor transforms
+  const palm = document.querySelector("#hand-left-sit > path");
+  const svg = document.querySelector(".avatar-root svg");
+  const kb = document.querySelector("#prop-keyboard");
+  let onKb = false;
+  let palmScreen = null;
+  if (palm && svg && kb) {
+    const bb = palm.getBBox();
+    const ctm = palm.getCTM();
+    const pt = svg.createSVGPoint();
+    pt.x = bb.x + bb.width / 2;
+    pt.y = bb.y + bb.height / 2;
+    const sp = pt.matrixTransform(ctm);
+    palmScreen = { x: +sp.x.toFixed(1), y: +sp.y.toFixed(1) };
+    const kbb = kb.getBBox();
+    const kctm = kb.getCTM();
+    const corners = [
+      [kbb.x, kbb.y],
+      [kbb.x + kbb.width, kbb.y],
+      [kbb.x, kbb.y + kbb.height],
+      [kbb.x + kbb.width, kbb.y + kbb.height],
+    ].map(([x, y]) => {
+      const p = svg.createSVGPoint();
+      p.x = x;
+      p.y = y;
+      return p.matrixTransform(kctm);
+    });
+    const minX = Math.min(...corners.map((c) => c.x));
+    const maxX = Math.max(...corners.map((c) => c.x));
+    const minY = Math.min(...corners.map((c) => c.y));
+    const maxY = Math.max(...corners.map((c) => c.y));
+    onKb = sp.x >= minX && sp.x <= maxX && sp.y >= minY && sp.y <= maxY;
+  }
+  return {
+    ok: onKb && !String(aim.getAttribute("transform")).includes("scale("),
+    onKb,
+    tx: aim.getAttribute("transform"),
+    palmScreen,
+    target: { x: aimInfo.targetCx, y: aimInfo.targetCy },
+  };
+}, aimToSlot(76, 268));
+await page.waitForTimeout(120);
+files.push(
+  await shot("near-key-reach", {
+    x: box.x + box.width * 0.02,
+    y: box.y + box.height * 0.4,
+    width: box.width * 0.7,
+    height: box.height * 0.45,
+  }),
+);
+meta.nearPress = nearPress;
+
+// LMB: button amber + overlay visible; fingers stay skin (no hand glow)
+const mouseLmb = await page.evaluate(() => {
   const root = document.querySelector(".avatar-root");
   const outer = document.querySelector("#hand-right");
   const aim = document.querySelector("#hand-right-aim");
   const sleeve = document.querySelector("#hand-right-sit #sleeve-right-fill");
-  if (!root || !outer || !aim || !sleeve) return { ok: false };
-  root.dataset.mouseL = "1";
-  root.dataset.mouseLPulse = "1";
+  const lmb = document.querySelector("#mouse-lmb");
+  const overlay = document.querySelector("#mouse-lmb-overlay");
+  const finger = document.querySelector("#finger-lmb");
+  if (!root || !outer || !aim || !sleeve || !lmb || !overlay || !finger) return { ok: false };
+  root.setAttribute("data-lights", "1");
+  root.setAttribute("data-mouse-r", "0");
+  root.setAttribute("data-mouse-l", "1");
+  root.setAttribute("data-mouse-l-pulse", "1");
+  overlay.setAttribute("fill-opacity", "1");
+  overlay.style.setProperty("fill-opacity", "1", "important");
+  lmb.setAttribute("fill", "#c7923a");
+  lmb.style.setProperty("fill", "#c7923a", "important");
+  finger.style.setProperty("fill", "#b89068", "important");
   const csOuter = getComputedStyle(outer).transform;
   const csAim = getComputedStyle(aim).transform;
+  const fingerFill = getComputedStyle(finger).fill || "";
+  const lmbFill = getComputedStyle(lmb).fill || lmb.getAttribute("fill") || "";
+  const overOp =
+    overlay.style.fillOpacity ||
+    overlay.getAttribute("fill-opacity") ||
+    getComputedStyle(overlay).fillOpacity;
+  const amber = (s) => /c7923a|199,\s*146,\s*58/i.test(String(s));
+  const skin = (s) => /b89068|184,\s*144,\s*104/i.test(String(s));
   const outerIdle = !csOuter || csOuter === "none";
   const aimMoving = !!csAim && csAim !== "none";
   const stillContinuous = !!document.querySelector("#hand-right-sit")?.contains(sleeve);
-  return { ok: outerIdle && aimMoving && stillContinuous, outerIdle, aimMoving, stillContinuous, csAim };
+  const overlayOn = Number(overOp) > 0.5;
+  // Overlay on top of hand is the visible button shine; fingers must stay skin
+  return {
+    ok: outerIdle && aimMoving && stillContinuous && skin(fingerFill) && overlayOn,
+    outerIdle,
+    aimMoving,
+    stillContinuous,
+    fingerFill,
+    lmbFill,
+    overlayOn,
+    buttonAmber: amber(lmbFill) || overlayOn,
+    csAim,
+  };
 });
 await page.waitForTimeout(140);
 files.push(
-  await shot("mouse-press-arm", {
-    x: box.x + box.width * 0.02,
-    y: box.y + box.height * 0.35,
-    width: box.width * 0.96,
-    height: box.height * 0.55,
+  await shot("mouse-lmb-amber", {
+    x: box.x + box.width * 0.45,
+    y: box.y + box.height * 0.42,
+    width: box.width * 0.5,
+    height: box.height * 0.45,
   }),
 );
-meta.mousePress = mousePress;
+meta.mouseLmb = mouseLmb;
+
+const mouseRmb = await page.evaluate(() => {
+  const root = document.querySelector(".avatar-root");
+  const rmb = document.querySelector("#mouse-rmb");
+  const overlay = document.querySelector("#mouse-rmb-overlay");
+  const finger = document.querySelector("#finger-rmb");
+  if (!root || !rmb || !overlay || !finger) return { ok: false };
+  root.setAttribute("data-mouse-l", "0");
+  root.removeAttribute("data-mouse-l-pulse");
+  root.setAttribute("data-mouse-r", "1");
+  root.setAttribute("data-mouse-r-pulse", "1");
+  overlay.setAttribute("fill-opacity", "1");
+  overlay.style.setProperty("fill-opacity", "1", "important");
+  rmb.setAttribute("fill", "#c7923a");
+  rmb.style.setProperty("fill", "#c7923a", "important");
+  finger.style.setProperty("fill", "#b89068", "important");
+  const fingerFill = getComputedStyle(finger).fill || "";
+  const rmbFill = getComputedStyle(rmb).fill || rmb.getAttribute("fill") || "";
+  const overOp =
+    overlay.style.fillOpacity ||
+    overlay.getAttribute("fill-opacity") ||
+    getComputedStyle(overlay).fillOpacity;
+  const amber = (s) => /c7923a|199,\s*146,\s*58/i.test(String(s));
+  const skin = (s) => /b89068|184,\s*144,\s*104/i.test(String(s));
+  const overlayOn = Number(overOp) > 0.5;
+  return {
+    ok: skin(fingerFill) && overlayOn,
+    fingerFill,
+    rmbFill,
+    overlayOn,
+    buttonAmber: amber(rmbFill) || overlayOn,
+  };
+});
+await page.waitForTimeout(120);
+files.push(
+  await shot("mouse-rmb-amber", {
+    x: box.x + box.width * 0.45,
+    y: box.y + box.height * 0.42,
+    width: box.width * 0.5,
+    height: box.height * 0.45,
+  }),
+);
+meta.mouseRmb = mouseRmb;
+
+// Helm coverage close-up
+files.push(
+  await shot("helm-coverage", {
+    x: box.x + box.width * 0.22,
+    y: box.y + box.height * 0.08,
+    width: box.width * 0.56,
+    height: box.height * 0.42,
+  }),
+);
+
+meta.mousePress = mouseLmb;
 
 await browser.close();
 
@@ -332,11 +652,13 @@ const pass =
   meta.hasDeskTop &&
   meta.hasApron &&
   meta.stanagCentered &&
-  meta.killaUnderPouches &&
+  meta.killaAbovePouches &&
   meta.killaWide &&
   meta.hasKilla &&
   meta.hasMolle &&
   meta.hasVestWear &&
+  meta.hasPaddedCollar &&
+  meta.oliveVest &&
   meta.kbIsRect &&
   meta.kbStroke === "#4a4a4a" &&
   meta.hasMousepad &&
@@ -349,14 +671,20 @@ const pass =
   String(meta.deskLedAnim).includes("desk-led-chase") &&
   meta.continuousArms &&
   meta.helmWhiteMatch &&
+  meta.helmCoversHead &&
+  meta.noFingerGlowCss &&
   meta.fullStripes &&
   meta.straightArms &&
   meta.vestRootedShort &&
   meta.noPizzaBoxes &&
   meta.glyphsUpsideDown &&
+  meta.svgPolarAim &&
   meta.skinHands &&
   meta.keyAim?.ok &&
-  meta.mousePress?.ok;
+  meta.wPress?.ok &&
+  meta.nearPress?.ok &&
+  meta.mouseLmb?.ok &&
+  meta.mouseRmb?.ok;
 
 const note = { ts, pass, meta, files };
 writeFileSync(resolve(mediaStore, `avatar-proof-${ts}-hands-desk-fix-note.json`), JSON.stringify(note, null, 2));
@@ -368,19 +696,27 @@ console.log(
     orderOk: meta.orderOk,
     leftOnKb: meta.leftOnKb,
     rightOnMouse: meta.rightOnMouse,
-    killaUnderPouches: meta.killaUnderPouches,
+    killaAbovePouches: meta.killaAbovePouches,
+    hasPaddedCollar: meta.hasPaddedCollar,
+    oliveVest: meta.oliveVest,
     headSmaller: meta.headSmaller,
     headScaleVal: meta.headScaleVal,
     torsoScaleVal: meta.torsoScaleVal,
     continuousArms: meta.continuousArms,
     helmWhiteMatch: meta.helmWhiteMatch,
+    helmCoversHead: meta.helmCoversHead,
+    noFingerGlowCss: meta.noFingerGlowCss,
     fullStripes: meta.fullStripes,
     straightArms: meta.straightArms,
     vestRootedShort: meta.vestRootedShort,
     noPizzaBoxes: meta.noPizzaBoxes,
     glyphsUpsideDown: meta.glyphsUpsideDown,
+    svgPolarAim: meta.svgPolarAim,
     keyAim: meta.keyAim,
-    mousePress: meta.mousePress,
+    wPress: meta.wPress,
+    nearPress: meta.nearPress,
+    mouseLmb: meta.mouseLmb,
+    mouseRmb: meta.mouseRmb,
     hasDeskRgb: meta.hasDeskRgb,
     deskLedAnim: meta.deskLedAnim,
     skinHands: meta.skinHands,

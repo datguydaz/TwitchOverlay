@@ -2,6 +2,7 @@ import {
   applyCssVars,
   fetchSettings,
 } from "../lib/settingsClient.ts";
+import { applyChatPlacement } from "../lib/chatPlacement.ts";
 import { pickDemoTalkLine } from "../avatar/reactiveAvatar.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 
@@ -11,7 +12,9 @@ function qs<T extends HTMLElement>(sel: string): T | null {
 
 function displayName(raw: string | undefined): string {
   const t = (raw || "").trim();
-  return t || "—";
+  // No em-dash / "--" placeholder — leave blank until a real name exists
+  if (!t || t === "—" || t === "--" || t === "-") return "";
+  return t;
 }
 
 function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
@@ -118,7 +121,22 @@ function applyUltrawide(settings: OverlaySettings): void {
   if (subscriber) subscriber.hidden = !social.showSubscriber;
 
   const chat = qs<HTMLElement>("#uw-chat");
-  if (chat) chat.style.display = settings.chat.enabled ? "" : "none";
+  if (chat) {
+    chat.style.display = settings.chat.enabled ? "" : "none";
+    if (mode === "bottom") {
+      // Standalone bottom bar source — keep bubble inside the thin page (top edge)
+      const side = String(settings.chat.placement).includes("right") ? "top-right" : "top-left";
+      applyChatPlacement(chat, {
+        placement: side,
+        offsetXPct: settings.chat.offsetXPct,
+        offsetYPct: Math.min(12, settings.chat.offsetYPct || 6),
+      });
+    } else {
+      applyChatPlacement(chat, settings.chat, {
+        barH: mode === "top" ? undefined : barH,
+      });
+    }
+  }
 }
 
 /** Rare signal glitch — low duty cycle, paused when tab hidden. */

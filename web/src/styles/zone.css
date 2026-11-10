@@ -415,8 +415,7 @@ body.scene-opaque {
   transform-origin: center;
 }
 
-/* Aim groups pivot at vest root (#hand-*-pivot). Never CSS-translate #hand-right itself. */
-#hand-left-aim,
+/* Left key aim: SVG transform attribute only — do NOT set CSS transform (overrides SVG). */
 #hand-right-aim {
   transform-box: fill-box;
   transform-origin: 0px 0px;
@@ -471,6 +470,7 @@ body.scene-opaque {
 
 .avatar-chat {
   position: absolute;
+  /* Default corner; dashboard placement overrides via inline + data-placement */
   left: 4%;
   bottom: 6%;
   right: auto;
@@ -584,9 +584,10 @@ body.scene-opaque {
   Mouse press pivots #hand-right-aim at vest root (0,0 after pivot translate).
   Keeps continuous sleeve attached — never translate the outer #hand-right wrapper.
 */
+/* LMB: press into left pad (keep finger over LMB — was under-visible vs RMB) */
 .avatar-root[data-mouse-l="1"] #hand-right-aim {
   animation: none;
-  transform: rotate(5deg) translate(2px, 4px);
+  transform: rotate(3deg) translate(-2px, 5px);
   transition: transform 90ms ease-out;
 }
 
@@ -596,7 +597,7 @@ body.scene-opaque {
 
 .avatar-root[data-mouse-r="1"] #hand-right-aim {
   animation: none;
-  transform: rotate(-4deg) translate(-1px, 4px);
+  transform: rotate(-4deg) translate(1px, 5px);
   transition: transform 90ms ease-out;
 }
 
@@ -676,27 +677,55 @@ body.scene-opaque {
   transition: opacity 120ms linear;
 }
 
-/* Single mouse — dark idle; LMB/RMB go amber while held */
+/* Single mouse — dark idle; ONLY LMB/RMB buttons amber while held (never fingers) */
 .mouse-btn {
   transition: fill 90ms linear, opacity 90ms linear;
 }
 
 .mouse-lmb,
 .mouse-rmb {
-  fill: #1a1a1a !important;
+  fill: #1a1a1a;
 }
 
-.avatar-root[data-mouse-l="1"] .mouse-lmb {
-  fill: #c7923a !important;
-}
-
-.avatar-root[data-mouse-r="1"] .mouse-rmb {
-  fill: #c7923a !important;
+.mouse-lmb-overlay,
+.mouse-rmb-overlay {
+  fill: #c7923a;
+  fill-opacity: 0;
+  transition: fill-opacity 90ms linear;
+  pointer-events: none;
 }
 
 .avatar-root[data-lights="0"] .mouse-btn {
   fill: #121410 !important;
   opacity: 0.7;
+}
+
+/* Held rules AFTER lights-off so amber always wins; fingers stay skin */
+.avatar-root[data-mouse-l="1"] .mouse-lmb {
+  fill: #c7923a !important;
+  opacity: 1 !important;
+  stroke: #e0b050;
+  stroke-width: 0.7;
+}
+
+.avatar-root[data-mouse-r="1"] .mouse-rmb {
+  fill: #c7923a !important;
+  opacity: 1 !important;
+  stroke: #e0b050;
+  stroke-width: 0.7;
+}
+
+.avatar-root[data-mouse-l="1"] .mouse-lmb-overlay {
+  fill-opacity: 1 !important;
+}
+
+.avatar-root[data-mouse-r="1"] .mouse-rmb-overlay {
+  fill-opacity: 1 !important;
+}
+
+#finger-lmb,
+#finger-rmb {
+  fill: #b89068 !important;
 }
 
 .eq-blink {
@@ -1004,25 +1033,25 @@ body.scene-opaque {
 
 @keyframes click-l {
   0% {
-    transform: rotate(5deg) translate(2px, 4px);
+    transform: rotate(3deg) translate(-2px, 5px);
   }
   40% {
-    transform: rotate(6deg) translate(2px, 6px);
+    transform: rotate(4deg) translate(-2px, 7px);
   }
   100% {
-    transform: rotate(5deg) translate(2px, 4px);
+    transform: rotate(3deg) translate(-2px, 5px);
   }
 }
 
 @keyframes click-r {
   0% {
-    transform: rotate(-4deg) translate(-1px, 4px);
+    transform: rotate(-4deg) translate(1px, 5px);
   }
   35% {
-    transform: rotate(-5deg) translate(-1px, 6px);
+    transform: rotate(-5deg) translate(1px, 7px);
   }
   100% {
-    transform: rotate(-4deg) translate(-1px, 4px);
+    transform: rotate(-4deg) translate(1px, 5px);
   }
 }
 

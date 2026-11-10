@@ -1,6 +1,8 @@
 import { scavengerSvg } from "./scavenger.svg.ts";
 import type { InputKind, InputPhase } from "../../../shared/protocol.ts";
 import { HAND_HOME, KEY_SLOT_COUNT, slotPos } from "../../../shared/keyGrid.ts";
+import { applyChatPlacement } from "../lib/chatPlacement.ts";
+import type { ChatSettings } from "../../../shared/settings.ts";
 
 export type AvatarInputSource = "idle" | "live" | "demo";
 
@@ -268,6 +270,13 @@ export class ReactiveAvatar {
   setChatEnabled(on: boolean): void {
     this.chatEnabled = on;
     if (!on) this.hideChat();
+  }
+
+  /** Dashboard-persisted corner + insets for the AI bot chat bubble. */
+  setChatPlacement(
+    chat: Pick<ChatSettings, "placement" | "offsetXPct" | "offsetYPct">,
+  ): void {
+    applyChatPlacement(this.chatEl, chat);
   }
 
   /** Editable dashboard game roster for canned match talk (not live reading). */
@@ -555,45 +564,44 @@ export class ReactiveAvatar {
 
   private applyHandToSlot(): void {
     if (!this.handLeftAim) return;
-    // Vest-side root (must match #hand-left-pivot). CSS transform + residual translate
-    // so short chill arms still land on far keys; transition smooths slot-to-slot.
+    // Vest pivot (#hand-left-pivot @ 128,220). SVG only — rotate for lean, then
+    // residual translate so palm lands on the keycap. No CSS fill-box, no scale stretch.
     const shoulder = { x: 128, y: 220 };
     const home = HAND_HOME;
+    const kbMinX = 64;
+    const kbMaxX = 214;
+    const kbMinY = 266;
+    const kbMaxY = 282;
     let next: string;
-    let transition: string;
     if (this.keyHeld > 0 && this.activeSlot != null) {
       const pos = slotPos(this.activeSlot);
-      const targetCx = pos.cx;
-      const targetCy = pos.cy + 4;
+      // Palm sits slightly above key center so fingertips hit the cap
+      const targetCx = Math.min(kbMaxX, Math.max(kbMinX, pos.cx));
+      const targetCy = Math.min(kbMaxY, Math.max(kbMinY, pos.cy - 6));
       const homeAng = Math.atan2(home.cy - shoulder.y, home.cx - shoulder.x);
       const tgtAng = Math.atan2(targetCy - shoulder.y, targetCx - shoulder.x);
-      const homeDist = Math.hypot(home.cx - shoulder.x, home.cy - shoulder.y) || 1;
-      const tgtDist = Math.hypot(targetCx - shoulder.x, targetCy - shoulder.y);
       const rotDeg = ((tgtAng - homeAng) * 180) / Math.PI;
-      // Allow real reach for far keys (Å/P/right cluster) without lengthening rest pose
-      const stretch = Math.min(1.42, Math.max(0.92, tgtDist / homeDist));
       const hx = home.cx - shoulder.x;
       const hy = home.cy - shoulder.y;
       const rad = (rotDeg * Math.PI) / 180;
-      const tipX = shoulder.x + (hx * stretch) * Math.cos(rad) - (hy * stretch) * Math.sin(rad);
-      const tipY = shoulder.y + (hx * stretch) * Math.sin(rad) + (hy * stretch) * Math.cos(rad);
+      // Tip after rotate-only around vest root
+      const tipX = shoulder.x + hx * Math.cos(rad) - hy * Math.sin(rad);
+      const tipY = shoulder.y + hx * Math.sin(rad) + hy * Math.cos(rad);
       const dx = targetCx - tipX;
       const dy = targetCy - tipY;
-      // origin 0,0 on #hand-left-aim (inside vest pivot): scale → rotate → translate
-      next = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${rotDeg.toFixed(2)}deg) scale(${stretch.toFixed(3)})`;
-      transition = "transform 140ms cubic-bezier(0.22, 0.61, 0.36, 1)";
+      // SVG: rotate first, then translate residual (right-to-left attr order)
+      next = `translate(${dx.toFixed(1)} ${dy.toFixed(1)}) rotate(${rotDeg.toFixed(2)})`;
       this.root.dataset.keySlot = String(this.activeSlot);
     } else {
-      next = "translate(0px, 0px) rotate(0deg) scale(1)";
-      transition = "transform 160ms cubic-bezier(0.22, 0.61, 0.36, 1)";
+      next = "";
       delete this.root.dataset.keySlot;
     }
     if (next === this.lastHandTx) return;
     this.lastHandTx = next;
-    this.handLeftAim.removeAttribute("transform");
-    this.handLeftAim.style.transition = transition;
-    this.handLeftAim.style.transformOrigin = "0px 0px";
-    this.handLeftAim.style.transform = next;
+    this.handLeftAim.style.transform = "";
+    this.handLeftAim.style.transition = "";
+    if (next) this.handLeftAim.setAttribute("transform", next);
+    else this.handLeftAim.removeAttribute("transform");
     if (this.handLeft) this.handLeft.style.transform = "";
   }
 
@@ -602,10 +610,41 @@ export class ReactiveAvatar {
     this.root.dataset.mouseL = this.mouseLHeld > 0 ? "1" : "0";
     this.root.dataset.mouseR = this.mouseRHeld > 0 ? "1" : "0";
 
+    // Button shine only — never glow fingers/hand
     const lmb = this.root.querySelector("#mouse-lmb") as SVGElement | null;
     const rmb = this.root.querySelector("#mouse-rmb") as SVGElement | null;
-    if (lmb) lmb.style.fill = this.mouseLHeld > 0 ? "#c7923a" : "#1a1a1a";
-    if (rmb) rmb.style.fill = this.mouseRHeld > 0 ? "#c7923a" : "#1a1a1a";
+    const lmbOver = this.root.querySelector("#mouse-lmb-overlay") as SVGElement | null;
+    const rmbOver = this.root.querySelector("#mouse-rmb-overlay") as SVGElement | null;
+    const fingerL = this.root.querySelector("#finger-lmb") as SVGElement | null;
+    const fingerR = this.root.querySelector("#finger-rmb") as SVGElement | null;
+    if (lmb) {
+      lmb.style.fill = this.mouseLHeld > 0 ? "#c7923a" : "#1a1a1a";
+      lmb.setAttribute("fill", this.mouseLHeld > 0 ? "#c7923a" : "#1a1a1a");
+    }
+    if (rmb) {
+      rmb.style.fill = this.mouseRHeld > 0 ? "#c7923a" : "#1a1a1a";
+      rmb.setAttribute("fill", this.mouseRHeld > 0 ? "#c7923a" : "#1a1a1a");
+    }
+    if (lmbOver) {
+      const op = this.mouseLHeld > 0 ? "1" : "0";
+      lmbOver.style.fillOpacity = op;
+      lmbOver.setAttribute("fill-opacity", op);
+      lmbOver.removeAttribute("opacity");
+    }
+    if (rmbOver) {
+      const op = this.mouseRHeld > 0 ? "1" : "0";
+      rmbOver.style.fillOpacity = op;
+      rmbOver.setAttribute("fill-opacity", op);
+      rmbOver.removeAttribute("opacity");
+    }
+    if (fingerL) {
+      fingerL.style.fill = "#b89068";
+      fingerL.setAttribute("fill", "#b89068");
+    }
+    if (fingerR) {
+      fingerR.style.fill = "#b89068";
+      fingerR.setAttribute("fill", "#b89068");
+    }
 
     const wheelBusy = this.root.dataset.wheel === "up" || this.root.dataset.wheel === "down";
     const active =

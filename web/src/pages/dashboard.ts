@@ -59,6 +59,14 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("chatIntervalMs") as HTMLInputElement).value = String(
     s.chat.intervalMs,
   );
+  (document.getElementById("chatPlacement") as HTMLSelectElement).value =
+    s.chat.placement || "bottom-left";
+  (document.getElementById("chatOffsetX") as HTMLInputElement).value = String(
+    s.chat.offsetXPct ?? 4,
+  );
+  (document.getElementById("chatOffsetY") as HTMLInputElement).value = String(
+    s.chat.offsetYPct ?? 6,
+  );
   (document.getElementById("chatGames") as HTMLTextAreaElement).value = (
     s.chat.games?.length ? s.chat.games : [...DEFAULT_CHAT_GAMES]
   ).join("\n");
@@ -68,9 +76,13 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("socialShowSubscriber") as HTMLInputElement).checked =
     s.social.showSubscriber;
   (document.getElementById("socialFollowerName") as HTMLInputElement).value =
-    s.social.latestFollower === "—" ? "" : s.social.latestFollower;
+    !s.social.latestFollower || s.social.latestFollower === "—" || s.social.latestFollower === "--"
+      ? ""
+      : s.social.latestFollower;
   (document.getElementById("socialSubscriberName") as HTMLInputElement).value =
-    s.social.latestSubscriber === "—" ? "" : s.social.latestSubscriber;
+    !s.social.latestSubscriber || s.social.latestSubscriber === "—" || s.social.latestSubscriber === "--"
+      ? ""
+      : s.social.latestSubscriber;
 
   (document.getElementById("uwCanvasWidth") as HTMLInputElement).value = String(
     s.ultrawide.canvasWidth,
@@ -145,6 +157,16 @@ function readForm(): OverlaySettings {
       Number((document.getElementById("chatIntervalMs") as HTMLInputElement).value) || 14000,
     ),
   );
+  next.chat.placement = ((document.getElementById("chatPlacement") as HTMLSelectElement)
+    .value || "bottom-left") as OverlaySettings["chat"]["placement"];
+  next.chat.offsetXPct = Math.max(
+    0,
+    Math.min(40, Number((document.getElementById("chatOffsetX") as HTMLInputElement).value) || 0),
+  );
+  next.chat.offsetYPct = Math.max(
+    0,
+    Math.min(40, Number((document.getElementById("chatOffsetY") as HTMLInputElement).value) || 0),
+  );
   next.chat.games = (document.getElementById("chatGames") as HTMLTextAreaElement).value
     .split(/[\n,;]+/)
     .map((g) => g.trim())
@@ -158,10 +180,12 @@ function readForm(): OverlaySettings {
   next.social.showSubscriber = (
     document.getElementById("socialShowSubscriber") as HTMLInputElement
   ).checked;
-  next.social.latestFollower =
-    (document.getElementById("socialFollowerName") as HTMLInputElement).value.trim() || "—";
-  next.social.latestSubscriber =
-    (document.getElementById("socialSubscriberName") as HTMLInputElement).value.trim() || "—";
+  next.social.latestFollower = (
+    document.getElementById("socialFollowerName") as HTMLInputElement
+  ).value.trim();
+  next.social.latestSubscriber = (
+    document.getElementById("socialSubscriberName") as HTMLInputElement
+  ).value.trim();
   delete next.social.latestFollowerSample;
   delete next.social.latestSubscriberSample;
   delete next.social.followerPlacement;
@@ -324,6 +348,9 @@ async function connectDashWs(): Promise<void> {
           avatar.setStreamerName(s.streamerName);
           avatar.setIntensity(s.avatar.intensity);
           avatar.setLightsEnabled(s.avatar.lightsEnabled);
+          avatar.setChatEnabled(s.chat.enabled);
+          avatar.setGameList(s.chat.games ?? []);
+          avatar.setChatPlacement(s.chat);
         });
       }
     } catch {
@@ -353,6 +380,7 @@ async function main(): Promise<void> {
     chatEnabled: settings.chat.enabled,
   });
   avatar.setGameList(settings.chat.games ?? []);
+  avatar.setChatPlacement(settings.chat);
 
   document.getElementById("btn-save")?.addEventListener("click", async () => {
     settings = await saveSettings(readForm());
@@ -362,6 +390,7 @@ async function main(): Promise<void> {
     avatar.setStreamerName(settings.streamerName);
     avatar.setChatEnabled(settings.chat.enabled);
     avatar.setGameList(settings.chat.games ?? []);
+    avatar.setChatPlacement(settings.chat);
     await syncMicCapture();
     toast("Settings saved");
   });
