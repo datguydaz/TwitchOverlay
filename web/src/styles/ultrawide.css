@@ -432,21 +432,22 @@ body.uw-bar-only[data-uw-mode="bottom"] .uw-chat {
   width: min(1100px, 70vw);
 }
 
-/* Latest Follow / Sub — framed plates in top bar corners */
+/* Latest Follow / Sub — same plate outline as bottom-right .uw-status */
 .uw-social-inbar {
   position: relative;
   z-index: 5;
   display: block;
   min-width: min(200px, 18vw);
   max-width: min(420px, 28vw);
-  padding: 10px 14px 12px;
-  background: rgba(10, 12, 9, 0.88);
-  border: 1px solid rgba(107, 115, 85, 0.55);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
-  color: var(--beige, #c4b59a);
+  padding: 7px 14px;
+  background: rgba(10, 12, 9, 0.55);
+  border: 1px solid rgba(107, 115, 85, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+  color: var(--olive, #6b7355);
   font-family: var(--font-mono);
   pointer-events: none;
-  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  clip-path: none;
+  animation: uw-status-pulse 5.6s ease-in-out infinite;
 }
 
 .uw-social-inbar[hidden] {
@@ -454,10 +455,10 @@ body.uw-bar-only[data-uw-mode="bottom"] .uw-chat {
 }
 
 .uw-social-inbar .uw-social-tag {
-  font-size: clamp(10px, calc(var(--uw-bar-h) * 0.075), 12px);
-  letter-spacing: 0.18em;
+  font-size: clamp(10px, calc(var(--uw-bar-h) * 0.085), 14px);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--olive, #6b7355);
+  color: inherit;
   margin-bottom: 4px;
 }
 
@@ -476,6 +477,10 @@ body.uw-bar-only[data-uw-mode="bottom"] .uw-chat {
 .uw-side-right .uw-social-inbar {
   margin-left: auto;
   text-align: right;
+}
+
+#uw-stage[data-vfx="off"] .uw-social-inbar {
+  animation: none !important;
 }
 
 /* Standalone thin bar pages (OBS separate sources) */
