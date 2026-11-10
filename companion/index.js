@@ -130,8 +130,15 @@ function attachHooks(uiohook) {
     const now = Date.now();
     if (now - lastWheelAt < 45) return;
     lastWheelAt = now;
-    const rot = typeof e.rotation === "number" ? e.rotation : 0;
+    // uiohook reports rotation (+/- clicks). Fall back to amount sign if rotation is 0.
+    const rot =
+      typeof e.rotation === "number" && e.rotation !== 0
+        ? e.rotation
+        : typeof e.amount === "number"
+          ? e.amount
+          : 0;
     if (rot === 0) return;
+    // Negative rotation ≈ scroll up on Windows libuiohook
     const kind = rot < 0 ? "wheelUp" : "wheelDown";
     const pressId = nextPressId++;
     emitInput(kind, "down", pressId, 1);

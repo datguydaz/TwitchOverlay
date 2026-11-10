@@ -22,7 +22,7 @@ Verified against the library’s published README/docs behavior:
 | Injection APIs | `uiohook-napi` exposes `keyTap` / `keyToggle`; **this companion never calls them**. Capture is listen-only via `keydown`/`keyup`/`mousedown`/`mouseup` + `start()`. |
 | Accessibility permissions | Not typically required on Windows the same way as macOS; if ported to macOS, Input Monitoring permission would be required. |
 | Auto-repeat | OS key repeat is ignored so held keys keep a stable active pose (no jitter). |
-| Wire format | Only `kind` (`key` / `mouseL` / `mouseR`), `phase` (`down` / `up`), opaque `pressId`, and `held` counts. **No characters, key names, or positions.** |
+| Wire format | Only `kind` (`key` / `mouseL` / `mouseR` / `wheelUp` / `wheelDown`), `phase` (`down` / `up`), opaque `pressId`, `held` counts, and optional opaque key `slot`. **No characters, key names, or positions.** |
 | Network | Connects to loopback only. The overlay server binds `127.0.0.1` and checks local Origin + a locally minted token (convenience gate, not internet auth). |
 
 ## Privacy

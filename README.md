@@ -86,13 +86,14 @@ In `npm run dev`, replace port **8787** with **5173**.
 
 ### Streamlabs / OBS input not animating
 
-Keyboard/mouse reactions come from the **Windows companion**, not from the browser source having focus.
+Keyboard/mouse/scroll reactions come from the **Windows companion**, not from the browser source having focus. Soft-refreshing the browser source is fine; **restarting the companion** is required after companion code changes.
 
-1. Server: `npm run preview` → `http://127.0.0.1:8787`
+1. Server: `npm run preview` → `http://127.0.0.1:8787` (rebuilds web assets)
 2. Companion (separate terminal): `cd companion && npm install && npm start` — must say `uIOhook started` and `Connected`
 3. Browser source URL must be **`http://127.0.0.1:8787/avatar.html`** (or gameplay) — prefer `127.0.0.1`, not a LAN IP
-4. Dashboard → status should show **Companion: CONNECTED** and **Last input** updating when you click/type anywhere
-5. Refresh the Streamlabs browser source after restarting the server (token/WS)
+4. Dashboard → status should show **Companion: CONNECTED** and **Last input** updating for keys, mouse, and scroll (`wheelUp` / `wheelDown`)
+5. Soft-refresh the Streamlabs browser source after a server rebuild; fully restart companion if it was not running or after companion edits
+6. If **Demo preview** is ON in the dashboard, live companion input is ignored — turn it OFF to test real keys/scroll
 
 The companion keeps hooks alive across WS reconnects so focusing Streamlabs or a game does not kill capture.
 
