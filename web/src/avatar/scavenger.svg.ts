@@ -51,9 +51,9 @@ export const scavengerSvg = `
     <clipPath id="visor-clip">
       <rect x="168" y="124" width="64" height="10" rx="1"/>
     </clipPath>
-    <!-- Cut torso/sleeves at desk plane so arms don't punch through the table -->
+    <!-- Clip vest/core only — sleeves live outside so they aren't hard-stumped -->
     <clipPath id="torso-above-desk">
-      <!-- Keep pouches + KILLA; cut sleeves/belt that would pierce desk (local y) -->
+      <!-- Keep pouches + KILLA; cut belt that would pierce desk (local y) -->
       <rect x="40" y="100" width="320" height="128"/>
     </clipPath>
     <clipPath id="desk-led-clip">
@@ -65,35 +65,16 @@ export const scavengerSvg = `
 
   <!-- Operator: torso/head FIRST, desk AFTER so body sits behind desk lip (no torso-through-table). -->
   <g id="operator">
-    <!-- TORSO: sit offset inner; clipped above desk so sleeves never punch through table. -->
+    <!-- TORSO: sit offset + slight body scale to match head 0.86 (still bulky). -->
     <g id="layer-torso">
-      <g id="torso-sit" transform="translate(0 38)" clip-path="url(#torso-above-desk)">
+      <g id="torso-sit" transform="translate(0 38)">
+      <g id="torso-scale" transform="translate(200 136) scale(0.895) translate(-200 -136)">
+      <!-- Vest/core clipped at desk; sleeves drawn outside clip for continuous arms -->
+      <g id="torso-core" clip-path="url(#torso-above-desk)">
       <path d="M124 152 L140 138 L200 132 L260 138 L276 152 L282 236 L118 236 Z" fill="url(#suitDark)" stroke="#050505" stroke-width="1.5"/>
-      <!-- Shortened sleeves — end above desk plane (hands live on desk separately) -->
-      <path id="sleeve-left-fill" d="M108 168 Q76 192 90 216" fill="none" stroke="#0e0e0e" stroke-width="36" stroke-linecap="round"/>
-      <path id="sleeve-right-fill" d="M292 168 Q320 190 308 214" fill="none" stroke="#0e0e0e" stroke-width="30" stroke-linecap="butt"/>
       <!-- Slim near-black vest -->
       <path d="M120 148 L138 136 L200 130 L262 136 L280 148 L286 234 L114 234 Z" fill="url(#armorOlive)" stroke="#050505" stroke-width="1.4"/>
       <path d="M158 132 Q200 144 242 132 L238 152 Q200 160 162 152 Z" fill="#1a1a1a" stroke="#050505" stroke-width="1"/>
-      <g id="shoulder-left" class="shoulder">
-        <rect x="78" y="144" width="52" height="30" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
-        <rect x="84" y="152" width="40" height="7" rx="1.5" fill="#0a0a0a" opacity="0.65"/>
-      </g>
-      <g id="shoulder-right" class="shoulder">
-        <rect x="270" y="144" width="52" height="30" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
-        <rect x="276" y="152" width="40" height="7" rx="1.5" fill="#0a0a0a" opacity="0.65"/>
-      </g>
-      <!-- THREE Adidas stripes mid-sleeve (±5); short path matching shortened arms -->
-      <g id="sleeve-stripes-left" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.7">
-        <path d="M98 178 Q80 196 92 212" transform="translate(-5 0)"/>
-        <path d="M98 178 Q80 196 92 212" transform="translate(0 0)"/>
-        <path d="M98 178 Q80 196 92 212" transform="translate(5 0)"/>
-      </g>
-      <g id="sleeve-stripes-right" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.6">
-        <path d="M302 176 Q316 194 308 210" transform="translate(-5 0)"/>
-        <path d="M302 176 Q316 194 308 210" transform="translate(0 0)"/>
-        <path d="M302 176 Q316 194 308 210" transform="translate(5 0)"/>
-      </g>
       <!-- Vest wear / fray / scuffs (under lettering + pouches) -->
       <g id="vest-wear" fill="none" stroke-linecap="round">
         <path d="M128 156 L148 162" stroke="#6a6a6a" stroke-width="0.55" opacity="0.35"/>
@@ -104,13 +85,6 @@ export const scavengerSvg = `
         <path d="M240 222 L265 228" stroke="#6a6a6a" stroke-width="0.5" opacity="0.28"/>
         <path d="M110 170 L116 178" stroke="#2a2a2a" stroke-width="1.1" opacity="0.5"/>
         <path d="M288 172 L282 180" stroke="#2a2a2a" stroke-width="1" opacity="0.45"/>
-      </g>
-      <!-- Sleeve fray / fabric tears -->
-      <g id="sleeve-wear" fill="none" stroke-linecap="round">
-        <path d="M86 190 L78 198" stroke="#c8c2b0" stroke-width="0.55" opacity="0.35"/>
-        <path d="M92 200 L84 206" stroke="#8a8a8a" stroke-width="0.45" opacity="0.4"/>
-        <path d="M310 188 L318 196" stroke="#c8c2b0" stroke-width="0.5" opacity="0.32"/>
-        <path d="M306 200 L314 208" stroke="#7a7a7a" stroke-width="0.45" opacity="0.38"/>
       </g>
       <!-- KILLA UNDER pouches (drawn first; pouches paint on top) -->
       <g id="chest-killa" font-family="Arial Black, Impact, 'Arial Narrow', sans-serif" font-weight="800" text-anchor="middle" letter-spacing="3.4">
@@ -168,6 +142,8 @@ export const scavengerSvg = `
         </g>
       </g>
       <rect x="110" y="228" width="180" height="10" rx="1.5" fill="#0c0c0c" stroke="#222222"/>
+      </g>
+      </g>
       </g>
     </g>
 
@@ -372,12 +348,27 @@ export const scavengerSvg = `
     </g>
 
     <!--
-      Hands AFTER desk+KB+mouse — rest ON the keys / mouse (desk-plane coords).
-      No sit-Y offset (that was pushing palms through the table lip).
-      Outer #hand-* receives JS transforms; geometry stays in desk space.
+      ONE continuous arm per side inside #hand-* so key/mouse aim moves sleeve+hand together.
+      Roots attach to vest side (world space ≈ scaled vest roots + sit). No separate shoulder pads.
+      Outer #hand-* receives JS transforms (pivot at vest root).
     -->
     <g id="hand-left">
       <g id="hand-left-sit">
+      <g id="arm-left" class="arm-continuous">
+        <!-- ONE continuous sleeve rooted into vest side (no shoulder block) → cuff -->
+        <path id="sleeve-left-fill" d="M128 198 Q108 206 88 222 Q70 240 96 256 Q110 264 118 268" fill="none" stroke="#0e0e0e" stroke-width="30" stroke-linecap="butt" stroke-linejoin="round"/>
+        <path id="forearm-left" d="M128 198 Q108 206 88 222 Q70 240 96 256 Q110 264 118 268" fill="none" stroke="#141414" stroke-width="18" stroke-linecap="butt" opacity="0.5"/>
+        <g id="sleeve-stripes-left" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.4">
+          <path d="M100 220 Q82 236 92 250" transform="translate(-4.2 0)"/>
+          <path d="M100 220 Q82 236 92 250"/>
+          <path d="M100 220 Q82 236 92 250" transform="translate(4.2 0)"/>
+        </g>
+        <g id="sleeve-wear-left" fill="none" stroke-linecap="round">
+          <path d="M88 226 L80 234" stroke="#c8c2b0" stroke-width="0.55" opacity="0.35"/>
+          <path d="M94 238 L86 244" stroke="#8a8a8a" stroke-width="0.45" opacity="0.4"/>
+        </g>
+        <ellipse cx="118" cy="268" rx="8.5" ry="4.8" fill="#1a1a1a" stroke="#050505" stroke-width="0.7"/>
+      </g>
       <!-- Natural skin-tone palm ON home row -->
       <path d="M100 264 L138 262 L140 274 L103 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
       <rect x="106" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
@@ -389,6 +380,20 @@ export const scavengerSvg = `
 
     <g id="hand-right">
       <g id="hand-right-sit">
+      <g id="arm-right" class="arm-continuous">
+        <path id="sleeve-right-fill" d="M272 198 Q292 206 312 222 Q330 238 312 254 Q314 262 314 268" fill="none" stroke="#0e0e0e" stroke-width="26" stroke-linecap="butt" stroke-linejoin="round"/>
+        <path id="forearm-right" d="M272 198 Q292 206 312 222 Q330 238 312 254 Q314 262 314 268" fill="none" stroke="#141414" stroke-width="15" stroke-linecap="butt" opacity="0.5"/>
+        <g id="sleeve-stripes-right" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.3">
+          <path d="M300 218 Q318 234 312 248" transform="translate(-4.2 0)"/>
+          <path d="M300 218 Q318 234 312 248"/>
+          <path d="M300 218 Q318 234 312 248" transform="translate(4.2 0)"/>
+        </g>
+        <g id="sleeve-wear-right" fill="none" stroke-linecap="round">
+          <path d="M316 224 L324 232" stroke="#c8c2b0" stroke-width="0.5" opacity="0.32"/>
+          <path d="M312 236 L320 244" stroke="#7a7a7a" stroke-width="0.45" opacity="0.38"/>
+        </g>
+        <ellipse cx="314" cy="268" rx="7.5" ry="4.5" fill="#1a1a1a" stroke="#050505" stroke-width="0.7"/>
+      </g>
       <!-- Natural skin-tone palm ON mouse -->
       <path d="M302 264 L324 266 L322 278 L304 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1" opacity="0.96"/>
       <rect id="finger-lmb" x="306" y="270" width="4.2" height="9.5" rx="1.4" fill="#b89068"/>

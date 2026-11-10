@@ -409,19 +409,28 @@ body.scene-opaque {
   will-change: transform;
 }
 
-#shoulder-left,
-#shoulder-right {
+#arm-left,
+#arm-right {
   transform-box: fill-box;
   transform-origin: center;
 }
 
 #hand-left,
 #hand-right {
-  transform-box: fill-box;
-  transform-origin: center;
+  /* view-box + vest-root origin so key aim pivots the whole continuous arm */
+  transform-box: view-box;
   /* Stable base — JS sets exact timing; avoid competing animation restarts */
   transition: transform 110ms cubic-bezier(0.22, 0.61, 0.36, 1);
   will-change: transform;
+}
+
+/* Vest side attach (world/desk space) — whole sleeve+hand pivots here */
+#hand-left {
+  transform-origin: 128px 198px;
+}
+
+#hand-right {
+  transform-origin: 272px 198px;
 }
 
 /* Eyes — blink + look slightly with head sway */
@@ -631,11 +640,11 @@ body.scene-opaque {
   animation: cough-torso 560ms cubic-bezier(0.33, 0, 0.2, 1) 1;
 }
 
-.avatar-root[data-roll="1"] #shoulder-left {
+.avatar-root[data-roll="1"] #arm-left {
   animation: shoulder-roll-l 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
 }
 
-.avatar-root[data-roll="1"] #shoulder-right {
+.avatar-root[data-roll="1"] #arm-right {
   animation: shoulder-roll-r 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
 }
 
@@ -1023,8 +1032,8 @@ body.scene-opaque {
   .avatar-root[data-mouse-r="1"] #hand-right,
   .avatar-root[data-cough="1"] #layer-head,
   .avatar-root[data-cough="1"] #layer-torso,
-  .avatar-root[data-roll="1"] #shoulder-left,
-  .avatar-root[data-roll="1"] #shoulder-right,
+  .avatar-root[data-roll="1"] #arm-left,
+  .avatar-root[data-roll="1"] #arm-right,
   .avatar-root[data-roll="1"] #layer-torso,
   .avatar-root[data-blink="1"] .eq-blink,
   .avatar-root[data-blink="1"] .eq-light,

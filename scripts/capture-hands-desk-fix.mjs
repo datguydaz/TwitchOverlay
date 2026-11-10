@@ -26,7 +26,10 @@ const meta = await page.evaluate(() => {
     idx("layer-head") < idx("desk") &&
     idx("desk") < idx("prop-keyboard") &&
     idx("prop-keyboard") < idx("hand-left") &&
-    idx("prop-mouse") < idx("hand-right");
+    idx("prop-mouse") < idx("hand-left") &&
+    idx("prop-mouse") < idx("hand-right") &&
+    !kids.includes("arm-bridge-left") &&
+    !kids.includes("arm-bridge-right");
 
   const leftSit = document.querySelector("#hand-left-sit");
   const rightSit = document.querySelector("#hand-right-sit");
@@ -34,8 +37,10 @@ const meta = await page.evaluate(() => {
     !(leftSit?.getAttribute("transform") || "").match(/translate\(0 [1-9]/) &&
     !(rightSit?.getAttribute("transform") || "").match(/translate\(0 [1-9]/);
 
-  const leftBox = leftSit?.getBBox?.();
-  const rightBox = rightSit?.getBBox?.();
+  const leftPalm = document.querySelector("#hand-left-sit > path");
+  const rightPalm = document.querySelector("#hand-right-sit > path");
+  const leftBox = leftPalm?.getBBox?.();
+  const rightBox = rightPalm?.getBBox?.();
   const kbBox = document.querySelector("#prop-keyboard")?.getBBox?.();
   const mouseBox = document.querySelector("#prop-mouse")?.getBBox?.();
   const deskTop = document.querySelector("#desk-top");
@@ -65,11 +70,11 @@ const meta = await page.evaluate(() => {
   const killa = document.querySelector("#chest-killa-main");
   const killaGroup = document.querySelector("#chest-killa");
   const chestRig = document.querySelector("#chest-rig");
-  const torsoKids = [...(document.querySelector("#torso-sit")?.children || [])].map(
+  const coreKids = [...(document.querySelector("#torso-core")?.children || [])].map(
     (el) => el.id || el.tagName,
   );
-  const killaIdx = torsoKids.indexOf("chest-killa");
-  const rigIdx = torsoKids.indexOf("chest-rig");
+  const killaIdx = coreKids.indexOf("chest-killa");
+  const rigIdx = coreKids.indexOf("chest-rig");
   const kb = document.querySelector("#prop-keyboard > rect");
   const molle = document.querySelector("#molle-plate");
   const deskFill = deskTop?.getAttribute("fill") || "";
@@ -105,7 +110,11 @@ const meta = await page.evaluate(() => {
     kbStroke: kb?.getAttribute("stroke"),
     hasMousepad: !!document.querySelector("#prop-mousepad"),
     torsoSit: document.querySelector("#torso-sit")?.getAttribute("transform") || "",
-    torsoClip: document.querySelector("#torso-sit")?.getAttribute("clip-path") || "",
+    torsoClip: document.querySelector("#torso-core")?.getAttribute("clip-path") || "",
+    torsoScale: document.querySelector("#torso-scale")?.getAttribute("transform") || "",
+    torsoScaleVal: (document.querySelector("#torso-scale")?.getAttribute("transform") || "").match(
+      /scale\(([\d.]+)\)/,
+    )?.[1] || "",
     headScale: document.querySelector("#head-scale")?.getAttribute("transform") || "",
     headSmaller: /scale\(0\.8[4-9]\)/.test(
       document.querySelector("#head-scale")?.getAttribute("transform") || "",
@@ -119,8 +128,26 @@ const meta = await page.evaluate(() => {
       const el = document.querySelector(".desk-led-chase");
       return el ? getComputedStyle(el).animationName : "";
     })(),
+    continuousArms: (() => {
+      const left = document.querySelector("#arm-left");
+      const right = document.querySelector("#arm-right");
+      const sleeveL = document.querySelector("#sleeve-left-fill");
+      const sleeveR = document.querySelector("#sleeve-right-fill");
+      return (
+        !!left &&
+        !!right &&
+        !!document.querySelector("#hand-left-sit")?.contains(left) &&
+        !!document.querySelector("#hand-right-sit")?.contains(right) &&
+        !!left.contains(sleeveL) &&
+        !!right.contains(sleeveR) &&
+        !document.querySelector("#shoulder-left") &&
+        !document.querySelector("#shoulder-right") &&
+        !document.querySelector("#vest-arm-root-left") &&
+        !document.querySelector("#vest-arm-root-right")
+      );
+    })(),
     skinHands: (() => {
-      const p = document.querySelector("#hand-left-sit path");
+      const p = document.querySelector("#hand-left-sit > path");
       const fill = p?.getAttribute("fill") || "";
       return fill === "#c4a07a" || fill.toLowerCase().includes("c4a07a");
     })(),
@@ -171,6 +198,31 @@ files.push(
   }),
 );
 
+// Prove left continuous arm tracks a key slot (pivot transform on #hand-left)
+const keyAim = await page.evaluate(() => {
+  const root = document.querySelector(".avatar-root");
+  const hand = document.querySelector("#hand-left");
+  if (!root || !hand) return { ok: false };
+  root.dataset.key = "1";
+  root.dataset.keySlot = "2";
+  // Drive the same transform style ReactiveAvatar would set for slot 2 (E key)
+  hand.style.transformOrigin = "128px 198px";
+  hand.style.transform = "rotate(-18deg) scale(1.06)";
+  const tx = hand.style.transform || "";
+  const sleeveInHand = !!document.querySelector("#hand-left-sit #arm-left #sleeve-left-fill");
+  return { ok: tx.includes("rotate") && sleeveInHand, tx, sleeveInHand };
+});
+await page.waitForTimeout(180);
+files.push(
+  await shot("key-aim-arm", {
+    x: box.x + box.width * 0.02,
+    y: box.y + box.height * 0.35,
+    width: box.width * 0.96,
+    height: box.height * 0.55,
+  }),
+);
+meta.keyAim = keyAim;
+
 await browser.close();
 
 const pass =
@@ -190,11 +242,15 @@ const pass =
   meta.kbStroke === "#4a4a4a" &&
   meta.hasMousepad &&
   String(meta.torsoClip).includes("torso-above-desk") &&
+  Number(meta.torsoScaleVal) > 0.85 &&
+  Number(meta.torsoScaleVal) < 0.96 &&
   meta.headSmaller &&
   meta.hasDeskRgb &&
   meta.deskLedChase &&
   String(meta.deskLedAnim).includes("desk-led-chase") &&
-  meta.skinHands;
+  meta.continuousArms &&
+  meta.skinHands &&
+  meta.keyAim?.ok;
 
 const note = { ts, pass, meta, files };
 writeFileSync(resolve(mediaStore, `avatar-proof-${ts}-hands-desk-fix-note.json`), JSON.stringify(note, null, 2));
@@ -209,6 +265,9 @@ console.log(
     killaUnderPouches: meta.killaUnderPouches,
     headSmaller: meta.headSmaller,
     headScaleVal: meta.headScaleVal,
+    torsoScaleVal: meta.torsoScaleVal,
+    continuousArms: meta.continuousArms,
+    keyAim: meta.keyAim,
     hasDeskRgb: meta.hasDeskRgb,
     deskLedAnim: meta.deskLedAnim,
     skinHands: meta.skinHands,

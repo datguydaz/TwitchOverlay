@@ -553,18 +553,26 @@ export class ReactiveAvatar {
 
   private applyHandToSlot(): void {
     if (!this.handLeft) return;
-    let next: string;
+    // Continuous arm pivots at vest root (CSS transform-origin on #hand-left).
+    const shoulder = { x: 128, y: 198 };
+    const home = HAND_HOME;
     let transition: string;
+    let next: string;
     if (this.keyHeld > 0 && this.activeSlot != null) {
       const pos = slotPos(this.activeSlot);
-      const dx = pos.cx - HAND_HOME.cx;
-      const dy = pos.cy - HAND_HOME.cy + 4;
-      next = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
-      // One smooth curve for presses + slot-to-slot holds — no 50ms snap that restarts mid-flight
+      const targetCx = pos.cx;
+      const targetCy = pos.cy + 4;
+      const homeAng = Math.atan2(home.cy - shoulder.y, home.cx - shoulder.x);
+      const tgtAng = Math.atan2(targetCy - shoulder.y, targetCx - shoulder.x);
+      const homeDist = Math.hypot(home.cx - shoulder.x, home.cy - shoulder.y) || 1;
+      const tgtDist = Math.hypot(targetCx - shoulder.x, targetCy - shoulder.y);
+      const rotDeg = ((tgtAng - homeAng) * 180) / Math.PI;
+      const stretch = Math.min(1.14, Math.max(0.9, tgtDist / homeDist));
+      next = `rotate(${rotDeg.toFixed(2)}deg) scale(${stretch.toFixed(3)})`;
       transition = "transform 110ms cubic-bezier(0.22, 0.61, 0.36, 1)";
       this.root.dataset.keySlot = String(this.activeSlot);
     } else {
-      next = "translate(0px, 0px)";
+      next = "rotate(0deg) scale(1)";
       transition = "transform 150ms cubic-bezier(0.22, 0.61, 0.36, 1)";
       delete this.root.dataset.keySlot;
     }
