@@ -78,13 +78,31 @@ await page.evaluate(() => {
   r.querySelectorAll(".kb-key[data-pressed]").forEach((el) => el.removeAttribute("data-pressed"));
   const lmb = r.querySelector("#mouse-lmb");
   const rmb = r.querySelector("#mouse-rmb");
-  if (lmb) lmb.style.fill = "#0e100c";
-  if (rmb) rmb.style.fill = "#c7923a";
+  // Pressed LMB = amber; idle RMB = dark
+  if (lmb) lmb.style.fill = "#c7923a";
+  if (rmb) rmb.style.fill = "#1a1c16";
 });
 await page.waitForTimeout(120);
-const nameB = `avatar-proof-${ts}-mouse-lmb.png`;
+const nameB = `avatar-proof-${ts}-mouse-press-amber.png`;
 await page.screenshot({ path: resolve(mediaStore, nameB), clip: mouseClip, type: "png" });
 await page.screenshot({ path: resolve("_proofs", nameB), clip: mouseClip, type: "png" });
 console.log("wrote", resolve(mediaStore, nameB));
+
+// Idle both dark
+await page.evaluate(() => {
+  const r = document.querySelector(".avatar-root");
+  if (!r) return;
+  r.dataset.mouseL = "0";
+  r.dataset.mouseR = "0";
+  const lmb = r.querySelector("#mouse-lmb");
+  const rmb = r.querySelector("#mouse-rmb");
+  if (lmb) lmb.style.fill = "#1a1c16";
+  if (rmb) rmb.style.fill = "#1a1c16";
+});
+await page.waitForTimeout(100);
+const nameC = `avatar-proof-${ts}-mouse-idle-dark.png`;
+await page.screenshot({ path: resolve(mediaStore, nameC), clip: mouseClip, type: "png" });
+await page.screenshot({ path: resolve("_proofs", nameC), clip: mouseClip, type: "png" });
+console.log("wrote", resolve(mediaStore, nameC));
 
 await browser.close();

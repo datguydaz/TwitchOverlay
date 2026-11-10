@@ -61,12 +61,17 @@ export const scavengerSvg = `
       <path d="M305 165 Q328 192 314 222" fill="none" stroke="#111111" stroke-width="34" stroke-linecap="butt"/>
       <path d="M95 165 Q52 200 88 238" fill="none" stroke="#1c1c1c" stroke-width="32" stroke-linecap="round"/>
       <path d="M305 165 Q328 192 314 222" fill="none" stroke="#1c1c1c" stroke-width="26" stroke-linecap="butt"/>
-      <path d="M64 185 Q50 210 74 232" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-      <path d="M74 183 Q60 210 84 230" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-      <path d="M84 185 Q72 210 94 228" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-      <path d="M328 185 Q334 200 320 216" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-      <path d="M320 183 Q326 200 314 216" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-      <path d="M312 185 Q318 200 308 216" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+      <!-- Classic three parallel track stripes (white on dark) — vibe only, no logos -->
+      <g id="sleeve-stripes-left" fill="none" stroke="#f2f2f0" stroke-linecap="butt" stroke-linejoin="round">
+        <path d="M58 178 Q48 205 72 228" stroke-width="3.2"/>
+        <path d="M66 176 Q56 204 80 226" stroke-width="3.2"/>
+        <path d="M74 174 Q64 203 88 224" stroke-width="3.2"/>
+      </g>
+      <g id="sleeve-stripes-right" fill="none" stroke="#f2f2f0" stroke-linecap="butt" stroke-linejoin="round">
+        <path d="M342 178 Q350 200 328 218" stroke-width="3.2"/>
+        <path d="M334 176 Q342 199 320 216" stroke-width="3.2"/>
+        <path d="M326 174 Q334 198 312 214" stroke-width="3.2"/>
+      </g>
       <path d="M70 218 Q82 230 94 236" fill="none" stroke="#2a2a2a" stroke-width="14" stroke-linecap="round"/>
       <path d="M318 212 Q314 222 310 230" fill="none" stroke="#2a2a2a" stroke-width="11" stroke-linecap="butt"/>
       <!-- Slim near-black vest (vibe only — no logos) -->
@@ -168,8 +173,8 @@ export const scavengerSvg = `
     <!-- ONE mouse — amber LMB / RMB pads (press → dark via CSS) -->
     <g id="prop-mouse">
       <path d="M298 248 Q313 243 328 250 L327 270 Q313 277 299 270 Z" fill="#161a14" stroke="#9a8f78" stroke-width="1.2"/>
-      <path id="mouse-lmb" class="mouse-btn mouse-lmb" d="M301 250 Q307 247 313 249 L313 268 Q307 271 301 268 Z" fill="#c7923a"/>
-      <path id="mouse-rmb" class="mouse-btn mouse-rmb" d="M313 249 Q319 247 325 251 L325 269 Q319 272 313 268 Z" fill="#c7923a"/>
+      <path id="mouse-lmb" class="mouse-btn mouse-lmb" d="M301 250 Q307 247 313 249 L313 268 Q307 271 301 268 Z" fill="#1a1c16"/>
+      <path id="mouse-rmb" class="mouse-btn mouse-rmb" d="M313 249 Q319 247 325 251 L325 269 Q319 272 313 268 Z" fill="#1a1c16"/>
       <path d="M313 248 V269" stroke="#1a1c16" stroke-width="1.4"/>
       <ellipse cx="313" cy="258" rx="2.2" ry="4" fill="#2a2e24" stroke="#6b7355" stroke-width="0.7"/>
     </g>

@@ -575,27 +575,27 @@ body.scene-opaque {
   transition: opacity 120ms linear;
 }
 
-/* Single mouse — amber LMB/RMB idle; press dims to black */
+/* Single mouse — dark idle; LMB/RMB go amber while held */
 .mouse-btn {
   transition: fill 90ms linear, opacity 90ms linear;
 }
 
 .mouse-lmb,
 .mouse-rmb {
-  fill: #c7923a !important;
+  fill: #1a1c16 !important;
 }
 
 .avatar-root[data-mouse-l="1"] .mouse-lmb {
-  fill: #0e100c !important;
+  fill: #c7923a !important;
 }
 
 .avatar-root[data-mouse-r="1"] .mouse-rmb {
-  fill: #0e100c !important;
+  fill: #c7923a !important;
 }
 
 .avatar-root[data-lights="0"] .mouse-btn {
-  fill: #3a4034 !important;
-  opacity: 0.55;
+  fill: #121410 !important;
+  opacity: 0.7;
 }
 
 .eq-blink {

@@ -396,8 +396,8 @@ export class ReactiveAvatar {
 
     const lmb = this.root.querySelector("#mouse-lmb") as SVGElement | null;
     const rmb = this.root.querySelector("#mouse-rmb") as SVGElement | null;
-    if (lmb) lmb.style.fill = this.mouseLHeld > 0 ? "#0e100c" : "#c7923a";
-    if (rmb) rmb.style.fill = this.mouseRHeld > 0 ? "#0e100c" : "#c7923a";
+    if (lmb) lmb.style.fill = this.mouseLHeld > 0 ? "#c7923a" : "#1a1c16";
+    if (rmb) rmb.style.fill = this.mouseRHeld > 0 ? "#c7923a" : "#1a1c16";
 
     const active =
       this.keyHeld > 0 || this.mouseLHeld > 0 || this.mouseRHeld > 0 ? "1" : "0";
