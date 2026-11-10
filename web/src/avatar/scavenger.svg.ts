@@ -55,7 +55,7 @@ export const scavengerSvg = `
     </circle>
     <circle class="eq-light" cx="312" cy="242" r="3.5" fill="#c7923a" opacity="0.3"/>
     <rect x="292" y="228" width="28" height="8" rx="1" fill="#1a1c18" stroke="#4a5240"/>
-    <text x="56" y="272" fill="#6b7355" font-size="7" font-family="Share Tech Mono, monospace" letter-spacing="1.5">FIELD DESK // SALVAGED</text>
+    <text x="56" y="272" fill="#c4b59a" font-size="9" font-family="Share Tech Mono, monospace" letter-spacing="1.2">ZONE OPS // OPERATOR</text>
   </g>
 
   <!-- Torso -->
@@ -95,7 +95,7 @@ export const scavengerSvg = `
     <path d="M204 152 Q230 160 236 180" fill="none" stroke="#4a443c" stroke-width="5" stroke-linecap="round"/>
     <path d="M204 152 Q230 160 236 180" fill="none" stroke="#6b7355" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.5"/>
     <!-- hood edge scratches / markings -->
-    <text x="146" y="98" fill="#6b7355" font-size="6" font-family="Share Tech Mono, monospace" opacity="0.7" transform="rotate(-18 146 98)">OPS-07</text>
+    <text x="146" y="98" fill="#6b7355" font-size="6" font-family="Share Tech Mono, monospace" opacity="0.7" transform="rotate(-18 146 98)">ZONE-07</text>
   </g>
 
   <!-- Left hand (keyboard) -->
