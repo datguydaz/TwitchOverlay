@@ -89,7 +89,7 @@ export const scavengerSvg = `
       <!-- KILLA UNDER pouches (drawn first; pouches paint on top) -->
       <g id="chest-killa" font-family="Arial Black, Impact, 'Arial Narrow', sans-serif" font-weight="800" text-anchor="middle" letter-spacing="3.4">
         <text x="200.8" y="224.2" fill="#050505" font-size="15.5" opacity="0.72" textLength="158" lengthAdjust="spacingAndGlyphs">KILLA</text>
-        <text id="chest-killa-main" x="200" y="223.6" fill="#f0f0f0" font-size="15.5" opacity="0.94" textLength="158" lengthAdjust="spacingAndGlyphs">KILLA</text>
+        <text id="chest-killa-main" x="200" y="223.6" fill="#efe6d2" font-size="15.5" opacity="0.96" textLength="158" lengthAdjust="spacingAndGlyphs">KILLA</text>
         <g id="chest-killa-scratches" fill="none" stroke="#0a0a0a" stroke-linecap="round" opacity="0.65">
           <path d="M128 219 L142 226" stroke-width="0.85"/>
           <path d="M148 218 L162 225" stroke-width="0.65"/>
@@ -352,52 +352,58 @@ export const scavengerSvg = `
       Roots attach to vest side (world space ≈ scaled vest roots + sit). No separate shoulder pads.
       Outer #hand-* receives JS transforms (pivot at vest root).
     -->
+    <!-- SVG pivot groups: aim rotates around vest root so sleeve stays attached -->
     <g id="hand-left">
-      <g id="hand-left-sit">
-      <g id="arm-left" class="arm-continuous">
-        <!-- ONE continuous sleeve rooted into vest side (no shoulder block) → cuff -->
-        <path id="sleeve-left-fill" d="M128 198 Q108 206 88 222 Q70 240 96 256 Q110 264 118 268" fill="none" stroke="#0e0e0e" stroke-width="30" stroke-linecap="butt" stroke-linejoin="round"/>
-        <path id="forearm-left" d="M128 198 Q108 206 88 222 Q70 240 96 256 Q110 264 118 268" fill="none" stroke="#141414" stroke-width="18" stroke-linecap="butt" opacity="0.5"/>
-        <g id="sleeve-stripes-left" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.4">
-          <path d="M100 220 Q82 236 92 250" transform="translate(-4.2 0)"/>
-          <path d="M100 220 Q82 236 92 250"/>
-          <path d="M100 220 Q82 236 92 250" transform="translate(4.2 0)"/>
+      <g id="hand-left-pivot" transform="translate(132 192)">
+        <g id="hand-left-aim">
+          <g id="hand-left-sit" transform="translate(-132 -192)">
+            <g id="arm-left" class="arm-continuous">
+              <!-- Single straighter sleeve stroke vest→wrist (no double-oval overlay) -->
+              <path id="sleeve-left-fill" d="M142 180 L124 206 L112 234 L114 254 L118 268" fill="none" stroke="#0e0e0e" stroke-width="26" stroke-linecap="butt" stroke-linejoin="miter"/>
+              <!-- Adidas stripes full arm length — same helm white #efe6d2 -->
+              <g id="sleeve-stripes-left" fill="none" stroke="#efe6d2" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="2.3">
+                <path d="M142 180 L124 206 L112 234 L114 254 L118 268" transform="translate(-4.4 0)"/>
+                <path d="M142 180 L124 206 L112 234 L114 254 L118 268"/>
+                <path d="M142 180 L124 206 L112 234 L114 254 L118 268" transform="translate(4.4 0)"/>
+              </g>
+              <g id="sleeve-wear-left" fill="none" stroke-linecap="round">
+                <path d="M120 210 L112 218" stroke="#c8c2b0" stroke-width="0.55" opacity="0.35"/>
+                <path d="M116 232 L108 238" stroke="#8a8a8a" stroke-width="0.45" opacity="0.4"/>
+              </g>
+              <ellipse cx="118" cy="268" rx="7.5" ry="4.2" fill="#1a1a1a" stroke="#050505" stroke-width="0.7"/>
+            </g>
+            <path d="M100 264 L138 262 L140 274 L103 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
+            <rect x="106" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
+            <rect x="115" y="271" width="4.4" height="11" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
+            <rect x="124" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
+            <rect x="133" y="273" width="4.4" height="9" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
+          </g>
         </g>
-        <g id="sleeve-wear-left" fill="none" stroke-linecap="round">
-          <path d="M88 226 L80 234" stroke="#c8c2b0" stroke-width="0.55" opacity="0.35"/>
-          <path d="M94 238 L86 244" stroke="#8a8a8a" stroke-width="0.45" opacity="0.4"/>
-        </g>
-        <ellipse cx="118" cy="268" rx="8.5" ry="4.8" fill="#1a1a1a" stroke="#050505" stroke-width="0.7"/>
-      </g>
-      <!-- Natural skin-tone palm ON home row -->
-      <path d="M100 264 L138 262 L140 274 L103 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
-      <rect x="106" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
-      <rect x="115" y="271" width="4.4" height="11" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
-      <rect x="124" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
-      <rect x="133" y="273" width="4.4" height="9" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
       </g>
     </g>
 
     <g id="hand-right">
-      <g id="hand-right-sit">
-      <g id="arm-right" class="arm-continuous">
-        <path id="sleeve-right-fill" d="M272 198 Q292 206 312 222 Q330 238 312 254 Q314 262 314 268" fill="none" stroke="#0e0e0e" stroke-width="26" stroke-linecap="butt" stroke-linejoin="round"/>
-        <path id="forearm-right" d="M272 198 Q292 206 312 222 Q330 238 312 254 Q314 262 314 268" fill="none" stroke="#141414" stroke-width="15" stroke-linecap="butt" opacity="0.5"/>
-        <g id="sleeve-stripes-right" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.3">
-          <path d="M300 218 Q318 234 312 248" transform="translate(-4.2 0)"/>
-          <path d="M300 218 Q318 234 312 248"/>
-          <path d="M300 218 Q318 234 312 248" transform="translate(4.2 0)"/>
+      <g id="hand-right-pivot" transform="translate(268 192)">
+        <g id="hand-right-aim">
+          <g id="hand-right-sit" transform="translate(-268 -192)">
+            <g id="arm-right" class="arm-continuous">
+              <path id="sleeve-right-fill" d="M258 180 L276 206 L292 234 L304 254 L314 268" fill="none" stroke="#0e0e0e" stroke-width="22" stroke-linecap="butt" stroke-linejoin="miter"/>
+              <g id="sleeve-stripes-right" fill="none" stroke="#efe6d2" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="2.2">
+                <path d="M258 180 L276 206 L292 234 L304 254 L314 268" transform="translate(-4.2 0)"/>
+                <path d="M258 180 L276 206 L292 234 L304 254 L314 268"/>
+                <path d="M258 180 L276 206 L292 234 L304 254 L314 268" transform="translate(4.2 0)"/>
+              </g>
+              <g id="sleeve-wear-right" fill="none" stroke-linecap="round">
+                <path d="M280 210 L288 218" stroke="#c8c2b0" stroke-width="0.5" opacity="0.32"/>
+                <path d="M288 232 L296 238" stroke="#7a7a7a" stroke-width="0.45" opacity="0.38"/>
+              </g>
+              <ellipse cx="314" cy="268" rx="7" ry="4" fill="#1a1a1a" stroke="#050505" stroke-width="0.7"/>
+            </g>
+            <path d="M302 264 L324 266 L322 278 L304 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1" opacity="0.96"/>
+            <rect id="finger-lmb" x="306" y="270" width="4.2" height="9.5" rx="1.4" fill="#b89068"/>
+            <rect id="finger-rmb" x="314" y="271" width="4.2" height="9" rx="1.4" fill="#b89068"/>
+          </g>
         </g>
-        <g id="sleeve-wear-right" fill="none" stroke-linecap="round">
-          <path d="M316 224 L324 232" stroke="#c8c2b0" stroke-width="0.5" opacity="0.32"/>
-          <path d="M312 236 L320 244" stroke="#7a7a7a" stroke-width="0.45" opacity="0.38"/>
-        </g>
-        <ellipse cx="314" cy="268" rx="7.5" ry="4.5" fill="#1a1a1a" stroke="#050505" stroke-width="0.7"/>
-      </g>
-      <!-- Natural skin-tone palm ON mouse -->
-      <path d="M302 264 L324 266 L322 278 L304 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1" opacity="0.96"/>
-      <rect id="finger-lmb" x="306" y="270" width="4.2" height="9.5" rx="1.4" fill="#b89068"/>
-      <rect id="finger-rmb" x="314" y="271" width="4.2" height="9" rx="1.4" fill="#b89068"/>
       </g>
     </g>
   </g>

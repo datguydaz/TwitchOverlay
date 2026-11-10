@@ -227,7 +227,8 @@ export class ReactiveAvatar {
   private lastAckAt = 0;
   private chatEl: HTMLElement | null = null;
   private handLeft: SVGElement | null = null;
-  /** Last applied hand translate — skip redundant writes that restart CSS transitions. */
+  private handLeftAim: SVGGElement | null = null;
+  /** Last applied hand aim transform — skip redundant writes that restart transitions. */
   private lastHandTx = "";
   private disposed = false;
   private readonly onVis = (): void => {
@@ -253,6 +254,7 @@ export class ReactiveAvatar {
     `;
     this.chatEl = this.root.querySelector("#avatar-chat");
     this.handLeft = this.root.querySelector("#hand-left");
+    this.handLeftAim = this.root.querySelector("#hand-left-aim");
     this.setStreamerName(this.streamerName);
     this.applyVisualState();
     document.addEventListener("visibilitychange", this.onVis);
@@ -552,11 +554,11 @@ export class ReactiveAvatar {
   }
 
   private applyHandToSlot(): void {
-    if (!this.handLeft) return;
-    // Continuous arm pivots at vest root (CSS transform-origin on #hand-left).
-    const shoulder = { x: 128, y: 198 };
+    const aim = this.handLeftAim ?? this.handLeft;
+    if (!aim) return;
+    // Continuous arm pivots at vest root via #hand-left-pivot / #hand-left-aim SVG transforms.
+    const shoulder = { x: 132, y: 192 };
     const home = HAND_HOME;
-    let transition: string;
     let next: string;
     if (this.keyHeld > 0 && this.activeSlot != null) {
       const pos = slotPos(this.activeSlot);
@@ -568,18 +570,19 @@ export class ReactiveAvatar {
       const tgtDist = Math.hypot(targetCx - shoulder.x, targetCy - shoulder.y);
       const rotDeg = ((tgtAng - homeAng) * 180) / Math.PI;
       const stretch = Math.min(1.14, Math.max(0.9, tgtDist / homeDist));
-      next = `rotate(${rotDeg.toFixed(2)}deg) scale(${stretch.toFixed(3)})`;
-      transition = "transform 110ms cubic-bezier(0.22, 0.61, 0.36, 1)";
+      next = `rotate(${rotDeg.toFixed(2)} scale(${stretch.toFixed(3)}))`;
       this.root.dataset.keySlot = String(this.activeSlot);
     } else {
-      next = "rotate(0deg) scale(1)";
-      transition = "transform 150ms cubic-bezier(0.22, 0.61, 0.36, 1)";
+      next = "";
       delete this.root.dataset.keySlot;
     }
     if (next === this.lastHandTx) return;
     this.lastHandTx = next;
-    this.handLeft.style.transition = transition;
-    this.handLeft.style.transform = next;
+    if (this.handLeftAim) {
+      if (next) this.handLeftAim.setAttribute("transform", next);
+      else this.handLeftAim.removeAttribute("transform");
+    }
+    if (this.handLeft) this.handLeft.style.transform = "";
   }
 
   private applyVisualState(): void {

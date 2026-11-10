@@ -133,18 +133,37 @@ const meta = await page.evaluate(() => {
       const right = document.querySelector("#arm-right");
       const sleeveL = document.querySelector("#sleeve-left-fill");
       const sleeveR = document.querySelector("#sleeve-right-fill");
+      const noForearmOverlay =
+        !document.querySelector("#forearm-left") && !document.querySelector("#forearm-right");
       return (
         !!left &&
         !!right &&
         !!document.querySelector("#hand-left-sit")?.contains(left) &&
         !!document.querySelector("#hand-right-sit")?.contains(right) &&
+        !!document.querySelector("#hand-left-aim") &&
+        !!document.querySelector("#hand-right-aim") &&
         !!left.contains(sleeveL) &&
         !!right.contains(sleeveR) &&
+        noForearmOverlay &&
         !document.querySelector("#shoulder-left") &&
-        !document.querySelector("#shoulder-right") &&
-        !document.querySelector("#vest-arm-root-left") &&
-        !document.querySelector("#vest-arm-root-right")
+        !document.querySelector("#shoulder-right")
       );
+    })(),
+    helmWhiteMatch: (() => {
+      const killa = document.querySelector("#chest-killa-main")?.getAttribute("fill") || "";
+      const stripe = document.querySelector("#sleeve-stripes-left")?.getAttribute("stroke") || "";
+      const helm = "#efe6d2";
+      return killa.toLowerCase() === helm && stripe.toLowerCase() === helm;
+    })(),
+    fullStripes: (() => {
+      const sleeve = document.querySelector("#sleeve-left-fill")?.getAttribute("d") || "";
+      const stripe = document.querySelector("#sleeve-stripes-left path")?.getAttribute("d") || "";
+      return !!sleeve && stripe === sleeve;
+    })(),
+    straightArms: (() => {
+      const d = document.querySelector("#sleeve-left-fill")?.getAttribute("d") || "";
+      // Line segments preferred; reject heavy oval Q-noodle paths
+      return d.includes("L") && !/Q\s*\d+\s+\d+\s+\d+\s+\d+\s+Q/i.test(d);
     })(),
     skinHands: (() => {
       const p = document.querySelector("#hand-left-sit > path");
@@ -198,17 +217,15 @@ files.push(
   }),
 );
 
-// Prove left continuous arm tracks a key slot (pivot transform on #hand-left)
+// Prove left continuous arm tracks a key slot via #hand-left-aim SVG pivot
 const keyAim = await page.evaluate(() => {
   const root = document.querySelector(".avatar-root");
-  const hand = document.querySelector("#hand-left");
-  if (!root || !hand) return { ok: false };
+  const aim = document.querySelector("#hand-left-aim");
+  if (!root || !aim) return { ok: false };
   root.dataset.key = "1";
   root.dataset.keySlot = "2";
-  // Drive the same transform style ReactiveAvatar would set for slot 2 (E key)
-  hand.style.transformOrigin = "128px 198px";
-  hand.style.transform = "rotate(-18deg) scale(1.06)";
-  const tx = hand.style.transform || "";
+  aim.setAttribute("transform", "rotate(-18) scale(1.06)");
+  const tx = aim.getAttribute("transform") || "";
   const sleeveInHand = !!document.querySelector("#hand-left-sit #arm-left #sleeve-left-fill");
   return { ok: tx.includes("rotate") && sleeveInHand, tx, sleeveInHand };
 });
@@ -222,6 +239,33 @@ files.push(
   }),
 );
 meta.keyAim = keyAim;
+
+// Prove mouse press keeps continuous right arm (aim pivot, not outer wrapper translate)
+const mousePress = await page.evaluate(() => {
+  const root = document.querySelector(".avatar-root");
+  const outer = document.querySelector("#hand-right");
+  const aim = document.querySelector("#hand-right-aim");
+  const sleeve = document.querySelector("#hand-right-sit #sleeve-right-fill");
+  if (!root || !outer || !aim || !sleeve) return { ok: false };
+  root.dataset.mouseL = "1";
+  root.dataset.mouseLPulse = "1";
+  const csOuter = getComputedStyle(outer).transform;
+  const csAim = getComputedStyle(aim).transform;
+  const outerIdle = !csOuter || csOuter === "none";
+  const aimMoving = !!csAim && csAim !== "none";
+  const stillContinuous = !!document.querySelector("#hand-right-sit")?.contains(sleeve);
+  return { ok: outerIdle && aimMoving && stillContinuous, outerIdle, aimMoving, stillContinuous, csAim };
+});
+await page.waitForTimeout(140);
+files.push(
+  await shot("mouse-press-arm", {
+    x: box.x + box.width * 0.02,
+    y: box.y + box.height * 0.35,
+    width: box.width * 0.96,
+    height: box.height * 0.55,
+  }),
+);
+meta.mousePress = mousePress;
 
 await browser.close();
 
@@ -249,8 +293,12 @@ const pass =
   meta.deskLedChase &&
   String(meta.deskLedAnim).includes("desk-led-chase") &&
   meta.continuousArms &&
+  meta.helmWhiteMatch &&
+  meta.fullStripes &&
+  meta.straightArms &&
   meta.skinHands &&
-  meta.keyAim?.ok;
+  meta.keyAim?.ok &&
+  meta.mousePress?.ok;
 
 const note = { ts, pass, meta, files };
 writeFileSync(resolve(mediaStore, `avatar-proof-${ts}-hands-desk-fix-note.json`), JSON.stringify(note, null, 2));
@@ -267,7 +315,11 @@ console.log(
     headScaleVal: meta.headScaleVal,
     torsoScaleVal: meta.torsoScaleVal,
     continuousArms: meta.continuousArms,
+    helmWhiteMatch: meta.helmWhiteMatch,
+    fullStripes: meta.fullStripes,
+    straightArms: meta.straightArms,
     keyAim: meta.keyAim,
+    mousePress: meta.mousePress,
     hasDeskRgb: meta.hasDeskRgb,
     deskLedAnim: meta.deskLedAnim,
     skinHands: meta.skinHands,

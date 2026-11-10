@@ -415,22 +415,19 @@ body.scene-opaque {
   transform-origin: center;
 }
 
-#hand-left,
-#hand-right {
-  /* view-box + vest-root origin so key aim pivots the whole continuous arm */
-  transform-box: view-box;
-  /* Stable base — JS sets exact timing; avoid competing animation restarts */
+/* Aim groups pivot at vest root (#hand-*-pivot). Never CSS-translate #hand-right itself. */
+#hand-left-aim,
+#hand-right-aim {
+  transform-box: fill-box;
+  transform-origin: 0 0;
   transition: transform 110ms cubic-bezier(0.22, 0.61, 0.36, 1);
   will-change: transform;
 }
 
-/* Vest side attach (world/desk space) — whole sleeve+hand pivots here */
-#hand-left {
-  transform-origin: 128px 198px;
-}
-
+#hand-left,
 #hand-right {
-  transform-origin: 272px 198px;
+  /* Outer wrappers stay identity — SVG pivot handles attach */
+  transform: none;
 }
 
 /* Eyes — blink + look slightly with head sway */
@@ -573,32 +570,35 @@ body.scene-opaque {
   opacity: 0.95;
 }
 
-/* LMB pad = viewer's-left — aim hand left; RMB = right */
-.avatar-root[data-mouse-l="1"] #hand-right {
+/*
+  Mouse press pivots #hand-right-aim at vest root (0,0 after pivot translate).
+  Keeps continuous sleeve attached — never translate the outer #hand-right wrapper.
+*/
+.avatar-root[data-mouse-l="1"] #hand-right-aim {
   animation: none;
-  transform: translate(-11px, 15px) rotate(5deg);
+  transform: rotate(5deg) translate(2px, 4px);
   transition: transform 90ms ease-out;
 }
 
-.avatar-root[data-mouse-l="1"][data-mouse-l-pulse="1"] #hand-right {
+.avatar-root[data-mouse-l="1"][data-mouse-l-pulse="1"] #hand-right-aim {
   animation: click-l 120ms ease-out 1;
 }
 
-.avatar-root[data-mouse-r="1"] #hand-right {
+.avatar-root[data-mouse-r="1"] #hand-right-aim {
   animation: none;
-  transform: translate(10px, 14px) rotate(-4deg);
+  transform: rotate(-4deg) translate(-1px, 4px);
   transition: transform 90ms ease-out;
 }
 
-.avatar-root[data-mouse-r="1"][data-mouse-r-pulse="1"] #hand-right {
+.avatar-root[data-mouse-r="1"][data-mouse-r-pulse="1"] #hand-right-aim {
   animation: click-r 130ms ease-out 1;
 }
 
-/* Scroll wheel — amber flash like LMB/RMB (no spin) */
-.avatar-root[data-wheel="up"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right,
-.avatar-root[data-wheel="down"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right {
+/* Scroll wheel — soft press at vest pivot (no detach) */
+.avatar-root[data-wheel="up"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right-aim,
+.avatar-root[data-wheel="down"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right-aim {
   animation: none;
-  transform: translate(1px, 10px) rotate(-1deg);
+  transform: rotate(-1deg) translate(0px, 3px);
   transition: transform 70ms ease-out;
 }
 
@@ -994,25 +994,25 @@ body.scene-opaque {
 
 @keyframes click-l {
   0% {
-    transform: translate(-11px, 15px) rotate(5deg);
+    transform: rotate(5deg) translate(2px, 4px);
   }
   40% {
-    transform: translate(-13px, 18px) rotate(6deg);
+    transform: rotate(6deg) translate(2px, 6px);
   }
   100% {
-    transform: translate(-11px, 15px) rotate(5deg);
+    transform: rotate(5deg) translate(2px, 4px);
   }
 }
 
 @keyframes click-r {
   0% {
-    transform: translate(10px, 14px) rotate(-4deg);
+    transform: rotate(-4deg) translate(-1px, 4px);
   }
   35% {
-    transform: translate(12px, 17px) rotate(-5deg);
+    transform: rotate(-5deg) translate(-1px, 6px);
   }
   100% {
-    transform: translate(10px, 14px) rotate(-4deg);
+    transform: rotate(-4deg) translate(-1px, 4px);
   }
 }
 
@@ -1028,8 +1028,8 @@ body.scene-opaque {
   .desk-led-glow-b,
   .avatar-root[data-key="1"] #hand-left,
   .avatar-root[data-key="1"][data-key-pulse="1"] #hand-left,
-  .avatar-root[data-mouse-l="1"] #hand-right,
-  .avatar-root[data-mouse-r="1"] #hand-right,
+  .avatar-root[data-mouse-l="1"] #hand-right-aim,
+  .avatar-root[data-mouse-r="1"] #hand-right-aim,
   .avatar-root[data-cough="1"] #layer-head,
   .avatar-root[data-cough="1"] #layer-torso,
   .avatar-root[data-roll="1"] #arm-left,
