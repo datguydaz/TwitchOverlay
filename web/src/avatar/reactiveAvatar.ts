@@ -7,6 +7,7 @@ export interface ReactiveAvatarOptions {
   root: HTMLElement;
   intensity?: number;
   lightsEnabled?: boolean;
+  streamerName?: string;
 }
 
 /**
@@ -22,6 +23,7 @@ export class ReactiveAvatar {
   private source: AvatarInputSource = "idle";
   private intensity = 1;
   private lightsEnabled = true;
+  private streamerName = "datguydaz";
   private mouseLTimer: number | null = null;
   private mouseRTimer: number | null = null;
   private disposed = false;
@@ -30,13 +32,21 @@ export class ReactiveAvatar {
     this.root = opts.root;
     this.intensity = opts.intensity ?? 1;
     this.lightsEnabled = opts.lightsEnabled ?? true;
+    this.streamerName = (opts.streamerName || "datguydaz").trim() || "datguydaz";
     this.root.classList.add("avatar-root");
     this.root.innerHTML = `
       <div class="demo-badge">DEMO INPUT</div>
       <div class="live-badge">LIVE INPUT</div>
       ${scavengerSvg}
     `;
+    this.setStreamerName(this.streamerName);
     this.applyVisualState();
+  }
+
+  setStreamerName(name: string): void {
+    this.streamerName = name.trim() || "datguydaz";
+    const el = this.root.querySelector("#desk-streamer-name");
+    if (el) el.textContent = this.streamerName;
   }
 
   setIntensity(value: number): void {

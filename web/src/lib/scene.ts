@@ -131,6 +131,7 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
       root: avatarMount,
       intensity: settings.avatar.intensity,
       lightsEnabled: settings.avatar.lightsEnabled,
+      streamerName: settings.streamerName,
     });
     input = new InputClient({
       avatar,
@@ -155,13 +156,15 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
     if (avatar) {
       avatar.setIntensity(settings.avatar.intensity);
       avatar.setLightsEnabled(settings.avatar.lightsEnabled);
+      avatar.setStreamerName(settings.streamerName);
       const hidden = !settings.modules.avatar.visible && opts.scene !== "avatar";
       if (hidden) {
         avatar.dispose();
       }
     }
-    const name = qs<HTMLElement>("[data-streamer-name]");
-    if (name) name.textContent = settings.streamerName;
+    document.querySelectorAll("[data-streamer-name]").forEach((el) => {
+      el.textContent = settings.streamerName;
+    });
   };
 
   window.setInterval(() => {

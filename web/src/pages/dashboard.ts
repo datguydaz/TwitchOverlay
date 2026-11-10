@@ -148,11 +148,14 @@ async function connectDashWs(): Promise<void> {
         avatar.handleInput(msg.kind, msg.phase, msg.held);
       } else if (msg.type === "reset-idle") {
         avatar.resetIdle("server");
-      } else if (msg.type === "settings-updated") {
+      } else       if (msg.type === "settings-updated") {
         void fetchSettings().then((s) => {
           settings = s;
           fillForm(s);
           applyCssVars(s);
+          avatar.setStreamerName(s.streamerName);
+          avatar.setIntensity(s.avatar.intensity);
+          avatar.setLightsEnabled(s.avatar.lightsEnabled);
         });
       }
     } catch {
@@ -178,6 +181,7 @@ async function main(): Promise<void> {
     root: mount,
     intensity: settings.avatar.intensity,
     lightsEnabled: settings.avatar.lightsEnabled,
+    streamerName: settings.streamerName,
   });
 
   document.getElementById("btn-save")?.addEventListener("click", async () => {
@@ -185,6 +189,7 @@ async function main(): Promise<void> {
     fillForm(settings);
     avatar.setIntensity(settings.avatar.intensity);
     avatar.setLightsEnabled(settings.avatar.lightsEnabled);
+    avatar.setStreamerName(settings.streamerName);
     toast("Settings saved");
   });
 
@@ -192,7 +197,15 @@ async function main(): Promise<void> {
     settings = await resetSettings();
     fillForm(settings);
     applyCssVars(settings);
+    avatar.setIntensity(settings.avatar.intensity);
+    avatar.setLightsEnabled(settings.avatar.lightsEnabled);
+    avatar.setStreamerName(settings.streamerName);
     toast("Defaults restored");
+  });
+
+  document.getElementById("streamerName")?.addEventListener("input", () => {
+    const value = (document.getElementById("streamerName") as HTMLInputElement).value;
+    avatar.setStreamerName(value);
   });
 
   document.getElementById("btn-countdown-now")?.addEventListener("click", async () => {
