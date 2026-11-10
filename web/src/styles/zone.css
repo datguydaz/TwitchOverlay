@@ -419,6 +419,9 @@ body.scene-opaque {
 #hand-right {
   transform-box: fill-box;
   transform-origin: center;
+  /* Stable base — JS sets exact timing; avoid competing animation restarts */
+  transition: transform 110ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
 }
 
 /* Eyes — blink + look slightly with head sway */
@@ -508,6 +511,8 @@ body.scene-opaque {
 /* Hand XY comes from JS (slot aim). Keycaps depress via data-pressed. */
 .avatar-root[data-key="1"] #hand-left {
   animation: none;
+  /* Keep transition alive across keyTap/pulse attribute flips */
+  transition: transform 110ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .kb-key {

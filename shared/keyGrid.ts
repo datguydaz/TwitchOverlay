@@ -18,44 +18,44 @@ export interface KeySlotPos {
   cy: number;
 }
 
-/** Rest / home pose — over home-row F/G cluster. */
-export const HAND_HOME = { cx: 133, cy: 252 };
+/** Rest / home pose — over home-row F/G cluster (desk-plane, matches hand-left palm). */
+export const HAND_HOME = { cx: 118, cy: 268 };
 
-/** Slot centers aligned to keycap rects in scavenger.svg.ts */
+/** Slot centers aligned to keycap rects in scavenger.svg.ts (desk-plane). */
 export const KEY_SLOTS: readonly KeySlotPos[] = [
-  // Q row y=263.5
-  { cx: 74.75, cy: 267.6 },
-  { cx: 89.25, cy: 267.6 },
-  { cx: 103.75, cy: 267.6 },
-  { cx: 118.25, cy: 267.6 },
-  { cx: 132.75, cy: 267.6 },
-  { cx: 147.25, cy: 267.6 },
-  { cx: 161.75, cy: 267.6 },
-  { cx: 176.25, cy: 267.6 },
-  { cx: 190.75, cy: 267.6 },
-  { cx: 205.25, cy: 267.6 },
-  { cx: 219.75, cy: 267.6 },
-  // A row y=253
-  { cx: 84.4, cy: 257 },
-  { cx: 98.2, cy: 257 },
-  { cx: 112, cy: 257 },
-  { cx: 125.8, cy: 257 },
-  { cx: 139.6, cy: 257 },
-  { cx: 153.4, cy: 257 },
-  { cx: 167.2, cy: 257 },
-  { cx: 181, cy: 257 },
-  { cx: 194.8, cy: 257 },
-  { cx: 208.6, cy: 257 },
-  { cx: 222.4, cy: 257 },
-  // Z/space row y=243 (toward him)
-  { cx: 99.25, cy: 246.75 },
-  { cx: 111.75, cy: 246.75 },
-  { cx: 124.25, cy: 246.75 },
-  { cx: 136.75, cy: 246.75 },
-  { cx: 164.5, cy: 246.75 }, // space
-  { cx: 192.25, cy: 246.75 },
-  { cx: 204.75, cy: 246.75 },
-  { cx: 217.25, cy: 246.75 },
+  // Q row y≈279.5
+  { cx: 68.25, cy: 279.5 },
+  { cx: 81.75, cy: 279.5 },
+  { cx: 95.25, cy: 279.5 },
+  { cx: 108.75, cy: 279.5 },
+  { cx: 122.25, cy: 279.5 },
+  { cx: 135.75, cy: 279.5 },
+  { cx: 149.25, cy: 279.5 },
+  { cx: 162.75, cy: 279.5 },
+  { cx: 176.25, cy: 279.5 },
+  { cx: 189.75, cy: 279.5 },
+  { cx: 203.5, cy: 279.5 },
+  // A row y≈273.8
+  { cx: 70.5, cy: 273.8 },
+  { cx: 84.5, cy: 273.8 },
+  { cx: 98.5, cy: 273.8 },
+  { cx: 112.5, cy: 273.8 },
+  { cx: 126.5, cy: 273.8 },
+  { cx: 140.5, cy: 273.8 },
+  { cx: 154.5, cy: 273.8 },
+  { cx: 168.5, cy: 273.8 },
+  { cx: 182.5, cy: 273.8 },
+  { cx: 196.5, cy: 273.8 },
+  { cx: 210.5, cy: 273.8 },
+  // Z/space row y≈268 (toward him)
+  { cx: 76, cy: 268 },
+  { cx: 88, cy: 268 },
+  { cx: 100, cy: 268 },
+  { cx: 112, cy: 268 },
+  { cx: 142.5, cy: 268 }, // space
+  { cx: 173, cy: 268 },
+  { cx: 185, cy: 268 },
+  { cx: 197, cy: 268 },
 ];
 
 /** uiohook-napi UiohookKey values → slot (opaque). Nordic OEM keys included. */

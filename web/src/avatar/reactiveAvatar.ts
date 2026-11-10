@@ -227,6 +227,8 @@ export class ReactiveAvatar {
   private lastAckAt = 0;
   private chatEl: HTMLElement | null = null;
   private handLeft: SVGElement | null = null;
+  /** Last applied hand translate — skip redundant writes that restart CSS transitions. */
+  private lastHandTx = "";
   private disposed = false;
   private readonly onVis = (): void => {
     if (document.hidden) this.clearFlavorSchedule();
@@ -395,6 +397,7 @@ export class ReactiveAvatar {
     this.mouseRHeld = 0;
     this.heldSlots.clear();
     this.activeSlot = null;
+    this.lastHandTx = "";
     this.clearPulse("key");
     this.clearPulse("mouseL");
     this.clearPulse("mouseR");
@@ -550,20 +553,25 @@ export class ReactiveAvatar {
 
   private applyHandToSlot(): void {
     if (!this.handLeft) return;
+    let next: string;
+    let transition: string;
     if (this.keyHeld > 0 && this.activeSlot != null) {
       const pos = slotPos(this.activeSlot);
       const dx = pos.cx - HAND_HOME.cx;
-      const dy = pos.cy - HAND_HOME.cy + 6;
-      // Snappy when tapping, settle while holding
-      const ms = this.root.dataset.keyTap === "1" ? "50ms" : "85ms";
-      this.handLeft.style.transition = `transform ${ms} ease-out`;
-      this.handLeft.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+      const dy = pos.cy - HAND_HOME.cy + 4;
+      next = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+      // One smooth curve for presses + slot-to-slot holds — no 50ms snap that restarts mid-flight
+      transition = "transform 110ms cubic-bezier(0.22, 0.61, 0.36, 1)";
       this.root.dataset.keySlot = String(this.activeSlot);
     } else {
-      this.handLeft.style.transition = "transform 120ms ease-out";
-      this.handLeft.style.transform = "translate(0px, 0px)";
+      next = "translate(0px, 0px)";
+      transition = "transform 150ms cubic-bezier(0.22, 0.61, 0.36, 1)";
       delete this.root.dataset.keySlot;
     }
+    if (next === this.lastHandTx) return;
+    this.lastHandTx = next;
+    this.handLeft.style.transition = transition;
+    this.handLeft.style.transform = next;
   }
 
   private applyVisualState(): void {
@@ -581,8 +589,8 @@ export class ReactiveAvatar {
       this.keyHeld > 0 || this.mouseLHeld > 0 || this.mouseRHeld > 0 || wheelBusy ? "1" : "0";
     this.root.dataset.active = this.lightsEnabled ? active : "0";
     this.applyHandToSlot();
-    this.setIntensity(this.intensity);
-    this.setLightsEnabled(this.lightsEnabled);
+    // Do NOT reseed idle animation durations here — that hitch/reset on every key event.
+    this.root.dataset.lights = this.lightsEnabled ? "1" : "0";
     this.root.dataset.source = this.source;
   }
 

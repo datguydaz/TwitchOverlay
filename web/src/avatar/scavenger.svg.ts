@@ -34,12 +34,27 @@ export const scavengerSvg = `
       <stop offset="50%" stop-color="#242424"/>
       <stop offset="100%" stop-color="#0c0c0c"/>
     </linearGradient>
+    <!-- Exclusion-zone field crate desk — charcoal with olive undertone (not warm brown) -->
+    <linearGradient id="deskTopGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a3c36"/>
+      <stop offset="40%" stop-color="#262822"/>
+      <stop offset="100%" stop-color="#141612"/>
+    </linearGradient>
+    <linearGradient id="deskEdgeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a2c26"/>
+      <stop offset="100%" stop-color="#0a0c0a"/>
+    </linearGradient>
     <linearGradient id="deskGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3a342c"/>
-      <stop offset="100%" stop-color="#1c1812"/>
+      <stop offset="0%" stop-color="#2e322c"/>
+      <stop offset="100%" stop-color="#121410"/>
     </linearGradient>
     <clipPath id="visor-clip">
       <rect x="168" y="124" width="64" height="10" rx="1"/>
+    </clipPath>
+    <!-- Cut torso/sleeves at desk plane so arms don't punch through the table -->
+    <clipPath id="torso-above-desk">
+      <!-- Keep pouches + KILLA; cut sleeves/belt that would pierce desk (local y) -->
+      <rect x="40" y="100" width="320" height="128"/>
     </clipPath>
   </defs>
 
@@ -47,14 +62,14 @@ export const scavengerSvg = `
 
   <!-- Operator: torso/head FIRST, desk AFTER so body sits behind desk lip (no torso-through-table). -->
   <g id="operator">
-    <!-- TORSO: sit offset on INNER group so CSS breath/talk don't wipe desk-close. -->
+    <!-- TORSO: sit offset inner; clipped above desk so sleeves never punch through table. -->
     <g id="layer-torso">
-      <g id="torso-sit" transform="translate(0 38)">
+      <g id="torso-sit" transform="translate(0 38)" clip-path="url(#torso-above-desk)">
       <path d="M124 152 L140 138 L200 132 L260 138 L276 152 L282 236 L118 236 Z" fill="url(#suitDark)" stroke="#050505" stroke-width="1.5"/>
-      <!-- Thick black sleeves — draw BEFORE vest so vest overlaps shoulders -->
-      <path id="sleeve-left-fill" d="M108 170 Q78 202 96 238" fill="none" stroke="#0e0e0e" stroke-width="38" stroke-linecap="round"/>
-      <path id="sleeve-right-fill" d="M292 170 Q318 198 308 230" fill="none" stroke="#0e0e0e" stroke-width="32" stroke-linecap="butt"/>
-      <!-- Slim near-black vest (vibe only — no logos). -->
+      <!-- Shortened sleeves — end above desk plane (hands live on desk separately) -->
+      <path id="sleeve-left-fill" d="M108 168 Q76 192 90 216" fill="none" stroke="#0e0e0e" stroke-width="36" stroke-linecap="round"/>
+      <path id="sleeve-right-fill" d="M292 168 Q320 190 308 214" fill="none" stroke="#0e0e0e" stroke-width="30" stroke-linecap="butt"/>
+      <!-- Slim near-black vest -->
       <path d="M120 148 L138 136 L200 130 L262 136 L280 148 L286 234 L114 234 Z" fill="url(#armorOlive)" stroke="#050505" stroke-width="1.4"/>
       <path d="M158 132 Q200 144 242 132 L238 152 Q200 160 162 152 Z" fill="#1a1a1a" stroke="#050505" stroke-width="1"/>
       <g id="shoulder-left" class="shoulder">
@@ -65,67 +80,99 @@ export const scavengerSvg = `
         <rect x="270" y="144" width="52" height="30" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
         <rect x="276" y="152" width="40" height="7" rx="1.5" fill="#0a0a0a" opacity="0.65"/>
       </g>
-      <!-- THREE Adidas stripes centered on mid-sleeve mass (±5 around sleeve centerline; drawn after vest) -->
+      <!-- THREE Adidas stripes mid-sleeve (±5); short path matching shortened arms -->
       <g id="sleeve-stripes-left" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.7">
-        <path d="M98 188 Q80 212 94 234" transform="translate(-5 0)"/>
-        <path d="M98 188 Q80 212 94 234" transform="translate(0 0)"/>
-        <path d="M98 188 Q80 212 94 234" transform="translate(5 0)"/>
+        <path d="M98 178 Q80 196 92 212" transform="translate(-5 0)"/>
+        <path d="M98 178 Q80 196 92 212" transform="translate(0 0)"/>
+        <path d="M98 178 Q80 196 92 212" transform="translate(5 0)"/>
       </g>
       <g id="sleeve-stripes-right" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.6">
-        <path d="M302 186 Q318 208 310 228" transform="translate(-5 0)"/>
-        <path d="M302 186 Q318 208 310 228" transform="translate(0 0)"/>
-        <path d="M302 186 Q318 208 310 228" transform="translate(5 0)"/>
+        <path d="M302 176 Q316 194 308 210" transform="translate(-5 0)"/>
+        <path d="M302 176 Q316 194 308 210" transform="translate(0 0)"/>
+        <path d="M302 176 Q316 194 308 210" transform="translate(5 0)"/>
       </g>
-      <!-- Four STANAG-style mag pouches across the vest (clear, tactical) -->
+      <!-- Vest wear / fray / scuffs (under lettering + pouches) -->
+      <g id="vest-wear" fill="none" stroke-linecap="round">
+        <path d="M128 156 L148 162" stroke="#6a6a6a" stroke-width="0.55" opacity="0.35"/>
+        <path d="M250 158 L272 164" stroke="#8a8a8a" stroke-width="0.5" opacity="0.28"/>
+        <path d="M118 190 Q130 196 124 210" stroke="#3a3a3a" stroke-width="0.7" opacity="0.4"/>
+        <path d="M280 188 Q270 200 276 214" stroke="#4a4a4a" stroke-width="0.65" opacity="0.35"/>
+        <path d="M140 220 L160 226 L155 222" stroke="#5a5a5a" stroke-width="0.45" opacity="0.3"/>
+        <path d="M240 222 L265 228" stroke="#6a6a6a" stroke-width="0.5" opacity="0.28"/>
+        <path d="M110 170 L116 178" stroke="#2a2a2a" stroke-width="1.1" opacity="0.5"/>
+        <path d="M288 172 L282 180" stroke="#2a2a2a" stroke-width="1" opacity="0.45"/>
+      </g>
+      <!-- Sleeve fray / fabric tears -->
+      <g id="sleeve-wear" fill="none" stroke-linecap="round">
+        <path d="M86 190 L78 198" stroke="#c8c2b0" stroke-width="0.55" opacity="0.35"/>
+        <path d="M92 200 L84 206" stroke="#8a8a8a" stroke-width="0.45" opacity="0.4"/>
+        <path d="M310 188 L318 196" stroke="#c8c2b0" stroke-width="0.5" opacity="0.32"/>
+        <path d="M306 200 L314 208" stroke="#7a7a7a" stroke-width="0.45" opacity="0.38"/>
+      </g>
+      <!-- KILLA UNDER pouches (drawn first; pouches paint on top) -->
+      <g id="chest-killa" font-family="Arial Black, Impact, 'Arial Narrow', sans-serif" font-weight="800" text-anchor="middle" letter-spacing="3.4">
+        <text x="200.8" y="224.2" fill="#050505" font-size="15.5" opacity="0.72" textLength="158" lengthAdjust="spacingAndGlyphs">KILLA</text>
+        <text id="chest-killa-main" x="200" y="223.6" fill="#f0f0f0" font-size="15.5" opacity="0.94" textLength="158" lengthAdjust="spacingAndGlyphs">KILLA</text>
+        <g id="chest-killa-scratches" fill="none" stroke="#0a0a0a" stroke-linecap="round" opacity="0.65">
+          <path d="M128 219 L142 226" stroke-width="0.85"/>
+          <path d="M148 218 L162 225" stroke-width="0.65"/>
+          <path d="M168 220 L188 223" stroke-width="0.75"/>
+          <path d="M152 227 L198 217" stroke-width="0.55"/>
+          <path d="M204 219 L228 224" stroke-width="0.7"/>
+          <path d="M232 226 L262 219" stroke-width="0.6"/>
+          <path d="M240 217 L270 223" stroke-width="0.5"/>
+        </g>
+      </g>
+      <!-- Integrated STANAG rig: molle plate + stitch + pouch shadows (on TOP of KILLA) -->
       <g id="chest-rig">
-        <g id="stanag-0" class="stanag-pouch" transform="translate(124 168)">
-          <rect x="0" y="7" width="30" height="34" rx="2.2" fill="url(#pouchGrad)" stroke="#050505" stroke-width="1"/>
-          <path d="M1 7 H29 L26.5 0.5 H3.5 Z" fill="#1c1c1c" stroke="#050505" stroke-width="0.9"/>
-          <rect x="5" y="12" width="20" height="3.2" rx="0.6" fill="#0a0a0a"/>
-          <path d="M7 18 V36 M15 18 V36 M23 18 V36" stroke="#2a2a2a" stroke-width="1.1" opacity="0.75"/>
-          <rect x="10" y="3" width="10" height="2.2" rx="0.4" fill="#333333"/>
+        <rect id="molle-plate" x="128" y="164" width="144" height="48" rx="3" fill="#101010" stroke="#050505" stroke-width="1" opacity="0.92"/>
+        <g id="molle-stitch" fill="none" stroke="#2a2a2a" stroke-width="0.55" opacity="0.7">
+          <path d="M132 170 H268 M132 178 H268 M132 186 H268 M132 194 H268 M132 202 H268"/>
+          <path d="M148 166 V208 M182 166 V208 M216 166 V208 M250 166 V208"/>
         </g>
-        <g id="stanag-1" class="stanag-pouch" transform="translate(158 168)">
-          <rect x="0" y="7" width="30" height="34" rx="2.2" fill="url(#pouchGrad)" stroke="#050505" stroke-width="1"/>
-          <path d="M1 7 H29 L26.5 0.5 H3.5 Z" fill="#1c1c1c" stroke="#050505" stroke-width="0.9"/>
-          <rect x="5" y="12" width="20" height="3.2" rx="0.6" fill="#0a0a0a"/>
-          <path d="M7 18 V36 M15 18 V36 M23 18 V36" stroke="#2a2a2a" stroke-width="1.1" opacity="0.75"/>
-          <rect x="10" y="3" width="10" height="2.2" rx="0.4" fill="#333333"/>
+        <!-- Centered 134 / 168 / 202 / 236 -->
+        <g id="stanag-0" class="stanag-pouch" transform="translate(134 166)">
+          <rect x="1" y="9" width="30" height="34" rx="1.5" fill="#050505" opacity="0.45"/>
+          <rect x="0" y="7" width="30" height="34" rx="2" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="1.1"/>
+          <path d="M1 7 H29 L26.5 1 H3.5 Z" fill="#181818" stroke="#050505" stroke-width="0.85"/>
+          <rect x="5" y="12" width="20" height="2.8" rx="0.5" fill="#0a0a0a"/>
+          <path d="M8 18 V36 M15 18 V36 M22 18 V36" stroke="#1a1a1a" stroke-width="1.15" opacity="0.85"/>
+          <path d="M2 8 H28" stroke="#333" stroke-width="0.4" opacity="0.5"/>
         </g>
-        <g id="stanag-2" class="stanag-pouch" transform="translate(192 168)">
-          <rect x="0" y="7" width="30" height="34" rx="2.2" fill="url(#pouchGrad)" stroke="#050505" stroke-width="1"/>
-          <path d="M1 7 H29 L26.5 0.5 H3.5 Z" fill="#1c1c1c" stroke="#050505" stroke-width="0.9"/>
-          <rect x="5" y="12" width="20" height="3.2" rx="0.6" fill="#0a0a0a"/>
-          <path d="M7 18 V36 M15 18 V36 M23 18 V36" stroke="#2a2a2a" stroke-width="1.1" opacity="0.75"/>
-          <rect x="10" y="3" width="10" height="2.2" rx="0.4" fill="#333333"/>
+        <g id="stanag-1" class="stanag-pouch" transform="translate(168 166)">
+          <rect x="1" y="9" width="30" height="34" rx="1.5" fill="#050505" opacity="0.45"/>
+          <rect x="0" y="7" width="30" height="34" rx="2" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="1.1"/>
+          <path d="M1 7 H29 L26.5 1 H3.5 Z" fill="#181818" stroke="#050505" stroke-width="0.85"/>
+          <rect x="5" y="12" width="20" height="2.8" rx="0.5" fill="#0a0a0a"/>
+          <path d="M8 18 V36 M15 18 V36 M22 18 V36" stroke="#1a1a1a" stroke-width="1.15" opacity="0.85"/>
+          <path d="M2 8 H28" stroke="#333" stroke-width="0.4" opacity="0.5"/>
         </g>
-        <g id="stanag-3" class="stanag-pouch" transform="translate(226 168)">
-          <rect x="0" y="7" width="30" height="34" rx="2.2" fill="url(#pouchGrad)" stroke="#050505" stroke-width="1"/>
-          <path d="M1 7 H29 L26.5 0.5 H3.5 Z" fill="#1c1c1c" stroke="#050505" stroke-width="0.9"/>
-          <rect x="5" y="12" width="20" height="3.2" rx="0.6" fill="#0a0a0a"/>
-          <path d="M7 18 V36 M15 18 V36 M23 18 V36" stroke="#2a2a2a" stroke-width="1.1" opacity="0.75"/>
-          <rect x="10" y="3" width="10" height="2.2" rx="0.4" fill="#333333"/>
+        <g id="stanag-2" class="stanag-pouch" transform="translate(202 166)">
+          <rect x="1" y="9" width="30" height="34" rx="1.5" fill="#050505" opacity="0.45"/>
+          <rect x="0" y="7" width="30" height="34" rx="2" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="1.1"/>
+          <path d="M1 7 H29 L26.5 1 H3.5 Z" fill="#181818" stroke="#050505" stroke-width="0.85"/>
+          <rect x="5" y="12" width="20" height="2.8" rx="0.5" fill="#0a0a0a"/>
+          <path d="M8 18 V36 M15 18 V36 M22 18 V36" stroke="#1a1a1a" stroke-width="1.15" opacity="0.85"/>
+          <path d="M2 8 H28" stroke="#333" stroke-width="0.4" opacity="0.5"/>
         </g>
-      </g>
-      <!-- Worn “KILLA” below the STANAG row — scratched vibe, no logos -->
-      <g id="chest-killa" font-family="Arial Black, Impact, 'Arial Narrow', sans-serif" font-weight="800" text-anchor="middle" letter-spacing="1.6">
-        <text x="200.5" y="218.2" fill="#050505" font-size="11.5" opacity="0.75">KILLA</text>
-        <text id="chest-killa-main" x="200" y="217.6" fill="#f0f0f0" font-size="11.5" opacity="0.92">KILLA</text>
-        <g id="chest-killa-scratches" fill="none" stroke="#0a0a0a" stroke-linecap="round" opacity="0.6">
-          <path d="M178 213 L186 219" stroke-width="0.8"/>
-          <path d="M191 212.5 L198 218" stroke-width="0.6"/>
-          <path d="M204 214 L214 217" stroke-width="0.7"/>
-          <path d="M186 220 L206 213" stroke-width="0.5"/>
-          <path d="M212 219 L222 215" stroke-width="0.55"/>
+        <g id="stanag-3" class="stanag-pouch" transform="translate(236 166)">
+          <rect x="1" y="9" width="30" height="34" rx="1.5" fill="#050505" opacity="0.45"/>
+          <rect x="0" y="7" width="30" height="34" rx="2" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="1.1"/>
+          <path d="M1 7 H29 L26.5 1 H3.5 Z" fill="#181818" stroke="#050505" stroke-width="0.85"/>
+          <rect x="5" y="12" width="20" height="2.8" rx="0.5" fill="#0a0a0a"/>
+          <path d="M8 18 V36 M15 18 V36 M22 18 V36" stroke="#1a1a1a" stroke-width="1.15" opacity="0.85"/>
+          <path d="M2 8 H28" stroke="#333" stroke-width="0.4" opacity="0.5"/>
         </g>
       </g>
       <rect x="110" y="228" width="180" height="10" rx="1.5" fill="#0c0c0c" stroke="#222222"/>
       </g>
     </g>
 
-    <!-- HEAD: sit offset inner — CSS head-idle/talk-nod animate outer only -->
+    <!-- HEAD: sit offset inner — CSS head-idle/talk-nod animate outer only.
+         Subtle scale-down (~6%) around helm center; still bulky Killa. -->
     <g id="layer-head">
       <g id="head-sit" transform="translate(0 38)">
+      <g id="head-scale" transform="translate(200 120) scale(0.94) translate(-200 -120)">
       <ellipse cx="200" cy="108" rx="72" ry="58" fill="url(#helmDark)" stroke="#0a0c08" stroke-width="2"/>
       <path d="M188 58 Q200 48 212 58 L208 118 L192 118 Z" fill="#efe6d2"/>
       <path d="M170 64 Q180 52 186 66 L182 120 L168 118 Z" fill="#efe6d2" opacity="0.95"/>
@@ -143,15 +190,21 @@ export const scavengerSvg = `
       <rect x="174" y="136" width="11" height="38" rx="1.5" fill="#efe6d2"/>
       <rect x="215" y="136" width="11" height="38" rx="1.5" fill="#efe6d2"/>
       <rect x="233" y="136" width="11" height="38" rx="1.5" fill="#efe6d2"/>
-      <!-- Subtle helmet wear — scratches/scuffs only; no redesign -->
+      <!-- Helmet wear — denser scratches / scuffs / edge chips -->
       <g id="helm-wear" fill="none" stroke-linecap="round">
-        <path d="M152 96 L168 102" stroke="#efe6d2" stroke-width="0.55" opacity="0.22"/>
-        <path d="M230 98 Q238 104 246 101" stroke="#c8c2b0" stroke-width="0.5" opacity="0.2"/>
-        <path d="M148 148 L162 156" stroke="#9a9590" stroke-width="0.45" opacity="0.28"/>
-        <path d="M238 150 L252 158" stroke="#efe6d2" stroke-width="0.5" opacity="0.18"/>
-        <path d="M190 90 L198 94" stroke="#b0aaa0" stroke-width="0.4" opacity="0.25"/>
-        <path d="M128 108 Q132 118 130 128" stroke="#6a6860" stroke-width="0.55" opacity="0.3"/>
-        <path d="M270 110 Q268 120 272 130" stroke="#5a5850" stroke-width="0.5" opacity="0.28"/>
+        <path d="M152 96 L168 102" stroke="#efe6d2" stroke-width="0.55" opacity="0.28"/>
+        <path d="M230 98 Q238 104 246 101" stroke="#c8c2b0" stroke-width="0.55" opacity="0.26"/>
+        <path d="M148 148 L162 156" stroke="#9a9590" stroke-width="0.55" opacity="0.35"/>
+        <path d="M238 150 L252 158" stroke="#efe6d2" stroke-width="0.55" opacity="0.24"/>
+        <path d="M190 90 L198 94" stroke="#b0aaa0" stroke-width="0.5" opacity="0.3"/>
+        <path d="M128 108 Q132 118 130 128" stroke="#6a6860" stroke-width="0.6" opacity="0.38"/>
+        <path d="M270 110 Q268 120 272 130" stroke="#5a5850" stroke-width="0.55" opacity="0.35"/>
+        <path d="M160 110 L176 118" stroke="#c8c2b0" stroke-width="0.45" opacity="0.22"/>
+        <path d="M220 112 L236 120" stroke="#9a9590" stroke-width="0.45" opacity="0.24"/>
+        <path d="M150 170 L166 178" stroke="#efe6d2" stroke-width="0.4" opacity="0.2"/>
+        <path d="M236 172 L250 180" stroke="#b0aaa0" stroke-width="0.4" opacity="0.22"/>
+        <path d="M178 100 L184 108" stroke="#6a6860" stroke-width="0.7" opacity="0.3"/>
+        <path d="M244 168 L238 176" stroke="#4a4a4a" stroke-width="0.8" opacity="0.4"/>
       </g>
 
       <!-- Eyes behind visor (clipped); look group moves with idle sway -->
@@ -178,131 +231,155 @@ export const scavengerSvg = `
         <path id="mouth-slats" d="M190 166 H210 M192 169 H208 M194 172 H206" stroke="#4a4a4a" stroke-width="1" opacity="0.75"/>
       </g>
       </g>
+      </g>
     </g>
 
-    <!-- DESK drawn AFTER torso/head so lower body sits BEHIND the table (no clip-through). -->
+    <!--
+      DESK after torso/head: body stays BEHIND the table.
+      Real field-table feel — worn plywood top, thick front apron, olive/charcoal/dirty-beige.
+      KB/mouse/hands paint AFTER this so they sit ON the surface (not through the lip).
+    -->
     <g id="desk">
-      <path d="M28 268 H372 L352 302 H48 Z" fill="url(#deskGrad)" stroke="#5a5348" stroke-width="1.6"/>
-      <path d="M48 302 V328 H78 V302 M322 302 V328 H352 V302" fill="#241e18" stroke="#4a443c"/>
-      <path d="M48 302 H352" stroke="#1a1610" stroke-width="1.2" opacity="0.55"/>
-      <path d="M52 303.5 H348" stroke="#6b7355" stroke-width="0.55" opacity="0.28"/>
-      <path d="M36 268 H364" stroke="#6b7355" stroke-width="1.2" opacity="0.5"/>
-      <path d="M70 288 H330" stroke="#3a342c" stroke-width="6" opacity="0.55"/>
-      <g id="desk-grain" fill="none" stroke-linecap="butt" opacity="0.22">
-        <path d="M44 272 H360" stroke="#2a261e" stroke-width="0.45"/>
-        <path d="M50 277 H354" stroke="#3a342c" stroke-width="0.35"/>
-        <path d="M56 282 H348" stroke="#1c1812" stroke-width="0.4"/>
-        <path d="M62 287 H342" stroke="#2e2a22" stroke-width="0.35"/>
-        <path d="M68 292 H336" stroke="#3a342c" stroke-width="0.3"/>
-        <path d="M74 297 H328" stroke="#1a1610" stroke-width="0.35"/>
+      <!-- Charcoal field-crate top (olive undertone only — not warm brown) -->
+      <path id="desk-top" d="M22 256 H378 L362 290 H38 Z" fill="url(#deskTopGrad)" stroke="#4a5044" stroke-width="1.35"/>
+      <path id="desk-apron" d="M38 290 H362 L352 316 H48 Z" fill="url(#deskEdgeGrad)" stroke="#1a1c18" stroke-width="1.2"/>
+      <path d="M40 292 H360" stroke="#5a6355" stroke-width="1.1" opacity="0.4"/>
+      <path d="M48 316 H352" stroke="#050605" stroke-width="1.3" opacity="0.6"/>
+      <!-- Restrained Zone Ops desk LED strip (amber/olive, under front lip) -->
+      <g id="desk-rgb" opacity="0.9">
+        <rect x="56" y="293.5" width="288" height="2.2" rx="1.1" fill="#1a1408" stroke="#0a0a08" stroke-width="0.35"/>
+        <rect id="desk-led-core" x="58" y="293.8" width="284" height="1.5" rx="0.75" fill="#c7923a" opacity="0.55"/>
+        <rect x="58" y="293.8" width="90" height="1.5" rx="0.75" fill="#6b7355" opacity="0.35"/>
+        <rect x="200" y="293.8" width="70" height="1.5" rx="0.75" fill="#a87830" opacity="0.4"/>
+        <ellipse cx="200" cy="296" rx="120" ry="4.5" fill="#c7923a" opacity="0.12"/>
+        <ellipse cx="140" cy="296" rx="50" ry="3.2" fill="#6b7355" opacity="0.1"/>
+      </g>
+      <path d="M52 316 V340 H78 V316 M322 316 V340 H348 V316" fill="#0c0e0c" stroke="#2a2e28"/>
+      <path d="M28 258 H372" stroke="#6b7355" stroke-width="1.05" opacity="0.35"/>
+      <g id="desk-grain" fill="none" stroke-linecap="butt" opacity="0.32">
+        <path d="M36 262 H368" stroke="#0e100e" stroke-width="0.55"/>
+        <path d="M40 268 H364" stroke="#3a4238" stroke-width="0.4"/>
+        <path d="M44 274 H360" stroke="#121410" stroke-width="0.45"/>
+        <path d="M48 280 H356" stroke="#4a5346" stroke-width="0.35"/>
+        <path d="M52 285 H352" stroke="#1a1c18" stroke-width="0.4"/>
+      </g>
+      <!-- Sparse dirty-beige / olive scuffs only (not a beige table) -->
+      <g id="desk-patina" opacity="0.14">
+        <ellipse cx="120" cy="270" rx="28" ry="6" fill="#6b7355"/>
+        <ellipse cx="280" cy="276" rx="22" ry="5" fill="#c4b896"/>
       </g>
       <g id="desk-wear" fill="none" stroke-linecap="round">
-        <path d="M96 276 Q118 278 132 274 Q148 271 168 277" stroke="#1a1610" stroke-width="1.1" opacity="0.55"/>
-        <path d="M118 275 L124 279" stroke="#0c0a08" stroke-width="0.7" opacity="0.45"/>
-        <path d="M250 272 Q268 276 286 273" stroke="#2a241c" stroke-width="0.9" opacity="0.4"/>
-        <path d="M300 280 L318 284" stroke="#1c1812" stroke-width="0.8" opacity="0.35"/>
-        <path d="M78 292 Q90 294 102 291" stroke="#181410" stroke-width="0.7" opacity="0.3"/>
-        <path d="M40 270 L46 274" stroke="#0c0a08" stroke-width="0.6" opacity="0.35"/>
-        <path d="M358 271 L350 276" stroke="#0c0a08" stroke-width="0.55" opacity="0.3"/>
+        <path d="M96 268 Q118 272 132 266 Q148 263 168 270" stroke="#050605" stroke-width="1.25" opacity="0.7"/>
+        <path d="M118 267 L126 274" stroke="#0a0c0a" stroke-width="0.85" opacity="0.55"/>
+        <path d="M250 264 Q268 270 286 266" stroke="#1a1c18" stroke-width="1" opacity="0.5"/>
+        <path d="M300 274 L322 282" stroke="#0e100e" stroke-width="0.85" opacity="0.45"/>
+        <path d="M78 282 Q92 286 108 281" stroke="#121410" stroke-width="0.75" opacity="0.4"/>
+        <path d="M34 260 L44 266" stroke="#050605" stroke-width="0.7" opacity="0.45"/>
+        <path d="M366 260 L354 268" stroke="#050605" stroke-width="0.65" opacity="0.4"/>
       </g>
     </g>
 
-    <!-- RECTANGULAR Nordic KB on desk — charcoal/black theme (no beige/olive). Thin border. -->
+    <!-- RECTANGULAR Nordic KB ON desk top (never trapezoid). Thin charcoal border. -->
     <g id="prop-keyboard">
-      <rect x="56" y="268" width="192" height="28" rx="2.2" fill="#0a0a0a" stroke="#4a4a4a" stroke-width="0.65"/>
-      <rect x="59" y="270.5" width="186" height="23" rx="1.4" fill="#121212"/>
+      <rect x="56" y="262" width="192" height="28" rx="2.2" fill="#0a0a0a" stroke="#4a4a4a" stroke-width="0.65"/>
+      <rect x="59" y="264.5" width="186" height="23" rx="1.4" fill="#121212"/>
       <!-- Toward him (top): Z-row + SPC -->
       <g class="kb-row" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="0.45">
-        <rect class="kb-deco" x="62" y="271.5" width="7" height="5" rx="0.6" fill="#161616"/>
-        <g id="kb-s22" class="kb-key" data-slot="22"><rect x="70.5" y="271.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-b" x="76" y="274" font-size="3.5" dx="0.2" dy="-0.1">Z</text></g>
-        <g id="kb-s23" class="kb-key" data-slot="23"><rect x="82.5" y="271.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-a" x="88" y="274" font-size="3.5">X</text></g>
-        <g id="kb-s24" class="kb-key" data-slot="24"><rect x="94.5" y="271.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-c" x="100" y="274" font-size="3.5" dx="-0.2">C</text></g>
-        <g id="kb-s25" class="kb-key" data-slot="25"><rect x="106.5" y="271.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-d" x="112" y="274" font-size="3.5">V</text></g>
-        <g id="kb-s26" class="kb-key" data-slot="26"><rect x="118.5" y="271.5" width="48" height="5" rx="0.6"/><text class="kb-label wear-e" x="142.5" y="274" font-size="3" dx="0.3">SPC</text></g>
-        <g id="kb-s27" class="kb-key" data-slot="27"><rect x="167.5" y="271.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-a" x="173" y="274" font-size="3.5">B</text></g>
-        <g id="kb-s28" class="kb-key" data-slot="28"><rect x="179.5" y="271.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-c" x="185" y="274" font-size="3.5" dy="0.15">N</text></g>
-        <g id="kb-s29" class="kb-key" data-slot="29"><rect x="191.5" y="271.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-b" x="197" y="274" font-size="3.5">M</text></g>
-        <rect class="kb-deco" x="203.5" y="271.5" width="28" height="5" rx="0.6" fill="#161616"/>
+        <rect class="kb-deco" x="62" y="265.5" width="7" height="5" rx="0.6" fill="#161616"/>
+        <g id="kb-s22" class="kb-key" data-slot="22"><rect x="70.5" y="265.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-b" x="76" y="268" font-size="3.5" dx="0.2" dy="-0.1">Z</text></g>
+        <g id="kb-s23" class="kb-key" data-slot="23"><rect x="82.5" y="265.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-a" x="88" y="268" font-size="3.5">X</text></g>
+        <g id="kb-s24" class="kb-key" data-slot="24"><rect x="94.5" y="265.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-c" x="100" y="268" font-size="3.5" dx="-0.2">C</text></g>
+        <g id="kb-s25" class="kb-key" data-slot="25"><rect x="106.5" y="265.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-d" x="112" y="268" font-size="3.5">V</text></g>
+        <g id="kb-s26" class="kb-key" data-slot="26"><rect x="118.5" y="265.5" width="48" height="5" rx="0.6"/><text class="kb-label wear-e" x="142.5" y="268" font-size="3" dx="0.3">SPC</text></g>
+        <g id="kb-s27" class="kb-key" data-slot="27"><rect x="167.5" y="265.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-a" x="173" y="268" font-size="3.5">B</text></g>
+        <g id="kb-s28" class="kb-key" data-slot="28"><rect x="179.5" y="265.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-c" x="185" y="268" font-size="3.5" dy="0.15">N</text></g>
+        <g id="kb-s29" class="kb-key" data-slot="29"><rect x="191.5" y="265.5" width="11" height="5" rx="0.6"/><text class="kb-label wear-b" x="197" y="268" font-size="3.5">M</text></g>
+        <rect class="kb-deco" x="203.5" y="265.5" width="28" height="5" rx="0.6" fill="#161616"/>
       </g>
-      <text class="kb-deco-label" x="65.5" y="274" fill="#6a6a6a" font-family="ui-monospace, Consolas, monospace" font-size="2.8" text-anchor="middle" dominant-baseline="central">&lt;</text>
+      <text class="kb-deco-label" x="65.5" y="268" fill="#6a6a6a" font-family="ui-monospace, Consolas, monospace" font-size="2.8" text-anchor="middle" dominant-baseline="central">&lt;</text>
       <!-- A…LÖÄ -->
       <g class="kb-row" fill="#222222" stroke="#404040" stroke-width="0.5">
-        <g id="kb-s11" class="kb-key" data-slot="11"><rect x="64" y="277.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-a" x="70.5" y="279.8" font-size="3.6">A</text></g>
-        <g id="kb-s12" class="kb-key" data-slot="12"><rect x="78" y="277.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-d" x="84.5" y="279.8" font-size="3.6" dx="-0.15">S</text></g>
-        <g id="kb-s13" class="kb-key" data-slot="13"><rect x="92" y="277.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-b" x="98.5" y="279.8" font-size="3.6">D</text></g>
-        <g id="kb-s14" class="kb-key" data-slot="14"><rect x="106" y="277.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-c" x="112.5" y="279.8" font-size="3.6" dy="0.1">F</text></g>
-        <g id="kb-s15" class="kb-key" data-slot="15"><rect x="120" y="277.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-e" x="126.5" y="279.8" font-size="3.6">G</text></g>
-        <g id="kb-s16" class="kb-key" data-slot="16"><rect x="134" y="277.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-a" x="140.5" y="279.8" font-size="3.6" dx="0.2">H</text></g>
-        <g id="kb-s17" class="kb-key" data-slot="17"><rect x="148" y="277.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-b" x="154.5" y="279.8" font-size="3.6">J</text></g>
-        <g id="kb-s18" class="kb-key" data-slot="18"><rect x="162" y="277.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-d" x="168.5" y="279.8" font-size="3.6">K</text></g>
-        <g id="kb-s19" class="kb-key" data-slot="19"><rect x="176" y="277.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-c" x="182.5" y="279.8" font-size="3.6" dx="-0.1">L</text></g>
-        <g id="kb-s20" class="kb-key" data-slot="20"><rect x="190" y="277.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-e" x="196.5" y="279.8" font-size="3.6">Ö</text></g>
-        <g id="kb-s21" class="kb-key" data-slot="21"><rect x="204" y="277.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-a" x="210.5" y="279.8" font-size="3.6" dy="-0.15">Ä</text></g>
+        <g id="kb-s11" class="kb-key" data-slot="11"><rect x="64" y="271.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-a" x="70.5" y="273.8" font-size="3.6">A</text></g>
+        <g id="kb-s12" class="kb-key" data-slot="12"><rect x="78" y="271.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-d" x="84.5" y="273.8" font-size="3.6" dx="-0.15">S</text></g>
+        <g id="kb-s13" class="kb-key" data-slot="13"><rect x="92" y="271.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-b" x="98.5" y="273.8" font-size="3.6">D</text></g>
+        <g id="kb-s14" class="kb-key" data-slot="14"><rect x="106" y="271.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-c" x="112.5" y="273.8" font-size="3.6" dy="0.1">F</text></g>
+        <g id="kb-s15" class="kb-key" data-slot="15"><rect x="120" y="271.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-e" x="126.5" y="273.8" font-size="3.6">G</text></g>
+        <g id="kb-s16" class="kb-key" data-slot="16"><rect x="134" y="271.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-a" x="140.5" y="273.8" font-size="3.6" dx="0.2">H</text></g>
+        <g id="kb-s17" class="kb-key" data-slot="17"><rect x="148" y="271.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-b" x="154.5" y="273.8" font-size="3.6">J</text></g>
+        <g id="kb-s18" class="kb-key" data-slot="18"><rect x="162" y="271.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-d" x="168.5" y="273.8" font-size="3.6">K</text></g>
+        <g id="kb-s19" class="kb-key" data-slot="19"><rect x="176" y="271.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-c" x="182.5" y="273.8" font-size="3.6" dx="-0.1">L</text></g>
+        <g id="kb-s20" class="kb-key" data-slot="20"><rect x="190" y="271.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-e" x="196.5" y="273.8" font-size="3.6">Ö</text></g>
+        <g id="kb-s21" class="kb-key" data-slot="21"><rect x="204" y="271.2" width="13" height="5.2" rx="0.6"/><text class="kb-label wear-a" x="210.5" y="273.8" font-size="3.6" dy="-0.15">Ä</text></g>
       </g>
       <!-- Q…PÅ -->
       <g class="kb-row" fill="#2a2a2a" stroke="#4a4a4a" stroke-width="0.5">
-        <g id="kb-s0" class="kb-key" data-slot="0"><rect x="62" y="283" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-d" x="68.25" y="285.5" font-size="3.5" dx="0.1">Q</text></g>
-        <g id="kb-s1" class="kb-key" data-slot="1"><rect x="75.5" y="283" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-a" x="81.75" y="285.5" font-size="3.5">W</text></g>
-        <g id="kb-s2" class="kb-key" data-slot="2"><rect x="89" y="283" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-c" x="95.25" y="285.5" font-size="3.5" dy="-0.1">E</text></g>
-        <g id="kb-s3" class="kb-key" data-slot="3"><rect x="102.5" y="283" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-b" x="108.75" y="285.5" font-size="3.5">R</text></g>
-        <g id="kb-s4" class="kb-key" data-slot="4"><rect x="116" y="283" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-e" x="122.25" y="285.5" font-size="3.5" dx="-0.15">T</text></g>
-        <g id="kb-s5" class="kb-key" data-slot="5"><rect x="129.5" y="283" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-a" x="135.75" y="285.5" font-size="3.5">Y</text></g>
-        <g id="kb-s6" class="kb-key" data-slot="6"><rect x="143" y="283" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-d" x="149.25" y="285.5" font-size="3.5">U</text></g>
-        <g id="kb-s7" class="kb-key" data-slot="7"><rect x="156.5" y="283" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-c" x="162.75" y="285.5" font-size="3.5" dx="0.15">I</text></g>
-        <g id="kb-s8" class="kb-key" data-slot="8"><rect x="170" y="283" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-b" x="176.25" y="285.5" font-size="3.5">O</text></g>
-        <g id="kb-s9" class="kb-key" data-slot="9"><rect x="183.5" y="283" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-e" x="189.75" y="285.5" font-size="3.5" dy="0.1">P</text></g>
-        <g id="kb-s10" class="kb-key" data-slot="10"><rect x="197" y="283" width="13" height="5" rx="0.6"/><text class="kb-label wear-a" x="203.5" y="285.5" font-size="3.5">Å</text></g>
+        <g id="kb-s0" class="kb-key" data-slot="0"><rect x="62" y="277" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-d" x="68.25" y="279.5" font-size="3.5" dx="0.1">Q</text></g>
+        <g id="kb-s1" class="kb-key" data-slot="1"><rect x="75.5" y="277" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-a" x="81.75" y="279.5" font-size="3.5">W</text></g>
+        <g id="kb-s2" class="kb-key" data-slot="2"><rect x="89" y="277" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-c" x="95.25" y="279.5" font-size="3.5" dy="-0.1">E</text></g>
+        <g id="kb-s3" class="kb-key" data-slot="3"><rect x="102.5" y="277" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-b" x="108.75" y="279.5" font-size="3.5">R</text></g>
+        <g id="kb-s4" class="kb-key" data-slot="4"><rect x="116" y="277" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-e" x="122.25" y="279.5" font-size="3.5" dx="-0.15">T</text></g>
+        <g id="kb-s5" class="kb-key" data-slot="5"><rect x="129.5" y="277" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-a" x="135.75" y="279.5" font-size="3.5">Y</text></g>
+        <g id="kb-s6" class="kb-key" data-slot="6"><rect x="143" y="277" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-d" x="149.25" y="279.5" font-size="3.5">U</text></g>
+        <g id="kb-s7" class="kb-key" data-slot="7"><rect x="156.5" y="277" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-c" x="162.75" y="279.5" font-size="3.5" dx="0.15">I</text></g>
+        <g id="kb-s8" class="kb-key" data-slot="8"><rect x="170" y="277" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-b" x="176.25" y="279.5" font-size="3.5">O</text></g>
+        <g id="kb-s9" class="kb-key" data-slot="9"><rect x="183.5" y="277" width="12.5" height="5" rx="0.6"/><text class="kb-label wear-e" x="189.75" y="279.5" font-size="3.5" dy="0.1">P</text></g>
+        <g id="kb-s10" class="kb-key" data-slot="10"><rect x="197" y="277" width="13" height="5" rx="0.6"/><text class="kb-label wear-a" x="203.5" y="279.5" font-size="3.5">Å</text></g>
       </g>
       <!-- Toward viewer (bottom): number row -->
       <g class="kb-row kb-num" fill="#181818" stroke="#333333" stroke-width="0.4">
-        <rect x="62" y="288.8" width="12" height="3.8" rx="0.5"/><rect x="75" y="288.8" width="12" height="3.8" rx="0.5"/>
-        <rect x="88" y="288.8" width="12" height="3.8" rx="0.5"/><rect x="101" y="288.8" width="12" height="3.8" rx="0.5"/>
-        <rect x="114" y="288.8" width="12" height="3.8" rx="0.5"/><rect x="127" y="288.8" width="12" height="3.8" rx="0.5"/>
-        <rect x="140" y="288.8" width="12" height="3.8" rx="0.5"/><rect x="153" y="288.8" width="12" height="3.8" rx="0.5"/>
-        <rect x="166" y="288.8" width="12" height="3.8" rx="0.5"/><rect x="179" y="288.8" width="12" height="3.8" rx="0.5"/>
-        <rect x="192" y="288.8" width="12" height="3.8" rx="0.5"/><rect x="205" y="288.8" width="13" height="3.8" rx="0.5"/>
+        <rect x="62" y="282.8" width="12" height="3.8" rx="0.5"/><rect x="75" y="282.8" width="12" height="3.8" rx="0.5"/>
+        <rect x="88" y="282.8" width="12" height="3.8" rx="0.5"/><rect x="101" y="282.8" width="12" height="3.8" rx="0.5"/>
+        <rect x="114" y="282.8" width="12" height="3.8" rx="0.5"/><rect x="127" y="282.8" width="12" height="3.8" rx="0.5"/>
+        <rect x="140" y="282.8" width="12" height="3.8" rx="0.5"/><rect x="153" y="282.8" width="12" height="3.8" rx="0.5"/>
+        <rect x="166" y="282.8" width="12" height="3.8" rx="0.5"/><rect x="179" y="282.8" width="12" height="3.8" rx="0.5"/>
+        <rect x="192" y="282.8" width="12" height="3.8" rx="0.5"/><rect x="205" y="282.8" width="13" height="3.8" rx="0.5"/>
       </g>
       <g class="kb-labels-num" fill="#6a6a6a" font-family="ui-monospace, Consolas, monospace" font-size="3.2" text-anchor="middle" dominant-baseline="central">
-        <text x="68" y="290.7">1</text><text x="81" y="290.7">2</text><text x="94" y="290.7">3</text>
-        <text x="107" y="290.7">4</text><text x="120" y="290.7">5</text><text x="133" y="290.7">6</text>
-        <text x="146" y="290.7">7</text><text x="159" y="290.7">8</text><text x="172" y="290.7">9</text>
-        <text x="185" y="290.7">0</text><text x="198" y="290.7">+</text><text x="211.5" y="290.7">´</text>
+        <text x="68" y="284.7">1</text><text x="81" y="284.7">2</text><text x="94" y="284.7">3</text>
+        <text x="107" y="284.7">4</text><text x="120" y="284.7">5</text><text x="133" y="284.7">6</text>
+        <text x="146" y="284.7">7</text><text x="159" y="284.7">8</text><text x="172" y="284.7">9</text>
+        <text x="185" y="284.7">0</text><text x="198" y="284.7">+</text><text x="211.5" y="284.7">´</text>
       </g>
     </g>
 
-    <!-- Black rectangular mousepad on desk, then charcoal mouse -->
+    <!-- Black rectangular mousepad ON desk top, charcoal mouse -->
     <g id="prop-mousepad">
-      <rect x="288" y="270" width="56" height="26" rx="2" fill="#0a0a0a" stroke="#1a1a1a" stroke-width="0.55" opacity="0.94"/>
-      <rect x="291" y="272.5" width="50" height="21" rx="1.2" fill="#050505" opacity="0.5"/>
+      <rect x="288" y="264" width="56" height="26" rx="2" fill="#0a0a0a" stroke="#1a1a1a" stroke-width="0.55" opacity="0.94"/>
+      <rect x="291" y="266.5" width="50" height="21" rx="1.2" fill="#050505" opacity="0.5"/>
     </g>
     <g id="prop-mouse">
-      <path d="M300 274 Q316 270 330 275 L328 290 Q315 295 302 290 Z" fill="#121212" stroke="#4a4a4a" stroke-width="0.85"/>
-      <path id="mouse-lmb" class="mouse-btn mouse-lmb" d="M302 275 Q309 272 314.5 274 L314.2 285 Q308.5 287.5 302.5 285.5 Z" fill="#1a1a1a"/>
-      <path id="mouse-rmb" class="mouse-btn mouse-rmb" d="M315.5 274 Q321.5 272 328 276 L326.5 286 Q321 288.5 315.5 285.5 Z" fill="#1a1a1a"/>
-      <g id="mouse-wheel" transform-origin="315px 280px">
-        <ellipse cx="315" cy="280" rx="2.1" ry="3.4" fill="#2a2a2a" stroke="#5a5a5a" stroke-width="0.55"/>
-        <path d="M315 277 V283" stroke="#8a8a8a" stroke-width="0.55" opacity="0.85"/>
-        <path d="M313.4 280 H316.6" stroke="#5a5a5a" stroke-width="0.45" opacity="0.8"/>
+      <path d="M300 268 Q316 264 330 269 L328 284 Q315 289 302 284 Z" fill="#121212" stroke="#4a4a4a" stroke-width="0.85"/>
+      <path id="mouse-lmb" class="mouse-btn mouse-lmb" d="M302 269 Q309 266 314.5 268 L314.2 279 Q308.5 281.5 302.5 279.5 Z" fill="#1a1a1a"/>
+      <path id="mouse-rmb" class="mouse-btn mouse-rmb" d="M315.5 268 Q321.5 266 328 270 L326.5 280 Q321 282.5 315.5 279.5 Z" fill="#1a1a1a"/>
+      <g id="mouse-wheel" transform-origin="315px 274px">
+        <ellipse cx="315" cy="274" rx="2.1" ry="3.4" fill="#2a2a2a" stroke="#5a5a5a" stroke-width="0.55"/>
+        <path d="M315 271 V277" stroke="#8a8a8a" stroke-width="0.55" opacity="0.85"/>
+        <path d="M313.4 274 H316.6" stroke="#5a5a5a" stroke-width="0.45" opacity="0.8"/>
       </g>
     </g>
 
-    <!-- Hands: sit on inner group so JS key/mouse transforms don't wipe desk-close -->
+    <!--
+      Hands AFTER desk+KB+mouse — rest ON the keys / mouse (desk-plane coords).
+      No sit-Y offset (that was pushing palms through the table lip).
+      Outer #hand-* receives JS transforms; geometry stays in desk space.
+    -->
     <g id="hand-left">
-      <g id="hand-left-sit" transform="translate(0 28)">
-      <path d="M112 262 L148 260 L151 272 L116 275 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1"/>
-      <rect x="118" y="272" width="4.5" height="12" rx="1.8" fill="#4a463c" stroke="#1a1810" stroke-width="0.55"/>
-      <rect x="127" y="271" width="4.5" height="13" rx="1.8" fill="#4a463c" stroke="#1a1810" stroke-width="0.55"/>
-      <rect x="136" y="272" width="4.5" height="12" rx="1.8" fill="#4a463c" stroke="#1a1810" stroke-width="0.55"/>
-      <rect x="145" y="273" width="4.5" height="11" rx="1.8" fill="#4a463c" stroke="#1a1810" stroke-width="0.55"/>
-      <path d="M112 266 L104 262" stroke="#4a463c" stroke-width="3.5" stroke-linecap="round"/>
+      <g id="hand-left-sit">
+      <!-- Natural skin-tone palm ON home row -->
+      <path d="M100 264 L138 262 L140 274 L103 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
+      <rect x="106" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
+      <rect x="115" y="271" width="4.4" height="11" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
+      <rect x="124" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
+      <rect x="133" y="273" width="4.4" height="9" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
       </g>
     </g>
 
     <g id="hand-right">
-      <g id="hand-right-sit" transform="translate(0 28)">
-      <path d="M302 258 L326 260 L324 272 L304 270 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1" opacity="0.92"/>
-      <rect id="finger-lmb" x="306" y="266" width="4.2" height="11" rx="1.4" fill="#3a3630"/>
-      <rect id="finger-rmb" x="315" y="267" width="4.2" height="10.5" rx="1.4" fill="#3a3630"/>
+      <g id="hand-right-sit">
+      <!-- Natural skin-tone palm ON mouse -->
+      <path d="M302 264 L324 266 L322 278 L304 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1" opacity="0.96"/>
+      <rect id="finger-lmb" x="306" y="270" width="4.2" height="9.5" rx="1.4" fill="#b89068"/>
+      <rect id="finger-rmb" x="314" y="271" width="4.2" height="9" rx="1.4" fill="#b89068"/>
       </g>
     </g>
   </g>
