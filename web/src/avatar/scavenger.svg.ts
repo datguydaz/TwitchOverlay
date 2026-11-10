@@ -50,7 +50,6 @@ export const scavengerSvg = `
       <path d="M48 302 V328 H78 V302 M322 302 V328 H352 V302" fill="#241e18" stroke="#4a443c"/>
       <path d="M36 268 H364" stroke="#6b7355" stroke-width="1.2" opacity="0.5"/>
       <path d="M70 288 H330" stroke="#3a342c" stroke-width="6" opacity="0.55"/>
-      <path d="M110 300 H290" stroke="#6b7355" stroke-width="1" stroke-dasharray="5 3 2 3" opacity="0.45"/>
     </g>
 
     <!-- TORSO: imposing fat armored mass -->
@@ -171,8 +170,8 @@ export const scavengerSvg = `
       <rect x="302" y="268" width="20" height="4" rx="1.5" fill="#2a2e24"/>
     </g>
 
+    <!-- Status LEDs only — no empty name-plate / label box -->
     <g id="desk-lights">
-      <rect x="340" y="248" width="32" height="11" rx="1" fill="#121410" stroke="#4a5240"/>
       <circle class="eq-light" cx="348" cy="268" r="4" fill="#c7923a">
         <animate attributeName="opacity" values="0.3;1;0.3" dur="1.15s" repeatCount="indefinite"/>
       </circle>
