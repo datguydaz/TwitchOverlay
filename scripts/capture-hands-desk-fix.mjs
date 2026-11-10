@@ -190,35 +190,37 @@ const meta = await page.evaluate(() => {
       const stripes = document.querySelector("#helm-stripes");
       const slit = document.querySelector("#eye-slit");
       const eyes = document.querySelector("#eyes");
-      if (!dome || !plate || !stripes || !slit || !eyes) return false;
-      // ONE continuous tall Maska: path shell + matching inset path (no ellipse/rect stack)
+      const bolts = document.querySelector("#helm-bolts");
+      if (!dome || !plate || !stripes || !slit || !eyes || !bolts) return false;
+      // Exact Maska unit: rounded dome path + tall bolted faceplate path (not rect blob stack)
       const domeIsPath = dome.tagName.toLowerCase() === "path";
       const plateIsPath = plate.tagName.toLowerCase() === "path";
-      // Reject shell drawn as ellipse blob (eye ellipses inside #eyes are fine)
-      const noShellEllipse = !document.querySelector("#head-scale > ellipse");
       const noRectPlate = plate.tagName.toLowerCase() !== "rect";
+      const boltCircles = bolts.querySelectorAll("circle").length;
       const stripePaths = stripes.querySelectorAll("path[id^=helm-stripe-]").length;
       const kids = [...(document.querySelector("#head-scale")?.children || [])];
       const stripeIdx = kids.indexOf(stripes);
       const eyesIdx = kids.indexOf(eyes);
       const slitOverStripes = stripeIdx >= 0 && eyesIdx > stripeIdx;
       const slitH = Number(slit.getAttribute("height") || 0);
-      const box = dome.getBBox?.();
-      const tallShell = !!box && box.height > box.width * 1.15;
-      const sameFamily =
-        (dome.getAttribute("d") || "").includes("Q200") &&
-        (plate.getAttribute("d") || "").includes("Q200");
+      const plateBox = plate.getBBox?.();
+      const domeBox = dome.getBBox?.();
+      // Faceplate tall; dome is crown (wider than tall or squat bowl)
+      const tallPlate = !!plateBox && plateBox.height > plateBox.width * 0.85;
+      const crownDome = !!domeBox && domeBox.width > domeBox.height * 0.9;
+      const plateOpaque = (plate.getAttribute("opacity") || "1") !== "0";
       return (
         domeIsPath &&
         plateIsPath &&
-        noShellEllipse &&
         noRectPlate &&
-        tallShell &&
-        sameFamily &&
+        plateOpaque &&
+        tallPlate &&
+        crownDome &&
+        boltCircles >= 6 &&
         stripePaths >= 3 &&
         slitOverStripes &&
         slitH > 0 &&
-        slitH <= 11
+        slitH <= 12
       );
     })(),
     noFingerGlowCss: (() => {
