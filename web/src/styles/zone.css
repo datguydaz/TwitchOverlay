@@ -539,6 +539,10 @@ body.scene-opaque {
   dominant-baseline: central;
   pointer-events: none;
   opacity: 0.82;
+  /* Upside-down to viewer — glyphs face the operator */
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(180deg);
 }
 
 /* Scuffed / worn legend — charcoal theme, uneven opacity, still readable */
@@ -549,9 +553,15 @@ body.scene-opaque {
 .kb-label.wear-e { opacity: 0.6; fill: #888888; }
 .kb-deco-label {
   opacity: 0.48;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(180deg);
 }
 .kb-labels-num text {
   opacity: 0.72;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(180deg);
 }
 .kb-labels-num text:nth-child(3n) { opacity: 0.5; fill: #5a5a5a; }
 .kb-labels-num text:nth-child(3n + 1) { opacity: 0.85; fill: #8a8a8a; }

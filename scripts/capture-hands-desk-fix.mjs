@@ -187,6 +187,18 @@ const meta = await page.evaluate(() => {
       !document.querySelector("#pizza-box-1") &&
       !document.querySelector("#pizza-box-2") &&
       !document.querySelector("#pizza-box-3"),
+    glyphsUpsideDown: (() => {
+      const label = document.querySelector(".kb-label");
+      const num = document.querySelector(".kb-labels-num text");
+      const deco = document.querySelector(".kb-deco-label");
+      const rot = (el) => {
+        if (!el) return false;
+        const t = getComputedStyle(el).transform;
+        // rotate(180deg) → matrix(-1, 0, 0, -1, …)
+        return !!t && t !== "none" && t.startsWith("matrix(-1");
+      };
+      return rot(label) && rot(num) && rot(deco);
+    })(),
     farReachCss: (() => {
       const t = getComputedStyle(document.querySelector("#hand-left-aim") || document.body).transitionProperty;
       return String(t).includes("transform") || t === "all";
@@ -240,6 +252,14 @@ files.push(
     y: box.y + box.height * 0.28,
     width: box.width * 0.76,
     height: box.height * 0.4,
+  }),
+);
+files.push(
+  await shot("kb-glyphs", {
+    x: box.x + box.width * 0.08,
+    y: box.y + box.height * 0.52,
+    width: box.width * 0.55,
+    height: box.height * 0.28,
   }),
 );
 
@@ -333,6 +353,7 @@ const pass =
   meta.straightArms &&
   meta.vestRootedShort &&
   meta.noPizzaBoxes &&
+  meta.glyphsUpsideDown &&
   meta.skinHands &&
   meta.keyAim?.ok &&
   meta.mousePress?.ok;
@@ -357,6 +378,7 @@ console.log(
     straightArms: meta.straightArms,
     vestRootedShort: meta.vestRootedShort,
     noPizzaBoxes: meta.noPizzaBoxes,
+    glyphsUpsideDown: meta.glyphsUpsideDown,
     keyAim: meta.keyAim,
     mousePress: meta.mousePress,
     hasDeskRgb: meta.hasDeskRgb,
