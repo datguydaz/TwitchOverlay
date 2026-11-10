@@ -554,10 +554,9 @@ export class ReactiveAvatar {
   }
 
   private applyHandToSlot(): void {
-    const aim = this.handLeftAim ?? this.handLeft;
-    if (!aim) return;
-    // Continuous arm pivots at vest root via #hand-left-pivot / #hand-left-aim SVG transforms.
-    const shoulder = { x: 132, y: 192 };
+    if (!this.handLeftAim) return;
+    // Vest-side root (must match #hand-left-pivot). Valid SVG: rotate(a) scale(s).
+    const shoulder = { x: 122, y: 214 };
     const home = HAND_HOME;
     let next: string;
     if (this.keyHeld > 0 && this.activeSlot != null) {
@@ -569,8 +568,8 @@ export class ReactiveAvatar {
       const homeDist = Math.hypot(home.cx - shoulder.x, home.cy - shoulder.y) || 1;
       const tgtDist = Math.hypot(targetCx - shoulder.x, targetCy - shoulder.y);
       const rotDeg = ((tgtAng - homeAng) * 180) / Math.PI;
-      const stretch = Math.min(1.14, Math.max(0.9, tgtDist / homeDist));
-      next = `rotate(${rotDeg.toFixed(2)} scale(${stretch.toFixed(3)}))`;
+      const stretch = Math.min(1.08, Math.max(0.94, tgtDist / homeDist));
+      next = `rotate(${rotDeg.toFixed(2)}) scale(${stretch.toFixed(3)})`;
       this.root.dataset.keySlot = String(this.activeSlot);
     } else {
       next = "";
@@ -578,10 +577,8 @@ export class ReactiveAvatar {
     }
     if (next === this.lastHandTx) return;
     this.lastHandTx = next;
-    if (this.handLeftAim) {
-      if (next) this.handLeftAim.setAttribute("transform", next);
-      else this.handLeftAim.removeAttribute("transform");
-    }
+    if (next) this.handLeftAim.setAttribute("transform", next);
+    else this.handLeftAim.removeAttribute("transform");
     if (this.handLeft) this.handLeft.style.transform = "";
   }
 

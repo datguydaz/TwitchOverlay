@@ -165,6 +165,23 @@ const meta = await page.evaluate(() => {
       // Line segments preferred; reject heavy oval Q-noodle paths
       return d.includes("L") && !/Q\s*\d+\s+\d+\s+\d+\s+\d+\s+Q/i.test(d);
     })(),
+    vestRootedShort: (() => {
+      const left = document.querySelector("#sleeve-left-fill")?.getAttribute("d") || "";
+      const right = document.querySelector("#sleeve-right-fill")?.getAttribute("d") || "";
+      const pivotL = document.querySelector("#hand-left-pivot")?.getAttribute("transform") || "";
+      const yL = Number((left.match(/M\s*[\d.]+\s+([\d.]+)/) || [])[1] || 0);
+      const yR = Number((right.match(/M\s*[\d.]+\s+([\d.]+)/) || [])[1] || 0);
+      // Mid-vest roots (below helm ~180); short path ends near wrist ~268
+      return (
+        yL >= 205 &&
+        yL <= 230 &&
+        yR >= 205 &&
+        yR <= 230 &&
+        pivotL.includes("214") &&
+        left.includes("268") &&
+        right.includes("268")
+      );
+    })(),
     skinHands: (() => {
       const p = document.querySelector("#hand-left-sit > path");
       const fill = p?.getAttribute("fill") || "";
@@ -224,10 +241,16 @@ const keyAim = await page.evaluate(() => {
   if (!root || !aim) return { ok: false };
   root.dataset.key = "1";
   root.dataset.keySlot = "2";
-  aim.setAttribute("transform", "rotate(-18) scale(1.06)");
+  aim.setAttribute("transform", "rotate(-14) scale(1.04)");
   const tx = aim.getAttribute("transform") || "";
+  const sleeve = document.querySelector("#sleeve-left-fill");
+  const sleeveD = sleeve?.getAttribute("d") || "";
+  const rootY = Number((sleeveD.match(/M\s*[\d.]+\s+([\d.]+)/) || [])[1] || 0);
   const sleeveInHand = !!document.querySelector("#hand-left-sit #arm-left #sleeve-left-fill");
-  return { ok: tx.includes("rotate") && sleeveInHand, tx, sleeveInHand };
+  // Valid SVG rotate() scale() — not the broken rotate(a scale(s)) form
+  const txOk = /rotate\([^)]+\)\s*scale\([^)]+\)/.test(tx);
+  const vestRooted = rootY >= 205 && rootY <= 230;
+  return { ok: txOk && sleeveInHand && vestRooted, tx, sleeveInHand, rootY, vestRooted };
 });
 await page.waitForTimeout(180);
 files.push(
@@ -296,6 +319,7 @@ const pass =
   meta.helmWhiteMatch &&
   meta.fullStripes &&
   meta.straightArms &&
+  meta.vestRootedShort &&
   meta.skinHands &&
   meta.keyAim?.ok &&
   meta.mousePress?.ok;
@@ -318,6 +342,7 @@ console.log(
     helmWhiteMatch: meta.helmWhiteMatch,
     fullStripes: meta.fullStripes,
     straightArms: meta.straightArms,
+    vestRootedShort: meta.vestRootedShort,
     keyAim: meta.keyAim,
     mousePress: meta.mousePress,
     hasDeskRgb: meta.hasDeskRgb,

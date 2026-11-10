@@ -352,25 +352,27 @@ export const scavengerSvg = `
       Roots attach to vest side (world space ≈ scaled vest roots + sit). No separate shoulder pads.
       Outer #hand-* receives JS transforms (pivot at vest root).
     -->
-    <!-- SVG pivot groups: aim rotates around vest root so sleeve stays attached -->
+    <!--
+      Short relaxed sleeves rooted at mid-vest sides (world ≈ scaled vest + sit),
+      NOT helm. Pivot at vest root; #hand-*-aim gets key/mouse transforms.
+    -->
     <g id="hand-left">
-      <g id="hand-left-pivot" transform="translate(132 192)">
+      <g id="hand-left-pivot" transform="translate(122 214)">
         <g id="hand-left-aim">
-          <g id="hand-left-sit" transform="translate(-132 -192)">
+          <g id="hand-left-sit" transform="translate(-122 -214)">
             <g id="arm-left" class="arm-continuous">
-              <!-- Single straighter sleeve stroke vest→wrist (no double-oval overlay) -->
-              <path id="sleeve-left-fill" d="M142 180 L124 206 L112 234 L114 254 L118 268" fill="none" stroke="#0e0e0e" stroke-width="26" stroke-linecap="butt" stroke-linejoin="miter"/>
-              <!-- Adidas stripes full arm length — same helm white #efe6d2 -->
-              <g id="sleeve-stripes-left" fill="none" stroke="#efe6d2" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="2.3">
-                <path d="M142 180 L124 206 L112 234 L114 254 L118 268" transform="translate(-4.4 0)"/>
-                <path d="M142 180 L124 206 L112 234 L114 254 L118 268"/>
-                <path d="M142 180 L124 206 L112 234 L114 254 L118 268" transform="translate(4.4 0)"/>
+              <!-- Short chill sit: vest side → wrist -->
+              <path id="sleeve-left-fill" d="M122 214 L112 232 L108 248 L114 260 L118 268" fill="none" stroke="#0e0e0e" stroke-width="24" stroke-linecap="butt" stroke-linejoin="miter"/>
+              <g id="sleeve-stripes-left" fill="none" stroke="#efe6d2" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="2.2">
+                <path d="M122 214 L112 232 L108 248 L114 260 L118 268" transform="translate(-4.2 0)"/>
+                <path d="M122 214 L112 232 L108 248 L114 260 L118 268"/>
+                <path d="M122 214 L112 232 L108 248 L114 260 L118 268" transform="translate(4.2 0)"/>
               </g>
               <g id="sleeve-wear-left" fill="none" stroke-linecap="round">
-                <path d="M120 210 L112 218" stroke="#c8c2b0" stroke-width="0.55" opacity="0.35"/>
-                <path d="M116 232 L108 238" stroke="#8a8a8a" stroke-width="0.45" opacity="0.4"/>
+                <path d="M114 228 L106 234" stroke="#c8c2b0" stroke-width="0.55" opacity="0.35"/>
+                <path d="M110 244 L104 250" stroke="#8a8a8a" stroke-width="0.45" opacity="0.4"/>
               </g>
-              <ellipse cx="118" cy="268" rx="7.5" ry="4.2" fill="#1a1a1a" stroke="#050505" stroke-width="0.7"/>
+              <ellipse cx="118" cy="268" rx="7.2" ry="4" fill="#1a1a1a" stroke="#050505" stroke-width="0.7"/>
             </g>
             <path d="M100 264 L138 262 L140 274 L103 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
             <rect x="106" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
@@ -383,21 +385,21 @@ export const scavengerSvg = `
     </g>
 
     <g id="hand-right">
-      <g id="hand-right-pivot" transform="translate(268 192)">
+      <g id="hand-right-pivot" transform="translate(278 214)">
         <g id="hand-right-aim">
-          <g id="hand-right-sit" transform="translate(-268 -192)">
+          <g id="hand-right-sit" transform="translate(-278 -214)">
             <g id="arm-right" class="arm-continuous">
-              <path id="sleeve-right-fill" d="M258 180 L276 206 L292 234 L304 254 L314 268" fill="none" stroke="#0e0e0e" stroke-width="22" stroke-linecap="butt" stroke-linejoin="miter"/>
-              <g id="sleeve-stripes-right" fill="none" stroke="#efe6d2" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="2.2">
-                <path d="M258 180 L276 206 L292 234 L304 254 L314 268" transform="translate(-4.2 0)"/>
-                <path d="M258 180 L276 206 L292 234 L304 254 L314 268"/>
-                <path d="M258 180 L276 206 L292 234 L304 254 L314 268" transform="translate(4.2 0)"/>
+              <path id="sleeve-right-fill" d="M278 214 L290 232 L300 248 L308 260 L314 268" fill="none" stroke="#0e0e0e" stroke-width="20" stroke-linecap="butt" stroke-linejoin="miter"/>
+              <g id="sleeve-stripes-right" fill="none" stroke="#efe6d2" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="2.1">
+                <path d="M278 214 L290 232 L300 248 L308 260 L314 268" transform="translate(-4.0 0)"/>
+                <path d="M278 214 L290 232 L300 248 L308 260 L314 268"/>
+                <path d="M278 214 L290 232 L300 248 L308 260 L314 268" transform="translate(4.0 0)"/>
               </g>
               <g id="sleeve-wear-right" fill="none" stroke-linecap="round">
-                <path d="M280 210 L288 218" stroke="#c8c2b0" stroke-width="0.5" opacity="0.32"/>
-                <path d="M288 232 L296 238" stroke="#7a7a7a" stroke-width="0.45" opacity="0.38"/>
+                <path d="M286 228 L294 234" stroke="#c8c2b0" stroke-width="0.5" opacity="0.32"/>
+                <path d="M296 244 L302 250" stroke="#7a7a7a" stroke-width="0.45" opacity="0.38"/>
               </g>
-              <ellipse cx="314" cy="268" rx="7" ry="4" fill="#1a1a1a" stroke="#050505" stroke-width="0.7"/>
+              <ellipse cx="314" cy="268" rx="6.8" ry="3.8" fill="#1a1a1a" stroke="#050505" stroke-width="0.7"/>
             </g>
             <path d="M302 264 L324 266 L322 278 L304 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1" opacity="0.96"/>
             <rect id="finger-lmb" x="306" y="270" width="4.2" height="9.5" rx="1.4" fill="#b89068"/>
