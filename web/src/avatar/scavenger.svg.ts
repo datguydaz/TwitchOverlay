@@ -47,29 +47,30 @@ export const scavengerSvg = `
     <path d="M28 268 H372 L352 302 H48 Z" fill="url(#deskGrad)" stroke="#5a5348" stroke-width="1.6"/>
     <path d="M48 302 V328 H78 V302 M322 302 V328 H352 V302" fill="#241e18" stroke="#4a443c"/>
 
-    <!-- Keyboard under left hand -->
+    <!-- Keyboard under left hand — extended forward so keys stay readable -->
     <g id="prop-keyboard">
-      <rect x="70" y="252" width="168" height="24" rx="2" fill="#121410" stroke="#6b7355" stroke-width="1.2"/>
-      <g fill="#2a2e24" stroke="#4a5240" stroke-width="0.55">
-        <rect x="76" y="256" width="12" height="9" rx="1"/>
-        <rect x="92" y="256" width="12" height="9" rx="1"/>
-        <rect x="108" y="256" width="12" height="9" rx="1"/>
-        <rect x="124" y="256" width="12" height="9" rx="1"/>
-        <rect x="140" y="256" width="12" height="9" rx="1"/>
-        <rect x="156" y="256" width="12" height="9" rx="1"/>
-        <rect x="172" y="256" width="12" height="9" rx="1"/>
-        <rect x="188" y="256" width="12" height="9" rx="1"/>
-        <rect x="204" y="256" width="26" height="9" rx="1"/>
-        <rect x="82" y="267" width="140" height="5" rx="1"/>
+      <rect x="58" y="246" width="186" height="28" rx="2" fill="#0e100c" stroke="#8a9480" stroke-width="1.6"/>
+      <g fill="#3a4034" stroke="#6b7355" stroke-width="0.7">
+        <rect x="64" y="250" width="14" height="10" rx="1"/>
+        <rect x="82" y="250" width="14" height="10" rx="1"/>
+        <rect x="100" y="250" width="14" height="10" rx="1"/>
+        <rect x="118" y="250" width="14" height="10" rx="1"/>
+        <rect x="136" y="250" width="14" height="10" rx="1"/>
+        <rect x="154" y="250" width="14" height="10" rx="1"/>
+        <rect x="172" y="250" width="14" height="10" rx="1"/>
+        <rect x="190" y="250" width="14" height="10" rx="1"/>
+        <rect x="208" y="250" width="28" height="10" rx="1"/>
+        <rect x="70" y="262" width="150" height="6" rx="1"/>
       </g>
-      <rect x="78" y="270" width="150" height="2" fill="#c7923a" opacity="0.35"/>
+      <rect x="66" y="268" width="160" height="2.5" fill="#c7923a" opacity="0.55"/>
     </g>
 
-    <!-- Mouse under right hand -->
+    <!-- Mouse under right hand — bright rim so it reads past the glove -->
     <g id="prop-mouse">
-      <ellipse cx="292" cy="264" rx="20" ry="26" fill="#1e201a" stroke="#6b7355" stroke-width="1.2"/>
-      <line x1="292" y1="244" x2="292" y2="264" stroke="#8a6528" stroke-width="1.5"/>
-      <path d="M280 252 Q292 248 304 252" fill="none" stroke="#4a5240" stroke-width="1"/>
+      <ellipse cx="300" cy="258" rx="22" ry="28" fill="#1a1c16" stroke="#a8b090" stroke-width="2"/>
+      <line x1="300" y1="236" x2="300" y2="258" stroke="#c7923a" stroke-width="1.8"/>
+      <path d="M286 246 Q300 240 314 246" fill="none" stroke="#6b7355" stroke-width="1.4"/>
+      <ellipse cx="300" cy="268" rx="8" ry="5" fill="#2a2e24"/>
     </g>
 
     <rect x="322" y="248" width="34" height="12" rx="1" fill="#121410" stroke="#4a5240"/>
@@ -177,20 +178,20 @@ export const scavengerSvg = `
     <circle cx="200" cy="168" r="4" fill="#0a0c08"/>
   </g>
 
-  <!-- Left hand over keyboard -->
+  <!-- Left hand over keyboard (keys remain visible around glove) -->
   <g id="hand-left">
-    <path d="M88 248 Q112 232 148 246 Q158 258 138 268 Q108 272 90 258 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
-    <path d="M104 246 L108 262 M116 244 L120 262 M128 246 L130 262" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
-    <ellipse cx="96" cy="252" rx="7" ry="6" fill="#3a3630"/>
-    <path d="M98 244 Q120 234 140 246" fill="none" stroke="#c7923a" stroke-width="2"/>
+    <path d="M96 250 Q118 236 152 248 Q160 260 142 268 Q114 272 98 260 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
+    <path d="M110 248 L114 262 M122 246 L126 262 M134 248 L136 262" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="104" cy="254" rx="7" ry="6" fill="#3a3630"/>
+    <path d="M106 246 Q126 236 146 248" fill="none" stroke="#c7923a" stroke-width="2"/>
   </g>
 
   <!-- Right hand over mouse -->
   <g id="hand-right">
-    <path d="M268 246 Q294 228 320 248 Q326 262 300 272 Q272 274 266 256 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
-    <path d="M282 244 L284 264 M292 242 L296 264 M304 246 L306 260" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
-    <ellipse cx="274" cy="252" rx="7" ry="6" fill="#3a3630"/>
-    <path d="M274 240 Q296 228 316 246" fill="none" stroke="#c7923a" stroke-width="2"/>
+    <path d="M278 248 Q300 232 322 250 Q328 262 306 270 Q280 272 276 256 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
+    <path d="M290 246 L292 262 M300 244 L304 262 M310 248 L312 258" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="284" cy="254" rx="7" ry="6" fill="#3a3630"/>
+    <path d="M284 242 Q304 232 320 248" fill="none" stroke="#c7923a" stroke-width="2"/>
   </g>
 </svg>
 `.trim();
