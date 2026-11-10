@@ -259,8 +259,41 @@ export class ReactiveAvatar {
     this.handLeftAim = this.root.querySelector("#hand-left-aim");
     this.setStreamerName(this.streamerName);
     this.applyVisualState();
+    this.bindHelmPhoto();
     document.addEventListener("visibilitychange", this.onVis);
     this.scheduleFlavor();
+  }
+
+  /**
+   * Prefer a painted transparent head asset when present.
+   * SVG #helm-drawn stays as silhouette fallback / layout anchor.
+   */
+  private bindHelmPhoto(): void {
+    const img = this.root.querySelector("#helm-photo") as SVGImageElement | null;
+    const drawn = this.root.querySelector("#helm-drawn") as SVGGElement | null;
+    if (!img) return;
+    // Alpha assets only — jpg kept in public/ as a placement reference, not auto-mounted.
+    const candidates = ["/avatar/killa-maska-head.webp", "/avatar/killa-maska-head.png"];
+    const apply = (url: string) => {
+      img.setAttribute("href", url);
+      img.setAttributeNS("http://www.w3.org/1999/xlink", "href", url);
+      img.setAttribute("opacity", "1");
+      if (drawn) drawn.setAttribute("opacity", "0");
+      this.root.dataset.helmPhoto = "1";
+    };
+    const tryNext = (i: number) => {
+      if (i >= candidates.length) {
+        img.setAttribute("opacity", "0");
+        if (drawn) drawn.setAttribute("opacity", "1");
+        this.root.dataset.helmPhoto = "0";
+        return;
+      }
+      const probe = new Image();
+      probe.onload = () => apply(candidates[i]!);
+      probe.onerror = () => tryNext(i + 1);
+      probe.src = candidates[i]!;
+    };
+    tryNext(0);
   }
 
   setStreamerName(name: string): void {

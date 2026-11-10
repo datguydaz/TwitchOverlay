@@ -430,15 +430,14 @@ body.scene-opaque {
 }
 
 /* Eyes — blink + look slightly with head sway */
+/* Eye cartoon look removed — Maska slit is a dark void. Hooks kept for compat. */
 #eye-look {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: eye-look 12s ease-in-out infinite;
+  display: none;
 }
 
 .eyelid {
   opacity: 0;
-  animation: eye-blink 5.5s ease-in-out infinite;
+  animation: none;
 }
 
 #mouth-vent {

@@ -100,13 +100,18 @@ const meta = await page.evaluate(() => {
     hasDeskTop: !!deskTop,
     hasApron: !!apronEl,
     stanag,
-    stanagCentered: stanag.length === 4 && stanag.every((t) => /translate\(\s*\d+\s+188\)/.test(t || "")),
+    stanagCentered: stanag.length === 4 && stanag.every((t) => /translate\(\s*\d+\s+18[68]\)/.test(t || "")),
     killaAbovePouches: killaIdx >= 0 && rigIdx > killaIdx && killaY > 0 && pouchY > killaY,
     killaY: killa?.getAttribute("y"),
     killaSize: killa?.getAttribute("font-size"),
     killaTextLength: killa?.getAttribute("textLength"),
-    killaWide: Number(killa?.getAttribute("font-size") || 0) >= 13 &&
-      Number(killa?.getAttribute("textLength") || 0) >= 140,
+    // Small fabric chest patch (not giant stencil across the plate)
+    killaWide: (() => {
+      const size = Number(killa?.getAttribute("font-size") || 0);
+      const patch = killaGroup?.querySelector("rect");
+      const pw = Number(patch?.getAttribute("width") || 0);
+      return size > 0 && size <= 10 && pw > 0 && pw <= 64;
+    })(),
     hasPaddedCollar: !!document.querySelector("#padded-collar"),
     oliveVest: (() => {
       const stops = [...document.querySelectorAll("#armorOlive stop")].map((s) =>
@@ -139,8 +144,8 @@ const meta = await page.evaluate(() => {
           ) || []
         )[1] || 0,
       );
-      // Helm proportional to soft vest — not exploding, not tiny
-      return v > 0.66 && v <= 0.8 && torso >= 0.82 && torso <= 0.92 && v < torso;
+      // Heavy wearable Maska — smaller than torso, not mascot-exploding
+      return v > 0.7 && v <= 0.86 && torso >= 0.82 && torso <= 0.92 && v <= torso;
     })(),
     headScaleVal: (document.querySelector("#head-scale")?.getAttribute("transform") || "").match(
       /scale\(([\d.]+)\)/,
@@ -180,7 +185,7 @@ const meta = await page.evaluate(() => {
         document.querySelector("#helm-stripe-c")?.getAttribute("fill") ||
         "#f2ece0"
       ).toLowerCase();
-      const cream = (c) => /^#(efe6d2|f2ece0|f5f0e6|f0ebe0)$/.test(c);
+      const cream = (c) => /^#(efe6d2|f2ece0|f5f0e6|f0ebe0|e8e2d4)$/.test(c);
       // KILLA + sleeve + helm stripes share cream/white (literal ref)
       return cream(killa) && cream(sleeve) && (cream(helmStripe) || helmStripe === "");
     })(),
@@ -191,37 +196,47 @@ const meta = await page.evaluate(() => {
       const slit = document.querySelector("#eye-slit");
       const eyes = document.querySelector("#eyes");
       const bolts = document.querySelector("#helm-bolts");
-      if (!dome || !plate || !stripes || !slit || !eyes || !bolts) return false;
-      // Round Maska: near-spherical ellipse dome + curved path faceplate (not cardboard rect)
-      const domeIsEllipse = dome.tagName.toLowerCase() === "ellipse";
+      const sil = document.querySelector("#helm-silhouette");
+      if (!dome || !plate || !stripes || !slit || !eyes || !bolts || !sil) return false;
+      // Maska: path dome (NOT circle) + separate thick path plate; ~1w×1.2h
+      const domeIsPath = dome.tagName.toLowerCase() === "path";
       const plateIsPath = plate.tagName.toLowerCase() === "path";
-      const noRectPlate = plate.tagName.toLowerCase() !== "rect";
-      const rx = Number(dome.getAttribute("rx") || 0);
-      const ry = Number(dome.getAttribute("ry") || 0);
-      const roundDome = rx >= 68 && ry >= 64 && Math.abs(rx - ry) <= 8;
+      const noSphere = !document.querySelector("#head-scale ellipse#helm-dome");
       const boltCircles = bolts.querySelectorAll("circle").length;
       const stripePaths = stripes.querySelectorAll("path[id^=helm-stripe-]").length;
-      const kids = [...(document.querySelector("#head-scale")?.children || [])];
-      const stripeIdx = kids.indexOf(stripes);
-      const eyesIdx = kids.indexOf(eyes);
-      const slitOverStripes = stripeIdx >= 0 && eyesIdx > stripeIdx;
+      const slitOverStripes = !!(stripes.compareDocumentPosition(eyes) & Node.DOCUMENT_POSITION_FOLLOWING);
       const slitH = Number(slit.getAttribute("height") || 0);
-      const plateD = plate.getAttribute("d") || "";
-      // Curved plate uses C/Q arcs — not a hard rect polygon
-      const curvedPlate = /[CQ]/.test(plateD) && plateD.length > 60;
+      const silBox = sil.getBBox?.();
+      const plateBox = plate.getBBox?.();
+      const ratio = silBox && silBox.width > 0 ? silBox.height / silBox.width : 0;
+      // Target ~1×1.2 — shallow dome, not skinny pill / not sphere
+      const proportionOk = ratio >= 1.12 && ratio <= 1.32 && silBox.width >= 68 && silBox.width <= 96;
+      const plateProud = !!plateBox && plateBox.height >= silBox.height * 0.55;
+      const noCartoonEyes =
+        !document.querySelector(".eye-white") && !document.querySelector(".pupil");
+      const noMouth =
+        !document.querySelector("#mouth-slats") &&
+        ((document.querySelector("#mouth-vent")?.getAttribute("opacity") || "1") === "0" ||
+          !document.querySelector("#mouth-vent")?.children?.length);
       const plateOpaque = (plate.getAttribute("opacity") || "1") !== "0";
+      const uniformScale = !/scale\([^)]+,[^)]+\)/.test(
+        document.querySelector("#head-scale")?.getAttribute("transform") || "",
+      );
       return (
-        domeIsEllipse &&
+        domeIsPath &&
         plateIsPath &&
-        noRectPlate &&
+        noSphere &&
         plateOpaque &&
-        roundDome &&
-        curvedPlate &&
+        proportionOk &&
+        plateProud &&
+        noCartoonEyes &&
+        noMouth &&
+        uniformScale &&
         boltCircles >= 6 &&
         stripePaths >= 3 &&
         slitOverStripes &&
         slitH > 0 &&
-        slitH <= 13
+        slitH <= 6
       );
     })(),
     noFingerGlowCss: (() => {
@@ -311,6 +326,41 @@ const shot = async (name, clip) => {
 };
 
 const files = [];
+
+// Silhouette-first proof: plain helm shape only (no stripes/texture/photo)
+await page.evaluate(() => {
+  const photo = document.querySelector("#helm-photo");
+  const detail = document.querySelector("#helm-detail");
+  const drawn = document.querySelector("#helm-drawn");
+  if (photo) photo.setAttribute("opacity", "0");
+  if (detail) detail.setAttribute("opacity", "0");
+  if (drawn) drawn.setAttribute("opacity", "1");
+  document.documentElement.dataset.proofSilhouette = "1";
+});
+await page.waitForTimeout(80);
+files.push(
+  await shot("helm-silhouette", {
+    x: box.x + box.width * 0.28,
+    y: box.y + box.height * 0.08,
+    width: box.width * 0.44,
+    height: box.height * 0.42,
+  }),
+);
+// Restore final look (prefer painted asset when present)
+await page.evaluate(() => {
+  const detail = document.querySelector("#helm-detail");
+  if (detail) detail.setAttribute("opacity", "1");
+  delete document.documentElement.dataset.proofSilhouette;
+  const root = document.querySelector(".avatar-root");
+  if (root?.dataset.helmPhoto === "1") {
+    const photo = document.querySelector("#helm-photo");
+    const drawn = document.querySelector("#helm-drawn");
+    if (photo) photo.setAttribute("opacity", "1");
+    if (drawn) drawn.setAttribute("opacity", "0");
+  }
+});
+await page.waitForTimeout(80);
+
 files.push(
   await shot("full-sit", {
     x: box.x,
