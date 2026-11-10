@@ -77,9 +77,10 @@ export const scavengerSvg = `
       </g>
     </g>
 
-    <!-- TORSO: slim seated body only under vest — NO cloak/cape/wing behind arms -->
+    <!-- TORSO: sit offset on INNER group so CSS breath/talk don't wipe desk-close. -->
     <g id="layer-torso">
-      <path d="M124 152 L140 138 L200 132 L260 138 L276 152 L282 216 L118 216 Z" fill="url(#suitDark)" stroke="#050505" stroke-width="1.5"/>
+      <g id="torso-sit" transform="translate(0 42)">
+      <path d="M124 152 L140 138 L200 132 L260 138 L276 152 L282 234 L118 234 Z" fill="url(#suitDark)" stroke="#050505" stroke-width="1.5"/>
       <!-- Thick black sleeves (stroke arms) — Killa track vibe; draw BEFORE vest so vest overlaps shoulders -->
       <path id="sleeve-left-fill" d="M108 170 Q78 202 96 238" fill="none" stroke="#0e0e0e" stroke-width="38" stroke-linecap="round"/>
       <path id="sleeve-right-fill" d="M292 170 Q318 198 308 230" fill="none" stroke="#0e0e0e" stroke-width="32" stroke-linecap="butt"/>
@@ -95,7 +96,7 @@ export const scavengerSvg = `
         <path d="M292 170 Q318 198 308 230" transform="translate(-13 0)"/>
       </g>
       <!-- Slim near-black vest (vibe only — no logos). Do not touch helm/vest redesign. -->
-      <path d="M120 148 L138 136 L200 130 L262 136 L280 148 L286 214 L114 214 Z" fill="url(#armorOlive)" stroke="#050505" stroke-width="1.4"/>
+      <path d="M120 148 L138 136 L200 130 L262 136 L280 148 L286 232 L114 232 Z" fill="url(#armorOlive)" stroke="#050505" stroke-width="1.4"/>
       <path d="M158 132 Q200 144 242 132 L238 152 Q200 160 162 152 Z" fill="#1a1a1a" stroke="#050505" stroke-width="1"/>
       <g id="shoulder-left" class="shoulder">
         <rect x="78" y="144" width="52" height="30" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
@@ -105,19 +106,6 @@ export const scavengerSvg = `
         <rect x="270" y="144" width="52" height="30" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
         <rect x="276" y="152" width="40" height="7" rx="1.5" fill="#0a0a0a" opacity="0.65"/>
       </g>
-      <!-- Worn “KILLA” on vest (vibe only — scratched print, no brand marks) -->
-      <g id="chest-killa" font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif" text-anchor="middle" letter-spacing="1.2">
-        <text x="200.4" y="168.3" fill="#1a1a1a" font-size="11" opacity="0.55">KILLA</text>
-        <text x="199.6" y="167.6" fill="#c8c8c8" font-size="11" opacity="0.38">KILLA</text>
-        <text id="chest-killa-main" x="200" y="168" fill="#d8d8d8" font-size="11" opacity="0.72">KILLA</text>
-        <g id="chest-killa-scratches" fill="none" stroke="#0a0a0a" stroke-linecap="round" opacity="0.55">
-          <path d="M178 164 L186 170" stroke-width="0.7"/>
-          <path d="M192 163.5 L198 169" stroke-width="0.55"/>
-          <path d="M205 165 L214 168.5" stroke-width="0.65"/>
-          <path d="M188 171 L204 164.5" stroke-width="0.45" opacity="0.7"/>
-          <path d="M210 170 L220 166" stroke-width="0.5"/>
-        </g>
-      </g>
       <!-- Slim pouches -->
       <g id="chest-rig">
         <rect x="132" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#050505" stroke-width="0.9"/>
@@ -126,11 +114,25 @@ export const scavengerSvg = `
         <rect x="252" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#050505" stroke-width="0.9"/>
         <path d="M135 181 H145 M157 181 H167 M233 181 H243 M255 181 H265" stroke="#333333" stroke-width="1.1"/>
       </g>
-      <rect x="110" y="218" width="180" height="10" rx="1.5" fill="#0c0c0c" stroke="#222222"/>
+      <!-- Worn “KILLA” below faceplate bottom (y>180) in pouch gap — scratched vibe, no logos -->
+      <g id="chest-killa" font-family="Arial Black, Impact, 'Arial Narrow', sans-serif" font-weight="800" text-anchor="middle" letter-spacing="1.6">
+        <text x="200.5" y="209.2" fill="#050505" font-size="11.5" opacity="0.75">KILLA</text>
+        <text id="chest-killa-main" x="200" y="208.6" fill="#f0f0f0" font-size="11.5" opacity="0.92">KILLA</text>
+        <g id="chest-killa-scratches" fill="none" stroke="#0a0a0a" stroke-linecap="round" opacity="0.6">
+          <path d="M178 204 L186 210" stroke-width="0.8"/>
+          <path d="M191 203.5 L198 209" stroke-width="0.6"/>
+          <path d="M204 205 L214 208" stroke-width="0.7"/>
+          <path d="M186 211 L206 204" stroke-width="0.5"/>
+          <path d="M212 210 L222 206" stroke-width="0.55"/>
+        </g>
+      </g>
+      <rect x="110" y="232" width="180" height="10" rx="1.5" fill="#0c0c0c" stroke="#222222"/>
+      </g>
     </g>
 
-    <!-- HEAD -->
+    <!-- HEAD: sit offset inner — CSS head-idle/talk-nod animate outer only -->
     <g id="layer-head">
+      <g id="head-sit" transform="translate(0 42)">
       <ellipse cx="200" cy="108" rx="72" ry="58" fill="url(#helmDark)" stroke="#0a0c08" stroke-width="2"/>
       <path d="M188 58 Q200 48 212 58 L208 118 L192 118 Z" fill="#efe6d2"/>
       <path d="M170 64 Q180 52 186 66 L182 120 L168 118 Z" fill="#efe6d2" opacity="0.95"/>
@@ -181,6 +183,7 @@ export const scavengerSvg = `
         <ellipse cx="200" cy="168" rx="16" ry="10" fill="#161616" stroke="#3a3a3a" stroke-width="1.2"/>
         <circle cx="200" cy="168" r="4" fill="#0a0a0a"/>
         <path id="mouth-slats" d="M190 166 H210 M192 169 H208 M194 172 H206" stroke="#4a4a4a" stroke-width="1" opacity="0.75"/>
+      </g>
       </g>
     </g>
 
@@ -263,21 +266,24 @@ export const scavengerSvg = `
       </g>
     </g>
 
-    <!-- Left hand ON KEYBOARD (desk plane) -->
+    <!-- Hands: sit on inner group so JS key/mouse transforms don't wipe desk-close -->
     <g id="hand-left">
+      <g id="hand-left-sit" transform="translate(0 32)">
       <path d="M112 262 L148 260 L151 272 L116 275 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1"/>
       <rect x="118" y="272" width="4.5" height="12" rx="1.8" fill="#4a463c" stroke="#1a1810" stroke-width="0.55"/>
       <rect x="127" y="271" width="4.5" height="13" rx="1.8" fill="#4a463c" stroke="#1a1810" stroke-width="0.55"/>
       <rect x="136" y="272" width="4.5" height="12" rx="1.8" fill="#4a463c" stroke="#1a1810" stroke-width="0.55"/>
       <rect x="145" y="273" width="4.5" height="11" rx="1.8" fill="#4a463c" stroke="#1a1810" stroke-width="0.55"/>
       <path d="M112 266 L104 262" stroke="#4a463c" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
     </g>
 
-    <!-- Right hand on mouse -->
     <g id="hand-right">
+      <g id="hand-right-sit" transform="translate(0 32)">
       <path d="M302 258 L326 260 L324 272 L304 270 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1" opacity="0.92"/>
       <rect id="finger-lmb" x="306" y="266" width="4.2" height="11" rx="1.4" fill="#3a3630"/>
       <rect id="finger-rmb" x="315" y="267" width="4.2" height="10.5" rx="1.4" fill="#3a3630"/>
+      </g>
     </g>
   </g>
   </g>

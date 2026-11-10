@@ -77,10 +77,10 @@ files.push(
 );
 files.push(
   await shot("killa-chest-close", {
-    x: box.x + box.width * 0.18,
-    y: box.y + box.height * 0.18,
-    width: box.width * 0.64,
-    height: box.height * 0.42,
+    x: box.x + box.width * 0.2,
+    y: box.y + box.height * 0.28,
+    width: box.width * 0.6,
+    height: box.height * 0.36,
   }),
 );
 

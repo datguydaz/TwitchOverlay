@@ -12,45 +12,152 @@ export interface ReactiveAvatarOptions {
   chatEnabled?: boolean;
 }
 
-/** Zone Ops trash-talk — random timer / dashboard samples. */
+/** Stream-brand filler — no game-specific slang (kept generic on purpose). */
 export const ZONE_TRASH_TALK: readonly string[] = [
   "Zone quiet. Keep your head on a swivel.",
   "Copy. Filter's clean — for now.",
-  "Heard. Don't stack up on that door.",
-  "Eyes open. Hands on glass.",
-  "Extract window's thin. Move clean.",
-  "Another scav in the wire? Soft them.",
-  "Raid ready. Don't ego-peek mid.",
-  "Comms hot. Cut the chatter unless you're bleeding.",
-  "Threat board's lit. Stay off the ridge.",
-  "Loot later. Survive first.",
+  "Heard. Stay sharp.",
+  "Eyes open. Hands ready.",
+  "Comms hot. Cut the chatter unless it matters.",
+  "Threat board's lit. Stay focused.",
   "That angle's cursed. Reposition.",
   "Hold W. Die less.",
+  "Solid. Reset and go again.",
+  "Don't tilt. Next one's ours.",
 ];
 
-/** Canned "in a match" lines — `{game}` filled from dashboard list. Not live game reading. */
-export const GAME_TRASH_TEMPLATES: readonly string[] = [
-  "{game} lobby's spicy. Don't ego peek.",
-  "In a {game} raid — keep it quiet.",
-  "{game} extract's thin. Move clean.",
-  "Yeah I'm in {game}. Hands on glass.",
-  "{game} mid-fight. Cut the chatter.",
-  "Just wiped a squad in {game}. Reset.",
-  "{game} gear fear is a skill issue.",
-  "Queue popped — {game}. Hold the line.",
-  "Third-partied in {game}. Classic.",
-  "{game} night run. Lights off, ears on.",
-];
+/** Per-game line family — slang stays inside its own pool. */
+export type GameTalkFamily =
+  | "tarkov"
+  | "dayz"
+  | "arena"
+  | "hunt"
+  | "wow"
+  | "tibia"
+  | "diablo"
+  | "cs"
+  | "generic";
+
+/** Map dashboard game label → family. Unknown titles use safe generic lines only. */
+export function classifyGameTalk(game: string): GameTalkFamily {
+  const n = game.trim().toLowerCase();
+  if (!n) return "generic";
+  if (n.includes("tarkov") || /\beft\b/.test(n)) return "tarkov";
+  if (n.includes("dayz")) return "dayz";
+  if (n.includes("arena") && n.includes("breakout")) return "arena";
+  if (n.includes("hunt")) return "hunt";
+  if (n.includes("warcraft") || /\bwow\b/.test(n)) return "wow";
+  if (n.includes("tibia")) return "tibia";
+  if (n.includes("diablo")) return "diablo";
+  if (
+    n.includes("counter-strike") ||
+    n.includes("counter strike") ||
+    /\bcs2?\b/.test(n) ||
+    n === "cs"
+  ) {
+    return "cs";
+  }
+  return "generic";
+}
+
+/**
+ * Per-game canned match lines. Not live game reading.
+ * `{game}` is the dashboard label; slang never crosses families.
+ */
+export const GAME_TALK_POOLS: Readonly<Record<GameTalkFamily, readonly string[]>> = {
+  tarkov: [
+    "In a {game} raid — keep it quiet.",
+    "{game} extract's thin. Move clean.",
+    "{game} gear fear is a skill issue.",
+    "Another scav in the wire? Soft them.",
+    "Loot later. Survive first.",
+    "Just wiped a trio on {game}. Reset.",
+    "{game} night run. Lights off, ears on.",
+    "Don't ego-peek mid. Hold the angle.",
+  ],
+  dayz: [
+    "Fresh spawn on {game}. Need a drink and a gun.",
+    "{game} coast is loud. Cut inland.",
+    "Heard a shot west. Don't third-party blind.",
+    "Inventory's a mess. Stash and move.",
+    "{game} night — NVG or die slow.",
+    "Zeds stacked. Don't spray, break contact.",
+    "Friendly? Or KOSing. Trust nothing.",
+    "Base run later. Survive the road first.",
+  ],
+  arena: [
+    "{game} raid — cover the flanks.",
+    "Extract window's short. Move clean.",
+    "Don't greed the crate. Cover first.",
+    "{game} mid-fight. Cut the chatter.",
+    "Armor's cracked. Play for extract.",
+    "Third-partied. Classic. Reset.",
+  ],
+  hunt: [
+    "{game} — dark sight's up. Listen.",
+    "Boss lair is contested. Don't push alone.",
+    "Bounty team's loud. Flank wide.",
+    "Banishing now — hold the compound.",
+    "{game} night map. Sound traps everywhere.",
+    "Don't greed the token. Extract clean.",
+  ],
+  wow: [
+    "{game} pull's big. Kick and stay out of fire.",
+    "Need a rez. Don't release yet.",
+    "Queues popped — {game}. Don't AFK the gate.",
+    "Interrupt that cast. Now.",
+    "Loot rules later. Don't die to mechanics.",
+    "{game} M+ — keys don't forgive greed.",
+  ],
+  tibia: [
+    "{game} hunt — watch the respawns.",
+    "Mana low. Don't overpull.",
+    "Team hunt or solo? Call it.",
+    "Loot every corpse. No leftovers.",
+    "{game} spawn's contested. Reposition.",
+    "Utamo when it spikes. Stay calm.",
+  ],
+  diablo: [
+    "{game} pit — don't stand in the ground effects.",
+    "Elite pack — focus the waller first.",
+    "Town portal if you're cooking. Reset clean.",
+    "{game} nightmare dungeon. Move with the pack.",
+    "Don't greed the shrine. Survive first.",
+    "Boss mechanics — dodge, then burn.",
+  ],
+  cs: [
+    "{game} — don't overpeek mid.",
+    "Eco round. Play for info, not frags.",
+    "Bomb down. Rotate and trade.",
+    "Save the AWP. Next round matters.",
+    "Default execute — utility first.",
+    "They're stacking B. Clear close angles.",
+    "Clutch setup. Crosshair head-height.",
+    "Anti-eco. Don't give them guns.",
+  ],
+  generic: [
+    "Yeah I'm in {game}. Stay on comms.",
+    "{game} lobby's spicy. Don't ego peek.",
+    "Queue popped — {game}. Hold the line.",
+    "{game} mid-fight. Cut the chatter.",
+    "Just clutched {game}. Reset.",
+    "{game} night session. Focus up.",
+  ],
+};
+
+/** @deprecated Prefer GAME_TALK_POOLS — kept so older imports don't break. */
+export const GAME_TRASH_TEMPLATES: readonly string[] = GAME_TALK_POOLS.generic;
 
 export function pickGameTalkLine(games: readonly string[]): string {
-  const list = games.length ? games : ["Tarkov"];
+  const list = games.length ? games : ["Escape from Tarkov"];
   const game = list[Math.floor(Math.random() * list.length)]!;
-  const tmpl =
-    GAME_TRASH_TEMPLATES[Math.floor(Math.random() * GAME_TRASH_TEMPLATES.length)]!;
+  const family = classifyGameTalk(game);
+  const pool = GAME_TALK_POOLS[family];
+  const tmpl = pool[Math.floor(Math.random() * pool.length)]!;
   return tmpl.replaceAll("{game}", game);
 }
 
-/** Mix generic Zone Ops lines with game-flavored match talk. */
+/** Mix generic Zone Ops lines with per-game match talk (no cross-game slang). */
 export function pickDemoTalkLine(games: readonly string[] = []): string {
   if (games.length && Math.random() < 0.72) return pickGameTalkLine(games);
   return ZONE_TRASH_TALK[Math.floor(Math.random() * ZONE_TRASH_TALK.length)]!;
@@ -174,10 +281,28 @@ export class ReactiveAvatar {
     ) {
       return;
     }
+    this.applyIdleMotionTiming();
+  }
+
+  /** Quiet chest + varied head cycle length (avoids a metronome hitch feel). */
+  private applyIdleMotionTiming(): void {
+    if (
+      this.root.dataset.cough === "1" ||
+      this.root.dataset.roll === "1" ||
+      this.root.dataset.talk === "1" ||
+      this.root.dataset.talkNod === "1"
+    ) {
+      return;
+    }
     const torso = this.root.querySelector("#layer-torso") as SVGElement | null;
     const head = this.root.querySelector("#layer-head") as SVGElement | null;
-    if (torso) torso.style.animationDuration = `${6.8 / this.intensity}s`;
-    if (head) head.style.animationDuration = `${8.5 / this.intensity}s`;
+    if (torso) {
+      torso.style.animationDuration = `${(5.0 + Math.random() * 0.8) / this.intensity}s`;
+    }
+    if (head) {
+      // Slow varied cycle (11–15s); linear keyframes stay hitch-free.
+      head.style.animationDuration = `${(11 + Math.random() * 4) / this.intensity}s`;
+    }
   }
 
   setLightsEnabled(on: boolean): void {
