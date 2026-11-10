@@ -172,7 +172,7 @@ export const scavengerSvg = `
          Subtle scale-down (~6%) around helm center; still bulky Killa. -->
     <g id="layer-head">
       <g id="head-sit" transform="translate(0 38)">
-      <g id="head-scale" transform="translate(200 120) scale(0.94) translate(-200 -120)">
+      <g id="head-scale" transform="translate(200 120) scale(0.90) translate(-200 -120)">
       <ellipse cx="200" cy="108" rx="72" ry="58" fill="url(#helmDark)" stroke="#0a0c08" stroke-width="2"/>
       <path d="M188 58 Q200 48 212 58 L208 118 L192 118 Z" fill="#efe6d2"/>
       <path d="M170 64 Q180 52 186 66 L182 120 L168 118 Z" fill="#efe6d2" opacity="0.95"/>

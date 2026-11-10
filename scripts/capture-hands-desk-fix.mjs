@@ -107,9 +107,12 @@ const meta = await page.evaluate(() => {
     torsoSit: document.querySelector("#torso-sit")?.getAttribute("transform") || "",
     torsoClip: document.querySelector("#torso-sit")?.getAttribute("clip-path") || "",
     headScale: document.querySelector("#head-scale")?.getAttribute("transform") || "",
-    headSmaller: /scale\(0\.9[0-6]\)/.test(
+    headSmaller: /scale\(0\.8[5-9]|0\.9[0-2]\)/.test(
       document.querySelector("#head-scale")?.getAttribute("transform") || "",
     ),
+    headScaleVal: (document.querySelector("#head-scale")?.getAttribute("transform") || "").match(
+      /scale\(([\d.]+)\)/,
+    )?.[1] || "",
     hasDeskRgb: !!document.querySelector("#desk-rgb"),
     skinHands: (() => {
       const p = document.querySelector("#hand-left-sit path");
