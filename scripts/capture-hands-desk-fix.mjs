@@ -182,6 +182,15 @@ const meta = await page.evaluate(() => {
         right.includes("268")
       );
     })(),
+    hasPizzaBoxes:
+      !!document.querySelector("#floor-clutter") &&
+      !!document.querySelector("#pizza-box-1") &&
+      !!document.querySelector("#pizza-box-2") &&
+      !!document.querySelector("#pizza-box-3"),
+    farReachCss: (() => {
+      const t = getComputedStyle(document.querySelector("#hand-left-aim") || document.body).transitionProperty;
+      return String(t).includes("transform") || t === "all";
+    })(),
     skinHands: (() => {
       const p = document.querySelector("#hand-left-sit > path");
       const fill = p?.getAttribute("fill") || "";
@@ -241,15 +250,18 @@ const keyAim = await page.evaluate(() => {
   if (!root || !aim) return { ok: false };
   root.dataset.key = "1";
   root.dataset.keySlot = "2";
-  aim.setAttribute("transform", "rotate(-14) scale(1.04)");
-  const tx = aim.getAttribute("transform") || "";
+  // Far key (slot 10 ≈ Å) — stretch + residual translate so short arm lands
+  aim.style.transformOrigin = "0px 0px";
+  aim.style.transition = "transform 140ms cubic-bezier(0.22, 0.61, 0.36, 1)";
+  aim.style.transform = "translate(-12px, 6px) rotate(22deg) scale(1.28)";
+  aim.removeAttribute("transform");
+  const tx = aim.style.transform || "";
   const sleeve = document.querySelector("#sleeve-left-fill");
   const sleeveD = sleeve?.getAttribute("d") || "";
   const rootY = Number((sleeveD.match(/M\s*[\d.]+\s+([\d.]+)/) || [])[1] || 0);
   const sleeveInHand = !!document.querySelector("#hand-left-sit #arm-left #sleeve-left-fill");
-  // Valid SVG rotate() scale() — not the broken rotate(a scale(s)) form
-  const txOk = /rotate\([^)]+\)\s*scale\([^)]+\)/.test(tx);
-      const vestRooted = rootY >= 212 && rootY <= 235;
+  const txOk = /translate\(/.test(tx) && /rotate\(/.test(tx) && /scale\(1\.(2|3|4)/.test(tx);
+  const vestRooted = rootY >= 212 && rootY <= 235;
   return { ok: txOk && sleeveInHand && vestRooted, tx, sleeveInHand, rootY, vestRooted };
 });
 await page.waitForTimeout(180);
@@ -320,6 +332,7 @@ const pass =
   meta.fullStripes &&
   meta.straightArms &&
   meta.vestRootedShort &&
+  meta.hasPizzaBoxes &&
   meta.skinHands &&
   meta.keyAim?.ok &&
   meta.mousePress?.ok;
@@ -343,6 +356,7 @@ console.log(
     fullStripes: meta.fullStripes,
     straightArms: meta.straightArms,
     vestRootedShort: meta.vestRootedShort,
+    hasPizzaBoxes: meta.hasPizzaBoxes,
     keyAim: meta.keyAim,
     mousePress: meta.mousePress,
     hasDeskRgb: meta.hasDeskRgb,

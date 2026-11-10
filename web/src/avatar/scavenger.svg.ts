@@ -244,6 +244,32 @@ export const scavengerSvg = `
         <ellipse class="desk-led-glow-b" cx="160" cy="296" rx="55" ry="3.2" fill="#6b7355" opacity="0.1"/>
       </g>
       <path d="M52 316 V340 H78 V316 M322 316 V340 H348 V316" fill="#0c0e0c" stroke="#2a2e28"/>
+      <!-- Zone Ops floor clutter — worn pizza boxes under / just beside the table -->
+      <g id="floor-clutter">
+        <g id="pizza-box-1" transform="translate(86 318) rotate(-6)">
+          <rect x="0" y="0" width="52" height="38" rx="1.2" fill="#c4b896" stroke="#5a5348" stroke-width="0.9"/>
+          <rect x="2" y="2" width="48" height="34" rx="0.8" fill="#a89870" opacity="0.55"/>
+          <path d="M4 8 H48 M8 4 V34" stroke="#6b7355" stroke-width="0.45" opacity="0.35"/>
+          <text x="26" y="22" text-anchor="middle" fill="#3a3228" font-family="Arial Black, Impact, sans-serif" font-size="6.5" opacity="0.55" letter-spacing="0.8">ZONE</text>
+          <path d="M6 30 L18 34 M40 6 L48 14" stroke="#2a2a2a" stroke-width="0.55" opacity="0.4"/>
+          <path d="M12 10 L22 8" stroke="#efe6d2" stroke-width="0.4" opacity="0.25"/>
+        </g>
+        <g id="pizza-box-2" transform="translate(128 328) rotate(8)">
+          <rect x="0" y="0" width="46" height="34" rx="1" fill="#b8a882" stroke="#4a4438" stroke-width="0.85"/>
+          <rect x="1.5" y="1.5" width="43" height="31" rx="0.6" fill="#9a8a62" opacity="0.5"/>
+          <text x="23" y="20" text-anchor="middle" fill="#2a2418" font-family="Arial Black, Impact, sans-serif" font-size="5.8" opacity="0.5" letter-spacing="0.6">OPS</text>
+          <path d="M4 28 Q14 32 24 28 Q34 24 42 30" stroke="#3a3228" stroke-width="0.7" opacity="0.45"/>
+          <path d="M8 6 L16 12" stroke="#1a1a1a" stroke-width="0.5" opacity="0.35"/>
+        </g>
+        <g id="pizza-box-3" transform="translate(292 322) rotate(4)">
+          <rect x="0" y="0" width="48" height="36" rx="1.1" fill="#cfc3a0" stroke="#5a5348" stroke-width="0.85"/>
+          <rect x="2" y="2" width="44" height="32" rx="0.7" fill="#b0a078" opacity="0.48"/>
+          <circle cx="24" cy="18" r="9" fill="none" stroke="#6b7355" stroke-width="0.65" opacity="0.4"/>
+          <text x="24" y="20" text-anchor="middle" fill="#3a3228" font-family="Arial Black, Impact, sans-serif" font-size="5.2" opacity="0.45">12"</text>
+          <path d="M5 8 L14 6 M36 28 L44 32" stroke="#2a2a2a" stroke-width="0.5" opacity="0.38"/>
+          <path d="M10 30 L28 33" stroke="#8a7a58" stroke-width="1.1" opacity="0.35"/>
+        </g>
+      </g>
       <path d="M28 258 H372" stroke="#6b7355" stroke-width="1.05" opacity="0.35"/>
       <g id="desk-grain" fill="none" stroke-linecap="butt" opacity="0.32">
         <path d="M36 262 H368" stroke="#0e100e" stroke-width="0.55"/>
@@ -359,6 +385,8 @@ export const scavengerSvg = `
     <g id="hand-left">
       <g id="hand-left-pivot" transform="translate(128 220)">
         <g id="hand-left-aim">
+          <!-- Anchor CSS transform-origin at vest root (0,0 in aim space) -->
+          <circle cx="0" cy="0" r="0.5" fill="none" opacity="0"/>
           <g id="hand-left-sit" transform="translate(-128 -220)">
             <g id="arm-left" class="arm-continuous">
               <!-- Short chill sit: deep vest-side root → wrist (below helm) -->

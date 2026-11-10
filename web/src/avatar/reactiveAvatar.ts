@@ -555,10 +555,12 @@ export class ReactiveAvatar {
 
   private applyHandToSlot(): void {
     if (!this.handLeftAim) return;
-    // Vest-side root (must match #hand-left-pivot). Valid SVG: rotate(a) scale(s).
+    // Vest-side root (must match #hand-left-pivot). CSS transform + residual translate
+    // so short chill arms still land on far keys; transition smooths slot-to-slot.
     const shoulder = { x: 128, y: 220 };
     const home = HAND_HOME;
     let next: string;
+    let transition: string;
     if (this.keyHeld > 0 && this.activeSlot != null) {
       const pos = slotPos(this.activeSlot);
       const targetCx = pos.cx;
@@ -568,17 +570,30 @@ export class ReactiveAvatar {
       const homeDist = Math.hypot(home.cx - shoulder.x, home.cy - shoulder.y) || 1;
       const tgtDist = Math.hypot(targetCx - shoulder.x, targetCy - shoulder.y);
       const rotDeg = ((tgtAng - homeAng) * 180) / Math.PI;
-      const stretch = Math.min(1.08, Math.max(0.94, tgtDist / homeDist));
-      next = `rotate(${rotDeg.toFixed(2)}) scale(${stretch.toFixed(3)})`;
+      // Allow real reach for far keys (Å/P/right cluster) without lengthening rest pose
+      const stretch = Math.min(1.42, Math.max(0.92, tgtDist / homeDist));
+      const hx = home.cx - shoulder.x;
+      const hy = home.cy - shoulder.y;
+      const rad = (rotDeg * Math.PI) / 180;
+      const tipX = shoulder.x + (hx * stretch) * Math.cos(rad) - (hy * stretch) * Math.sin(rad);
+      const tipY = shoulder.y + (hx * stretch) * Math.sin(rad) + (hy * stretch) * Math.cos(rad);
+      const dx = targetCx - tipX;
+      const dy = targetCy - tipY;
+      // origin 0,0 on #hand-left-aim (inside vest pivot): scale → rotate → translate
+      next = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) rotate(${rotDeg.toFixed(2)}deg) scale(${stretch.toFixed(3)})`;
+      transition = "transform 140ms cubic-bezier(0.22, 0.61, 0.36, 1)";
       this.root.dataset.keySlot = String(this.activeSlot);
     } else {
-      next = "";
+      next = "translate(0px, 0px) rotate(0deg) scale(1)";
+      transition = "transform 160ms cubic-bezier(0.22, 0.61, 0.36, 1)";
       delete this.root.dataset.keySlot;
     }
     if (next === this.lastHandTx) return;
     this.lastHandTx = next;
-    if (next) this.handLeftAim.setAttribute("transform", next);
-    else this.handLeftAim.removeAttribute("transform");
+    this.handLeftAim.removeAttribute("transform");
+    this.handLeftAim.style.transition = transition;
+    this.handLeftAim.style.transformOrigin = "0px 0px";
+    this.handLeftAim.style.transform = next;
     if (this.handLeft) this.handLeft.style.transform = "";
   }
 
