@@ -42,108 +42,53 @@ export const scavengerSvg = `
 
   <ellipse cx="200" cy="318" rx="140" ry="14" fill="#000" opacity="0.45"/>
 
-  <!-- DESK with KB + mouse -->
+  <!-- DESK body + stencil name (KB/mouse painted later above arms) -->
   <g id="desk">
     <path d="M28 268 H372 L352 302 H48 Z" fill="url(#deskGrad)" stroke="#5a5348" stroke-width="1.6"/>
     <path d="M48 302 V328 H78 V302 M322 302 V328 H352 V302" fill="#241e18" stroke="#4a443c"/>
-
-    <!-- Keyboard under left hand — extended forward so keys stay readable -->
-    <g id="prop-keyboard">
-      <rect x="58" y="246" width="186" height="28" rx="2" fill="#0e100c" stroke="#8a9480" stroke-width="1.6"/>
-      <g fill="#3a4034" stroke="#6b7355" stroke-width="0.7">
-        <rect x="64" y="250" width="14" height="10" rx="1"/>
-        <rect x="82" y="250" width="14" height="10" rx="1"/>
-        <rect x="100" y="250" width="14" height="10" rx="1"/>
-        <rect x="118" y="250" width="14" height="10" rx="1"/>
-        <rect x="136" y="250" width="14" height="10" rx="1"/>
-        <rect x="154" y="250" width="14" height="10" rx="1"/>
-        <rect x="172" y="250" width="14" height="10" rx="1"/>
-        <rect x="190" y="250" width="14" height="10" rx="1"/>
-        <rect x="208" y="250" width="28" height="10" rx="1"/>
-        <rect x="70" y="262" width="150" height="6" rx="1"/>
-      </g>
-      <rect x="66" y="268" width="160" height="2.5" fill="#c7923a" opacity="0.55"/>
-    </g>
-
-    <!-- Mouse under right hand — bright rim so it reads past the glove -->
-    <g id="prop-mouse">
-      <ellipse cx="300" cy="258" rx="22" ry="28" fill="#1a1c16" stroke="#a8b090" stroke-width="2"/>
-      <line x1="300" y1="236" x2="300" y2="258" stroke="#c7923a" stroke-width="1.8"/>
-      <path d="M286 246 Q300 240 314 246" fill="none" stroke="#6b7355" stroke-width="1.4"/>
-      <ellipse cx="300" cy="268" rx="8" ry="5" fill="#2a2e24"/>
-    </g>
-
-    <rect x="322" y="248" width="34" height="12" rx="1" fill="#121410" stroke="#4a5240"/>
-    <circle class="eq-light" cx="330" cy="266" r="4" fill="#c7923a">
-      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.15s" repeatCount="indefinite"/>
-    </circle>
-    <circle class="eq-light" cx="344" cy="266" r="4" fill="#c7923a" opacity="0.35"/>
-
-    <!-- Distressed stencil / hazard desk lettering -->
-    <g filter="url(#stencilScratch)">
-      <text id="desk-streamer-name" x="200" y="292" text-anchor="middle"
-        fill="#c7923a" stroke="#1a1408" stroke-width="0.8"
-        font-size="18" font-family="Oswald, 'Arial Narrow', Impact, sans-serif"
-        font-weight="700" letter-spacing="3.5"
-        style="paint-order: stroke fill">datguydaz</text>
-      <text aria-hidden="true" x="201.5" y="293.5" text-anchor="middle"
-        fill="#2a2418" opacity="0.45"
-        font-size="18" font-family="Oswald, 'Arial Narrow', Impact, sans-serif"
-        font-weight="700" letter-spacing="3.5">datguydaz</text>
-    </g>
-    <!-- scratched underline / hazard tick marks -->
-    <path d="M118 298 H282" stroke="#6b7355" stroke-width="1" stroke-dasharray="6 4 2 4" opacity="0.7"/>
-    <path d="M124 296 L128 300 M270 296 L274 300" stroke="#c7923a" stroke-width="1.2" opacity="0.6"/>
+    <g id="desk-streamer-name" transform="translate(200 286) scale(1.15)"></g>
+    <path d="M100 308 H300" stroke="#6b7355" stroke-width="1.2" stroke-dasharray="5 3 2 3" opacity="0.75"/>
+    <path d="M108 306 L112 310 M280 306 L284 310" stroke="#c7923a" stroke-width="1.3" opacity="0.7"/>
   </g>
 
-  <!-- TORSO: imposing fat armored mass -->
+  <!-- TORSO: imposing fat armored mass (ends above desk props) -->
   <g id="layer-torso">
-    <!-- dark tracksuit base under armor -->
-    <path d="M78 148 L118 132 L200 124 L282 132 L322 148 L342 272 L58 272 Z" fill="url(#suitDark)" stroke="#0e100c" stroke-width="1.5"/>
+    <path d="M78 148 L118 132 L200 124 L282 132 L322 148 L338 236 L62 236 Z" fill="url(#suitDark)" stroke="#0e100c" stroke-width="1.5"/>
 
-    <!-- thick arms (dark suit) -->
-    <path d="M95 165 Q48 210 82 262" fill="none" stroke="#1a1e18" stroke-width="42" stroke-linecap="round"/>
-    <path d="M305 165 Q352 210 318 262" fill="none" stroke="#1a1e18" stroke-width="42" stroke-linecap="round"/>
-    <path d="M95 165 Q48 210 82 262" fill="none" stroke="#2a2e28" stroke-width="32" stroke-linecap="round"/>
-    <path d="M305 165 Q352 210 318 262" fill="none" stroke="#2a2e28" stroke-width="32" stroke-linecap="round"/>
+    <!-- thick arms stop above the keyboard plane -->
+    <path d="M95 165 Q52 200 88 238" fill="none" stroke="#1a1e18" stroke-width="42" stroke-linecap="round"/>
+    <path d="M305 165 Q348 200 312 238" fill="none" stroke="#1a1e18" stroke-width="42" stroke-linecap="round"/>
+    <path d="M95 165 Q52 200 88 238" fill="none" stroke="#2a2e28" stroke-width="32" stroke-linecap="round"/>
+    <path d="M305 165 Q348 200 312 238" fill="none" stroke="#2a2e28" stroke-width="32" stroke-linecap="round"/>
 
-    <!-- THREE sleeve track stripes (no logos) — left -->
-    <path d="M64 188 Q48 220 70 252" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-    <path d="M74 186 Q58 220 80 250" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-    <path d="M84 188 Q70 220 90 248" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-    <!-- THREE sleeve track stripes — right -->
-    <path d="M336 188 Q352 220 330 252" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-    <path d="M326 186 Q342 220 320 250" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-    <path d="M316 188 Q330 220 310 248" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M64 185 Q50 210 74 232" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M74 183 Q60 210 84 230" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M84 185 Q72 210 94 228" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M336 185 Q350 210 326 232" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M326 183 Q340 210 316 230" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M316 185 Q328 210 306 228" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
 
-    <!-- forearm cuffs -->
-    <path d="M68 232 Q80 250 92 260" fill="none" stroke="#3a4034" stroke-width="16" stroke-linecap="round"/>
-    <path d="M332 232 Q320 250 308 260" fill="none" stroke="#3a4034" stroke-width="16" stroke-linecap="round"/>
+    <path d="M70 218 Q82 230 94 236" fill="none" stroke="#3a4034" stroke-width="14" stroke-linecap="round"/>
+    <path d="M330 218 Q318 230 306 236" fill="none" stroke="#3a4034" stroke-width="14" stroke-linecap="round"/>
 
-    <!-- massive olive armor vest -->
-    <path d="M96 142 L130 128 L200 122 L270 128 L304 142 L318 250 L82 250 Z" fill="url(#armorOlive)" stroke="#1a2014" stroke-width="2"/>
-    <!-- high neck / gorget pad -->
+    <path d="M96 142 L130 128 L200 122 L270 128 L304 142 L314 228 L86 228 Z" fill="url(#armorOlive)" stroke="#1a2014" stroke-width="2"/>
     <path d="M148 128 Q200 148 252 128 L246 158 Q200 172 154 158 Z" fill="#5a6440" stroke="#1a2014" stroke-width="1.4"/>
-    <!-- blocky shoulders -->
     <rect x="62" y="138" width="72" height="44" rx="10" fill="#5a6842" stroke="#1a2014" stroke-width="1.6"/>
     <rect x="266" y="138" width="72" height="44" rx="10" fill="#5a6842" stroke="#1a2014" stroke-width="1.6"/>
     <rect x="70" y="148" width="56" height="12" rx="2" fill="#2a2e24" opacity="0.5"/>
     <rect x="274" y="148" width="56" height="12" rx="2" fill="#2a2e24" opacity="0.5"/>
 
-    <!-- chest rig: four mag pouches -->
     <g id="chest-rig">
-      <rect x="118" y="178" width="36" height="52" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
-      <rect x="160" y="178" width="36" height="52" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
-      <rect x="204" y="178" width="36" height="52" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
-      <rect x="246" y="178" width="36" height="52" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
+      <rect x="118" y="178" width="36" height="48" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
+      <rect x="160" y="178" width="36" height="48" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
+      <rect x="204" y="178" width="36" height="48" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
+      <rect x="246" y="178" width="36" height="48" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
       <path d="M124 186 H148 M166 186 H190 M210 186 H234 M252 186 H276" stroke="#5a5348" stroke-width="2"/>
-      <path d="M124 200 H148 M166 200 H190 M210 200 H234 M252 200 H276" stroke="#3a3830" stroke-width="1" opacity="0.6"/>
     </g>
 
-    <!-- waistband -->
-    <rect x="90" y="248" width="220" height="16" rx="2" fill="#1a1c16" stroke="#3a4032"/>
-    <rect x="100" y="252" width="48" height="8" rx="1" fill="#efe6d2" opacity="0.55"/>
-    <rect x="252" y="252" width="48" height="8" rx="1" fill="#efe6d2" opacity="0.55"/>
+    <rect x="94" y="224" width="212" height="14" rx="2" fill="#1a1c16" stroke="#3a4032"/>
+    <rect x="104" y="227" width="48" height="8" rx="1" fill="#efe6d2" opacity="0.55"/>
+    <rect x="248" y="227" width="48" height="8" rx="1" fill="#efe6d2" opacity="0.55"/>
   </g>
 
   <!-- HEAD: dark Maska-energy shell + vertical bars + crown stripes -->
@@ -178,20 +123,64 @@ export const scavengerSvg = `
     <circle cx="200" cy="168" r="4" fill="#0a0c08"/>
   </g>
 
-  <!-- Left hand over keyboard (keys remain visible around glove) -->
-  <g id="hand-left">
-    <path d="M96 250 Q118 236 152 248 Q160 260 142 268 Q114 272 98 260 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
-    <path d="M110 248 L114 262 M122 246 L126 262 M134 248 L136 262" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
-    <ellipse cx="104" cy="254" rx="7" ry="6" fill="#3a3630"/>
-    <path d="M106 246 Q126 236 146 248" fill="none" stroke="#c7923a" stroke-width="2"/>
+  <!-- Desk props ABOVE torso/arms so keycaps + mouse read clearly -->
+  <g id="prop-keyboard">
+    <rect x="44" y="242" width="210" height="48" rx="4" fill="#070806" stroke="#e8dcc4" stroke-width="2.4"/>
+    <rect x="50" y="248" width="198" height="36" rx="2" fill="#141812"/>
+    <!-- keycap rows with gaps -->
+    <g fill="#4a5640" stroke="#c4b59a" stroke-width="1.2">
+      <rect x="56" y="250" width="18" height="14" rx="2"/>
+      <rect x="78" y="250" width="18" height="14" rx="2"/>
+      <rect x="100" y="250" width="18" height="14" rx="2"/>
+      <rect x="122" y="250" width="18" height="14" rx="2"/>
+      <rect x="144" y="250" width="18" height="14" rx="2"/>
+      <rect x="166" y="250" width="18" height="14" rx="2"/>
+      <rect x="188" y="250" width="18" height="14" rx="2"/>
+      <rect x="210" y="250" width="18" height="14" rx="2"/>
+      <rect x="232" y="250" width="12" height="14" rx="2"/>
+    </g>
+    <g fill="#3a4434" stroke="#8a9480" stroke-width="1.1">
+      <rect x="62" y="268" width="18" height="12" rx="2"/>
+      <rect x="84" y="268" width="18" height="12" rx="2"/>
+      <rect x="106" y="268" width="18" height="12" rx="2"/>
+      <rect x="128" y="268" width="56" height="12" rx="2"/>
+      <rect x="188" y="268" width="18" height="12" rx="2"/>
+      <rect x="210" y="268" width="18" height="12" rx="2"/>
+      <rect x="232" y="268" width="14" height="12" rx="2"/>
+    </g>
+    <rect x="54" y="283" width="190" height="3" fill="#c7923a" opacity="0.65"/>
   </g>
 
-  <!-- Right hand over mouse -->
+  <g id="prop-mouse">
+    <path d="M276 240 Q302 228 328 240 L334 274 Q302 296 270 274 Z" fill="#181c14" stroke="#f0e6d0" stroke-width="2.6"/>
+    <path d="M302 232 V270" stroke="#c7923a" stroke-width="2.4"/>
+    <path d="M284 248 Q302 240 320 248" fill="none" stroke="#8a9480" stroke-width="1.6"/>
+    <ellipse cx="302" cy="280" rx="12" ry="7" fill="#2a2e24" stroke="#6b7355" stroke-width="1.2"/>
+    <circle cx="292" cy="252" r="3" fill="#c7923a"/>
+    <circle cx="312" cy="252" r="3" fill="#6b7355"/>
+  </g>
+
+  <g id="desk-lights">
+    <rect x="340" y="248" width="32" height="11" rx="1" fill="#121410" stroke="#4a5240"/>
+    <circle class="eq-light" cx="348" cy="268" r="4" fill="#c7923a">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.15s" repeatCount="indefinite"/>
+    </circle>
+    <circle class="eq-light" cx="362" cy="268" r="4" fill="#c7923a" opacity="0.35"/>
+  </g>
+
+  <!-- Hands on top of peripherals (keys/mouse body still peek out) -->
+  <g id="hand-left">
+    <path d="M88 246 Q116 232 150 244 Q158 256 138 264 Q108 268 90 256 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
+    <path d="M104 244 L108 258 M116 242 L120 258 M128 244 L130 258" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="96" cy="250" rx="7" ry="6" fill="#3a3630"/>
+    <path d="M98 240 Q120 230 142 242" fill="none" stroke="#c7923a" stroke-width="2"/>
+  </g>
+
   <g id="hand-right">
-    <path d="M278 248 Q300 232 322 250 Q328 262 306 270 Q280 272 276 256 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
-    <path d="M290 246 L292 262 M300 244 L304 262 M310 248 L312 258" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
-    <ellipse cx="284" cy="254" rx="7" ry="6" fill="#3a3630"/>
-    <path d="M284 242 Q304 232 320 248" fill="none" stroke="#c7923a" stroke-width="2"/>
+    <path d="M288 246 Q312 230 334 248 Q340 260 316 268 Q290 270 286 254 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
+    <path d="M300 244 L302 260 M310 242 L314 260 M320 246 L322 256" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="294" cy="250" rx="7" ry="6" fill="#3a3630"/>
+    <path d="M294 238 Q314 228 330 244" fill="none" stroke="#c7923a" stroke-width="2"/>
   </g>
 </svg>
 `.trim();

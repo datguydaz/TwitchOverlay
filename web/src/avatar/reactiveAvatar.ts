@@ -1,4 +1,5 @@
 import { scavengerSvg } from "./scavenger.svg.ts";
+import { renderStencilName } from "./deskStencil.ts";
 import type { InputKind, InputPhase } from "../../../shared/protocol.ts";
 
 export type AvatarInputSource = "idle" | "live" | "demo";
@@ -46,7 +47,11 @@ export class ReactiveAvatar {
   setStreamerName(name: string): void {
     this.streamerName = name.trim() || "datguydaz";
     const el = this.root.querySelector("#desk-streamer-name");
-    if (el) el.textContent = this.streamerName;
+    if (el) {
+      el.innerHTML = renderStencilName(this.streamerName);
+      el.setAttribute("aria-label", this.streamerName);
+      el.setAttribute("data-name", this.streamerName);
+    }
   }
 
   setIntensity(value: number): void {
