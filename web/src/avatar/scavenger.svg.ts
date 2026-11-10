@@ -64,14 +64,11 @@ export const scavengerSvg = `
       <stop offset="100%" stop-color="#121410"/>
     </linearGradient>
     <clipPath id="visor-clip">
-      <rect x="178" y="122" width="44" height="6" rx="0.6"/>
+      <rect x="176" y="124" width="48" height="7" rx="0.7"/>
     </clipPath>
-    <!-- Stripes span crown dome + tall faceplate as one Maska unit -->
+    <!-- Stripes clipped to round Maska sphere silhouette -->
     <clipPath id="maska-shell-clip">
-      <path d="M158 96
-        C158 62 174 44 200 42
-        C226 44 242 62 242 96
-        L248 108 L250 176 L240 186 L160 186 L150 176 L152 108 Z"/>
+      <ellipse cx="200" cy="122" rx="74" ry="72"/>
     </clipPath>
     <!-- Clip vest/core only — sleeves live outside so they aren't hard-stumped -->
     <clipPath id="torso-above-desk">
@@ -180,93 +177,87 @@ export const scavengerSvg = `
       </g>
     </g>
 
-    <!-- HEAD: exact Maska unit — rounded dome + tall bolted faceplate (refs close 1–4). -->
+    <!-- HEAD: round Maska — spherical dome + curved bolted faceplate (round-dome ref). -->
     <g id="layer-head">
-      <g id="head-sit" transform="translate(0 22)">
-      <g id="head-scale" transform="translate(200 142) scale(0.76) translate(-200 -142)">
-      <!-- Rounded charcoal dome (crown/bowl — part of the same Maska unit) -->
-      <path id="helm-dome" d="M158 100
-        C158 66 174 46 200 44
-        C226 46 242 66 242 100
-        L238 118
-        L162 118
-        Z" fill="url(#helmDome)" stroke="#1a1a1a" stroke-width="1.5"/>
-      <path d="M176 58 Q200 48 224 58 L218 72 Q200 64 182 72 Z" fill="#ffffff" opacity="0.055"/>
-      <!-- Tall flat faceplate bolted onto dome — wraps sides, one silhouette -->
-      <path id="helm-faceplate" d="M162 96
-        L238 96
-        L246 112
-        L248 170
-        L238 184
-        L162 184
-        L152 170
-        L154 112
-        Z" fill="url(#plateMetal)" stroke="#121212" stroke-width="1.55"/>
-      <!-- Brow seam where plate meets dome -->
-      <path d="M164 98 L236 98" stroke="#0a0a0a" stroke-width="1.1" opacity="0.55"/>
-      <path d="M166 100 L234 100 L236 108 L164 108 Z" fill="#000" opacity="0.16"/>
-      <!-- Side wrap shade (plate curves into dome — not ear blobs) -->
-      <path id="helm-cheek-l" d="M154 112 L160 118 L158 168 L152 164 Z" fill="#000" opacity="0.2"/>
-      <path id="helm-cheek-r" d="M246 112 L240 118 L242 168 L248 164 Z" fill="#000" opacity="0.2"/>
-      <!-- Temple hinge bolts (exact refs) -->
+      <g id="head-sit" transform="translate(0 24)">
+      <g id="head-scale" transform="translate(200 128) scale(0.78) translate(-200 -128)">
+      <!-- Smooth spherical charcoal dome (entire head reads round) -->
+      <ellipse id="helm-dome" cx="200" cy="122" rx="74" ry="72" fill="url(#helmDome)" stroke="#1a1a1a" stroke-width="1.6"/>
+      <ellipse cx="188" cy="88" rx="34" ry="20" fill="#ffffff" opacity="0.055"/>
+      <!-- Tall CURVED faceplate following the sphere (arc sides — not cardboard rect) -->
+      <path id="helm-faceplate" d="M168 86
+        Q200 78 232 86
+        C244 100 248 128 244 156
+        C238 176 220 186 200 188
+        C180 186 162 176 156 156
+        C152 128 156 100 168 86
+        Z" fill="url(#plateMetal)" stroke="#121212" stroke-width="1.5"/>
+      <!-- Soft brow curve on the sphere -->
+      <path d="M172 90 Q200 82 228 90" fill="none" stroke="#0a0a0a" stroke-width="1.2" opacity="0.4"/>
+      <path d="M174 92 Q200 86 226 92 L224 100 Q200 94 176 100 Z" fill="#000" opacity="0.14"/>
+      <!-- Side curve shade where plate wraps the dome -->
+      <path id="helm-cheek-l" d="M152 110 C148 130 150 150 156 166 C160 150 162 128 158 112 Z" fill="#000" opacity="0.18"/>
+      <path id="helm-cheek-r" d="M248 110 C252 130 250 150 244 166 C240 150 238 128 242 112 Z" fill="#000" opacity="0.18"/>
+      <!-- Temple bolts on the round shell -->
       <g id="helm-bolts">
         <g id="helm-bolt-l">
-          <circle cx="160" cy="126" r="4.2" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="0.8"/>
-          <circle cx="160" cy="126" r="2.2" fill="#6a6a6a" stroke="#2a2a2a" stroke-width="0.5"/>
-          <circle cx="159.2" cy="125.2" r="0.7" fill="#c8c8c8" opacity="0.55"/>
-          <circle cx="160" cy="140" r="3.4" fill="#333" stroke="#1a1a1a" stroke-width="0.7"/>
-          <circle cx="160" cy="140" r="1.7" fill="#5a5a5a"/>
+          <circle cx="154" cy="124" r="4.4" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="0.8"/>
+          <circle cx="154" cy="124" r="2.3" fill="#6a6a6a" stroke="#2a2a2a" stroke-width="0.5"/>
+          <circle cx="153.2" cy="123.2" r="0.75" fill="#c8c8c8" opacity="0.55"/>
+          <circle cx="156" cy="140" r="3.5" fill="#333" stroke="#1a1a1a" stroke-width="0.7"/>
+          <circle cx="156" cy="140" r="1.8" fill="#5a5a5a"/>
         </g>
         <g id="helm-bolt-r">
-          <circle cx="240" cy="126" r="4.2" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="0.8"/>
-          <circle cx="240" cy="126" r="2.2" fill="#6a6a6a" stroke="#2a2a2a" stroke-width="0.5"/>
-          <circle cx="239.2" cy="125.2" r="0.7" fill="#c8c8c8" opacity="0.55"/>
-          <circle cx="240" cy="140" r="3.4" fill="#333" stroke="#1a1a1a" stroke-width="0.7"/>
-          <circle cx="240" cy="140" r="1.7" fill="#5a5a5a"/>
+          <circle cx="246" cy="124" r="4.4" fill="#3a3a3a" stroke="#1a1a1a" stroke-width="0.8"/>
+          <circle cx="246" cy="124" r="2.3" fill="#6a6a6a" stroke="#2a2a2a" stroke-width="0.5"/>
+          <circle cx="245.2" cy="123.2" r="0.75" fill="#c8c8c8" opacity="0.55"/>
+          <circle cx="244" cy="140" r="3.5" fill="#333" stroke="#1a1a1a" stroke-width="0.7"/>
+          <circle cx="244" cy="140" r="1.8" fill="#5a5a5a"/>
         </g>
       </g>
-      <g id="helm-metal-grain" fill="none" stroke-linecap="round" opacity="0.32">
-        <path d="M172 108 L184 116" stroke="#8a8a8a" stroke-width="0.4"/>
-        <path d="M216 110 L230 118" stroke="#7a7a7a" stroke-width="0.35"/>
-        <path d="M170 152 L182 160" stroke="#9a9a9a" stroke-width="0.4"/>
-        <path d="M218 154 L232 162" stroke="#8a8a8a" stroke-width="0.35"/>
-        <path d="M186 64 L194 72" stroke="#7a7a7a" stroke-width="0.35"/>
+      <g id="helm-metal-grain" fill="none" stroke-linecap="round" opacity="0.3">
+        <path d="M170 100 L182 110" stroke="#8a8a8a" stroke-width="0.4"/>
+        <path d="M218 102 L232 112" stroke="#7a7a7a" stroke-width="0.35"/>
+        <path d="M168 150 L180 160" stroke="#9a9a9a" stroke-width="0.4"/>
+        <path d="M220 152 L234 162" stroke="#8a8a8a" stroke-width="0.35"/>
+        <path d="M186 62 L196 72" stroke="#7a7a7a" stroke-width="0.35"/>
+        <path d="M210 64 L218 74" stroke="#6a6a6a" stroke-width="0.3"/>
       </g>
-      <!-- 3 stripes: crown → faceplate past eye slit → chin -->
+      <!-- 3 stripes over round dome → curved plate past slit → chin -->
       <g id="helm-stripes" fill="#f2ece0" clip-path="url(#maska-shell-clip)">
-        <path id="helm-stripe-c" d="M191 48 Q200 40 209 48 L205 182 L195 182 Z" opacity="0.98"/>
-        <path id="helm-stripe-l" d="M174 54 Q182 44 189 58 L185 180 L175 178 Z" opacity="0.95"/>
-        <path id="helm-stripe-r" d="M211 58 Q218 44 226 54 L225 178 L215 180 Z" opacity="0.95"/>
+        <path id="helm-stripe-c" d="M190 52 Q200 44 210 52 L206 186 L194 186 Z" opacity="0.98"/>
+        <path id="helm-stripe-l" d="M172 58 Q180 48 188 62 L184 182 L174 180 Z" opacity="0.95"/>
+        <path id="helm-stripe-r" d="M212 62 Q220 48 228 58 L226 180 L216 182 Z" opacity="0.95"/>
         <g id="helm-stripe-chips" fill="#3a3a3a" opacity="0.45">
-          <path d="M196 70 L201 74 L197 78 Z"/>
-          <path d="M180 108 L184 112 L178 114 Z"/>
-          <path d="M216 148 L220 152 L214 154 Z"/>
+          <path d="M196 72 L201 76 L197 80 Z"/>
+          <path d="M178 112 L182 116 L176 118 Z"/>
+          <path d="M218 150 L222 154 L216 156 Z"/>
         </g>
       </g>
-      <!-- Narrow eye slit cut in faceplate -->
+      <!-- Narrow eye slit on curved plate -->
       <g id="eyes">
-        <rect id="eye-slit" x="174" y="120" width="52" height="10" rx="1" fill="#0a0a0a" stroke="#1e1e1e" stroke-width="1"/>
-        <rect x="178" y="122" width="44" height="6" rx="0.6" fill="#121212"/>
+        <rect id="eye-slit" x="172" y="122" width="56" height="11" rx="1.2" fill="#0a0a0a" stroke="#1e1e1e" stroke-width="1"/>
+        <rect x="176" y="124" width="48" height="7" rx="0.7" fill="#121212"/>
         <g id="eye-look" clip-path="url(#visor-clip)">
-          <ellipse class="eye-white" cx="190" cy="125" rx="4" ry="1.7" fill="#d8d2c4"/>
-          <ellipse class="eye-white" cx="210" cy="125" rx="4" ry="1.7" fill="#d8d2c4"/>
-          <circle class="pupil" cx="190" cy="125" r="1.2" fill="#101010"/>
-          <circle class="pupil" cx="210" cy="125" r="1.2" fill="#101010"/>
+          <ellipse class="eye-white" cx="188" cy="127.5" rx="4.2" ry="1.8" fill="#d8d2c4"/>
+          <ellipse class="eye-white" cx="212" cy="127.5" rx="4.2" ry="1.8" fill="#d8d2c4"/>
+          <circle class="pupil" cx="188" cy="127.5" r="1.25" fill="#101010"/>
+          <circle class="pupil" cx="212" cy="127.5" r="1.25" fill="#101010"/>
         </g>
-        <rect class="eyelid" x="178" y="122" width="44" height="6" fill="#141414" opacity="0"/>
-        <rect id="visor-glow" class="eq-blink" x="178" y="122.5" width="44" height="5" rx="0.6" fill="#2a2a2a" opacity="0.12"/>
+        <rect class="eyelid" x="176" y="124" width="48" height="7" fill="#141414" opacity="0"/>
+        <rect id="visor-glow" class="eq-blink" x="176" y="124.5" width="48" height="6" rx="0.7" fill="#2a2a2a" opacity="0.12"/>
       </g>
       <g id="helm-stripe-drips" fill="#f2ece0" opacity="0.9">
-        <rect x="194" y="130" width="2.2" height="6" rx="0.25"/>
-        <rect x="202" y="130" width="2" height="4.5" rx="0.25"/>
+        <rect x="194" y="133" width="2.2" height="6" rx="0.25"/>
+        <rect x="202" y="133" width="2" height="4.5" rx="0.25"/>
       </g>
       <g id="helm-wear" fill="none" stroke-linecap="round">
-        <path d="M170 104 L180 112" stroke="#f2ece0" stroke-width="0.35" opacity="0.18"/>
-        <path d="M220 106 Q228 112 234 110" stroke="#c8c2b0" stroke-width="0.35" opacity="0.18"/>
-        <path d="M168 156 L178 164" stroke="#9a9a9a" stroke-width="0.35" opacity="0.22"/>
+        <path d="M168 98 L178 108" stroke="#f2ece0" stroke-width="0.35" opacity="0.18"/>
+        <path d="M222 100 Q230 108 236 106" stroke="#c8c2b0" stroke-width="0.35" opacity="0.18"/>
+        <path d="M166 152 L176 162" stroke="#9a9a9a" stroke-width="0.35" opacity="0.22"/>
       </g>
       <g id="mouth-vent">
-        <ellipse cx="200" cy="168" rx="7.5" ry="4" fill="#1a1a1a" stroke="#3a3a3a" stroke-width="0.7"/>
+        <ellipse cx="200" cy="168" rx="8" ry="4.2" fill="#1a1a1a" stroke="#3a3a3a" stroke-width="0.7"/>
         <path id="mouth-slats" d="M194 167 H206 M195 169.5 H205" stroke="#4a4a4a" stroke-width="0.65" opacity="0.65"/>
       </g>
       </g>

@@ -192,10 +192,13 @@ const meta = await page.evaluate(() => {
       const eyes = document.querySelector("#eyes");
       const bolts = document.querySelector("#helm-bolts");
       if (!dome || !plate || !stripes || !slit || !eyes || !bolts) return false;
-      // Exact Maska unit: rounded dome path + tall bolted faceplate path (not rect blob stack)
-      const domeIsPath = dome.tagName.toLowerCase() === "path";
+      // Round Maska: near-spherical ellipse dome + curved path faceplate (not cardboard rect)
+      const domeIsEllipse = dome.tagName.toLowerCase() === "ellipse";
       const plateIsPath = plate.tagName.toLowerCase() === "path";
       const noRectPlate = plate.tagName.toLowerCase() !== "rect";
+      const rx = Number(dome.getAttribute("rx") || 0);
+      const ry = Number(dome.getAttribute("ry") || 0);
+      const roundDome = rx >= 68 && ry >= 64 && Math.abs(rx - ry) <= 8;
       const boltCircles = bolts.querySelectorAll("circle").length;
       const stripePaths = stripes.querySelectorAll("path[id^=helm-stripe-]").length;
       const kids = [...(document.querySelector("#head-scale")?.children || [])];
@@ -203,24 +206,22 @@ const meta = await page.evaluate(() => {
       const eyesIdx = kids.indexOf(eyes);
       const slitOverStripes = stripeIdx >= 0 && eyesIdx > stripeIdx;
       const slitH = Number(slit.getAttribute("height") || 0);
-      const plateBox = plate.getBBox?.();
-      const domeBox = dome.getBBox?.();
-      // Faceplate tall; dome is crown (wider than tall or squat bowl)
-      const tallPlate = !!plateBox && plateBox.height > plateBox.width * 0.85;
-      const crownDome = !!domeBox && domeBox.width > domeBox.height * 0.9;
+      const plateD = plate.getAttribute("d") || "";
+      // Curved plate uses C/Q arcs — not a hard rect polygon
+      const curvedPlate = /[CQ]/.test(plateD) && plateD.length > 60;
       const plateOpaque = (plate.getAttribute("opacity") || "1") !== "0";
       return (
-        domeIsPath &&
+        domeIsEllipse &&
         plateIsPath &&
         noRectPlate &&
         plateOpaque &&
-        tallPlate &&
-        crownDome &&
+        roundDome &&
+        curvedPlate &&
         boltCircles >= 6 &&
         stripePaths >= 3 &&
         slitOverStripes &&
         slitH > 0 &&
-        slitH <= 12
+        slitH <= 13
       );
     })(),
     noFingerGlowCss: (() => {
