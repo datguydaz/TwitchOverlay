@@ -100,7 +100,7 @@ const meta = await page.evaluate(() => {
     hasDeskTop: !!deskTop,
     hasApron: !!apronEl,
     stanag,
-    stanagCentered: stanag.length === 4 && stanag.every((t) => /translate\(\s*\d+\s+186\)/.test(t || "")),
+    stanagCentered: stanag.length === 4 && stanag.every((t) => /translate\(\s*\d+\s+188\)/.test(t || "")),
     killaAbovePouches: killaIdx >= 0 && rigIdx > killaIdx && killaY > 0 && pouchY > killaY,
     killaY: killa?.getAttribute("y"),
     killaSize: killa?.getAttribute("font-size"),
@@ -139,8 +139,8 @@ const meta = await page.evaluate(() => {
           ) || []
         )[1] || 0,
       );
-      // Hard shrink vs refs — head must read smaller than bulky vest
-      return v > 0.6 && v <= 0.74 && torso >= 0.88 && v < torso - 0.12;
+      // Helm proportional to soft vest — not exploding, not tiny
+      return v > 0.66 && v <= 0.8 && torso >= 0.82 && torso <= 0.92 && v < torso;
     })(),
     headScaleVal: (document.querySelector("#head-scale")?.getAttribute("transform") || "").match(
       /scale\(([\d.]+)\)/,
@@ -173,10 +173,16 @@ const meta = await page.evaluate(() => {
       );
     })(),
     helmWhiteMatch: (() => {
-      const killa = document.querySelector("#chest-killa-main")?.getAttribute("fill") || "";
-      const stripe = document.querySelector("#sleeve-stripes-left")?.getAttribute("stroke") || "";
-      const helm = "#efe6d2";
-      return killa.toLowerCase() === helm && stripe.toLowerCase() === helm;
+      const killa = (document.querySelector("#chest-killa-main")?.getAttribute("fill") || "").toLowerCase();
+      const sleeve = (document.querySelector("#sleeve-stripes-left")?.getAttribute("stroke") || "").toLowerCase();
+      const helmStripe = (
+        document.querySelector("#helm-stripes")?.getAttribute("fill") ||
+        document.querySelector("#helm-stripe-c")?.getAttribute("fill") ||
+        "#f2ece0"
+      ).toLowerCase();
+      const cream = (c) => /^#(efe6d2|f2ece0|f5f0e6|f0ebe0)$/.test(c);
+      // KILLA + sleeve + helm stripes share cream/white (literal ref)
+      return cream(killa) && cream(sleeve) && (cream(helmStripe) || helmStripe === "");
     })(),
     helmCoversHead: (() => {
       const dome = document.querySelector("#helm-dome");
@@ -185,16 +191,27 @@ const meta = await page.evaluate(() => {
       const slit = document.querySelector("#eye-slit");
       const eyes = document.querySelector("#eyes");
       if (!dome || !plate || !stripes || !slit || !eyes) return false;
-      const rx = Number(dome.getAttribute("rx") || 0);
-      const ry = Number(dome.getAttribute("ry") || 0);
-      const plateW = Number(plate.getAttribute("width") || 0);
+      // Real Maska: path shell + path faceplate (not ellipse blob + square rect)
+      const domeIsPath = dome.tagName.toLowerCase() === "path";
+      const plateIsPath = plate.tagName.toLowerCase() === "path";
+      const domeD = dome.getAttribute("d") || "";
+      const plateD = plate.getAttribute("d") || "";
       const stripePaths = stripes.querySelectorAll("path[id^=helm-stripe-]").length;
-      // Slit must paint AFTER stripes in DOM so cut covers stripe paint (no paint-through-eyes)
       const kids = [...(document.querySelector("#head-scale")?.children || [])];
       const stripeIdx = kids.indexOf(stripes);
       const eyesIdx = kids.indexOf(eyes);
       const slitOverStripes = stripeIdx >= 0 && eyesIdx > stripeIdx;
-      return rx >= 68 && ry >= 54 && plateW >= 100 && stripePaths >= 3 && slitOverStripes;
+      const slitH = Number(slit.getAttribute("height") || 0);
+      return (
+        domeIsPath &&
+        plateIsPath &&
+        domeD.length > 40 &&
+        plateD.length > 40 &&
+        stripePaths >= 3 &&
+        slitOverStripes &&
+        slitH > 0 &&
+        slitH <= 12
+      );
     })(),
     noFingerGlowCss: (() => {
       const css = [...document.styleSheets]
