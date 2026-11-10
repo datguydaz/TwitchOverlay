@@ -6,6 +6,12 @@ export type SceneId =
   | "avatar"
   | "ultrawide";
 
+export type SocialPlacement =
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right";
+
 export interface ModuleTransform {
   visible: boolean;
   x: number;
@@ -21,9 +27,34 @@ export interface UltrawideSettings {
   barHeight: number;
   topVisible: boolean;
   bottomVisible: boolean;
+  /** Legacy/custom top center when operatorLineOnTop is false. */
   topText: string;
+  /** Bottom-center banner line (operator name lives on top). */
   bottomText: string;
+  /** Bottom-right status chip — threat / extract / raid vibe. */
   statusText: string;
+  /** When true, top center shows `{STREAMER} // {operatorLine}`. */
+  operatorLineOnTop: boolean;
+  /** Suffix after streamer name on the top bar. */
+  operatorLine: string;
+}
+
+export interface ChatSettings {
+  enabled: boolean;
+  /** Auto Zone Ops trash-talk on a timer. */
+  demoAuto: boolean;
+  /** Trash-talk interval in ms (clamped 6s–90s). */
+  intervalMs: number;
+}
+
+export interface SocialSettings {
+  showFollower: boolean;
+  showSubscriber: boolean;
+  followerPlacement: SocialPlacement;
+  subscriberPlacement: SocialPlacement;
+  /** Demo names — clearly SAMPLE until Twitch/Kick wired. */
+  latestFollowerSample: string;
+  latestSubscriberSample: string;
 }
 
 export interface OverlaySettings {
@@ -58,11 +89,8 @@ export interface OverlaySettings {
     enabled: boolean;
     threshold: number;
   };
-  chat: {
-    enabled: boolean;
-    /** Auto demo one-liners occasionally when enabled. */
-    demoAuto: boolean;
-  };
+  chat: ChatSettings;
+  social: SocialSettings;
   ultrawide: UltrawideSettings;
   demoModeDefault: boolean;
 }
@@ -101,7 +129,16 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   },
   chat: {
     enabled: true,
-    demoAuto: false,
+    demoAuto: true,
+    intervalMs: 14000,
+  },
+  social: {
+    showFollower: true,
+    showSubscriber: true,
+    followerPlacement: "top-left",
+    subscriberPlacement: "top-right",
+    latestFollowerSample: "GhostPing_42",
+    latestSubscriberSample: "RaidMama",
   },
   ultrawide: {
     canvasWidth: 3440,
@@ -110,8 +147,10 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     topVisible: true,
     bottomVisible: true,
     topText: "ZONE OPS // TRANSMISSION",
-    bottomText: "OPERATOR ONLINE",
-    statusText: "SIGNAL NOMINAL",
+    bottomText: "HOLD THE LINE",
+    statusText: "ZONE THREAT // RAID READY",
+    operatorLineOnTop: true,
+    operatorLine: "OPERATOR ONLINE",
   },
   demoModeDefault: false,
 };
@@ -135,6 +174,7 @@ export function mergeSettings(
     avatar: { ...base.avatar, ...partial.avatar },
     mic: { ...base.mic, ...partial.mic },
     chat: { ...base.chat, ...partial.chat },
+    social: { ...base.social, ...partial.social },
     ultrawide: { ...base.ultrawide, ...partial.ultrawide },
   };
 }

@@ -105,18 +105,24 @@ The companion keeps hooks alive across WS reconnects so focusing Streamlabs or a
 
 ### Chat persona
 
-Dashboard **Chat persona**: send a line or sample. Avatar shows a short Zone Ops bubble. Optional auto demo lines. Twitch chat hook is modular/future — not fake-connected.
+Large Zone Ops chat sits along the ultrawide **bottom banner** (`#uw-chat`). Dashboard **Chat persona**: send a line, sample trash-talk, or enable the random timer. Avatar source mirrors the same lines. Twitch chat hook is modular/future — not fake-connected.
 
-### Ultrawide / Streamlabs letterbox (3440×1440)
+### Latest follow / sub (SAMPLE)
+
+Ultrawide shows Zone Ops **SAMPLE // LATEST FOLLOW** and **SAMPLE // LATEST SUB** plates (dashboard names + placement). Clearly labelled SAMPLE until Twitch/Kick is wired — never pretends to be live.
+
+### Ultrawide / Streamlabs letterbox (3440×1440 / 4K)
 
 When the canvas is ultrawide and 16:9 gameplay sits in the middle, use Zone Ops bars instead of empty black.
 
+Defaults: top center = `{streamer} // OPERATOR ONLINE`; bottom center = `HOLD THE LINE`; bottom-right status = `ZONE THREAT // RAID READY` (editable).
+
 **Option A — one overlay**
 
-1. Set OBS/Streamlabs canvas to **3440×1440** (or your panel res).
+1. Set OBS/Streamlabs canvas to **3440×1440** (or 4K / your panel res).
 2. Place 16:9 game capture centered (e.g. 1920×1080 or scaled 16:9). With default **bar height 180**, the transparent hole matches a 1080px-tall center in a 1440 canvas.
 3. Add Browser Source → `http://127.0.0.1:8787/ultrawide.html`  
-   Width **3440**, Height **1440**, transparent background **on**. Put it above the black void / below game as needed so bars show in the letterbox.
+   Width **3440**, Height **1440**, transparent background **on**. Put it above the black void / below game as needed so bars show in the letterbox. Soft-refresh after dashboard saves.
 
 **Option B — separate top/bottom sources**
 
@@ -125,14 +131,14 @@ When the canvas is ultrawide and 16:9 gameplay sits in the middle, use Zone Ops 
 2. Browser Source bottom → `http://127.0.0.1:8787/ultrawide-bottom.html`  
    Width **3440**, Height **180**, position Y **1260** (1440 − 180).
 
-Tune bar height, copy, and visibility in the dashboard **Ultrawide letterbox** panel. Keep gameplay/avatar overlays as their own 16:9 (or avatar-only) sources on top of the game.
+Tune bar height, copy, social plates, and visibility in the dashboard **Ultrawide letterbox** / **Latest follow / sub** panels. Keep gameplay/avatar overlays as their own 16:9 (or avatar-only) sources on top of the game.
 
 ## Reactive avatar
 
 Original SVG scavenger (hood, gas mask, desk). Layered hands / head / torso:
 
-- Keyboard → left hand tap (holds stay active without jitter; OS repeat ignored in companion)
-- Left / right click → distinct right-hand feedback
+- Keyboard → brief press pulse, then **sustained hold pose** while key is down (not smash spam; OS repeat ignored in companion)
+- Mouse L/R → brief click pulse, then **sustained press pose** while held
 - Idle breathing + occasional head movement
 - Optional amber equipment lights on activity
 

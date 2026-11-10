@@ -1,4 +1,4 @@
-import { ReactiveAvatar } from "../avatar/reactiveAvatar.ts";
+import { ReactiveAvatar, ZONE_TRASH_TALK } from "../avatar/reactiveAvatar.ts";
 import {
   applyCssVars,
   fetchSettings,
@@ -53,6 +53,22 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("micThreshold") as HTMLInputElement).value = String(s.mic.threshold);
   (document.getElementById("chatEnabled") as HTMLInputElement).checked = s.chat.enabled;
   (document.getElementById("chatDemoAuto") as HTMLInputElement).checked = s.chat.demoAuto;
+  (document.getElementById("chatIntervalMs") as HTMLInputElement).value = String(
+    s.chat.intervalMs,
+  );
+
+  (document.getElementById("socialShowFollower") as HTMLInputElement).checked =
+    s.social.showFollower;
+  (document.getElementById("socialShowSubscriber") as HTMLInputElement).checked =
+    s.social.showSubscriber;
+  (document.getElementById("socialFollowerName") as HTMLInputElement).value =
+    s.social.latestFollowerSample;
+  (document.getElementById("socialSubscriberName") as HTMLInputElement).value =
+    s.social.latestSubscriberSample;
+  (document.getElementById("socialFollowerPlace") as HTMLSelectElement).value =
+    s.social.followerPlacement;
+  (document.getElementById("socialSubscriberPlace") as HTMLSelectElement).value =
+    s.social.subscriberPlacement;
 
   (document.getElementById("uwCanvasWidth") as HTMLInputElement).value = String(
     s.ultrawide.canvasWidth,
@@ -67,6 +83,10 @@ function fillForm(s: OverlaySettings): void {
     s.ultrawide.topVisible;
   (document.getElementById("uwBottomVisible") as HTMLInputElement).checked =
     s.ultrawide.bottomVisible;
+  (document.getElementById("uwOperatorOnTop") as HTMLInputElement).checked =
+    s.ultrawide.operatorLineOnTop;
+  (document.getElementById("uwOperatorLine") as HTMLInputElement).value =
+    s.ultrawide.operatorLine;
   (document.getElementById("uwTopText") as HTMLInputElement).value = s.ultrawide.topText;
   (document.getElementById("uwBottomText") as HTMLInputElement).value = s.ultrawide.bottomText;
   (document.getElementById("uwStatusText") as HTMLInputElement).value = s.ultrawide.statusText;
@@ -116,6 +136,32 @@ function readForm(): OverlaySettings {
   );
   next.chat.enabled = (document.getElementById("chatEnabled") as HTMLInputElement).checked;
   next.chat.demoAuto = (document.getElementById("chatDemoAuto") as HTMLInputElement).checked;
+  next.chat.intervalMs = Math.max(
+    6000,
+    Math.min(
+      90000,
+      Number((document.getElementById("chatIntervalMs") as HTMLInputElement).value) || 14000,
+    ),
+  );
+
+  next.social.showFollower = (
+    document.getElementById("socialShowFollower") as HTMLInputElement
+  ).checked;
+  next.social.showSubscriber = (
+    document.getElementById("socialShowSubscriber") as HTMLInputElement
+  ).checked;
+  next.social.latestFollowerSample =
+    (document.getElementById("socialFollowerName") as HTMLInputElement).value.trim() ||
+    "GhostPing_42";
+  next.social.latestSubscriberSample =
+    (document.getElementById("socialSubscriberName") as HTMLInputElement).value.trim() ||
+    "RaidMama";
+  next.social.followerPlacement = (
+    document.getElementById("socialFollowerPlace") as HTMLSelectElement
+  ).value as OverlaySettings["social"]["followerPlacement"];
+  next.social.subscriberPlacement = (
+    document.getElementById("socialSubscriberPlace") as HTMLSelectElement
+  ).value as OverlaySettings["social"]["subscriberPlacement"];
 
   next.ultrawide.canvasWidth = Number(
     (document.getElementById("uwCanvasWidth") as HTMLInputElement).value,
@@ -132,6 +178,12 @@ function readForm(): OverlaySettings {
   next.ultrawide.bottomVisible = (
     document.getElementById("uwBottomVisible") as HTMLInputElement
   ).checked;
+  next.ultrawide.operatorLineOnTop = (
+    document.getElementById("uwOperatorOnTop") as HTMLInputElement
+  ).checked;
+  next.ultrawide.operatorLine =
+    (document.getElementById("uwOperatorLine") as HTMLInputElement).value.trim() ||
+    "OPERATOR ONLINE";
   next.ultrawide.topText = (document.getElementById("uwTopText") as HTMLInputElement).value;
   next.ultrawide.bottomText = (
     document.getElementById("uwBottomText") as HTMLInputElement
@@ -328,14 +380,9 @@ async function main(): Promise<void> {
   });
   document.getElementById("btn-chat-sample")?.addEventListener("click", () => {
     avatar.setChatEnabled(true);
-    avatar.sayDemoLine();
-    dashWs?.send(
-      JSON.stringify({
-        type: "chat-line",
-        text: "Zone quiet. Keep your head on a swivel.",
-        from: "demo",
-      }),
-    );
+    const line = ZONE_TRASH_TALK[Math.floor(Math.random() * ZONE_TRASH_TALK.length)]!;
+    avatar.say(line);
+    dashWs?.send(JSON.stringify({ type: "chat-line", text: line, from: "demo" }));
   });
 
   document.getElementById("streamerName")?.addEventListener("input", () => {
@@ -386,7 +433,7 @@ async function main(): Promise<void> {
     holdTimer = window.setTimeout(() => {
       applyDemoInput(avatar, "key", "up", 0);
       holdTimer = null;
-    }, 1500);
+    }, 2800);
   });
 
   document.getElementById("btn-demo-l")?.addEventListener("click", () => {

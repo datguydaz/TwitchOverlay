@@ -13,6 +13,11 @@
   </head>
   <body class="uw-bar-only" data-uw-mode="bottom">
     <div id="uw-stage" data-vfx="on">
+      <div class="uw-chat" id="uw-chat" data-show="0" aria-live="polite">
+        <div class="uw-chat-tag" id="uw-chat-tag">ZONE OPS // COMMS</div>
+        <div class="uw-chat-body" id="uw-chat-body"></div>
+      </div>
+
       <div class="uw-bar uw-bar-bottom" id="uw-bottom" data-edge="bottom">
         <div class="uw-hazard-rail" aria-hidden="true"></div>
         <div class="uw-bar-body">
@@ -22,13 +27,11 @@
             <div class="uw-meta">AUTH // LOCAL</div>
           </div>
           <div class="uw-center">
-            <div class="uw-title" id="uw-bottom-text">
-              <span data-streamer-name>datguydaz</span> // OPERATOR ONLINE
-            </div>
+            <div class="uw-title" id="uw-bottom-text">HOLD THE LINE</div>
             <div class="uw-rule" aria-hidden="true"></div>
           </div>
           <div class="uw-side uw-side-right">
-            <div class="uw-status" id="uw-bottom-status">SIGNAL NOMINAL</div>
+            <div class="uw-status" id="uw-bottom-status">ZONE THREAT // RAID READY</div>
             <div class="uw-meta">DESK LIVE</div>
           </div>
           <span class="uw-tick uw-tick-l" aria-hidden="true"></span>
@@ -36,6 +39,17 @@
           <div class="uw-scan" aria-hidden="true"></div>
         </div>
       </div>
+
+      <aside class="uw-social" id="uw-follower" data-place="bottom-left" data-sample="1" hidden>
+        <div class="uw-social-tag">SAMPLE // LATEST FOLLOW</div>
+        <div class="uw-social-name" id="uw-follower-name">GhostPing_42</div>
+        <div class="uw-social-sub">Not a live Twitch/Kick event</div>
+      </aside>
+      <aside class="uw-social" id="uw-subscriber" data-place="bottom-right" data-sample="1" hidden>
+        <div class="uw-social-tag">SAMPLE // LATEST SUB</div>
+        <div class="uw-social-name" id="uw-subscriber-name">RaidMama</div>
+        <div class="uw-social-sub">Not a live Twitch/Kick event</div>
+      </aside>
     </div>
     <script type="module" src="/src/pages/ultrawide.ts"></script>
   </body>

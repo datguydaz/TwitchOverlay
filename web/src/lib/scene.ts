@@ -142,11 +142,16 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
     });
     await input.start();
     if (settings.chat.enabled && settings.chat.demoAuto) {
-      window.setInterval(() => {
-        if (!document.hidden && avatar && settings.chat.demoAuto) {
-          avatar.sayDemoLine();
-        }
-      }, 28000);
+      const scheduleTalk = () => {
+        const ms = Math.max(6000, Math.min(90000, settings.chat.intervalMs || 14000));
+        window.setTimeout(() => {
+          if (!document.hidden && avatar && settings.chat.enabled && settings.chat.demoAuto) {
+            avatar.sayDemoLine();
+          }
+          scheduleTalk();
+        }, ms + Math.random() * 4000);
+      };
+      scheduleTalk();
     }
   } else {
     setConnPill("offline");

@@ -2,7 +2,8 @@ import {
   applyCssVars,
   fetchSettings,
 } from "../lib/settingsClient.ts";
-import type { OverlaySettings } from "../../../shared/settings.ts";
+import { ZONE_TRASH_TALK } from "../avatar/reactiveAvatar.ts";
+import type { OverlaySettings, SocialPlacement } from "../../../shared/settings.ts";
 
 function qs<T extends HTMLElement>(sel: string): T | null {
   return document.querySelector(sel);
@@ -22,6 +23,26 @@ function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
 function setVfxEnabled(on: boolean): void {
   const stage = qs<HTMLElement>("#uw-stage");
   if (stage) stage.dataset.vfx = on ? "on" : "off";
+}
+
+function placeSocial(el: HTMLElement | null, place: SocialPlacement, show: boolean): void {
+  if (!el) return;
+  el.dataset.place = place;
+  el.hidden = !show;
+}
+
+function showChatLine(text: string, tag: string): void {
+  const box = qs<HTMLElement>("#uw-chat");
+  const body = qs<HTMLElement>("#uw-chat-body");
+  const tagEl = qs<HTMLElement>("#uw-chat-tag");
+  if (!box || !body) return;
+  if (tagEl) tagEl.textContent = tag;
+  body.textContent = text.slice(0, 220);
+  box.dataset.show = "1";
+  window.clearTimeout((showChatLine as { _t?: number })._t);
+  (showChatLine as { _t?: number })._t = window.setTimeout(() => {
+    box.dataset.show = "0";
+  }, 5600);
 }
 
 function applyUltrawide(settings: OverlaySettings): void {
@@ -51,7 +72,6 @@ function applyUltrawide(settings: OverlaySettings): void {
   const bottom = qs<HTMLElement>("#uw-bottom");
   const topText = qs<HTMLElement>("#uw-top-text");
   const bottomText = qs<HTMLElement>("#uw-bottom-text");
-  const topStatus = qs<HTMLElement>("#uw-top-status");
   const bottomStatus = qs<HTMLElement>("#uw-bottom-status");
 
   if (top) {
@@ -63,15 +83,46 @@ function applyUltrawide(settings: OverlaySettings): void {
     bottom.dataset.hidden = uw.bottomVisible ? "false" : "true";
   }
 
-  if (topText) topText.textContent = uw.topText || "ZONE OPS // TRANSMISSION";
-  if (bottomText) {
-    const label = uw.bottomText || "OPERATOR ONLINE";
-    bottomText.innerHTML = `<span data-streamer-name>${settings.streamerName}</span> // ${label}`;
+  const name = settings.streamerName || "datguydaz";
+  if (topText) {
+    if (uw.operatorLineOnTop !== false) {
+      const suffix = (uw.operatorLine || "OPERATOR ONLINE").trim() || "OPERATOR ONLINE";
+      topText.innerHTML = `<span data-streamer-name>${name}</span> // ${suffix}`;
+    } else {
+      topText.textContent = uw.topText || "ZONE OPS // TRANSMISSION";
+    }
   }
 
-  const status = uw.statusText || "SIGNAL NOMINAL";
-  if (topStatus) topStatus.textContent = status;
+  if (bottomText) {
+    bottomText.textContent = uw.bottomText || "HOLD THE LINE";
+  }
+
+  const status = uw.statusText || "ZONE THREAT // RAID READY";
   if (bottomStatus) bottomStatus.textContent = status;
+
+  const social = settings.social;
+  const follower = qs<HTMLElement>("#uw-follower");
+  const subscriber = qs<HTMLElement>("#uw-subscriber");
+  const followerName = qs<HTMLElement>("#uw-follower-name");
+  const subscriberName = qs<HTMLElement>("#uw-subscriber-name");
+  if (followerName) followerName.textContent = social.latestFollowerSample || "SAMPLE_USER";
+  if (subscriberName) subscriberName.textContent = social.latestSubscriberSample || "SAMPLE_SUB";
+
+  // Placement: on top-only / bottom-only pages, prefer edge placements that fit.
+  let fPlace = social.followerPlacement;
+  let sPlace = social.subscriberPlacement;
+  if (mode === "top") {
+    if (fPlace.startsWith("bottom")) fPlace = "top-left";
+    if (sPlace.startsWith("bottom")) sPlace = "top-right";
+  } else if (mode === "bottom") {
+    if (fPlace.startsWith("top")) fPlace = "bottom-left";
+    if (sPlace.startsWith("top")) sPlace = "bottom-right";
+  }
+  placeSocial(follower, fPlace, social.showFollower);
+  placeSocial(subscriber, sPlace, social.showSubscriber);
+
+  const chat = qs<HTMLElement>("#uw-chat");
+  if (chat) chat.style.display = settings.chat.enabled ? "" : "none";
 }
 
 /** Rare signal glitch — low duty cycle, paused when tab hidden. */
@@ -125,11 +176,41 @@ function startGlitchLoop(): void {
   schedule();
 }
 
+function startTrashTalk(getSettings: () => OverlaySettings): void {
+  let timer: number | null = null;
+
+  const tick = () => {
+    if (timer != null) window.clearTimeout(timer);
+    const s = getSettings();
+    const interval = Math.max(6000, Math.min(90000, s.chat.intervalMs || 14000));
+    timer = window.setTimeout(() => {
+      timer = null;
+      const cur = getSettings();
+      if (
+        !document.hidden &&
+        cur.chat.enabled &&
+        cur.chat.demoAuto &&
+        qs("#uw-chat")
+      ) {
+        const line = ZONE_TRASH_TALK[Math.floor(Math.random() * ZONE_TRASH_TALK.length)]!;
+        showChatLine(line, `${cur.streamerName.toUpperCase()} // COMMS`);
+      }
+      tick();
+    }, interval + Math.random() * 4000);
+  };
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) tick();
+  });
+  tick();
+}
+
 async function main(): Promise<void> {
   let settings = await fetchSettings();
   applyCssVars(settings);
   applyUltrawide(settings);
   startGlitchLoop();
+  startTrashTalk(() => settings);
 
   const refresh = async () => {
     settings = await fetchSettings();
@@ -151,8 +232,18 @@ async function main(): Promise<void> {
     });
     ws.addEventListener("message", (ev) => {
       try {
-        const msg = JSON.parse(String(ev.data)) as { type?: string };
+        const msg = JSON.parse(String(ev.data)) as {
+          type?: string;
+          text?: string;
+          from?: string;
+        };
         if (msg.type === "settings-updated") void refresh();
+        if (msg.type === "chat-line" && typeof msg.text === "string" && settings.chat.enabled) {
+          showChatLine(
+            msg.text,
+            `${settings.streamerName.toUpperCase()} // COMMS`,
+          );
+        }
       } catch {
         /* ignore */
       }

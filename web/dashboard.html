@@ -88,26 +88,55 @@
 
       <section class="dash-panel">
         <h2>Chat persona</h2>
-        <label class="inline"><input id="chatEnabled" type="checkbox" /> Show chat bubble</label>
-        <label class="inline"><input id="chatDemoAuto" type="checkbox" /> Occasional demo lines</label>
-        <label>Send line <input id="chatLine" type="text" maxlength="160" placeholder="Zone quiet. Keep moving." /></label>
+        <p class="hint">Large Zone Ops chat sits along the ultrawide bottom banner. Also mirrors on the avatar source.</p>
+        <label class="inline"><input id="chatEnabled" type="checkbox" /> Show chat</label>
+        <label class="inline"><input id="chatDemoAuto" type="checkbox" /> Random trash-talk timer</label>
+        <label>Trash-talk interval (ms) <input id="chatIntervalMs" type="number" min="6000" max="90000" step="1000" /></label>
+        <label>Send line <input id="chatLine" type="text" maxlength="220" placeholder="Extract window's thin. Move clean." /></label>
         <div class="btn-row">
-          <button type="button" id="btn-chat-send" class="btn primary">Send to avatar</button>
-          <button type="button" id="btn-chat-sample" class="btn">Sample line</button>
+          <button type="button" id="btn-chat-send" class="btn primary">Send to overlays</button>
+          <button type="button" id="btn-chat-sample" class="btn">Sample trash-talk</button>
         </div>
       </section>
 
       <section class="dash-panel">
+        <h2>Latest follow / sub (SAMPLE)</h2>
+        <p class="hint">Zone Ops plates on ultrawide. Clearly SAMPLE until Twitch/Kick is wired — never pretends to be live.</p>
+        <label class="inline"><input id="socialShowFollower" type="checkbox" /> Show latest follower</label>
+        <label class="inline"><input id="socialShowSubscriber" type="checkbox" /> Show latest subscriber</label>
+        <label>Sample follower name <input id="socialFollowerName" type="text" /></label>
+        <label>Sample subscriber name <input id="socialSubscriberName" type="text" /></label>
+        <label>Follower placement
+          <select id="socialFollowerPlace">
+            <option value="top-left">Top left</option>
+            <option value="top-right">Top right</option>
+            <option value="bottom-left">Bottom left</option>
+            <option value="bottom-right">Bottom right</option>
+          </select>
+        </label>
+        <label>Subscriber placement
+          <select id="socialSubscriberPlace">
+            <option value="top-left">Top left</option>
+            <option value="top-right">Top right</option>
+            <option value="bottom-left">Bottom left</option>
+            <option value="bottom-right">Bottom right</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="dash-panel">
         <h2>Ultrawide letterbox</h2>
-        <p class="hint">For 3440×1440 (or similar) canvases with centered 16:9 gameplay. Bars fill the empty top/bottom.</p>
+        <p class="hint">Optimized for 3440×1440 and 4K. Bars fill empty top/bottom around centered 16:9 gameplay.</p>
         <label>Canvas width <input id="uwCanvasWidth" type="number" min="1280" max="7680" step="1" /></label>
         <label>Canvas height <input id="uwCanvasHeight" type="number" min="720" max="4320" step="1" /></label>
         <label>Bar height (px) <input id="uwBarHeight" type="number" min="48" max="400" step="1" /></label>
         <label class="inline"><input id="uwTopVisible" type="checkbox" /> Top bar visible</label>
         <label class="inline"><input id="uwBottomVisible" type="checkbox" /> Bottom bar visible</label>
-        <label>Top text <input id="uwTopText" type="text" /></label>
-        <label>Bottom text (after name) <input id="uwBottomText" type="text" /></label>
-        <label>Status strip <input id="uwStatusText" type="text" /></label>
+        <label class="inline"><input id="uwOperatorOnTop" type="checkbox" /> Put streamer // operator line on TOP bar</label>
+        <label>Operator line (top) <input id="uwOperatorLine" type="text" placeholder="OPERATOR ONLINE" /></label>
+        <label>Top text (if operator-on-top off) <input id="uwTopText" type="text" /></label>
+        <label>Bottom center text <input id="uwBottomText" type="text" placeholder="HOLD THE LINE" /></label>
+        <label>Bottom-right status <input id="uwStatusText" type="text" placeholder="ZONE THREAT // RAID READY" /></label>
       </section>
 
       <section class="dash-panel">

@@ -11,18 +11,27 @@ export interface ReactiveAvatarOptions {
   chatEnabled?: boolean;
 }
 
-const DEMO_LINES = [
+/** Zone Ops trash-talk — random timer / dashboard samples. */
+export const ZONE_TRASH_TALK: readonly string[] = [
   "Zone quiet. Keep your head on a swivel.",
   "Copy. Filter's clean — for now.",
   "Heard. Don't stack up on that door.",
-  "Signal nominal. Operator standing by.",
   "Eyes open. Hands on glass.",
+  "Extract window's thin. Move clean.",
+  "Another scav in the wire? Soft them.",
+  "Raid ready. Don't ego-peek mid.",
+  "Comms hot. Cut the chatter unless you're bleeding.",
+  "Threat board's lit. Stay off the ridge.",
+  "Loot later. Survive first.",
+  "That angle's cursed. Reposition.",
+  "Hold W. Die less.",
 ];
 
 /**
  * Instant pose state from held counts — no animation queue.
  * Idle flavor: breathing/sway + rare cough / shoulder roll / eq blink.
  * Mic: data-talk from level messages. Chat: short Zone Ops bubble.
+ * Holds: sustained pose while key/mouse down — not infinite smash spam.
  */
 export class ReactiveAvatar {
   readonly root: HTMLElement;
@@ -34,8 +43,9 @@ export class ReactiveAvatar {
   private lightsEnabled = true;
   private streamerName = "datguydaz";
   private chatEnabled = true;
-  private mouseLTimer: number | null = null;
-  private mouseRTimer: number | null = null;
+  private keyPulseTimer: number | null = null;
+  private mouseLPulseTimer: number | null = null;
+  private mouseRPulseTimer: number | null = null;
   private flavorTimer: number | null = null;
   private flavorClearTimer: number | null = null;
   private talkClearTimer: number | null = null;
@@ -72,7 +82,6 @@ export class ReactiveAvatar {
 
   setStreamerName(name: string): void {
     this.streamerName = name.trim() || "datguydaz";
-    // Desk lettering removed — name is for chat/persona only.
   }
 
   setChatEnabled(on: boolean): void {
@@ -127,14 +136,14 @@ export class ReactiveAvatar {
     const body = this.chatEl.querySelector(".chat-body");
     const tagEl = this.chatEl.querySelector(".chat-tag");
     if (tagEl) tagEl.textContent = tag;
-    if (body) body.textContent = text.slice(0, 160);
+    if (body) body.textContent = text.slice(0, 220);
     this.chatEl.dataset.show = "1";
     if (this.chatHideTimer != null) window.clearTimeout(this.chatHideTimer);
-    this.chatHideTimer = window.setTimeout(() => this.hideChat(), 4200);
+    this.chatHideTimer = window.setTimeout(() => this.hideChat(), 5200);
   }
 
   sayDemoLine(): void {
-    const line = DEMO_LINES[Math.floor(Math.random() * DEMO_LINES.length)]!;
+    const line = ZONE_TRASH_TALK[Math.floor(Math.random() * ZONE_TRASH_TALK.length)]!;
     this.say(line, `${this.streamerName.toUpperCase()} // COMMS`);
   }
 
@@ -146,10 +155,9 @@ export class ReactiveAvatar {
     this.keyHeld = 0;
     this.mouseLHeld = 0;
     this.mouseRHeld = 0;
-    if (this.mouseLTimer != null) window.clearTimeout(this.mouseLTimer);
-    if (this.mouseRTimer != null) window.clearTimeout(this.mouseRTimer);
-    this.mouseLTimer = null;
-    this.mouseRTimer = null;
+    this.clearPulse("key");
+    this.clearPulse("mouseL");
+    this.clearPulse("mouseR");
     this.applyVisualState();
     if (reason) {
       this.root.dataset.lastReset = reason;
@@ -159,13 +167,20 @@ export class ReactiveAvatar {
   handleInput(kind: InputKind, phase: InputPhase, held: number): void {
     if (this.disposed) return;
     if (kind === "key") {
+      const was = this.keyHeld;
       this.keyHeld = Math.max(0, held);
+      if (phase === "down" && was === 0 && this.keyHeld > 0) this.pulseEdge("key");
+      if (this.keyHeld === 0) this.clearPulse("key");
     } else if (kind === "mouseL") {
+      const was = this.mouseLHeld;
       this.mouseLHeld = Math.max(0, held);
-      if (phase === "down") this.pulseMouse("l");
+      if (phase === "down" && was === 0 && this.mouseLHeld > 0) this.pulseEdge("mouseL");
+      if (this.mouseLHeld === 0) this.clearPulse("mouseL");
     } else if (kind === "mouseR") {
+      const was = this.mouseRHeld;
       this.mouseRHeld = Math.max(0, held);
-      if (phase === "down") this.pulseMouse("r");
+      if (phase === "down" && was === 0 && this.mouseRHeld > 0) this.pulseEdge("mouseR");
+      if (this.mouseRHeld === 0) this.clearPulse("mouseR");
     } else {
       const _never: never = kind;
       void _never;
@@ -184,24 +199,44 @@ export class ReactiveAvatar {
     this.handleInput(kind, down ? "down" : "up", down ? 1 : 0);
   }
 
-  private pulseMouse(side: "l" | "r"): void {
-    const attr = side === "l" ? "mouseL" : "mouseR";
-    const timerKey = side === "l" ? "mouseLTimer" : "mouseRTimer";
-    this.root.dataset[attr] = "1";
+  /** One-shot press edge — then CSS hold pose stays while data-*-held. */
+  private pulseEdge(kind: "key" | "mouseL" | "mouseR"): void {
+    const pulseAttr =
+      kind === "key" ? "keyPulse" : kind === "mouseL" ? "mouseLPulse" : "mouseRPulse";
+    const timerKey =
+      kind === "key"
+        ? "keyPulseTimer"
+        : kind === "mouseL"
+          ? "mouseLPulseTimer"
+          : "mouseRPulseTimer";
+    this.root.dataset[pulseAttr] = "1";
     const existing = this[timerKey];
     if (existing != null) window.clearTimeout(existing);
     this[timerKey] = window.setTimeout(() => {
-      if (side === "l" && this.mouseLHeld === 0) this.root.dataset.mouseL = "0";
-      if (side === "r" && this.mouseRHeld === 0) this.root.dataset.mouseR = "0";
-    }, 140);
+      this[timerKey] = null;
+      delete this.root.dataset[pulseAttr];
+    }, 130);
+  }
+
+  private clearPulse(kind: "key" | "mouseL" | "mouseR"): void {
+    const pulseAttr =
+      kind === "key" ? "keyPulse" : kind === "mouseL" ? "mouseLPulse" : "mouseRPulse";
+    const timerKey =
+      kind === "key"
+        ? "keyPulseTimer"
+        : kind === "mouseL"
+          ? "mouseLPulseTimer"
+          : "mouseRPulseTimer";
+    const existing = this[timerKey];
+    if (existing != null) window.clearTimeout(existing);
+    this[timerKey] = null;
+    delete this.root.dataset[pulseAttr];
   }
 
   private applyVisualState(): void {
     this.root.dataset.key = this.keyHeld > 0 ? "1" : "0";
-    if (this.mouseLHeld > 0) this.root.dataset.mouseL = "1";
-    else if (this.mouseLTimer == null) this.root.dataset.mouseL = "0";
-    if (this.mouseRHeld > 0) this.root.dataset.mouseR = "1";
-    else if (this.mouseRTimer == null) this.root.dataset.mouseR = "0";
+    this.root.dataset.mouseL = this.mouseLHeld > 0 ? "1" : "0";
+    this.root.dataset.mouseR = this.mouseRHeld > 0 ? "1" : "0";
 
     const active =
       this.keyHeld > 0 || this.mouseLHeld > 0 || this.mouseRHeld > 0 ? "1" : "0";
@@ -262,6 +297,9 @@ export class ReactiveAvatar {
     if (this.flavorClearTimer != null) window.clearTimeout(this.flavorClearTimer);
     if (this.talkClearTimer != null) window.clearTimeout(this.talkClearTimer);
     if (this.chatHideTimer != null) window.clearTimeout(this.chatHideTimer);
+    this.clearPulse("key");
+    this.clearPulse("mouseL");
+    this.clearPulse("mouseR");
     this.flavorClearTimer = null;
     this.talkClearTimer = null;
     this.chatHideTimer = null;
