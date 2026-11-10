@@ -1,5 +1,6 @@
-import { ReactiveAvatar, ZONE_TRASH_TALK } from "../avatar/reactiveAvatar.ts";
+import { ReactiveAvatar, pickDemoTalkLine } from "../avatar/reactiveAvatar.ts";
 import { KEY_SLOT_COUNT } from "../../../shared/keyGrid.ts";
+import { DEFAULT_CHAT_GAMES } from "../../../shared/settings.ts";
 
 import {
   applyCssVars,
@@ -58,6 +59,9 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("chatIntervalMs") as HTMLInputElement).value = String(
     s.chat.intervalMs,
   );
+  (document.getElementById("chatGames") as HTMLTextAreaElement).value = (
+    s.chat.games?.length ? s.chat.games : [...DEFAULT_CHAT_GAMES]
+  ).join("\n");
 
   (document.getElementById("socialShowFollower") as HTMLInputElement).checked =
     s.social.showFollower;
@@ -141,6 +145,12 @@ function readForm(): OverlaySettings {
       Number((document.getElementById("chatIntervalMs") as HTMLInputElement).value) || 14000,
     ),
   );
+  next.chat.games = (document.getElementById("chatGames") as HTMLTextAreaElement).value
+    .split(/[\n,;]+/)
+    .map((g) => g.trim())
+    .filter(Boolean)
+    .slice(0, 24);
+  if (!next.chat.games.length) next.chat.games = [...DEFAULT_CHAT_GAMES];
 
   next.social.showFollower = (
     document.getElementById("socialShowFollower") as HTMLInputElement
@@ -342,6 +352,7 @@ async function main(): Promise<void> {
     streamerName: settings.streamerName,
     chatEnabled: settings.chat.enabled,
   });
+  avatar.setGameList(settings.chat.games ?? []);
 
   document.getElementById("btn-save")?.addEventListener("click", async () => {
     settings = await saveSettings(readForm());
@@ -350,6 +361,7 @@ async function main(): Promise<void> {
     avatar.setLightsEnabled(settings.avatar.lightsEnabled);
     avatar.setStreamerName(settings.streamerName);
     avatar.setChatEnabled(settings.chat.enabled);
+    avatar.setGameList(settings.chat.games ?? []);
     await syncMicCapture();
     toast("Settings saved");
   });
@@ -362,6 +374,7 @@ async function main(): Promise<void> {
     avatar.setLightsEnabled(settings.avatar.lightsEnabled);
     avatar.setStreamerName(settings.streamerName);
     avatar.setChatEnabled(settings.chat.enabled);
+    avatar.setGameList(settings.chat.games ?? []);
     await syncMicCapture();
     toast("Defaults restored");
   });
@@ -384,7 +397,8 @@ async function main(): Promise<void> {
   });
   document.getElementById("btn-chat-sample")?.addEventListener("click", () => {
     avatar.setChatEnabled(true);
-    const line = ZONE_TRASH_TALK[Math.floor(Math.random() * ZONE_TRASH_TALK.length)]!;
+    avatar.setGameList(settings.chat.games);
+    const line = pickDemoTalkLine(settings.chat.games);
     avatar.say(line);
     dashWs?.send(JSON.stringify({ type: "chat-line", text: line, from: "demo" }));
   });

@@ -95,6 +95,10 @@
         <label class="inline"><input id="chatEnabled" type="checkbox" /> Show chat</label>
         <label class="inline"><input id="chatDemoAuto" type="checkbox" /> Random trash-talk timer</label>
         <label>Trash-talk interval (ms) <input id="chatIntervalMs" type="number" min="6000" max="90000" step="1000" /></label>
+        <label>Games he “plays” (one per line — canned match talk only, not live game reading)
+          <textarea id="chatGames" rows="5" placeholder="Tarkov&#10;DayZ&#10;Arena Breakout"></textarea>
+        </label>
+        <p class="hint">Random lines name a game from this list as if he’s mid-match. No API / no fake live reading.</p>
         <label>Send line <input id="chatLine" type="text" maxlength="220" placeholder="Extract window's thin. Move clean." /></label>
         <div class="btn-row">
           <button type="button" id="btn-chat-send" class="btn primary">Send to overlays</button>

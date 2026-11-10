@@ -28,6 +28,34 @@ export const ZONE_TRASH_TALK: readonly string[] = [
   "Hold W. Die less.",
 ];
 
+/** Canned "in a match" lines — `{game}` filled from dashboard list. Not live game reading. */
+export const GAME_TRASH_TEMPLATES: readonly string[] = [
+  "{game} lobby's spicy. Don't ego peek.",
+  "In a {game} raid — keep it quiet.",
+  "{game} extract's thin. Move clean.",
+  "Yeah I'm in {game}. Hands on glass.",
+  "{game} mid-fight. Cut the chatter.",
+  "Just wiped a squad in {game}. Reset.",
+  "{game} gear fear is a skill issue.",
+  "Queue popped — {game}. Hold the line.",
+  "Third-partied in {game}. Classic.",
+  "{game} night run. Lights off, ears on.",
+];
+
+export function pickGameTalkLine(games: readonly string[]): string {
+  const list = games.length ? games : ["Tarkov"];
+  const game = list[Math.floor(Math.random() * list.length)]!;
+  const tmpl =
+    GAME_TRASH_TEMPLATES[Math.floor(Math.random() * GAME_TRASH_TEMPLATES.length)]!;
+  return tmpl.replaceAll("{game}", game);
+}
+
+/** Mix generic Zone Ops lines with game-flavored match talk. */
+export function pickDemoTalkLine(games: readonly string[] = []): string {
+  if (games.length && Math.random() < 0.72) return pickGameTalkLine(games);
+  return ZONE_TRASH_TALK[Math.floor(Math.random() * ZONE_TRASH_TALK.length)]!;
+}
+
 /** Mic-level acknowledgements — NOT content understanding. */
 export const TALK_ACK_LINES: readonly string[] = [
   "Copy that.",
@@ -78,6 +106,7 @@ export class ReactiveAvatar {
   private lightsEnabled = true;
   private streamerName = "datguydaz";
   private chatEnabled = true;
+  private gameList: string[] = [];
   private keyPulseTimer: number | null = null;
   private mouseLPulseTimer: number | null = null;
   private mouseRPulseTimer: number | null = null;
@@ -127,6 +156,11 @@ export class ReactiveAvatar {
   setChatEnabled(on: boolean): void {
     this.chatEnabled = on;
     if (!on) this.hideChat();
+  }
+
+  /** Editable dashboard game roster for canned match talk (not live reading). */
+  setGameList(games: readonly string[]): void {
+    this.gameList = games.map((g) => g.trim()).filter(Boolean).slice(0, 24);
   }
 
   setIntensity(value: number): void {
@@ -221,7 +255,7 @@ export class ReactiveAvatar {
   }
 
   sayDemoLine(): void {
-    const line = ZONE_TRASH_TALK[Math.floor(Math.random() * ZONE_TRASH_TALK.length)]!;
+    const line = pickDemoTalkLine(this.gameList);
     this.say(line, `${this.streamerName.toUpperCase()} // COMMS`);
   }
 

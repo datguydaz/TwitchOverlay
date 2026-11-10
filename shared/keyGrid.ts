@@ -2,7 +2,7 @@
  * Opaque keyboard animation grid — never sends key names/characters on the wire.
  * Companion maps uiohook keycodes → slot index; overlay moves hand / depresses keycaps.
  *
- * Visual layout matches scavenger.svg #prop-keyboard (Nordic / Swedish-style).
+ * Visual layout matches scavenger.svg #prop-keyboard (Nordic, facing operator).
  * Row Q:  Q W E R T Y U I O P Å     slots 0–10
  * Row A:  A S D F G H J K L Ö Ä     slots 11–21
  * Row Z:  Z X C V [SPACE] B N M     slots 22–29 (26 = spacebar)
@@ -18,43 +18,47 @@ export interface KeySlotPos {
 }
 
 /** Rest / home pose — over home-row F/G cluster. */
-export const HAND_HOME = { cx: 110, cy: 255 };
-
-const KW = 12.2;
-const STRIDE = 13.5;
-const KH = 8.5;
-
-function rowCenters(
-  startX: number,
-  y: number,
-  count: number,
-): KeySlotPos[] {
-  const cy = y + KH / 2;
-  const out: KeySlotPos[] = [];
-  for (let i = 0; i < count; i++) {
-    out.push({ cx: startX + i * STRIDE + KW / 2, cy });
-  }
-  return out;
-}
-
-const Q_ROW = rowCenters(50, 250, 11);
-const A_ROW = rowCenters(56.5, 260.5, 11);
-const Z_LEFT = rowCenters(50, 271, 4); // Z X C V
-const SPACE = { cx: 104 + 52 / 2, cy: 271 + KH / 2 };
-const Z_RIGHT = rowCenters(160, 271, 3); // B N M
+export const HAND_HOME = { cx: 136, cy: 258 };
 
 /** Slot centers aligned to keycap rects in scavenger.svg.ts */
 export const KEY_SLOTS: readonly KeySlotPos[] = [
-  ...Q_ROW,
-  ...A_ROW,
-  ...Z_LEFT,
-  SPACE,
-  ...Z_RIGHT,
+  // Q row y=252 h=8.2
+  { cx: 80.6, cy: 256.1 },
+  { cx: 94.8, cy: 256.1 },
+  { cx: 109, cy: 256.1 },
+  { cx: 123.2, cy: 256.1 },
+  { cx: 137.4, cy: 256.1 },
+  { cx: 151.6, cy: 256.1 },
+  { cx: 165.8, cy: 256.1 },
+  { cx: 180, cy: 256.1 },
+  { cx: 194.2, cy: 256.1 },
+  { cx: 208.4, cy: 256.1 },
+  { cx: 222.6, cy: 256.1 },
+  // A row y=262.2 h=8.4
+  { cx: 84.8, cy: 266.4 },
+  { cx: 99.4, cy: 266.4 },
+  { cx: 114, cy: 266.4 },
+  { cx: 128.6, cy: 266.4 },
+  { cx: 143.2, cy: 266.4 },
+  { cx: 157.8, cy: 266.4 },
+  { cx: 172.4, cy: 266.4 },
+  { cx: 187, cy: 266.4 },
+  { cx: 201.6, cy: 266.4 },
+  { cx: 216.2, cy: 266.4 },
+  { cx: 230.8, cy: 266.4 },
+  // Z row + space
+  { cx: 70.4, cy: 277.1 },
+  { cx: 85.2, cy: 277.1 },
+  { cx: 100, cy: 277.1 },
+  { cx: 114.8, cy: 277.1 },
+  { cx: 151.7, cy: 277.1 }, // space
+  { cx: 188.6, cy: 277.1 },
+  { cx: 203.4, cy: 277.1 },
+  { cx: 218.2, cy: 277.1 },
 ];
 
 /** uiohook-napi UiohookKey values → slot (opaque). Nordic OEM keys included. */
 export const KEYCODE_TO_SLOT: Readonly<Record<number, number>> = {
-  // Number row → Q-row slots (visual aim only)
   2: 0,
   3: 1,
   4: 2,
@@ -65,65 +69,60 @@ export const KEYCODE_TO_SLOT: Readonly<Record<number, number>> = {
   9: 7,
   10: 8,
   11: 9,
-  12: 10, // Minus / Nordic +
-  13: 10, // Equals / Nordic ´
-  // QWERTY…P
-  16: 0, // Q
-  17: 1, // W
-  18: 2, // E
-  19: 3, // R
-  20: 4, // T
-  21: 5, // Y
-  22: 6, // U
-  23: 7, // I
-  24: 8, // O
-  25: 9, // P
-  26: 10, // BracketLeft → Å on Nordic
-  // Home row A…L
-  30: 11, // A
-  31: 12, // S
-  32: 13, // D
-  33: 14, // F
-  34: 15, // G
-  35: 16, // H
-  36: 17, // J
-  37: 18, // K
-  38: 19, // L
-  39: 20, // Semicolon → Ö on Nordic
-  40: 21, // Quote → Ä on Nordic
-  // Bottom letter row
-  44: 22, // Z
-  45: 23, // X
-  46: 24, // C
-  47: 25, // V
-  48: 27, // B
-  49: 28, // N
-  50: 29, // M
-  51: 29, // Comma
-  52: 29, // Period
-  53: 29, // Slash
-  86: 22, // IntlBackslash → < > on Nordic
-  57: 26, // Space
-  // Mods / navigation → edges
-  15: 0, // Tab
-  58: 11, // Caps
-  28: 21, // Enter → near Ä
-  14: 10, // Backspace → near Å
-  1: 0, // Esc
-  42: 22, // Shift
-  54: 29, // ShiftRight
-  29: 22, // Ctrl
-  56: 23, // Alt
-  57419: 22, // Left
-  57416: 1, // Up
-  57421: 29, // Right
-  57424: 24, // Down
+  12: 10,
+  13: 10,
+  16: 0,
+  17: 1,
+  18: 2,
+  19: 3,
+  20: 4,
+  21: 5,
+  22: 6,
+  23: 7,
+  24: 8,
+  25: 9,
+  26: 10, // BracketLeft → Å
+  30: 11,
+  31: 12,
+  32: 13,
+  33: 14,
+  34: 15,
+  35: 16,
+  36: 17,
+  37: 18,
+  38: 19,
+  39: 20, // Semicolon → Ö
+  40: 21, // Quote → Ä
+  44: 22,
+  45: 23,
+  46: 24,
+  47: 25,
+  48: 27,
+  49: 28,
+  50: 29,
+  51: 29,
+  52: 29,
+  53: 29,
+  86: 22,
+  57: 26,
+  15: 0,
+  58: 11,
+  28: 21,
+  14: 10,
+  1: 0,
+  42: 22,
+  54: 29,
+  29: 22,
+  56: 23,
+  57419: 22,
+  57416: 1,
+  57421: 29,
+  57424: 24,
 };
 
 export function slotFromKeycode(keycode: number): number {
   const s = KEYCODE_TO_SLOT[keycode];
   if (s != null) return s;
-  // Stable hash into grid — still opaque, no key identity leaked
   return ((keycode % KEY_SLOT_COUNT) + KEY_SLOT_COUNT) % KEY_SLOT_COUNT;
 }
 

@@ -45,7 +45,21 @@ export interface ChatSettings {
   demoAuto: boolean;
   /** Trash-talk interval in ms (clamped 6s–90s). */
   intervalMs: number;
+  /**
+   * Games he "plays" for canned match trash-talk (not live game reading).
+   * One display name per entry — edited in dashboard.
+   */
+  games: string[];
 }
+
+/** Default roster for "playing his own games" chat flavor. */
+export const DEFAULT_CHAT_GAMES: readonly string[] = [
+  "Tarkov",
+  "DayZ",
+  "Arena Breakout",
+  "Hunt: Showdown",
+  "Gray Zone",
+];
 
 export interface SocialSettings {
   showFollower: boolean;
@@ -138,6 +152,7 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     enabled: true,
     demoAuto: true,
     intervalMs: 14000,
+    games: [...DEFAULT_CHAT_GAMES],
   },
   social: {
     showFollower: true,
@@ -178,7 +193,15 @@ export function mergeSettings(
     },
     avatar: { ...base.avatar, ...partial.avatar },
     mic: { ...base.mic, ...partial.mic },
-    chat: { ...base.chat, ...partial.chat },
+    chat: (() => {
+      const c = { ...base.chat, ...partial.chat };
+      const raw = partial.chat?.games ?? c.games ?? [...DEFAULT_CHAT_GAMES];
+      const games = (Array.isArray(raw) ? raw : [])
+        .map((g) => String(g ?? "").trim())
+        .filter(Boolean)
+        .slice(0, 24);
+      return { ...c, games: games.length ? games : [...DEFAULT_CHAT_GAMES] };
+    })(),
     social: (() => {
       const s = { ...base.social, ...partial.social };
       // Migrate old SAMPLE fields → empty placeholders

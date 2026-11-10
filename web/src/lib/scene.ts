@@ -136,6 +136,7 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
       streamerName: settings.streamerName,
       chatEnabled: settings.chat.enabled,
     });
+    avatar.setGameList(settings.chat.games ?? []);
     input = new InputClient({
       avatar,
       onConnection: setConnPill,
@@ -146,6 +147,7 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
         const ms = Math.max(6000, Math.min(90000, settings.chat.intervalMs || 14000));
         window.setTimeout(() => {
           if (!document.hidden && avatar && settings.chat.enabled && settings.chat.demoAuto) {
+            avatar.setGameList(settings.chat.games ?? []);
             avatar.sayDemoLine();
           }
           scheduleTalk();
@@ -173,6 +175,7 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
       avatar.setLightsEnabled(settings.avatar.lightsEnabled);
       avatar.setStreamerName(settings.streamerName);
       avatar.setChatEnabled(settings.chat.enabled);
+      avatar.setGameList(settings.chat.games ?? []);
       const hidden = !settings.modules.avatar.visible && opts.scene !== "avatar";
       if (hidden) {
         avatar.dispose();

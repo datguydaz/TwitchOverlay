@@ -2,7 +2,7 @@ import {
   applyCssVars,
   fetchSettings,
 } from "../lib/settingsClient.ts";
-import { ZONE_TRASH_TALK } from "../avatar/reactiveAvatar.ts";
+import { pickDemoTalkLine } from "../avatar/reactiveAvatar.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 
 function qs<T extends HTMLElement>(sel: string): T | null {
@@ -188,7 +188,7 @@ function startTrashTalk(getSettings: () => OverlaySettings): void {
         cur.chat.demoAuto &&
         qs("#uw-chat")
       ) {
-        const line = ZONE_TRASH_TALK[Math.floor(Math.random() * ZONE_TRASH_TALK.length)]!;
+        const line = pickDemoTalkLine(cur.chat.games ?? []);
         showChatLine(line, `${cur.streamerName.toUpperCase()} // COMMS`);
       }
       tick();

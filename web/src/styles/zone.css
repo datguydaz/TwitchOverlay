@@ -540,9 +540,10 @@ body.scene-opaque {
   fill: #1a1810;
 }
 
+/* LMB pad = viewer's-left — aim hand left; RMB = right */
 .avatar-root[data-mouse-l="1"] #hand-right {
   animation: none;
-  transform: translate(5px, 13px) rotate(-3.5deg);
+  transform: translate(-11px, 15px) rotate(5deg);
   transition: transform 90ms ease-out;
 }
 
@@ -552,7 +553,7 @@ body.scene-opaque {
 
 .avatar-root[data-mouse-r="1"] #hand-right {
   animation: none;
-  transform: translate(-7px, 14px) rotate(5deg);
+  transform: translate(10px, 14px) rotate(-4deg);
   transition: transform 90ms ease-out;
 }
 
@@ -851,25 +852,25 @@ body.scene-opaque {
 
 @keyframes click-l {
   0% {
-    transform: translate(0, 0);
+    transform: translate(-11px, 15px) rotate(5deg);
   }
   40% {
-    transform: translate(6px, 15px) rotate(-4deg);
+    transform: translate(-13px, 18px) rotate(6deg);
   }
   100% {
-    transform: translate(0, 0);
+    transform: translate(-11px, 15px) rotate(5deg);
   }
 }
 
 @keyframes click-r {
   0% {
-    transform: translate(0, 0);
+    transform: translate(10px, 14px) rotate(-4deg);
   }
   35% {
-    transform: translate(-9px, 18px) rotate(6deg);
+    transform: translate(12px, 17px) rotate(-5deg);
   }
   100% {
-    transform: translate(0, 0);
+    transform: translate(10px, 14px) rotate(-4deg);
   }
 }
 
