@@ -56,17 +56,18 @@ export const scavengerSvg = `
     <g id="layer-torso">
       <path d="M78 148 L118 132 L200 124 L282 132 L322 148 L338 236 L62 236 Z" fill="url(#suitDark)" stroke="#0e100c" stroke-width="1.5"/>
       <path d="M95 165 Q52 200 88 238" fill="none" stroke="#1a1e18" stroke-width="42" stroke-linecap="round"/>
-      <path d="M305 165 Q348 200 312 238" fill="none" stroke="#1a1e18" stroke-width="42" stroke-linecap="round"/>
+      <!-- Right arm ends ABOVE the hand — no round desk blob that reads as a 2nd mouse -->
+      <path d="M305 165 Q328 192 314 222" fill="none" stroke="#1a1e18" stroke-width="34" stroke-linecap="butt"/>
       <path d="M95 165 Q52 200 88 238" fill="none" stroke="#2a2e28" stroke-width="32" stroke-linecap="round"/>
-      <path d="M305 165 Q348 200 312 238" fill="none" stroke="#2a2e28" stroke-width="32" stroke-linecap="round"/>
+      <path d="M305 165 Q328 192 314 222" fill="none" stroke="#2a2e28" stroke-width="26" stroke-linecap="butt"/>
       <path d="M64 185 Q50 210 74 232" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
       <path d="M74 183 Q60 210 84 230" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
       <path d="M84 185 Q72 210 94 228" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-      <path d="M336 185 Q350 210 326 232" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-      <path d="M326 183 Q340 210 316 230" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-      <path d="M316 185 Q328 210 306 228" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+      <path d="M328 185 Q334 200 320 216" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+      <path d="M320 183 Q326 200 314 216" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+      <path d="M312 185 Q318 200 308 216" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
       <path d="M70 218 Q82 230 94 236" fill="none" stroke="#3a4034" stroke-width="14" stroke-linecap="round"/>
-      <path d="M330 218 Q318 230 306 236" fill="none" stroke="#3a4034" stroke-width="14" stroke-linecap="round"/>
+      <path d="M318 212 Q314 222 310 230" fill="none" stroke="#3a4034" stroke-width="11" stroke-linecap="butt"/>
       <path d="M96 142 L130 128 L200 122 L270 128 L304 142 L314 228 L86 228 Z" fill="url(#armorOlive)" stroke="#1a2014" stroke-width="2"/>
       <path d="M148 128 Q200 148 252 128 L246 158 Q200 172 154 158 Z" fill="#5a6440" stroke="#1a2014" stroke-width="1.4"/>
       <g id="shoulder-left" class="shoulder">
@@ -134,51 +135,45 @@ export const scavengerSvg = `
       </g>
     </g>
 
-    <!-- Field keyboard -->
+    <!-- Field keyboard — keycaps id=kb-sN match opaque companion slots -->
     <g id="prop-keyboard">
       <rect x="48" y="244" width="196" height="40" rx="3.5" fill="#0c0e0a" stroke="#c4b59a" stroke-width="1.8"/>
       <rect x="54" y="249" width="184" height="30" rx="2" fill="#161a14"/>
-      <g fill="#3a4434" stroke="#9a8f78" stroke-width="0.9">
-        <rect x="60" y="252" width="15" height="11" rx="1.5"/>
-        <rect x="78" y="252" width="15" height="11" rx="1.5"/>
-        <rect x="96" y="252" width="15" height="11" rx="1.5"/>
-        <rect x="114" y="252" width="15" height="11" rx="1.5"/>
-        <rect x="132" y="252" width="15" height="11" rx="1.5"/>
-        <rect x="150" y="252" width="15" height="11" rx="1.5"/>
-        <rect x="168" y="252" width="15" height="11" rx="1.5"/>
-        <rect x="186" y="252" width="15" height="11" rx="1.5"/>
-        <rect x="204" y="252" width="15" height="11" rx="1.5"/>
-        <rect x="222" y="252" width="12" height="11" rx="1.5"/>
+      <g class="kb-row" fill="#3a4434" stroke="#9a8f78" stroke-width="0.9">
+        <rect id="kb-s0" class="kb-key" data-slot="0" x="60" y="252" width="15" height="11" rx="1.5"/>
+        <rect id="kb-s1" class="kb-key" data-slot="1" x="78" y="252" width="15" height="11" rx="1.5"/>
+        <rect id="kb-s2" class="kb-key" data-slot="2" x="96" y="252" width="15" height="11" rx="1.5"/>
+        <rect id="kb-s3" class="kb-key" data-slot="3" x="114" y="252" width="15" height="11" rx="1.5"/>
+        <rect id="kb-s4" class="kb-key" data-slot="4" x="132" y="252" width="15" height="11" rx="1.5"/>
+        <rect id="kb-s5" class="kb-key" data-slot="5" x="150" y="252" width="15" height="11" rx="1.5"/>
+        <rect id="kb-s6" class="kb-key" data-slot="6" x="168" y="252" width="15" height="11" rx="1.5"/>
+        <rect id="kb-s7" class="kb-key" data-slot="7" x="186" y="252" width="15" height="11" rx="1.5"/>
+        <rect id="kb-s8" class="kb-key" data-slot="8" x="204" y="252" width="15" height="11" rx="1.5"/>
+        <rect id="kb-s9" class="kb-key" data-slot="9" x="222" y="252" width="12" height="11" rx="1.5"/>
       </g>
-      <g fill="#2e362a" stroke="#6b7355" stroke-width="0.8">
-        <rect x="66" y="266" width="14" height="9" rx="1.2"/>
-        <rect x="83" y="266" width="14" height="9" rx="1.2"/>
-        <rect x="100" y="266" width="14" height="9" rx="1.2"/>
-        <rect x="117" y="266" width="52" height="9" rx="1.2"/>
-        <rect x="172" y="266" width="14" height="9" rx="1.2"/>
-        <rect x="189" y="266" width="14" height="9" rx="1.2"/>
-        <rect x="206" y="266" width="14" height="9" rx="1.2"/>
-        <rect x="223" y="266" width="12" height="9" rx="1.2"/>
+      <g class="kb-row" fill="#2e362a" stroke="#6b7355" stroke-width="0.8">
+        <rect id="kb-s10" class="kb-key" data-slot="10" x="66" y="266" width="14" height="9" rx="1.2"/>
+        <rect id="kb-s11" class="kb-key" data-slot="11" x="83" y="266" width="14" height="9" rx="1.2"/>
+        <rect id="kb-s12" class="kb-key" data-slot="12" x="100" y="266" width="14" height="9" rx="1.2"/>
+        <rect id="kb-s13" class="kb-key" data-slot="13" x="117" y="266" width="52" height="9" rx="1.2"/>
+        <rect id="kb-s14" class="kb-key" data-slot="14" x="172" y="266" width="14" height="9" rx="1.2"/>
+        <rect id="kb-s15" class="kb-key" data-slot="15" x="189" y="266" width="14" height="9" rx="1.2"/>
+        <rect id="kb-s16" class="kb-key" data-slot="16" x="206" y="266" width="14" height="9" rx="1.2"/>
+        <rect id="kb-s17" class="kb-key" data-slot="17" x="223" y="266" width="12" height="9" rx="1.2"/>
       </g>
       <rect x="58" y="278" width="176" height="2.5" fill="#c7923a" opacity="0.55"/>
     </g>
 
-    <!-- ONE mouse only — far right of keyboard, under right hand -->
+    <!-- ONE mouse — amber LMB / RMB pads (press → dark via CSS) -->
     <g id="prop-mouse">
-      <rect x="298" y="248" width="28" height="22" rx="8" fill="#161a14" stroke="#9a8f78" stroke-width="1.3"/>
-      <path d="M312 250 V266" stroke="#6b7355" stroke-width="1.2"/>
-      <rect x="302" y="268" width="20" height="4" rx="1.5" fill="#2a2e24"/>
+      <path d="M298 248 Q313 243 328 250 L327 270 Q313 277 299 270 Z" fill="#161a14" stroke="#9a8f78" stroke-width="1.2"/>
+      <path id="mouse-lmb" class="mouse-btn mouse-lmb" d="M301 250 Q307 247 313 249 L313 268 Q307 271 301 268 Z" fill="#c7923a"/>
+      <path id="mouse-rmb" class="mouse-btn mouse-rmb" d="M313 249 Q319 247 325 251 L325 269 Q319 272 313 268 Z" fill="#c7923a"/>
+      <path d="M313 248 V269" stroke="#1a1c16" stroke-width="1.4"/>
+      <ellipse cx="313" cy="258" rx="2.2" ry="4" fill="#2a2e24" stroke="#6b7355" stroke-width="0.7"/>
     </g>
 
-    <!-- Status LEDs only — no empty name-plate / label box -->
-    <g id="desk-lights">
-      <circle class="eq-light" cx="348" cy="268" r="4" fill="#c7923a">
-        <animate attributeName="opacity" values="0.3;1;0.3" dur="1.15s" repeatCount="indefinite"/>
-      </circle>
-      <circle class="eq-light" cx="362" cy="268" r="4" fill="#c7923a" opacity="0.35"/>
-    </g>
-
-    <!-- Left hand ON KEYBOARD: palm over keybed, fingers on WASD/home row — no device under it -->
+    <!-- Left hand ON KEYBOARD -->
     <g id="hand-left">
       <path d="M108 228 L148 226 L152 240 L112 244 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1"/>
       <rect x="114" y="242" width="5" height="16" rx="2" fill="#4a463c" stroke="#1a1810" stroke-width="0.6"/>
@@ -188,11 +183,11 @@ export const scavengerSvg = `
       <path d="M108 234 L100 230" stroke="#4a463c" stroke-width="4" stroke-linecap="round"/>
     </g>
 
-    <!-- Right hand on the single mouse -->
+    <!-- Right hand rests on mouse but leaves LMB/RMB pads readable -->
     <g id="hand-right">
-      <path d="M300 236 L326 238 L324 258 L302 254 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1"/>
-      <rect x="308" y="248" width="4" height="12" rx="1.5" fill="#3a3630"/>
-      <rect x="316" y="250" width="4" height="10" rx="1.5" fill="#3a3630"/>
+      <path d="M300 232 L322 234 L320 248 L302 246 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1" opacity="0.92"/>
+      <rect x="306" y="240" width="4" height="10" rx="1.5" fill="#3a3630" opacity="0.85"/>
+      <rect x="314" y="242" width="4" height="9" rx="1.5" fill="#3a3630" opacity="0.85"/>
     </g>
   </g>
   </g>

@@ -154,7 +154,7 @@ export class InputClient {
         if (this.demoActive) return; // demo preview supersedes live visuals when toggled
         this.lastInputAt = Date.now();
         this.avatar.setSource("live");
-        this.avatar.handleInput(msg.kind, msg.phase, msg.held);
+        this.avatar.handleInput(msg.kind, msg.phase, msg.held, msg.slot, msg.pressId);
         break;
       case "mic":
         this.avatar.setMicLevel(msg.level, msg.talking);
@@ -192,7 +192,9 @@ export function applyDemoInput(
   kind: InputMessage["kind"],
   phase: InputMessage["phase"],
   held: number,
+  slot?: number,
+  pressId?: number,
 ): void {
   avatar.setSource("demo");
-  avatar.handleInput(kind, phase, held);
+  avatar.handleInput(kind, phase, held, slot, pressId);
 }

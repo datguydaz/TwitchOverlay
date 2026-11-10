@@ -16,6 +16,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createInterface } from "node:readline";
 import WebSocket from "ws";
+import { slotFromKeycode } from "./keyGrid.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -56,8 +57,10 @@ function send(obj) {
   }
 }
 
-function emitInput(kind, phase, pressId, held) {
-  send({ type: "input", kind, phase, pressId, held });
+function emitInput(kind, phase, pressId, held, slot) {
+  const msg = { type: "input", kind, phase, pressId, held };
+  if (typeof slot === "number") msg.slot = slot;
+  send(msg);
 }
 
 async function loadUiohook() {
@@ -81,18 +84,19 @@ function attachHooks(uiohook) {
     if (capturePaused) return;
     if (keyDownIds.has(e.keycode)) return;
     const pressId = nextPressId++;
-    keyDownIds.set(e.keycode, pressId);
+    const slot = slotFromKeycode(e.keycode);
+    keyDownIds.set(e.keycode, { pressId, slot });
     keyHeld += 1;
-    emitInput("key", "down", pressId, keyHeld);
+    emitInput("key", "down", pressId, keyHeld, slot);
   });
 
   uIOhook.on("keyup", (e) => {
     if (capturePaused) return;
-    const pressId = keyDownIds.get(e.keycode);
-    if (pressId == null) return;
+    const entry = keyDownIds.get(e.keycode);
+    if (entry == null) return;
     keyDownIds.delete(e.keycode);
     keyHeld = Math.max(0, keyHeld - 1);
-    emitInput("key", "up", pressId, keyHeld);
+    emitInput("key", "up", entry.pressId, keyHeld, entry.slot);
   });
 
   uIOhook.on("mousedown", (e) => {

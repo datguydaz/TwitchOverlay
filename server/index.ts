@@ -287,6 +287,9 @@ wss.on("connection", (ws, req) => {
           pressId: msg.pressId,
           held: msg.held,
         };
+        if (typeof msg.slot === "number" && Number.isFinite(msg.slot)) {
+          forward.slot = Math.max(0, Math.min(63, Math.floor(msg.slot)));
+        }
         broadcast(forward, (c) => {
           const r = meta.get(c)?.role;
           return r === "overlay" || r === "dashboard";

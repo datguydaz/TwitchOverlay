@@ -295,7 +295,17 @@ async function connectDashWs(): Promise<void> {
         const li = document.getElementById("last-input");
         if (li) li.textContent = `Last input: just now (${msg.kind})`;
         avatar.setSource("live");
-        avatar.handleInput(msg.kind, msg.phase, msg.held);
+        avatar.handleInput(
+          msg.kind,
+          msg.phase,
+          msg.held,
+          typeof (msg as { slot?: number }).slot === "number"
+            ? (msg as { slot?: number }).slot
+            : undefined,
+          typeof (msg as { pressId?: number }).pressId === "number"
+            ? (msg as { pressId?: number }).pressId
+            : undefined,
+        );
       } else if (msg.type === "mic") {
         /* dashboard is the publisher; ignore echo */
       } else if (msg.type === "chat-line" && typeof msg.text === "string") {
@@ -417,21 +427,23 @@ async function main(): Promise<void> {
 
   document.getElementById("btn-demo-key")?.addEventListener("click", () => {
     demoOn = true;
-    applyDemoInput(avatar, "key", "down", 1);
-    window.setTimeout(() => applyDemoInput(avatar, "key", "up", 0), 120);
+    const slot = Math.floor(Math.random() * 18);
+    const pid = 8000 + slot;
+    applyDemoInput(avatar, "key", "down", 1, slot, pid);
+    window.setTimeout(() => applyDemoInput(avatar, "key", "up", 0, slot, pid), 100);
   });
 
   document.getElementById("btn-demo-hold")?.addEventListener("click", () => {
     demoOn = true;
     if (holdTimer != null) {
       window.clearTimeout(holdTimer);
-      applyDemoInput(avatar, "key", "up", 0);
+      applyDemoInput(avatar, "key", "up", 0, 12, 8100);
       holdTimer = null;
       return;
     }
-    applyDemoInput(avatar, "key", "down", 1);
+    applyDemoInput(avatar, "key", "down", 1, 12, 8100);
     holdTimer = window.setTimeout(() => {
-      applyDemoInput(avatar, "key", "up", 0);
+      applyDemoInput(avatar, "key", "up", 0, 12, 8100);
       holdTimer = null;
     }, 2800);
   });

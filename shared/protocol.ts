@@ -19,6 +19,11 @@ export interface InputMessage {
   pressId: number;
   /** Count of currently held keys/buttons of this kind after applying this event. */
   held: number;
+  /**
+   * Opaque keyboard animation slot (0..N-1). Key events only.
+   * Never a key name/character — companion maps keycode → grid index locally.
+   */
+  slot?: number;
 }
 
 /** Mic level only — never audio samples / recordings. */

@@ -1,5 +1,6 @@
 import { scavengerSvg } from "./scavenger.svg.ts";
 import type { InputKind, InputPhase } from "../../../shared/protocol.ts";
+import { HAND_HOME, KEY_SLOT_COUNT, slotPos } from "../../../shared/keyGrid.ts";
 
 export type AvatarInputSource = "idle" | "live" | "demo";
 
@@ -28,16 +29,18 @@ export const ZONE_TRASH_TALK: readonly string[] = [
 ];
 
 /**
- * Instant pose state from held counts — no animation queue.
- * Idle flavor: breathing/sway + rare cough / shoulder roll / eq blink.
- * Mic: data-talk from level messages. Chat: short Zone Ops bubble.
- * Holds: sustained pose while key/mouse down — not infinite smash spam.
+ * Instant pose from held counts. Key `slot` moves left hand over the grid key.
+ * Mouse LMB/RMB amber pads dim while held. No key names on the wire.
  */
 export class ReactiveAvatar {
   readonly root: HTMLElement;
   private keyHeld = 0;
   private mouseLHeld = 0;
   private mouseRHeld = 0;
+  /** pressId → slot for currently held keys */
+  private heldSlots = new Map<number, number>();
+  /** Most recent slot for hand aim */
+  private activeSlot: number | null = null;
   private source: AvatarInputSource = "idle";
   private intensity = 1;
   private lightsEnabled = true;
@@ -46,11 +49,13 @@ export class ReactiveAvatar {
   private keyPulseTimer: number | null = null;
   private mouseLPulseTimer: number | null = null;
   private mouseRPulseTimer: number | null = null;
+  private tapClearTimer: number | null = null;
   private flavorTimer: number | null = null;
   private flavorClearTimer: number | null = null;
   private talkClearTimer: number | null = null;
   private chatHideTimer: number | null = null;
   private chatEl: HTMLElement | null = null;
+  private handLeft: SVGElement | null = null;
   private disposed = false;
   private readonly onVis = (): void => {
     if (document.hidden) this.clearFlavorSchedule();
@@ -74,6 +79,7 @@ export class ReactiveAvatar {
       ${scavengerSvg}
     `;
     this.chatEl = this.root.querySelector("#avatar-chat");
+    this.handLeft = this.root.querySelector("#hand-left");
     this.setStreamerName(this.streamerName);
     this.applyVisualState();
     document.addEventListener("visibilitychange", this.onVis);
@@ -107,6 +113,7 @@ export class ReactiveAvatar {
 
   setLightsEnabled(on: boolean): void {
     this.lightsEnabled = on;
+    this.root.dataset.lights = on ? "1" : "0";
     this.root.querySelectorAll(".eq-light").forEach((el) => {
       (el as HTMLElement).style.visibility = on ? "visible" : "hidden";
     });
@@ -117,7 +124,6 @@ export class ReactiveAvatar {
     this.root.dataset.source = source;
   }
 
-  /** Mic level → talking pose (levels only; no audio). */
   setMicLevel(level: number, talking: boolean): void {
     if (this.disposed) return;
     if (talking || level > 0.08) {
@@ -155,22 +161,70 @@ export class ReactiveAvatar {
     this.keyHeld = 0;
     this.mouseLHeld = 0;
     this.mouseRHeld = 0;
+    this.heldSlots.clear();
+    this.activeSlot = null;
     this.clearPulse("key");
     this.clearPulse("mouseL");
     this.clearPulse("mouseR");
+    this.clearKeycaps();
     this.applyVisualState();
     if (reason) {
       this.root.dataset.lastReset = reason;
     }
   }
 
-  handleInput(kind: InputKind, phase: InputPhase, held: number): void {
+  handleInput(
+    kind: InputKind,
+    phase: InputPhase,
+    held: number,
+    slot?: number,
+    pressId?: number,
+  ): void {
     if (this.disposed) return;
     if (kind === "key") {
       const was = this.keyHeld;
       this.keyHeld = Math.max(0, held);
-      if (phase === "down" && was === 0 && this.keyHeld > 0) this.pulseEdge("key");
-      if (this.keyHeld === 0) this.clearPulse("key");
+      const s =
+        typeof slot === "number" && Number.isFinite(slot)
+          ? Math.max(0, Math.min(KEY_SLOT_COUNT - 1, Math.floor(slot)))
+          : null;
+      const pid = pressId ?? -1;
+
+      if (phase === "down") {
+        if (s != null) {
+          if (pid >= 0) this.heldSlots.set(pid, s);
+          this.activeSlot = s;
+          this.depressKeycap(s, true);
+        }
+        if (was === 0 && this.keyHeld > 0) this.pulseEdge("key");
+        // Snappy tap flash even on rapid repeats of new keys
+        this.root.dataset.keyTap = "1";
+        if (this.tapClearTimer != null) window.clearTimeout(this.tapClearTimer);
+        this.tapClearTimer = window.setTimeout(() => {
+          this.tapClearTimer = null;
+          delete this.root.dataset.keyTap;
+        }, 70);
+      } else {
+        if (pid >= 0 && this.heldSlots.has(pid)) {
+          const released = this.heldSlots.get(pid)!;
+          this.heldSlots.delete(pid);
+          if (![...this.heldSlots.values()].includes(released)) {
+            this.depressKeycap(released, false);
+          }
+        } else if (s != null && this.keyHeld === 0) {
+          this.depressKeycap(s, false);
+        }
+        if (this.keyHeld === 0) {
+          this.heldSlots.clear();
+          this.activeSlot = null;
+          this.clearKeycaps();
+          this.clearPulse("key");
+        } else {
+          // Aim at most recently still-held slot
+          const vals = [...this.heldSlots.values()];
+          this.activeSlot = vals.length ? vals[vals.length - 1]! : this.activeSlot;
+        }
+      }
     } else if (kind === "mouseL") {
       const was = this.mouseLHeld;
       this.mouseLHeld = Math.max(0, held);
@@ -188,9 +242,9 @@ export class ReactiveAvatar {
     this.applyVisualState();
   }
 
-  demoKey(down: boolean): void {
+  demoKey(down: boolean, slot = 12): void {
     this.setSource("demo");
-    this.handleInput("key", down ? "down" : "up", down ? 1 : 0);
+    this.handleInput("key", down ? "down" : "up", down ? 1 : 0, slot, 9001);
   }
 
   demoMouse(button: "l" | "r", down: boolean): void {
@@ -199,7 +253,19 @@ export class ReactiveAvatar {
     this.handleInput(kind, down ? "down" : "up", down ? 1 : 0);
   }
 
-  /** One-shot press edge — then CSS hold pose stays while data-*-held. */
+  private depressKeycap(slot: number, on: boolean): void {
+    const el = this.root.querySelector(`#kb-s${slot}`);
+    if (!el) return;
+    if (on) el.setAttribute("data-pressed", "1");
+    else el.removeAttribute("data-pressed");
+  }
+
+  private clearKeycaps(): void {
+    this.root.querySelectorAll(".kb-key[data-pressed]").forEach((el) => {
+      el.removeAttribute("data-pressed");
+    });
+  }
+
   private pulseEdge(kind: "key" | "mouseL" | "mouseR"): void {
     const pulseAttr =
       kind === "key" ? "keyPulse" : kind === "mouseL" ? "mouseLPulse" : "mouseRPulse";
@@ -233,14 +299,38 @@ export class ReactiveAvatar {
     delete this.root.dataset[pulseAttr];
   }
 
+  private applyHandToSlot(): void {
+    if (!this.handLeft) return;
+    if (this.keyHeld > 0 && this.activeSlot != null) {
+      const pos = slotPos(this.activeSlot);
+      const dx = pos.cx - HAND_HOME.cx;
+      const dy = pos.cy - HAND_HOME.cy + 6;
+      // Snappy when tapping, settle while holding
+      const ms = this.root.dataset.keyTap === "1" ? "50ms" : "85ms";
+      this.handLeft.style.transition = `transform ${ms} ease-out`;
+      this.handLeft.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+      this.root.dataset.keySlot = String(this.activeSlot);
+    } else {
+      this.handLeft.style.transition = "transform 120ms ease-out";
+      this.handLeft.style.transform = "translate(0px, 0px)";
+      delete this.root.dataset.keySlot;
+    }
+  }
+
   private applyVisualState(): void {
     this.root.dataset.key = this.keyHeld > 0 ? "1" : "0";
     this.root.dataset.mouseL = this.mouseLHeld > 0 ? "1" : "0";
     this.root.dataset.mouseR = this.mouseRHeld > 0 ? "1" : "0";
 
+    const lmb = this.root.querySelector("#mouse-lmb") as SVGElement | null;
+    const rmb = this.root.querySelector("#mouse-rmb") as SVGElement | null;
+    if (lmb) lmb.style.fill = this.mouseLHeld > 0 ? "#0e100c" : "#c7923a";
+    if (rmb) rmb.style.fill = this.mouseRHeld > 0 ? "#0e100c" : "#c7923a";
+
     const active =
       this.keyHeld > 0 || this.mouseLHeld > 0 || this.mouseRHeld > 0 ? "1" : "0";
     this.root.dataset.active = this.lightsEnabled ? active : "0";
+    this.applyHandToSlot();
     this.setIntensity(this.intensity);
     this.setLightsEnabled(this.lightsEnabled);
     this.root.dataset.source = this.source;
@@ -297,12 +387,14 @@ export class ReactiveAvatar {
     if (this.flavorClearTimer != null) window.clearTimeout(this.flavorClearTimer);
     if (this.talkClearTimer != null) window.clearTimeout(this.talkClearTimer);
     if (this.chatHideTimer != null) window.clearTimeout(this.chatHideTimer);
+    if (this.tapClearTimer != null) window.clearTimeout(this.tapClearTimer);
     this.clearPulse("key");
     this.clearPulse("mouseL");
     this.clearPulse("mouseR");
     this.flavorClearTimer = null;
     this.talkClearTimer = null;
     this.chatHideTimer = null;
+    this.tapClearTimer = null;
     delete this.root.dataset.cough;
     delete this.root.dataset.roll;
     delete this.root.dataset.blink;
