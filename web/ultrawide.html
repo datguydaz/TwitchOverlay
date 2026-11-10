@@ -15,10 +15,11 @@
     <div id="uw-stage" data-vfx="on">
       <div class="uw-bar uw-bar-top" id="uw-top" data-edge="top">
         <div class="uw-bar-body">
-          <div class="uw-side">
-            <div class="uw-brand">ZONE OPS</div>
-            <div class="uw-callsign">FIELD NET</div>
-            <div class="uw-meta">CH-01 // SECURE</div>
+          <div class="uw-side" id="uw-follower-slot">
+            <aside class="uw-social uw-social-inbar" id="uw-follower">
+              <div class="uw-social-tag">LATEST FOLLOW</div>
+              <div class="uw-social-name" id="uw-follower-name">—</div>
+            </aside>
           </div>
           <div class="uw-center">
             <div class="uw-title" id="uw-top-text">
@@ -26,9 +27,11 @@
             </div>
             <div class="uw-rule" aria-hidden="true"></div>
           </div>
-          <div class="uw-side uw-side-right">
-            <div class="uw-meta">UPLINK STABLE</div>
-            <div class="uw-meta">3440 × 1440</div>
+          <div class="uw-side uw-side-right" id="uw-subscriber-slot">
+            <aside class="uw-social uw-social-inbar" id="uw-subscriber">
+              <div class="uw-social-tag">LATEST SUB</div>
+              <div class="uw-social-name" id="uw-subscriber-name">—</div>
+            </aside>
           </div>
           <span class="uw-tick uw-tick-l" aria-hidden="true"></span>
           <span class="uw-tick uw-tick-r" aria-hidden="true"></span>
@@ -36,18 +39,6 @@
         </div>
         <div class="uw-hazard-rail" aria-hidden="true"></div>
       </div>
-
-      <!-- Social SAMPLE modules (Twitch/Kick not wired) -->
-      <aside class="uw-social" id="uw-follower" data-place="top-left" data-sample="1" hidden>
-        <div class="uw-social-tag">SAMPLE // LATEST FOLLOW</div>
-        <div class="uw-social-name" id="uw-follower-name">GhostPing_42</div>
-        <div class="uw-social-sub">Not a live Twitch/Kick event</div>
-      </aside>
-      <aside class="uw-social" id="uw-subscriber" data-place="top-right" data-sample="1" hidden>
-        <div class="uw-social-tag">SAMPLE // LATEST SUB</div>
-        <div class="uw-social-name" id="uw-subscriber-name">RaidMama</div>
-        <div class="uw-social-sub">Not a live Twitch/Kick event</div>
-      </aside>
 
       <!-- Large Zone Ops chat along bottom banner -->
       <div class="uw-chat" id="uw-chat" data-show="0" aria-live="polite">

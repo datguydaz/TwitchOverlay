@@ -28,6 +28,38 @@ export const ZONE_TRASH_TALK: readonly string[] = [
   "Hold W. Die less.",
 ];
 
+/** Mic-level acknowledgements — NOT content understanding. */
+export const TALK_ACK_LINES: readonly string[] = [
+  "Copy that.",
+  "Mhm. Still here.",
+  "Reading you.",
+  "Yeah — go on.",
+  "Solid.",
+  "Affirm.",
+];
+
+/**
+ * Local keyword → reply demo only. Not STT / Twitch chat AI.
+ * True topic understanding needs speech-to-text or a chat API later.
+ */
+export const TOPIC_REACT_MAP: ReadonlyArray<{ keys: readonly string[]; line: string }> = [
+  { keys: ["raid", "raiding"], line: "Raid call noted. Stack up." },
+  { keys: ["extract", "exfil"], line: "Extract window — move clean." },
+  { keys: ["hello", "hi", "hey"], line: "Hey. Operator online." },
+  { keys: ["loot", "gear"], line: "Loot later. Survive first." },
+  { keys: ["help", "clutch"], line: "Hold angle. I'm rotating." },
+  { keys: ["gg", "nice"], line: "Clean. Reset for next." },
+];
+
+export function topicReactLine(topic: string): string {
+  const t = topic.trim().toLowerCase();
+  if (!t) return TALK_ACK_LINES[0]!;
+  for (const row of TOPIC_REACT_MAP) {
+    if (row.keys.some((k) => t.includes(k))) return row.line;
+  }
+  return `Heard "${topic.slice(0, 40)}". Level-react only — no chat AI.`;
+}
+
 /**
  * Instant pose from held counts. Key `slot` moves left hand over the grid key.
  * Mouse LMB/RMB amber pads dim while held. No key names on the wire.
@@ -54,6 +86,8 @@ export class ReactiveAvatar {
   private flavorClearTimer: number | null = null;
   private talkClearTimer: number | null = null;
   private chatHideTimer: number | null = null;
+  private talkBurstMs = 0;
+  private lastAckAt = 0;
   private chatEl: HTMLElement | null = null;
   private handLeft: SVGElement | null = null;
   private disposed = false;
@@ -124,17 +158,55 @@ export class ReactiveAvatar {
     this.root.dataset.source = source;
   }
 
+  /**
+   * Level-based talk react (mic amplitude only).
+   * Does NOT understand speech/chat topics — see topicReact() for local keyword demo.
+   */
   setMicLevel(level: number, talking: boolean): void {
     if (this.disposed) return;
-    if (talking || level > 0.08) {
-      this.root.dataset.talk = "1";
-      if (this.talkClearTimer != null) window.clearTimeout(this.talkClearTimer);
-      this.talkClearTimer = window.setTimeout(() => {
-        this.talkClearTimer = null;
-        delete this.root.dataset.talk;
-        this.setIntensity(this.intensity);
-      }, 220);
+    const hot = talking || level > 0.08;
+    if (!hot) return;
+
+    const intensity = level > 0.28 ? "2" : "1";
+    this.root.dataset.talk = intensity;
+    if (level > 0.22) this.root.dataset.talkNod = "1";
+    else delete this.root.dataset.talkNod;
+
+    this.talkBurstMs += 90;
+    if (
+      this.chatEnabled &&
+      this.talkBurstMs > 900 &&
+      Date.now() - this.lastAckAt > 9000
+    ) {
+      this.talkBurstMs = 0;
+      this.lastAckAt = Date.now();
+      const line = TALK_ACK_LINES[Math.floor(Math.random() * TALK_ACK_LINES.length)]!;
+      this.say(line, `${this.streamerName.toUpperCase()} // ACK`);
     }
+
+    if (this.talkClearTimer != null) window.clearTimeout(this.talkClearTimer);
+    this.talkClearTimer = window.setTimeout(() => {
+      this.talkClearTimer = null;
+      this.talkBurstMs = 0;
+      delete this.root.dataset.talk;
+      delete this.root.dataset.talkNod;
+      this.setIntensity(this.intensity);
+    }, 280);
+  }
+
+  /** Dashboard keyword demo — not live Twitch/STT understanding. */
+  topicReact(topic: string): void {
+    this.setSource("demo");
+    this.root.dataset.talk = "2";
+    this.root.dataset.talkNod = "1";
+    this.say(topicReactLine(topic), `${this.streamerName.toUpperCase()} // REACT`);
+    if (this.talkClearTimer != null) window.clearTimeout(this.talkClearTimer);
+    this.talkClearTimer = window.setTimeout(() => {
+      this.talkClearTimer = null;
+      delete this.root.dataset.talk;
+      delete this.root.dataset.talkNod;
+      this.setIntensity(this.intensity);
+    }, 700);
   }
 
   say(text: string, tag = "ZONE OPS // COMMS"): void {
@@ -399,6 +471,7 @@ export class ReactiveAvatar {
     delete this.root.dataset.roll;
     delete this.root.dataset.blink;
     delete this.root.dataset.talk;
+    delete this.root.dataset.talkNod;
     this.hideChat();
     this.resetIdle();
   }

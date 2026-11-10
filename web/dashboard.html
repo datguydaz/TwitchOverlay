@@ -78,17 +78,20 @@
       </section>
 
       <section class="dash-panel">
-        <h2>Mic reaction</h2>
-        <p class="hint">Levels only — never records audio. Enable, allow mic permission, then talk. Overlay mouths/filter react.</p>
+        <h2>Mic talk react</h2>
+        <p class="hint"><strong>Works now:</strong> level-based talk (mouth, lean, head nod, occasional ACK bubble). Levels only — never records audio. <strong>Not AI:</strong> no understanding of Twitch chat or spoken topics unless you use Topic react (local keywords) or wire STT/chat later.</p>
         <label class="inline"><input id="micEnabled" type="checkbox" /> Enable mic → avatar</label>
         <label>Talk threshold <input id="micThreshold" type="range" min="0.04" max="0.5" step="0.01" /></label>
         <p id="mic-level">Mic level: —</p>
-        <p class="hint">How: check Enable → browser asks for mic → keep this dashboard open while streaming (or grant mic to the overlay page). Companion keyboard/mouse still requires <code>companion/npm start</code>.</p>
+        <label>Topic react (local keywords) <input id="topicReact" type="text" maxlength="80" placeholder="raid / extract / hello" /></label>
+        <div class="btn-row">
+          <button type="button" id="btn-topic-react" class="btn">Topic react demo</button>
+        </div>
       </section>
 
       <section class="dash-panel">
         <h2>Chat persona</h2>
-        <p class="hint">Large Zone Ops chat sits along the ultrawide bottom banner. Also mirrors on the avatar source.</p>
+        <p class="hint">Large Zone Ops chat along the ultrawide bottom banner. Also mirrors on the avatar source.</p>
         <label class="inline"><input id="chatEnabled" type="checkbox" /> Show chat</label>
         <label class="inline"><input id="chatDemoAuto" type="checkbox" /> Random trash-talk timer</label>
         <label>Trash-talk interval (ms) <input id="chatIntervalMs" type="number" min="6000" max="90000" step="1000" /></label>
@@ -100,28 +103,12 @@
       </section>
 
       <section class="dash-panel">
-        <h2>Latest follow / sub (SAMPLE)</h2>
-        <p class="hint">Zone Ops plates on ultrawide. Clearly SAMPLE until Twitch/Kick is wired — never pretends to be live.</p>
+        <h2>Latest follow / sub</h2>
+        <p class="hint">Sit in the ultrawide <strong>top bar</strong> corners (replacing FIELD NET / uplink). Leave blank or “—” until Twitch/Kick is wired — no fake demo names.</p>
         <label class="inline"><input id="socialShowFollower" type="checkbox" /> Show latest follower</label>
         <label class="inline"><input id="socialShowSubscriber" type="checkbox" /> Show latest subscriber</label>
-        <label>Sample follower name <input id="socialFollowerName" type="text" /></label>
-        <label>Sample subscriber name <input id="socialSubscriberName" type="text" /></label>
-        <label>Follower placement
-          <select id="socialFollowerPlace">
-            <option value="top-left">Top left</option>
-            <option value="top-right">Top right</option>
-            <option value="bottom-left">Bottom left</option>
-            <option value="bottom-right">Bottom right</option>
-          </select>
-        </label>
-        <label>Subscriber placement
-          <select id="socialSubscriberPlace">
-            <option value="top-left">Top left</option>
-            <option value="top-right">Top right</option>
-            <option value="bottom-left">Bottom left</option>
-            <option value="bottom-right">Bottom right</option>
-          </select>
-        </label>
+        <label>Latest follower <input id="socialFollowerName" type="text" placeholder="—" /></label>
+        <label>Latest subscriber <input id="socialSubscriberName" type="text" placeholder="—" /></label>
       </section>
 
       <section class="dash-panel">

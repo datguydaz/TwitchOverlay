@@ -437,12 +437,26 @@ body.scene-opaque {
   transform-origin: center;
 }
 
-.avatar-root[data-talk="1"] #mouth-vent {
-  animation: talk-vent 180ms ease-in-out infinite;
+.avatar-root[data-talk="1"] #mouth-vent,
+.avatar-root[data-talk="2"] #mouth-vent {
+  animation: talk-vent 160ms ease-in-out infinite;
 }
 
-.avatar-root[data-talk="1"] #layer-torso {
-  animation: talk-lean 520ms ease-in-out infinite;
+.avatar-root[data-talk="2"] #mouth-vent {
+  animation: talk-vent-strong 120ms ease-in-out infinite;
+}
+
+.avatar-root[data-talk="1"] #layer-torso,
+.avatar-root[data-talk="2"] #layer-torso {
+  animation: talk-lean 480ms ease-in-out infinite;
+}
+
+.avatar-root[data-talk="2"] #layer-torso {
+  animation: talk-lean-strong 420ms ease-in-out infinite;
+}
+
+.avatar-root[data-talk-nod="1"] #layer-head {
+  animation: talk-nod 520ms ease-in-out infinite;
 }
 
 .avatar-chat {
@@ -753,7 +767,20 @@ body.scene-opaque {
     transform: scale(1, 1);
   }
   50% {
-    transform: scale(1.04, 0.9);
+    transform: scale(1.06, 0.88);
+  }
+}
+
+@keyframes talk-vent-strong {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  40% {
+    transform: scale(1.1, 0.82);
+  }
+  70% {
+    transform: scale(1.04, 0.92);
   }
 }
 
@@ -763,7 +790,30 @@ body.scene-opaque {
     transform: translate3d(0, 0, 0) scale(1, 1);
   }
   50% {
-    transform: translate3d(0, 2px, 0) scale(1.004, 0.995);
+    transform: translate3d(0, 3px, 0) scale(1.005, 0.992);
+  }
+}
+
+@keyframes talk-lean-strong {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1, 1);
+  }
+  50% {
+    transform: translate3d(0, 5px, 0) scale(1.01, 0.985);
+  }
+}
+
+@keyframes talk-nod {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  35% {
+    transform: translate3d(0, 6px, 0) rotate(2.2deg);
+  }
+  65% {
+    transform: translate3d(1px, 2px, 0) rotate(0.4deg);
   }
 }
 
@@ -821,7 +871,10 @@ body.scene-opaque {
   .avatar-root[data-blink="1"] .eq-blink,
   .avatar-root[data-blink="1"] .eq-light,
   .avatar-root[data-talk="1"] #mouth-vent,
-  .avatar-root[data-talk="1"] #layer-torso {
+  .avatar-root[data-talk="2"] #mouth-vent,
+  .avatar-root[data-talk="1"] #layer-torso,
+  .avatar-root[data-talk="2"] #layer-torso,
+  .avatar-root[data-talk-nod="1"] #layer-head {
     animation: none;
   }
 }

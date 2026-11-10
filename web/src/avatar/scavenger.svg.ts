@@ -9,14 +9,19 @@ export const scavengerSvg = `
 <svg viewBox="0 0 1200 1020" width="1200" height="1020" xmlns="http://www.w3.org/2000/svg" aria-label="Zone scavenger avatar" role="img" shape-rendering="geometricPrecision">
   <g id="avatar-draw" transform="scale(3)">
   <defs>
+    <!-- Charcoal/black plate — tracksuit energy, not olive-dominant -->
     <linearGradient id="armorOlive" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#6b7548"/>
-      <stop offset="45%" stop-color="#4a5434"/>
-      <stop offset="100%" stop-color="#2c3420"/>
+      <stop offset="0%" stop-color="#2a2a2a"/>
+      <stop offset="45%" stop-color="#161616"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
     </linearGradient>
     <linearGradient id="suitDark" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2a2e28"/>
-      <stop offset="100%" stop-color="#121410"/>
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#080808"/>
+    </linearGradient>
+    <linearGradient id="pouchGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2c2c2c"/>
+      <stop offset="100%" stop-color="#121212"/>
     </linearGradient>
     <linearGradient id="helmDark" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#3a4034"/>
@@ -30,10 +35,6 @@ export const scavengerSvg = `
     <linearGradient id="deskGrad" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#3a342c"/>
       <stop offset="100%" stop-color="#1c1812"/>
-    </linearGradient>
-    <linearGradient id="pouchGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3a3228"/>
-      <stop offset="100%" stop-color="#1a1612"/>
     </linearGradient>
     <clipPath id="visor-clip">
       <rect x="168" y="124" width="64" height="10" rx="1"/>
@@ -68,26 +69,26 @@ export const scavengerSvg = `
       <path d="M312 185 Q318 200 308 216" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
       <path d="M70 218 Q82 230 94 236" fill="none" stroke="#3a4034" stroke-width="14" stroke-linecap="round"/>
       <path d="M318 212 Q314 222 310 230" fill="none" stroke="#3a4034" stroke-width="11" stroke-linecap="butt"/>
-      <path d="M96 142 L130 128 L200 122 L270 128 L304 142 L314 228 L86 228 Z" fill="url(#armorOlive)" stroke="#1a2014" stroke-width="2"/>
-      <path d="M148 128 Q200 148 252 128 L246 158 Q200 172 154 158 Z" fill="#5a6440" stroke="#1a2014" stroke-width="1.4"/>
+      <!-- Slim charcoal vest over black tracksuit (vibe only — no logos) -->
+      <path d="M108 146 L132 134 L200 128 L268 134 L292 146 L300 220 L100 220 Z" fill="url(#armorOlive)" stroke="#0a0c0a" stroke-width="1.4"/>
+      <path d="M158 132 Q200 144 242 132 L238 152 Q200 160 162 152 Z" fill="#242824" stroke="#0a0c0a" stroke-width="1"/>
       <g id="shoulder-left" class="shoulder">
-        <rect x="62" y="138" width="72" height="44" rx="10" fill="#5a6842" stroke="#1a2014" stroke-width="1.6"/>
-        <rect x="70" y="148" width="56" height="12" rx="2" fill="#2a2e24" opacity="0.5"/>
+        <rect x="72" y="142" width="58" height="32" rx="7" fill="#1e221e" stroke="#0a0c0a" stroke-width="1.2"/>
+        <rect x="78" y="150" width="46" height="8" rx="1.5" fill="#121412" opacity="0.55"/>
       </g>
       <g id="shoulder-right" class="shoulder">
-        <rect x="266" y="138" width="72" height="44" rx="10" fill="#5a6842" stroke="#1a2014" stroke-width="1.6"/>
-        <rect x="274" y="148" width="56" height="12" rx="2" fill="#2a2e24" opacity="0.5"/>
+        <rect x="270" y="142" width="58" height="32" rx="7" fill="#1e221e" stroke="#0a0c0a" stroke-width="1.2"/>
+        <rect x="276" y="150" width="46" height="8" rx="1.5" fill="#121412" opacity="0.55"/>
       </g>
+      <!-- Slim pouches — less intrusive chest mass -->
       <g id="chest-rig">
-        <rect x="118" y="178" width="36" height="48" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
-        <rect x="160" y="178" width="36" height="48" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
-        <rect x="204" y="178" width="36" height="48" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
-        <rect x="246" y="178" width="36" height="48" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
-        <path d="M124 186 H148 M166 186 H190 M210 186 H234 M252 186 H276" stroke="#5a5348" stroke-width="2"/>
+        <rect x="132" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="0.9"/>
+        <rect x="154" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="0.9"/>
+        <rect x="230" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="0.9"/>
+        <rect x="252" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="0.9"/>
+        <path d="M135 181 H145 M157 181 H167 M233 181 H243 M255 181 H265" stroke="#3a3a3a" stroke-width="1.1"/>
       </g>
-      <rect x="94" y="224" width="212" height="14" rx="2" fill="#1a1c16" stroke="#3a4032"/>
-      <rect x="104" y="227" width="48" height="8" rx="1" fill="#efe6d2" opacity="0.55"/>
-      <rect x="248" y="227" width="48" height="8" rx="1" fill="#efe6d2" opacity="0.55"/>
+      <rect x="110" y="218" width="180" height="10" rx="1.5" fill="#121412" stroke="#2a2e28"/>
     </g>
 
     <!-- HEAD -->

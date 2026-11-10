@@ -432,93 +432,54 @@ body.uw-bar-only[data-uw-mode="bottom"] .uw-chat {
   width: min(1100px, 70vw);
 }
 
-/* SAMPLE social plates — Latest Follow / Latest Sub */
-.uw-social {
-  position: absolute;
+/* Latest Follow / Sub — live inside top bar corners (replaces FIELD NET / uplink) */
+.uw-social-inbar {
+  position: relative;
   z-index: 5;
-  min-width: 220px;
-  max-width: min(420px, 28vw);
-  padding: 12px 16px 14px;
-  background: rgba(12, 14, 10, 0.9);
-  border: 1px solid rgba(107, 115, 85, 0.5);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+  min-width: 0;
+  max-width: 100%;
+  padding: 4px 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
   color: var(--beige, #c4b59a);
   font-family: var(--font-mono);
   pointer-events: none;
-  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  clip-path: none;
 }
 
-.uw-social[hidden] {
+.uw-social-inbar[hidden] {
   display: none !important;
 }
 
-.uw-social-tag {
-  font-size: clamp(10px, 0.7vw, 12px);
-  letter-spacing: 0.18em;
+.uw-social-inbar .uw-social-tag {
+  font-size: clamp(10px, calc(var(--uw-bar-h) * 0.08), 13px);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--amber, #c7923a);
-  margin-bottom: 6px;
+  color: var(--olive, #6b7355);
+  margin-bottom: 2px;
 }
 
-.uw-social-name {
+.uw-social-inbar .uw-social-name {
   font-family: var(--font-display);
-  font-size: clamp(18px, 1.15vw, 28px);
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  font-size: clamp(16px, calc(var(--uw-bar-h) * 0.16), 28px);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--beige, #c4b59a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: min(420px, 28vw);
 }
 
-.uw-social-sub {
-  margin-top: 4px;
-  font-size: clamp(9px, 0.55vw, 11px);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(154, 143, 120, 0.75);
+.uw-side-right .uw-social-inbar {
+  align-items: flex-end;
+  text-align: right;
 }
 
-.uw-social[data-place="top-left"] {
-  top: calc(var(--uw-bar-h) + 16px);
-  left: clamp(24px, 2vw, 56px);
-}
-
-.uw-social[data-place="top-right"] {
-  top: calc(var(--uw-bar-h) + 16px);
-  right: clamp(24px, 2vw, 56px);
-  left: auto;
-}
-
-.uw-social[data-place="bottom-left"] {
-  bottom: calc(var(--uw-bar-h) + 16px);
-  left: clamp(24px, 2vw, 56px);
-  top: auto;
-}
-
-.uw-social[data-place="bottom-right"] {
-  bottom: calc(var(--uw-bar-h) + 16px);
-  right: clamp(24px, 2vw, 56px);
-  left: auto;
-  top: auto;
-}
-
-body.uw-bar-only[data-uw-mode="top"] .uw-social[data-place="top-left"],
-body.uw-bar-only[data-uw-mode="top"] .uw-social[data-place="top-right"] {
-  top: 12px;
-}
-
-body.uw-bar-only[data-uw-mode="bottom"] .uw-social[data-place="bottom-left"],
-body.uw-bar-only[data-uw-mode="bottom"] .uw-social[data-place="bottom-right"] {
-  bottom: auto;
-  top: auto;
-}
-
-body.uw-bar-only[data-uw-mode="bottom"] .uw-social[data-place="bottom-left"] {
-  left: clamp(24px, 2vw, 56px);
-  bottom: 12px;
-}
-
-body.uw-bar-only[data-uw-mode="bottom"] .uw-social[data-place="bottom-right"] {
-  right: clamp(24px, 2vw, 56px);
-  bottom: 12px;
+.uw-side-right .uw-social-inbar .uw-social-name {
+  margin-left: auto;
 }
 
 /* Standalone thin bar pages (OBS separate sources) */

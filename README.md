@@ -98,18 +98,19 @@ The companion keeps hooks alive across WS reconnects so focusing Streamlabs or a
 
 ### Mic reaction (levels only)
 
-1. Open dashboard → **Mic reaction** → enable → allow browser mic permission
+1. Open dashboard → **Mic talk react** → enable → allow browser mic permission
 2. Keep the dashboard open (or the page that owns the mic stream) while live
-3. Talking drives mouth/filter vent + subtle torso lean on overlays
+3. **Level-based talk (works now):** mouth/filter vent, torso lean, head nod on louder levels, occasional ACK chat bubble after sustained speech
 4. **Nothing is recorded** — only a 0–1 level crosses the localhost WebSocket
+5. **Not AI / not chat understanding:** mic levels do not parse speech or Twitch chat. Dashboard **Topic react** is a local keyword demo only. True topic understanding needs STT or a Twitch/Kick chat API later.
 
 ### Chat persona
 
 Large Zone Ops chat sits along the ultrawide **bottom banner** (`#uw-chat`). Dashboard **Chat persona**: send a line, sample trash-talk, or enable the random timer. Avatar source mirrors the same lines. Twitch chat hook is modular/future — not fake-connected.
 
-### Latest follow / sub (SAMPLE)
+### Latest follow / sub
 
-Ultrawide shows Zone Ops **SAMPLE // LATEST FOLLOW** and **SAMPLE // LATEST SUB** plates (dashboard names + placement). Clearly labelled SAMPLE until Twitch/Kick is wired — never pretends to be live.
+Live inside the ultrawide **top bar** left/right (replacing FIELD NET / uplink chrome). Names default to `—` until Twitch/Kick is wired — no SAMPLE labels or fake demo names.
 
 ### Ultrawide / Streamlabs letterbox (3440×1440 / 4K)
 
@@ -135,11 +136,12 @@ Tune bar height, copy, social plates, and visibility in the dashboard **Ultrawid
 
 ## Reactive avatar
 
-Original SVG scavenger (hood, gas mask, desk). Layered hands / head / torso:
+Seated SVG scavenger (Maska-style helm, charcoal tracksuit vest vibe — no logos). Layered hands / head / torso:
 
-- Keyboard → brief press pulse, then **sustained hold pose** while key is down (not smash spam; OS repeat ignored in companion)
-- Mouse L/R → brief click pulse, then **sustained press pose** while held
-- Idle breathing + occasional head movement
+- Keyboard → hand aims opaque key-grid slot; keycaps depress; holds stay; taps stay snappy
+- Mouse L/R → amber LMB/RMB pads dim while held
+- Mic levels → stronger talk (vent/lean/nod) + optional ACK bubble
+- Idle breathing + occasional cough / shoulder roll
 - Optional amber equipment lights on activity
 
 ### Demo mode vs companion

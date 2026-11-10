@@ -3,10 +3,15 @@ import {
   fetchSettings,
 } from "../lib/settingsClient.ts";
 import { ZONE_TRASH_TALK } from "../avatar/reactiveAvatar.ts";
-import type { OverlaySettings, SocialPlacement } from "../../../shared/settings.ts";
+import type { OverlaySettings } from "../../../shared/settings.ts";
 
 function qs<T extends HTMLElement>(sel: string): T | null {
   return document.querySelector(sel);
+}
+
+function displayName(raw: string | undefined): string {
+  const t = (raw || "").trim();
+  return t || "—";
 }
 
 function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
@@ -23,12 +28,6 @@ function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
 function setVfxEnabled(on: boolean): void {
   const stage = qs<HTMLElement>("#uw-stage");
   if (stage) stage.dataset.vfx = on ? "on" : "off";
-}
-
-function placeSocial(el: HTMLElement | null, place: SocialPlacement, show: boolean): void {
-  if (!el) return;
-  el.dataset.place = place;
-  el.hidden = !show;
 }
 
 function showChatLine(text: string, tag: string): void {
@@ -105,21 +104,18 @@ function applyUltrawide(settings: OverlaySettings): void {
   const subscriber = qs<HTMLElement>("#uw-subscriber");
   const followerName = qs<HTMLElement>("#uw-follower-name");
   const subscriberName = qs<HTMLElement>("#uw-subscriber-name");
-  if (followerName) followerName.textContent = social.latestFollowerSample || "SAMPLE_USER";
-  if (subscriberName) subscriberName.textContent = social.latestSubscriberSample || "SAMPLE_SUB";
-
-  // Placement: on top-only / bottom-only pages, prefer edge placements that fit.
-  let fPlace = social.followerPlacement;
-  let sPlace = social.subscriberPlacement;
-  if (mode === "top") {
-    if (fPlace.startsWith("bottom")) fPlace = "top-left";
-    if (sPlace.startsWith("bottom")) sPlace = "top-right";
-  } else if (mode === "bottom") {
-    if (fPlace.startsWith("top")) fPlace = "bottom-left";
-    if (sPlace.startsWith("top")) sPlace = "bottom-right";
+  if (followerName) {
+    followerName.textContent = displayName(
+      social.latestFollower ?? social.latestFollowerSample,
+    );
   }
-  placeSocial(follower, fPlace, social.showFollower);
-  placeSocial(subscriber, sPlace, social.showSubscriber);
+  if (subscriberName) {
+    subscriberName.textContent = displayName(
+      social.latestSubscriber ?? social.latestSubscriberSample,
+    );
+  }
+  if (follower) follower.hidden = !social.showFollower;
+  if (subscriber) subscriber.hidden = !social.showSubscriber;
 
   const chat = qs<HTMLElement>("#uw-chat");
   if (chat) chat.style.display = settings.chat.enabled ? "" : "none";

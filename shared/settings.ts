@@ -50,11 +50,18 @@ export interface ChatSettings {
 export interface SocialSettings {
   showFollower: boolean;
   showSubscriber: boolean;
-  followerPlacement: SocialPlacement;
-  subscriberPlacement: SocialPlacement;
-  /** Demo names — clearly SAMPLE until Twitch/Kick wired. */
-  latestFollowerSample: string;
-  latestSubscriberSample: string;
+  /**
+   * Display name for latest follower. Empty / "—" until Twitch/Kick is wired.
+   * (Kept as latestFollowerSample in persisted JSON via merge for compat.)
+   */
+  latestFollower: string;
+  latestSubscriber: string;
+  /** @deprecated compat — mapped to latestFollower */
+  latestFollowerSample?: string;
+  /** @deprecated compat — mapped to latestSubscriber */
+  latestSubscriberSample?: string;
+  followerPlacement?: SocialPlacement;
+  subscriberPlacement?: SocialPlacement;
 }
 
 export interface OverlaySettings {
@@ -135,10 +142,8 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   social: {
     showFollower: true,
     showSubscriber: true,
-    followerPlacement: "top-left",
-    subscriberPlacement: "top-right",
-    latestFollowerSample: "GhostPing_42",
-    latestSubscriberSample: "RaidMama",
+    latestFollower: "—",
+    latestSubscriber: "—",
   },
   ultrawide: {
     canvasWidth: 3440,
@@ -174,7 +179,34 @@ export function mergeSettings(
     avatar: { ...base.avatar, ...partial.avatar },
     mic: { ...base.mic, ...partial.mic },
     chat: { ...base.chat, ...partial.chat },
-    social: { ...base.social, ...partial.social },
+    social: (() => {
+      const s = { ...base.social, ...partial.social };
+      // Migrate old SAMPLE fields → empty placeholders
+      const fol =
+        (partial.social?.latestFollower ??
+          partial.social?.latestFollowerSample ??
+          s.latestFollower) ||
+        "—";
+      const sub =
+        (partial.social?.latestSubscriber ??
+          partial.social?.latestSubscriberSample ??
+          s.latestSubscriber) ||
+        "—";
+      const scrub = (v: string) => {
+        const t = v.trim();
+        if (!t) return "—";
+        if (/^sample/i.test(t) || t === "GhostPing_42" || t === "RaidMama" || t === "SAMPLE_USER" || t === "SAMPLE_SUB") {
+          return "—";
+        }
+        return t;
+      };
+      return {
+        showFollower: s.showFollower,
+        showSubscriber: s.showSubscriber,
+        latestFollower: scrub(fol),
+        latestSubscriber: scrub(sub),
+      };
+    })(),
     ultrawide: { ...base.ultrawide, ...partial.ultrawide },
   };
 }

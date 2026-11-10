@@ -1,4 +1,5 @@
 import { ReactiveAvatar, ZONE_TRASH_TALK } from "../avatar/reactiveAvatar.ts";
+
 import {
   applyCssVars,
   fetchSettings,
@@ -62,13 +63,9 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("socialShowSubscriber") as HTMLInputElement).checked =
     s.social.showSubscriber;
   (document.getElementById("socialFollowerName") as HTMLInputElement).value =
-    s.social.latestFollowerSample;
+    s.social.latestFollower === "—" ? "" : s.social.latestFollower;
   (document.getElementById("socialSubscriberName") as HTMLInputElement).value =
-    s.social.latestSubscriberSample;
-  (document.getElementById("socialFollowerPlace") as HTMLSelectElement).value =
-    s.social.followerPlacement;
-  (document.getElementById("socialSubscriberPlace") as HTMLSelectElement).value =
-    s.social.subscriberPlacement;
+    s.social.latestSubscriber === "—" ? "" : s.social.latestSubscriber;
 
   (document.getElementById("uwCanvasWidth") as HTMLInputElement).value = String(
     s.ultrawide.canvasWidth,
@@ -150,18 +147,14 @@ function readForm(): OverlaySettings {
   next.social.showSubscriber = (
     document.getElementById("socialShowSubscriber") as HTMLInputElement
   ).checked;
-  next.social.latestFollowerSample =
-    (document.getElementById("socialFollowerName") as HTMLInputElement).value.trim() ||
-    "GhostPing_42";
-  next.social.latestSubscriberSample =
-    (document.getElementById("socialSubscriberName") as HTMLInputElement).value.trim() ||
-    "RaidMama";
-  next.social.followerPlacement = (
-    document.getElementById("socialFollowerPlace") as HTMLSelectElement
-  ).value as OverlaySettings["social"]["followerPlacement"];
-  next.social.subscriberPlacement = (
-    document.getElementById("socialSubscriberPlace") as HTMLSelectElement
-  ).value as OverlaySettings["social"]["subscriberPlacement"];
+  next.social.latestFollower =
+    (document.getElementById("socialFollowerName") as HTMLInputElement).value.trim() || "—";
+  next.social.latestSubscriber =
+    (document.getElementById("socialSubscriberName") as HTMLInputElement).value.trim() || "—";
+  delete next.social.latestFollowerSample;
+  delete next.social.latestSubscriberSample;
+  delete next.social.followerPlacement;
+  delete next.social.subscriberPlacement;
 
   next.ultrawide.canvasWidth = Number(
     (document.getElementById("uwCanvasWidth") as HTMLInputElement).value,
@@ -393,6 +386,20 @@ async function main(): Promise<void> {
     const line = ZONE_TRASH_TALK[Math.floor(Math.random() * ZONE_TRASH_TALK.length)]!;
     avatar.say(line);
     dashWs?.send(JSON.stringify({ type: "chat-line", text: line, from: "demo" }));
+  });
+
+  document.getElementById("btn-topic-react")?.addEventListener("click", () => {
+    const topic =
+      (document.getElementById("topicReact") as HTMLInputElement).value.trim() || "raid";
+    avatar.setChatEnabled(true);
+    avatar.topicReact(topic);
+    dashWs?.send(
+      JSON.stringify({
+        type: "chat-line",
+        text: `Topic react demo: ${topic}`,
+        from: "demo",
+      }),
+    );
   });
 
   document.getElementById("streamerName")?.addEventListener("input", () => {
