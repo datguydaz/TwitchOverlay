@@ -41,26 +41,26 @@ export const scavengerSvg = `
 
   <ellipse cx="200" cy="318" rx="140" ry="14" fill="#000" opacity="0.45"/>
 
-  <!-- Original LMG silhouette (behind shoulders) — drum-mag field gun energy -->
-  <g id="prop-lmg" opacity="0.95">
-    <!-- stock -->
-    <path d="M268 118 L312 102 L322 118 L308 148 L278 152 Z" fill="#2a241c" stroke="#0e100c" stroke-width="1.2"/>
-    <!-- receiver -->
-    <rect x="198" y="122" width="78" height="22" rx="3" fill="url(#gunMetal)" stroke="#0e100c" stroke-width="1.2"/>
-    <!-- drum magazine -->
-    <circle cx="230" cy="168" r="28" fill="#2a2e24" stroke="#0e100c" stroke-width="1.6"/>
-    <circle cx="230" cy="168" r="18" fill="#1a1c16" stroke="#4a5240" stroke-width="1.2"/>
-    <circle cx="230" cy="168" r="6" fill="#0e100c"/>
-    <path d="M230 140 L236 150 M248 152 L242 162 M248 184 L238 178 M212 184 L218 174 M212 152 L220 158"
-      stroke="#5a5348" stroke-width="1.4" opacity="0.7"/>
-    <!-- barrel + gas tube -->
-    <rect x="98" y="126" width="104" height="10" rx="2" fill="#2e3228" stroke="#0e100c" stroke-width="1.1"/>
-    <rect x="108" y="118" width="72" height="5" rx="1" fill="#3a4034" stroke="#0e100c" stroke-width="0.8"/>
-    <rect x="84" y="124" width="18" height="14" rx="2" fill="#242820" stroke="#0e100c"/>
-    <!-- carry handle / rear sight -->
-    <path d="M250 118 H270 V110 H256 Z" fill="#1a1c16" stroke="#0e100c" stroke-width="0.9"/>
-    <!-- bipod folded -->
-    <path d="M120 136 L112 158 M130 136 L138 158" stroke="#3a4034" stroke-width="3" stroke-linecap="round"/>
+  <!-- Original LMG resting on back — barrel left, drum left flank, stock right of helm -->
+  <g id="prop-lmg">
+    <!-- long barrel rising behind left shoulder -->
+    <path d="M18 96 L118 128 L116 140 L16 108 Z" fill="#2e3228" stroke="#0e100c" stroke-width="1.2"/>
+    <path d="M28 90 L108 118 L106 124 L26 96 Z" fill="#3a4034" stroke="#0e100c" stroke-width="0.8"/>
+    <rect x="12" y="94" width="16" height="16" rx="2" fill="#242820" stroke="#0e100c" transform="rotate(18 20 102)"/>
+    <!-- receiver tucked behind shoulders -->
+    <path d="M112 124 L292 96 L304 118 L124 148 Z" fill="url(#gunMetal)" stroke="#0e100c" stroke-width="1.3"/>
+    <!-- RPK-energy drum mag clear of left torso -->
+    <circle cx="58" cy="168" r="36" fill="#2a2e24" stroke="#0e100c" stroke-width="1.8"/>
+    <circle cx="58" cy="168" r="24" fill="#1a1c16" stroke="#5a6450" stroke-width="1.4"/>
+    <circle cx="58" cy="168" r="8" fill="#0e100c"/>
+    <path d="M58 132 L66 146 M82 150 L70 162 M82 186 L68 180 M34 186 L42 172 M34 150 L46 158"
+      stroke="#6b7355" stroke-width="1.7" opacity="0.8"/>
+    <path d="M78 148 L98 138" stroke="#3a4034" stroke-width="6" stroke-linecap="round"/>
+    <!-- wooden stock peeking right of helmet -->
+    <path d="M292 92 L352 68 L362 92 L340 128 L300 124 Z" fill="#2a241c" stroke="#0e100c" stroke-width="1.2"/>
+    <path d="M304 88 H330 V78 H310 Z" fill="#1a1c16" stroke="#0e100c"/>
+    <!-- folded bipod under barrel -->
+    <path d="M42 112 L28 148 M56 118 L68 152" stroke="#3a4034" stroke-width="3.2" stroke-linecap="round"/>
   </g>
 
   <!-- DESK — name sits fully on front panel inside viewBox -->
@@ -135,40 +135,31 @@ export const scavengerSvg = `
     <circle cx="200" cy="168" r="4" fill="#0a0c08"/>
   </g>
 
-  <!-- Compact improvised field keyboard (cleaner proportions) -->
+  <!-- Improvised field keyboard — shallow perspective, under left hand -->
   <g id="prop-keyboard">
-    <rect x="58" y="248" width="176" height="28" rx="3" fill="#121410" stroke="#6b7355" stroke-width="1.4"/>
-    <g fill="#2a3026" stroke="#5a6450" stroke-width="0.6">
-      <rect x="64" y="252" width="12" height="8" rx="1.2"/>
-      <rect x="79" y="252" width="12" height="8" rx="1.2"/>
-      <rect x="94" y="252" width="12" height="8" rx="1.2"/>
-      <rect x="109" y="252" width="12" height="8" rx="1.2"/>
-      <rect x="124" y="252" width="12" height="8" rx="1.2"/>
-      <rect x="139" y="252" width="12" height="8" rx="1.2"/>
-      <rect x="154" y="252" width="12" height="8" rx="1.2"/>
-      <rect x="169" y="252" width="12" height="8" rx="1.2"/>
-      <rect x="184" y="252" width="12" height="8" rx="1.2"/>
-      <rect x="199" y="252" width="12" height="8" rx="1.2"/>
-      <rect x="214" y="252" width="14" height="8" rx="1.2"/>
+    <path d="M54 250 L238 246 L234 274 L60 276 Z" fill="#141612" stroke="#6b7355" stroke-width="1.3"/>
+    <path d="M58 252 L232 248 L230 260 L60 262 Z" fill="#1c2218"/>
+    <g fill="#2e3428" stroke="#4a5240" stroke-width="0.45">
+      <path d="M66 254 h14 v6 h-14z"/><path d="M82 254 h14 v6 h-14z"/><path d="M98 254 h14 v6 h-14z"/>
+      <path d="M114 254 h14 v6 h-14z"/><path d="M130 254 h14 v6 h-14z"/><path d="M146 254 h14 v6 h-14z"/>
+      <path d="M162 254 h14 v6 h-14z"/><path d="M178 254 h14 v6 h-14z"/><path d="M194 254 h14 v6 h-14z"/>
+      <path d="M210 254 h16 v6 h-16z"/>
     </g>
-    <g fill="#242a20" stroke="#4a5240" stroke-width="0.55">
-      <rect x="70" y="263" width="11" height="7" rx="1"/>
-      <rect x="84" y="263" width="11" height="7" rx="1"/>
-      <rect x="98" y="263" width="11" height="7" rx="1"/>
-      <rect x="112" y="263" width="52" height="7" rx="1"/>
-      <rect x="167" y="263" width="11" height="7" rx="1"/>
-      <rect x="181" y="263" width="11" height="7" rx="1"/>
-      <rect x="195" y="263" width="11" height="7" rx="1"/>
-      <rect x="209" y="263" width="18" height="7" rx="1"/>
+    <g fill="#262c22" stroke="#3a4234" stroke-width="0.4">
+      <path d="M70 264 h12 v5 h-12z"/><path d="M84 264 h12 v5 h-12z"/><path d="M98 264 h12 v5 h-12z"/>
+      <path d="M114 264 h48 v5 h-48z"/>
+      <path d="M164 264 h12 v5 h-12z"/><path d="M178 264 h12 v5 h-12z"/><path d="M192 264 h12 v5 h-12z"/>
+      <path d="M208 264 h18 v5 h-18z"/>
     </g>
+    <path d="M64 272 H220" stroke="#5a6450" stroke-width="0.7" opacity="0.45"/>
   </g>
 
-  <!-- Compact field mouse -->
+  <!-- Compact field mouse — under right hand -->
   <g id="prop-mouse">
-    <ellipse cx="292" cy="258" rx="18" ry="22" fill="#1c2018" stroke="#8a9480" stroke-width="1.5"/>
-    <path d="M292 240 V258" stroke="#c7923a" stroke-width="1.3" opacity="0.85"/>
-    <path d="M280 248 Q292 244 304 248" fill="none" stroke="#5a6450" stroke-width="1"/>
-    <ellipse cx="292" cy="268" rx="7" ry="4" fill="#2a2e24" opacity="0.8"/>
+    <path d="M276 246 Q292 238 308 246 L312 268 Q292 278 272 268 Z" fill="#1a1e16" stroke="#8a9480" stroke-width="1.4"/>
+    <path d="M292 240 V262" stroke="#c7923a" stroke-width="1.2" opacity="0.9"/>
+    <path d="M278 250 Q292 246 306 250" fill="none" stroke="#4a5240" stroke-width="1"/>
+    <ellipse cx="292" cy="270" rx="6" ry="3.5" fill="#2a2e24" opacity="0.75"/>
   </g>
 
   <g id="desk-lights">
