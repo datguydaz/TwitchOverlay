@@ -123,6 +123,20 @@ function attachHooks(uiohook) {
     }
   });
 
+  // Wheel: only up/down pulse — never log rotation amount, position, or page content
+  let lastWheelAt = 0;
+  uIOhook.on("wheel", (e) => {
+    if (capturePaused) return;
+    const now = Date.now();
+    if (now - lastWheelAt < 45) return;
+    lastWheelAt = now;
+    const rot = typeof e.rotation === "number" ? e.rotation : 0;
+    if (rot === 0) return;
+    const kind = rot < 0 ? "wheelUp" : "wheelDown";
+    const pressId = nextPressId++;
+    emitInput(kind, "down", pressId, 1);
+  });
+
   uIOhook.start();
   hooksAttached = true;
   console.log("uIOhook started (pass-through capture; no injection). Survives WS reconnect.");

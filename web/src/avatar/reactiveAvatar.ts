@@ -110,6 +110,7 @@ export class ReactiveAvatar {
   private keyPulseTimer: number | null = null;
   private mouseLPulseTimer: number | null = null;
   private mouseRPulseTimer: number | null = null;
+  private wheelClearTimer: number | null = null;
   private tapClearTimer: number | null = null;
   private flavorTimer: number | null = null;
   private flavorClearTimer: number | null = null;
@@ -341,6 +342,8 @@ export class ReactiveAvatar {
       this.mouseRHeld = Math.max(0, held);
       if (phase === "down" && was === 0 && this.mouseRHeld > 0) this.pulseEdge("mouseR");
       if (this.mouseRHeld === 0) this.clearPulse("mouseR");
+    } else if (kind === "wheelUp" || kind === "wheelDown") {
+      if (phase === "down") this.pulseWheel(kind === "wheelUp" ? "up" : "down");
     } else {
       const _never: never = kind;
       void _never;
@@ -357,6 +360,20 @@ export class ReactiveAvatar {
     this.setSource("demo");
     const kind = button === "l" ? "mouseL" : "mouseR";
     this.handleInput(kind, down ? "down" : "up", down ? 1 : 0);
+  }
+
+  demoWheel(dir: "up" | "down" = "down"): void {
+    this.setSource("demo");
+    this.handleInput(dir === "up" ? "wheelUp" : "wheelDown", "down", 1);
+  }
+
+  private pulseWheel(dir: "up" | "down"): void {
+    this.root.dataset.wheel = dir;
+    if (this.wheelClearTimer != null) window.clearTimeout(this.wheelClearTimer);
+    this.wheelClearTimer = window.setTimeout(() => {
+      this.wheelClearTimer = null;
+      delete this.root.dataset.wheel;
+    }, 220);
   }
 
   private depressKeycap(slot: number, on: boolean): void {
@@ -433,8 +450,9 @@ export class ReactiveAvatar {
     if (lmb) lmb.style.fill = this.mouseLHeld > 0 ? "#c7923a" : "#1a1c16";
     if (rmb) rmb.style.fill = this.mouseRHeld > 0 ? "#c7923a" : "#1a1c16";
 
+    const wheelBusy = this.root.dataset.wheel === "up" || this.root.dataset.wheel === "down";
     const active =
-      this.keyHeld > 0 || this.mouseLHeld > 0 || this.mouseRHeld > 0 ? "1" : "0";
+      this.keyHeld > 0 || this.mouseLHeld > 0 || this.mouseRHeld > 0 || wheelBusy ? "1" : "0";
     this.root.dataset.active = this.lightsEnabled ? active : "0";
     this.applyHandToSlot();
     this.setIntensity(this.intensity);
@@ -443,7 +461,13 @@ export class ReactiveAvatar {
   }
 
   private isBusy(): boolean {
-    return this.keyHeld > 0 || this.mouseLHeld > 0 || this.mouseRHeld > 0;
+    return (
+      this.keyHeld > 0 ||
+      this.mouseLHeld > 0 ||
+      this.mouseRHeld > 0 ||
+      this.root.dataset.wheel === "up" ||
+      this.root.dataset.wheel === "down"
+    );
   }
 
   private scheduleFlavor(): void {
@@ -494,6 +518,7 @@ export class ReactiveAvatar {
     if (this.talkClearTimer != null) window.clearTimeout(this.talkClearTimer);
     if (this.chatHideTimer != null) window.clearTimeout(this.chatHideTimer);
     if (this.tapClearTimer != null) window.clearTimeout(this.tapClearTimer);
+    if (this.wheelClearTimer != null) window.clearTimeout(this.wheelClearTimer);
     this.clearPulse("key");
     this.clearPulse("mouseL");
     this.clearPulse("mouseR");
@@ -501,11 +526,13 @@ export class ReactiveAvatar {
     this.talkClearTimer = null;
     this.chatHideTimer = null;
     this.tapClearTimer = null;
+    this.wheelClearTimer = null;
     delete this.root.dataset.cough;
     delete this.root.dataset.roll;
     delete this.root.dataset.blink;
     delete this.root.dataset.talk;
     delete this.root.dataset.talkNod;
+    delete this.root.dataset.wheel;
     this.hideChat();
     this.resetIdle();
   }

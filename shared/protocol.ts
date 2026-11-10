@@ -1,6 +1,7 @@
 /** Minimal animation wire format — no characters or key names on input path. */
 
-export type InputKind = "key" | "mouseL" | "mouseR";
+/** wheelUp/wheelDown are momentary pulses — never scroll deltas or positions. */
+export type InputKind = "key" | "mouseL" | "mouseR" | "wheelUp" | "wheelDown";
 export type InputPhase = "down" | "up";
 
 export type ClientRole = "overlay" | "dashboard" | "companion" | "test";

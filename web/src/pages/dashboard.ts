@@ -284,7 +284,7 @@ async function connectDashWs(): Promise<void> {
     try {
       const msg = JSON.parse(String(ev.data)) as {
         type: string;
-        kind?: "key" | "mouseL" | "mouseR";
+        kind?: "key" | "mouseL" | "mouseR" | "wheelUp" | "wheelDown";
         phase?: "down" | "up";
         held?: number;
         companionConnected?: boolean;
@@ -480,6 +480,11 @@ async function main(): Promise<void> {
     demoOn = true;
     applyDemoInput(avatar, "mouseR", "down", 1);
     window.setTimeout(() => applyDemoInput(avatar, "mouseR", "up", 0), 100);
+  });
+
+  document.getElementById("btn-demo-wheel")?.addEventListener("click", () => {
+    demoOn = true;
+    applyDemoInput(avatar, "wheelDown", "down", 1);
   });
 
   document.getElementById("btn-pause")?.addEventListener("click", () => {

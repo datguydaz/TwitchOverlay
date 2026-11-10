@@ -41,12 +41,14 @@ export const scavengerSvg = `
     <clipPath id="visor-clip">
       <rect x="168" y="124" width="64" height="10" rx="1"/>
     </clipPath>
-    <!-- Thick sleeve ribbons — clip keeps stripes on fabric only -->
-    <clipPath id="clip-sleeve-left">
-      <path d="M118 152 Q70 175 58 210 Q55 235 88 248 L108 242 Q85 225 82 205 Q90 180 122 160 Z"/>
+    <!-- Canonical sleeve silhouettes (fill + clip share these) -->
+    <path id="sleeve-left-shape" d="M120 155 Q75 178 62 212 Q60 238 90 250 L112 242 Q88 224 86 205 Q94 180 124 162 Z"/>
+    <path id="sleeve-right-shape" d="M280 155 Q315 172 332 202 Q338 224 316 238 L296 230 Q314 214 316 198 Q308 176 276 162 Z"/>
+    <clipPath id="clip-sleeve-left" clipPathUnits="userSpaceOnUse">
+      <use href="#sleeve-left-shape"/>
     </clipPath>
-    <clipPath id="clip-sleeve-right">
-      <path d="M282 152 Q320 170 336 200 Q342 222 318 236 L300 230 Q318 215 320 198 Q312 175 278 160 Z"/>
+    <clipPath id="clip-sleeve-right" clipPathUnits="userSpaceOnUse">
+      <use href="#sleeve-right-shape"/>
     </clipPath>
   </defs>
 
@@ -65,11 +67,11 @@ export const scavengerSvg = `
     <!-- TORSO: near-black tracksuit + charcoal vest (no olive on body) -->
     <g id="layer-torso">
       <path d="M78 148 L118 132 L200 124 L282 132 L322 148 L338 236 L62 236 Z" fill="url(#suitDark)" stroke="#050505" stroke-width="1.5"/>
-      <!-- Thick black sleeves; stripes inset toward torso + clipped to sleeve fill -->
-      <path id="sleeve-left-fill" d="M118 152 Q70 175 58 210 Q55 235 88 248 L108 242 Q85 225 82 205 Q90 180 122 160 Z" fill="#181818" stroke="#050505" stroke-width="1.2"/>
-      <path id="sleeve-right-fill" d="M282 152 Q320 170 336 200 Q342 222 318 236 L300 230 Q318 215 320 198 Q312 175 278 160 Z" fill="#181818" stroke="#050505" stroke-width="1.2"/>
-      <path d="M82 228 Q92 238 104 244" fill="none" stroke="#222222" stroke-width="11" stroke-linecap="round"/>
-      <path d="M312 220 Q308 230 300 236" fill="none" stroke="#222222" stroke-width="10" stroke-linecap="butt"/>
+      <!-- Black sleeves from shared shapes; stripes clipped to same shapes -->
+      <use id="sleeve-left-fill" href="#sleeve-left-shape" fill="#1a1a1a" stroke="#050505" stroke-width="1.2"/>
+      <use id="sleeve-right-fill" href="#sleeve-right-shape" fill="#1a1a1a" stroke="#050505" stroke-width="1.2"/>
+      <path d="M86 230 Q96 240 108 246" fill="none" stroke="#222222" stroke-width="10" stroke-linecap="round"/>
+      <path d="M310 222 Q306 232 298 238" fill="none" stroke="#222222" stroke-width="9" stroke-linecap="butt"/>
       <!-- Slim near-black vest (vibe only — no logos) -->
       <path d="M108 146 L132 134 L200 128 L268 134 L292 146 L300 220 L100 220 Z" fill="url(#armorOlive)" stroke="#050505" stroke-width="1.4"/>
       <path d="M158 132 Q200 144 242 132 L238 152 Q200 160 162 152 Z" fill="#1a1a1a" stroke="#050505" stroke-width="1"/>
@@ -81,16 +83,16 @@ export const scavengerSvg = `
         <rect x="270" y="142" width="58" height="32" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
         <rect x="276" y="150" width="46" height="8" rx="1.5" fill="#0a0a0a" opacity="0.65"/>
       </g>
-      <!-- Track stripes ON sleeves (after shoulders so they read on fabric) -->
-      <g id="sleeve-stripes-left" clip-path="url(#clip-sleeve-left)" fill="none" stroke="#f2f2f0" stroke-linecap="butt" stroke-width="2.4">
-        <path d="M96 176 Q78 205 94 236"/>
-        <path d="M101 174 Q83 204 99 234"/>
-        <path d="M106 172 Q88 203 104 232"/>
+      <!-- Three white track stripes on mid/lower arms (below shoulders), clipped to sleeve shapes -->
+      <g id="sleeve-stripes-left" clip-path="url(#clip-sleeve-left)" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-width="3.1" opacity="0.95">
+        <path d="M95 186 Q80 214 94 242"/>
+        <path d="M102 184 Q87 213 101 240"/>
+        <path d="M109 182 Q94 212 108 238"/>
       </g>
-      <g id="sleeve-stripes-right" clip-path="url(#clip-sleeve-right)" fill="none" stroke="#f2f2f0" stroke-linecap="butt" stroke-width="2.2">
-        <path d="M304 176 Q318 200 308 228"/>
-        <path d="M299 174 Q313 199 303 226"/>
-        <path d="M294 172 Q308 198 298 224"/>
+      <g id="sleeve-stripes-right" clip-path="url(#clip-sleeve-right)" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-width="2.9" opacity="0.95">
+        <path d="M305 186 Q318 210 306 234"/>
+        <path d="M298 184 Q311 209 299 232"/>
+        <path d="M291 182 Q304 208 292 230"/>
       </g>
       <!-- Slim pouches -->
       <g id="chest-rig">
@@ -148,78 +150,79 @@ export const scavengerSvg = `
       </g>
     </g>
 
-    <!-- Nordic field KB facing operator — keys fill trapezoid board; id=kb-sN = slots -->
+    <!-- Nordic KB facing HIM: spacebar at far edge (toward torso), numbers toward viewer -->
     <g id="prop-keyboard">
-      <path d="M68 238 L232 238 L258 288 L42 288 Z" fill="#0c0e0a" stroke="#c4b59a" stroke-width="1.8" stroke-linejoin="round"/>
-      <path d="M72 241 L228 241 L252 284 L48 284 Z" fill="#161a14"/>
-      <!-- Number row (visual) fills top of board -->
-      <g class="kb-row kb-num" fill="#2a3228" stroke="#6b7355" stroke-width="0.5">
-        <rect x="74" y="243" width="11.8" height="7" rx="0.9"/><rect x="86.8" y="243" width="11.8" height="7" rx="0.9"/>
-        <rect x="99.6" y="243" width="11.8" height="7" rx="0.9"/><rect x="112.4" y="243" width="11.8" height="7" rx="0.9"/>
-        <rect x="125.2" y="243" width="11.8" height="7" rx="0.9"/><rect x="138" y="243" width="11.8" height="7" rx="0.9"/>
-        <rect x="150.8" y="243" width="11.8" height="7" rx="0.9"/><rect x="163.6" y="243" width="11.8" height="7" rx="0.9"/>
-        <rect x="176.4" y="243" width="11.8" height="7" rx="0.9"/><rect x="189.2" y="243" width="11.8" height="7" rx="0.9"/>
-        <rect x="202" y="243" width="11.8" height="7" rx="0.9"/><rect x="214.8" y="243" width="11.8" height="7" rx="0.9"/>
+      <path d="M78 238 L222 238 L256 288 L44 288 Z" fill="#0c0e0a" stroke="#c4b59a" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="M82 241 L218 241 L250 284 L50 284 Z" fill="#161a14"/>
+      <!-- Far edge (toward him): &lt; Z X C V [SPC] B N M -->
+      <g class="kb-row" fill="#2e362a" stroke="#6b7355" stroke-width="0.6">
+        <rect class="kb-deco" x="84" y="243" width="8" height="7.5" rx="1" fill="#252a22"/>
+        <g id="kb-s22" class="kb-key" data-slot="22"><rect x="93.5" y="243" width="11.5" height="7.5" rx="1"/><text class="kb-label" x="99.25" y="246.75" font-size="4.2">Z</text></g>
+        <g id="kb-s23" class="kb-key" data-slot="23"><rect x="106" y="243" width="11.5" height="7.5" rx="1"/><text class="kb-label" x="111.75" y="246.75" font-size="4.2">X</text></g>
+        <g id="kb-s24" class="kb-key" data-slot="24"><rect x="118.5" y="243" width="11.5" height="7.5" rx="1"/><text class="kb-label" x="124.25" y="246.75" font-size="4.2">C</text></g>
+        <g id="kb-s25" class="kb-key" data-slot="25"><rect x="131" y="243" width="11.5" height="7.5" rx="1"/><text class="kb-label" x="136.75" y="246.75" font-size="4.2">V</text></g>
+        <g id="kb-s26" class="kb-key" data-slot="26"><rect x="143.5" y="243" width="42" height="7.5" rx="1"/><text class="kb-label" x="164.5" y="246.75" font-size="3.6">SPC</text></g>
+        <g id="kb-s27" class="kb-key" data-slot="27"><rect x="186.5" y="243" width="11.5" height="7.5" rx="1"/><text class="kb-label" x="192.25" y="246.75" font-size="4.2">B</text></g>
+        <g id="kb-s28" class="kb-key" data-slot="28"><rect x="199" y="243" width="11.5" height="7.5" rx="1"/><text class="kb-label" x="204.75" y="246.75" font-size="4.2">N</text></g>
+        <g id="kb-s29" class="kb-key" data-slot="29"><rect x="211.5" y="243" width="11.5" height="7.5" rx="1"/><text class="kb-label" x="217.25" y="246.75" font-size="4.2">M</text></g>
       </g>
-      <g class="kb-labels-num" fill="#6b7355" font-family="ui-monospace, Consolas, monospace" font-size="4.4" text-anchor="middle" dominant-baseline="central">
-        <text x="79.9" y="246.5">1</text><text x="92.7" y="246.5">2</text><text x="105.5" y="246.5">3</text>
-        <text x="118.3" y="246.5">4</text><text x="131.1" y="246.5">5</text><text x="143.9" y="246.5">6</text>
-        <text x="156.7" y="246.5">7</text><text x="169.5" y="246.5">8</text><text x="182.3" y="246.5">9</text>
-        <text x="195.1" y="246.5">0</text><text x="207.9" y="246.5">+</text><text x="220.7" y="246.5">´</text>
+      <text class="kb-deco-label" x="88" y="246.75" fill="#6b7355" font-family="ui-monospace, Consolas, monospace" font-size="3.4" text-anchor="middle" dominant-baseline="central">&lt;</text>
+      <!-- A…LÖÄ -->
+      <g class="kb-row" fill="#323a2e" stroke="#8a8070" stroke-width="0.65">
+        <g id="kb-s11" class="kb-key" data-slot="11"><rect x="78" y="253" width="12.8" height="8" rx="1"/><text class="kb-label" x="84.4" y="257">A</text></g>
+        <g id="kb-s12" class="kb-key" data-slot="12"><rect x="91.8" y="253" width="12.8" height="8" rx="1"/><text class="kb-label" x="98.2" y="257">S</text></g>
+        <g id="kb-s13" class="kb-key" data-slot="13"><rect x="105.6" y="253" width="12.8" height="8" rx="1"/><text class="kb-label" x="112" y="257">D</text></g>
+        <g id="kb-s14" class="kb-key" data-slot="14"><rect x="119.4" y="253" width="12.8" height="8" rx="1"/><text class="kb-label" x="125.8" y="257">F</text></g>
+        <g id="kb-s15" class="kb-key" data-slot="15"><rect x="133.2" y="253" width="12.8" height="8" rx="1"/><text class="kb-label" x="139.6" y="257">G</text></g>
+        <g id="kb-s16" class="kb-key" data-slot="16"><rect x="147" y="253" width="12.8" height="8" rx="1"/><text class="kb-label" x="153.4" y="257">H</text></g>
+        <g id="kb-s17" class="kb-key" data-slot="17"><rect x="160.8" y="253" width="12.8" height="8" rx="1"/><text class="kb-label" x="167.2" y="257">J</text></g>
+        <g id="kb-s18" class="kb-key" data-slot="18"><rect x="174.6" y="253" width="12.8" height="8" rx="1"/><text class="kb-label" x="181" y="257">K</text></g>
+        <g id="kb-s19" class="kb-key" data-slot="19"><rect x="188.4" y="253" width="12.8" height="8" rx="1"/><text class="kb-label" x="194.8" y="257">L</text></g>
+        <g id="kb-s20" class="kb-key" data-slot="20"><rect x="202.2" y="253" width="12.8" height="8" rx="1"/><text class="kb-label" x="208.6" y="257">Ö</text></g>
+        <g id="kb-s21" class="kb-key" data-slot="21"><rect x="216" y="253" width="12.8" height="8" rx="1"/><text class="kb-label" x="222.4" y="257">Ä</text></g>
       </g>
       <!-- Q…PÅ -->
       <g class="kb-row" fill="#3a4434" stroke="#9a8f78" stroke-width="0.65">
-        <g id="kb-s0" class="kb-key" data-slot="0"><rect x="74" y="252" width="13.2" height="8.2" rx="1"/><text class="kb-label" x="80.6" y="256.1">Q</text></g>
-        <g id="kb-s1" class="kb-key" data-slot="1"><rect x="88.2" y="252" width="13.2" height="8.2" rx="1"/><text class="kb-label" x="94.8" y="256.1">W</text></g>
-        <g id="kb-s2" class="kb-key" data-slot="2"><rect x="102.4" y="252" width="13.2" height="8.2" rx="1"/><text class="kb-label" x="109" y="256.1">E</text></g>
-        <g id="kb-s3" class="kb-key" data-slot="3"><rect x="116.6" y="252" width="13.2" height="8.2" rx="1"/><text class="kb-label" x="123.2" y="256.1">R</text></g>
-        <g id="kb-s4" class="kb-key" data-slot="4"><rect x="130.8" y="252" width="13.2" height="8.2" rx="1"/><text class="kb-label" x="137.4" y="256.1">T</text></g>
-        <g id="kb-s5" class="kb-key" data-slot="5"><rect x="145" y="252" width="13.2" height="8.2" rx="1"/><text class="kb-label" x="151.6" y="256.1">Y</text></g>
-        <g id="kb-s6" class="kb-key" data-slot="6"><rect x="159.2" y="252" width="13.2" height="8.2" rx="1"/><text class="kb-label" x="165.8" y="256.1">U</text></g>
-        <g id="kb-s7" class="kb-key" data-slot="7"><rect x="173.4" y="252" width="13.2" height="8.2" rx="1"/><text class="kb-label" x="180" y="256.1">I</text></g>
-        <g id="kb-s8" class="kb-key" data-slot="8"><rect x="187.6" y="252" width="13.2" height="8.2" rx="1"/><text class="kb-label" x="194.2" y="256.1">O</text></g>
-        <g id="kb-s9" class="kb-key" data-slot="9"><rect x="201.8" y="252" width="13.2" height="8.2" rx="1"/><text class="kb-label" x="208.4" y="256.1">P</text></g>
-        <g id="kb-s10" class="kb-key" data-slot="10"><rect x="216" y="252" width="13.2" height="8.2" rx="1"/><text class="kb-label" x="222.6" y="256.1">Å</text></g>
+        <g id="kb-s0" class="kb-key" data-slot="0"><rect x="68" y="263.5" width="13.5" height="8.2" rx="1"/><text class="kb-label" x="74.75" y="267.6">Q</text></g>
+        <g id="kb-s1" class="kb-key" data-slot="1"><rect x="82.5" y="263.5" width="13.5" height="8.2" rx="1"/><text class="kb-label" x="89.25" y="267.6">W</text></g>
+        <g id="kb-s2" class="kb-key" data-slot="2"><rect x="97" y="263.5" width="13.5" height="8.2" rx="1"/><text class="kb-label" x="103.75" y="267.6">E</text></g>
+        <g id="kb-s3" class="kb-key" data-slot="3"><rect x="111.5" y="263.5" width="13.5" height="8.2" rx="1"/><text class="kb-label" x="118.25" y="267.6">R</text></g>
+        <g id="kb-s4" class="kb-key" data-slot="4"><rect x="126" y="263.5" width="13.5" height="8.2" rx="1"/><text class="kb-label" x="132.75" y="267.6">T</text></g>
+        <g id="kb-s5" class="kb-key" data-slot="5"><rect x="140.5" y="263.5" width="13.5" height="8.2" rx="1"/><text class="kb-label" x="147.25" y="267.6">Y</text></g>
+        <g id="kb-s6" class="kb-key" data-slot="6"><rect x="155" y="263.5" width="13.5" height="8.2" rx="1"/><text class="kb-label" x="161.75" y="267.6">U</text></g>
+        <g id="kb-s7" class="kb-key" data-slot="7"><rect x="169.5" y="263.5" width="13.5" height="8.2" rx="1"/><text class="kb-label" x="176.25" y="267.6">I</text></g>
+        <g id="kb-s8" class="kb-key" data-slot="8"><rect x="184" y="263.5" width="13.5" height="8.2" rx="1"/><text class="kb-label" x="190.75" y="267.6">O</text></g>
+        <g id="kb-s9" class="kb-key" data-slot="9"><rect x="198.5" y="263.5" width="13.5" height="8.2" rx="1"/><text class="kb-label" x="205.25" y="267.6">P</text></g>
+        <g id="kb-s10" class="kb-key" data-slot="10"><rect x="213" y="263.5" width="13.5" height="8.2" rx="1"/><text class="kb-label" x="219.75" y="267.6">Å</text></g>
       </g>
-      <!-- A…LÖÄ -->
-      <g class="kb-row" fill="#323a2e" stroke="#8a8070" stroke-width="0.65">
-        <g id="kb-s11" class="kb-key" data-slot="11"><rect x="78" y="262.2" width="13.6" height="8.4" rx="1"/><text class="kb-label" x="84.8" y="266.4">A</text></g>
-        <g id="kb-s12" class="kb-key" data-slot="12"><rect x="92.6" y="262.2" width="13.6" height="8.4" rx="1"/><text class="kb-label" x="99.4" y="266.4">S</text></g>
-        <g id="kb-s13" class="kb-key" data-slot="13"><rect x="107.2" y="262.2" width="13.6" height="8.4" rx="1"/><text class="kb-label" x="114" y="266.4">D</text></g>
-        <g id="kb-s14" class="kb-key" data-slot="14"><rect x="121.8" y="262.2" width="13.6" height="8.4" rx="1"/><text class="kb-label" x="128.6" y="266.4">F</text></g>
-        <g id="kb-s15" class="kb-key" data-slot="15"><rect x="136.4" y="262.2" width="13.6" height="8.4" rx="1"/><text class="kb-label" x="143.2" y="266.4">G</text></g>
-        <g id="kb-s16" class="kb-key" data-slot="16"><rect x="151" y="262.2" width="13.6" height="8.4" rx="1"/><text class="kb-label" x="157.8" y="266.4">H</text></g>
-        <g id="kb-s17" class="kb-key" data-slot="17"><rect x="165.6" y="262.2" width="13.6" height="8.4" rx="1"/><text class="kb-label" x="172.4" y="266.4">J</text></g>
-        <g id="kb-s18" class="kb-key" data-slot="18"><rect x="180.2" y="262.2" width="13.6" height="8.4" rx="1"/><text class="kb-label" x="187" y="266.4">K</text></g>
-        <g id="kb-s19" class="kb-key" data-slot="19"><rect x="194.8" y="262.2" width="13.6" height="8.4" rx="1"/><text class="kb-label" x="201.6" y="266.4">L</text></g>
-        <g id="kb-s20" class="kb-key" data-slot="20"><rect x="209.4" y="262.2" width="13.6" height="8.4" rx="1"/><text class="kb-label" x="216.2" y="266.4">Ö</text></g>
-        <g id="kb-s21" class="kb-key" data-slot="21"><rect x="224" y="262.2" width="13.6" height="8.4" rx="1"/><text class="kb-label" x="230.8" y="266.4">Ä</text></g>
+      <!-- Near edge (toward viewer): number row fills wide board -->
+      <g class="kb-row kb-num" fill="#2a3228" stroke="#6b7355" stroke-width="0.5">
+        <rect x="56" y="274.5" width="14.2" height="7.2" rx="0.9"/><rect x="71.2" y="274.5" width="14.2" height="7.2" rx="0.9"/>
+        <rect x="86.4" y="274.5" width="14.2" height="7.2" rx="0.9"/><rect x="101.6" y="274.5" width="14.2" height="7.2" rx="0.9"/>
+        <rect x="116.8" y="274.5" width="14.2" height="7.2" rx="0.9"/><rect x="132" y="274.5" width="14.2" height="7.2" rx="0.9"/>
+        <rect x="147.2" y="274.5" width="14.2" height="7.2" rx="0.9"/><rect x="162.4" y="274.5" width="14.2" height="7.2" rx="0.9"/>
+        <rect x="177.6" y="274.5" width="14.2" height="7.2" rx="0.9"/><rect x="192.8" y="274.5" width="14.2" height="7.2" rx="0.9"/>
+        <rect x="208" y="274.5" width="14.2" height="7.2" rx="0.9"/><rect x="223.2" y="274.5" width="14.2" height="7.2" rx="0.9"/>
       </g>
-      <!-- &lt; Z X C V [SPC] B N M — fills near edge -->
-      <g class="kb-row" fill="#2e362a" stroke="#6b7355" stroke-width="0.6">
-        <rect class="kb-deco" x="52" y="272.8" width="10" height="8.6" rx="1" fill="#252a22"/>
-        <g id="kb-s22" class="kb-key" data-slot="22"><rect x="63.5" y="272.8" width="13.8" height="8.6" rx="1"/><text class="kb-label" x="70.4" y="277.1">Z</text></g>
-        <g id="kb-s23" class="kb-key" data-slot="23"><rect x="78.3" y="272.8" width="13.8" height="8.6" rx="1"/><text class="kb-label" x="85.2" y="277.1">X</text></g>
-        <g id="kb-s24" class="kb-key" data-slot="24"><rect x="93.1" y="272.8" width="13.8" height="8.6" rx="1"/><text class="kb-label" x="100" y="277.1">C</text></g>
-        <g id="kb-s25" class="kb-key" data-slot="25"><rect x="107.9" y="272.8" width="13.8" height="8.6" rx="1"/><text class="kb-label" x="114.8" y="277.1">V</text></g>
-        <g id="kb-s26" class="kb-key" data-slot="26"><rect x="122.7" y="272.8" width="58" height="8.6" rx="1"/><text class="kb-label" x="151.7" y="277.1" font-size="3.9">SPC</text></g>
-        <g id="kb-s27" class="kb-key" data-slot="27"><rect x="181.7" y="272.8" width="13.8" height="8.6" rx="1"/><text class="kb-label" x="188.6" y="277.1">B</text></g>
-        <g id="kb-s28" class="kb-key" data-slot="28"><rect x="196.5" y="272.8" width="13.8" height="8.6" rx="1"/><text class="kb-label" x="203.4" y="277.1">N</text></g>
-        <g id="kb-s29" class="kb-key" data-slot="29"><rect x="211.3" y="272.8" width="13.8" height="8.6" rx="1"/><text class="kb-label" x="218.2" y="277.1">M</text></g>
-        <rect class="kb-deco" x="226.1" y="272.8" width="20" height="8.6" rx="1" fill="#252a22"/>
+      <g class="kb-labels-num" fill="#6b7355" font-family="ui-monospace, Consolas, monospace" font-size="4.6" text-anchor="middle" dominant-baseline="central">
+        <text x="63.1" y="278.1">1</text><text x="78.3" y="278.1">2</text><text x="93.5" y="278.1">3</text>
+        <text x="108.7" y="278.1">4</text><text x="123.9" y="278.1">5</text><text x="139.1" y="278.1">6</text>
+        <text x="154.3" y="278.1">7</text><text x="169.5" y="278.1">8</text><text x="184.7" y="278.1">9</text>
+        <text x="199.9" y="278.1">0</text><text x="215.1" y="278.1">+</text><text x="230.3" y="278.1">´</text>
       </g>
-      <text class="kb-deco-label" x="57" y="277.1" fill="#6b7355" font-family="ui-monospace, Consolas, monospace" font-size="4" text-anchor="middle" dominant-baseline="central">&lt;</text>
-      <text class="kb-deco-label" x="236.1" y="277.1" fill="#6b7355" font-family="ui-monospace, Consolas, monospace" font-size="3.6" text-anchor="middle" dominant-baseline="central">↵</text>
-      <path d="M56 285.5 L244 285.5" stroke="#c7923a" stroke-width="2" opacity="0.55"/>
+      <path d="M60 283.5 L240 283.5" stroke="#c7923a" stroke-width="2" opacity="0.55"/>
     </g>
 
-    <!-- ONE mouse — amber LMB / RMB pads (press → dark via CSS) -->
+    <!-- Mouse with scroll wheel + LMB/RMB pads -->
     <g id="prop-mouse">
       <path d="M298 248 Q313 243 328 250 L327 270 Q313 277 299 270 Z" fill="#161a14" stroke="#9a8f78" stroke-width="1.2"/>
-      <path id="mouse-lmb" class="mouse-btn mouse-lmb" d="M301 250 Q307 247 313 249 L313 268 Q307 271 301 268 Z" fill="#1a1c16"/>
-      <path id="mouse-rmb" class="mouse-btn mouse-rmb" d="M313 249 Q319 247 325 251 L325 269 Q319 272 313 268 Z" fill="#1a1c16"/>
-      <path d="M313 248 V269" stroke="#1a1c16" stroke-width="1.4"/>
-      <ellipse cx="313" cy="258" rx="2.2" ry="4" fill="#2a2e24" stroke="#6b7355" stroke-width="0.7"/>
+      <path id="mouse-lmb" class="mouse-btn mouse-lmb" d="M301 250 Q307 247 312.2 249 L312.2 262 Q307 264 301 262 Z" fill="#1a1c16"/>
+      <path id="mouse-rmb" class="mouse-btn mouse-rmb" d="M313.8 249 Q319 247 325 251 L325 263 Q319 265 313.8 262 Z" fill="#1a1c16"/>
+      <g id="mouse-wheel" transform-origin="313px 256px">
+        <ellipse cx="313" cy="256" rx="2.4" ry="4.2" fill="#2a2e24" stroke="#9a8f78" stroke-width="0.7"/>
+        <path d="M313 252.2 V259.8" stroke="#c4b59a" stroke-width="0.7" opacity="0.85"/>
+        <path d="M311.2 256 H314.8" stroke="#6b7355" stroke-width="0.55" opacity="0.8"/>
+      </g>
     </g>
 
     <!-- Left hand ON KEYBOARD -->

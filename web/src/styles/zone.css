@@ -561,6 +561,27 @@ body.scene-opaque {
   animation: click-r 130ms ease-out 1;
 }
 
+/* Scroll wheel pulse — LMB/RMB held poses still override via higher specificity */
+.avatar-root[data-wheel="up"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right,
+.avatar-root[data-wheel="down"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right {
+  animation: none;
+  transform: translate(1px, 10px) rotate(-1deg);
+  transition: transform 70ms ease-out;
+}
+
+.avatar-root[data-wheel="up"] #mouse-wheel {
+  animation: wheel-spin-up 220ms ease-out 1;
+}
+
+.avatar-root[data-wheel="down"] #mouse-wheel {
+  animation: wheel-spin-down 220ms ease-out 1;
+}
+
+#mouse-wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 /* Occasional flavor beats — cough / shoulder roll / eq blink */
 .avatar-root[data-cough="1"] #layer-head {
   animation: cough-head 560ms cubic-bezier(0.33, 0, 0.2, 1) 1;
@@ -874,6 +895,24 @@ body.scene-opaque {
   }
 }
 
+@keyframes wheel-spin-up {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-55deg);
+  }
+}
+
+@keyframes wheel-spin-down {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(55deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #layer-torso,
   #layer-head,
@@ -884,6 +923,8 @@ body.scene-opaque {
   .avatar-root[data-key="1"][data-key-pulse="1"] #hand-left,
   .avatar-root[data-mouse-l="1"] #hand-right,
   .avatar-root[data-mouse-r="1"] #hand-right,
+  .avatar-root[data-wheel="up"] #mouse-wheel,
+  .avatar-root[data-wheel="down"] #mouse-wheel,
   .avatar-root[data-cough="1"] #layer-head,
   .avatar-root[data-cough="1"] #layer-torso,
   .avatar-root[data-roll="1"] #shoulder-left,
