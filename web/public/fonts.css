@@ -1,4 +1,20 @@
-/* Self-contained fallbacks; Google Fonts linked from pages when online. */
+/* Self-hosted Bender (Jovanny Lemonad) — SIL OFL 1.1; see fonts/BENDER-LICENSE.txt */
+@font-face {
+  font-family: "Bender";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/Bender.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Bender";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/Bender-Bold.otf") format("opentype");
+}
+
 @font-face {
   font-family: "Zone Display";
   font-style: normal;
