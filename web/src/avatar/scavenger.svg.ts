@@ -179,22 +179,22 @@ export const scavengerSvg = `
       <circle class="eq-light" cx="362" cy="268" r="4" fill="#c7923a" opacity="0.35"/>
     </g>
 
-    <!-- Left hand: typing on keyboard only (finger shapes, not a mouse blob) -->
+    <!-- Left hand: forearm + fingers on keyboard keys only (no oval mouse-like prop) -->
     <g id="hand-left">
-      <path d="M72 238 Q78 232 92 236 L98 248 Q88 254 76 250 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.2"/>
-      <path d="M96 236 L100 258" stroke="#4a463c" stroke-width="7" stroke-linecap="round"/>
-      <path d="M110 234 L114 260" stroke="#4a463c" stroke-width="7" stroke-linecap="round"/>
-      <path d="M124 236 L126 258" stroke="#4a463c" stroke-width="7" stroke-linecap="round"/>
-      <path d="M136 238 L138 256" stroke="#4a463c" stroke-width="6.5" stroke-linecap="round"/>
-      <path d="M100 258 L114 260 L126 258 L138 256" fill="none" stroke="#2a261c" stroke-width="1.2"/>
-      <ellipse cx="82" cy="242" rx="6" ry="5" fill="#3a3630"/>
+      <path d="M58 230 L78 238 L92 242 L88 252 L68 246 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.1"/>
+      <path d="M92 240 L102 259" stroke="#4a463c" stroke-width="6.5" stroke-linecap="round"/>
+      <path d="M104 238 L114 261" stroke="#4a463c" stroke-width="6.5" stroke-linecap="round"/>
+      <path d="M116 239 L124 260" stroke="#4a463c" stroke-width="6.2" stroke-linecap="round"/>
+      <path d="M128 241 L134 258" stroke="#4a463c" stroke-width="5.8" stroke-linecap="round"/>
+      <path d="M88 242 L98 238" stroke="#3a3630" stroke-width="3.5" stroke-linecap="round"/>
     </g>
 
     <!-- Right hand resting on the single mouse -->
     <g id="hand-right">
-      <path d="M288 240 Q300 232 318 242 L320 258 Q304 266 286 256 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.2"/>
-      <path d="M298 240 L300 258 M308 238 L310 260 M316 242 L318 256" stroke="#2a261c" stroke-width="2.2" stroke-linecap="round"/>
-      <ellipse cx="292" cy="246" rx="6" ry="5" fill="#3a3630"/>
+      <path d="M290 236 L308 234 L322 244 L318 258 L296 254 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.1"/>
+      <path d="M300 238 L302 256" stroke="#2a261c" stroke-width="2" stroke-linecap="round"/>
+      <path d="M310 236 L312 258" stroke="#2a261c" stroke-width="2" stroke-linecap="round"/>
+      <path d="M318 242 L318 254" stroke="#2a261c" stroke-width="1.8" stroke-linecap="round"/>
     </g>
   </g>
   </g>
