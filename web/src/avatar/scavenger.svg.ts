@@ -9,19 +9,19 @@ export const scavengerSvg = `
 <svg viewBox="0 0 1200 1020" width="1200" height="1020" xmlns="http://www.w3.org/2000/svg" aria-label="Zone scavenger avatar" role="img" shape-rendering="geometricPrecision">
   <g id="avatar-draw" transform="scale(3)">
   <defs>
-    <!-- Charcoal/black plate — tracksuit energy, not olive-dominant -->
+    <!-- Near-black plate / tracksuit — no green channel bias -->
     <linearGradient id="armorOlive" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2a2a2a"/>
-      <stop offset="45%" stop-color="#161616"/>
-      <stop offset="100%" stop-color="#0a0a0a"/>
+      <stop offset="0%" stop-color="#222222"/>
+      <stop offset="50%" stop-color="#121212"/>
+      <stop offset="100%" stop-color="#070707"/>
     </linearGradient>
     <linearGradient id="suitDark" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#1a1a1a"/>
-      <stop offset="100%" stop-color="#080808"/>
+      <stop offset="0%" stop-color="#151515"/>
+      <stop offset="100%" stop-color="#050505"/>
     </linearGradient>
     <linearGradient id="pouchGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2c2c2c"/>
-      <stop offset="100%" stop-color="#121212"/>
+      <stop offset="0%" stop-color="#262626"/>
+      <stop offset="100%" stop-color="#0e0e0e"/>
     </linearGradient>
     <linearGradient id="helmDark" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#3a4034"/>
@@ -53,42 +53,42 @@ export const scavengerSvg = `
       <path d="M70 288 H330" stroke="#3a342c" stroke-width="6" opacity="0.55"/>
     </g>
 
-    <!-- TORSO: imposing fat armored mass -->
+    <!-- TORSO: near-black tracksuit + charcoal vest (no olive on body) -->
     <g id="layer-torso">
-      <path d="M78 148 L118 132 L200 124 L282 132 L322 148 L338 236 L62 236 Z" fill="url(#suitDark)" stroke="#0e100c" stroke-width="1.5"/>
-      <path d="M95 165 Q52 200 88 238" fill="none" stroke="#1a1e18" stroke-width="42" stroke-linecap="round"/>
+      <path d="M78 148 L118 132 L200 124 L282 132 L322 148 L338 236 L62 236 Z" fill="url(#suitDark)" stroke="#050505" stroke-width="1.5"/>
+      <path d="M95 165 Q52 200 88 238" fill="none" stroke="#111111" stroke-width="42" stroke-linecap="round"/>
       <!-- Right arm ends ABOVE the hand — no round desk blob that reads as a 2nd mouse -->
-      <path d="M305 165 Q328 192 314 222" fill="none" stroke="#1a1e18" stroke-width="34" stroke-linecap="butt"/>
-      <path d="M95 165 Q52 200 88 238" fill="none" stroke="#2a2e28" stroke-width="32" stroke-linecap="round"/>
-      <path d="M305 165 Q328 192 314 222" fill="none" stroke="#2a2e28" stroke-width="26" stroke-linecap="butt"/>
+      <path d="M305 165 Q328 192 314 222" fill="none" stroke="#111111" stroke-width="34" stroke-linecap="butt"/>
+      <path d="M95 165 Q52 200 88 238" fill="none" stroke="#1c1c1c" stroke-width="32" stroke-linecap="round"/>
+      <path d="M305 165 Q328 192 314 222" fill="none" stroke="#1c1c1c" stroke-width="26" stroke-linecap="butt"/>
       <path d="M64 185 Q50 210 74 232" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
       <path d="M74 183 Q60 210 84 230" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
       <path d="M84 185 Q72 210 94 228" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
       <path d="M328 185 Q334 200 320 216" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
       <path d="M320 183 Q326 200 314 216" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
       <path d="M312 185 Q318 200 308 216" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
-      <path d="M70 218 Q82 230 94 236" fill="none" stroke="#3a4034" stroke-width="14" stroke-linecap="round"/>
-      <path d="M318 212 Q314 222 310 230" fill="none" stroke="#3a4034" stroke-width="11" stroke-linecap="butt"/>
-      <!-- Slim charcoal vest over black tracksuit (vibe only — no logos) -->
-      <path d="M108 146 L132 134 L200 128 L268 134 L292 146 L300 220 L100 220 Z" fill="url(#armorOlive)" stroke="#0a0c0a" stroke-width="1.4"/>
-      <path d="M158 132 Q200 144 242 132 L238 152 Q200 160 162 152 Z" fill="#242824" stroke="#0a0c0a" stroke-width="1"/>
+      <path d="M70 218 Q82 230 94 236" fill="none" stroke="#2a2a2a" stroke-width="14" stroke-linecap="round"/>
+      <path d="M318 212 Q314 222 310 230" fill="none" stroke="#2a2a2a" stroke-width="11" stroke-linecap="butt"/>
+      <!-- Slim near-black vest (vibe only — no logos) -->
+      <path d="M108 146 L132 134 L200 128 L268 134 L292 146 L300 220 L100 220 Z" fill="url(#armorOlive)" stroke="#050505" stroke-width="1.4"/>
+      <path d="M158 132 Q200 144 242 132 L238 152 Q200 160 162 152 Z" fill="#1a1a1a" stroke="#050505" stroke-width="1"/>
       <g id="shoulder-left" class="shoulder">
-        <rect x="72" y="142" width="58" height="32" rx="7" fill="#1e221e" stroke="#0a0c0a" stroke-width="1.2"/>
-        <rect x="78" y="150" width="46" height="8" rx="1.5" fill="#121412" opacity="0.55"/>
+        <rect x="72" y="142" width="58" height="32" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
+        <rect x="78" y="150" width="46" height="8" rx="1.5" fill="#0a0a0a" opacity="0.65"/>
       </g>
       <g id="shoulder-right" class="shoulder">
-        <rect x="270" y="142" width="58" height="32" rx="7" fill="#1e221e" stroke="#0a0c0a" stroke-width="1.2"/>
-        <rect x="276" y="150" width="46" height="8" rx="1.5" fill="#121412" opacity="0.55"/>
+        <rect x="270" y="142" width="58" height="32" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
+        <rect x="276" y="150" width="46" height="8" rx="1.5" fill="#0a0a0a" opacity="0.65"/>
       </g>
-      <!-- Slim pouches — less intrusive chest mass -->
+      <!-- Slim pouches -->
       <g id="chest-rig">
-        <rect x="132" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="0.9"/>
-        <rect x="154" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="0.9"/>
-        <rect x="230" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="0.9"/>
-        <rect x="252" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#0a0a0a" stroke-width="0.9"/>
-        <path d="M135 181 H145 M157 181 H167 M233 181 H243 M255 181 H265" stroke="#3a3a3a" stroke-width="1.1"/>
+        <rect x="132" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#050505" stroke-width="0.9"/>
+        <rect x="154" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#050505" stroke-width="0.9"/>
+        <rect x="230" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#050505" stroke-width="0.9"/>
+        <rect x="252" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#050505" stroke-width="0.9"/>
+        <path d="M135 181 H145 M157 181 H167 M233 181 H243 M255 181 H265" stroke="#333333" stroke-width="1.1"/>
       </g>
-      <rect x="110" y="218" width="180" height="10" rx="1.5" fill="#121412" stroke="#2a2e28"/>
+      <rect x="110" y="218" width="180" height="10" rx="1.5" fill="#0c0c0c" stroke="#222222"/>
     </g>
 
     <!-- HEAD -->
