@@ -244,32 +244,6 @@ export const scavengerSvg = `
         <ellipse class="desk-led-glow-b" cx="160" cy="296" rx="55" ry="3.2" fill="#6b7355" opacity="0.1"/>
       </g>
       <path d="M52 316 V340 H78 V316 M322 316 V340 H348 V316" fill="#0c0e0c" stroke="#2a2e28"/>
-      <!-- Zone Ops floor clutter — worn pizza boxes tucked under apron / floor -->
-      <g id="floor-clutter">
-        <g id="pizza-box-1" transform="translate(72 304) rotate(-7)">
-          <rect x="0" y="0" width="56" height="40" rx="1.2" fill="#c4b896" stroke="#5a5348" stroke-width="1"/>
-          <rect x="2" y="2" width="52" height="36" rx="0.8" fill="#a89870" opacity="0.55"/>
-          <path d="M4 8 H52 M8 4 V36" stroke="#6b7355" stroke-width="0.5" opacity="0.35"/>
-          <text x="28" y="23" text-anchor="middle" fill="#3a3228" font-family="Arial Black, Impact, sans-serif" font-size="7" opacity="0.58" letter-spacing="0.8">ZONE</text>
-          <path d="M6 32 L20 36 M42 6 L52 16" stroke="#2a2a2a" stroke-width="0.6" opacity="0.42"/>
-          <path d="M12 10 L24 8" stroke="#efe6d2" stroke-width="0.45" opacity="0.28"/>
-        </g>
-        <g id="pizza-box-2" transform="translate(118 314) rotate(9)">
-          <rect x="0" y="0" width="50" height="36" rx="1" fill="#b8a882" stroke="#4a4438" stroke-width="0.9"/>
-          <rect x="1.5" y="1.5" width="47" height="33" rx="0.6" fill="#9a8a62" opacity="0.5"/>
-          <text x="25" y="21" text-anchor="middle" fill="#2a2418" font-family="Arial Black, Impact, sans-serif" font-size="6.2" opacity="0.52" letter-spacing="0.6">OPS</text>
-          <path d="M4 30 Q16 34 26 30 Q36 26 46 32" stroke="#3a3228" stroke-width="0.75" opacity="0.45"/>
-          <path d="M8 6 L18 14" stroke="#1a1a1a" stroke-width="0.55" opacity="0.35"/>
-        </g>
-        <g id="pizza-box-3" transform="translate(286 308) rotate(5)">
-          <rect x="0" y="0" width="54" height="38" rx="1.1" fill="#cfc3a0" stroke="#5a5348" stroke-width="0.95"/>
-          <rect x="2" y="2" width="50" height="34" rx="0.7" fill="#b0a078" opacity="0.5"/>
-          <circle cx="27" cy="19" r="10" fill="none" stroke="#6b7355" stroke-width="0.7" opacity="0.42"/>
-          <text x="27" y="21" text-anchor="middle" fill="#3a3228" font-family="Arial Black, Impact, sans-serif" font-size="5.6" opacity="0.48">12"</text>
-          <path d="M5 8 L16 5 M40 30 L50 34" stroke="#2a2a2a" stroke-width="0.55" opacity="0.4"/>
-          <path d="M10 32 L30 35" stroke="#8a7a58" stroke-width="1.2" opacity="0.38"/>
-        </g>
-      </g>
       <path d="M28 258 H372" stroke="#6b7355" stroke-width="1.05" opacity="0.35"/>
       <g id="desk-grain" fill="none" stroke-linecap="butt" opacity="0.32">
         <path d="M36 262 H368" stroke="#0e100e" stroke-width="0.55"/>

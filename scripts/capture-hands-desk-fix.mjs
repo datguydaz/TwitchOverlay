@@ -182,11 +182,11 @@ const meta = await page.evaluate(() => {
         right.includes("268")
       );
     })(),
-    hasPizzaBoxes:
-      !!document.querySelector("#floor-clutter") &&
-      !!document.querySelector("#pizza-box-1") &&
-      !!document.querySelector("#pizza-box-2") &&
-      !!document.querySelector("#pizza-box-3"),
+    noPizzaBoxes:
+      !document.querySelector("#floor-clutter") &&
+      !document.querySelector("#pizza-box-1") &&
+      !document.querySelector("#pizza-box-2") &&
+      !document.querySelector("#pizza-box-3"),
     farReachCss: (() => {
       const t = getComputedStyle(document.querySelector("#hand-left-aim") || document.body).transitionProperty;
       return String(t).includes("transform") || t === "all";
@@ -332,7 +332,7 @@ const pass =
   meta.fullStripes &&
   meta.straightArms &&
   meta.vestRootedShort &&
-  meta.hasPizzaBoxes &&
+  meta.noPizzaBoxes &&
   meta.skinHands &&
   meta.keyAim?.ok &&
   meta.mousePress?.ok;
@@ -356,7 +356,7 @@ console.log(
     fullStripes: meta.fullStripes,
     straightArms: meta.straightArms,
     vestRootedShort: meta.vestRootedShort,
-    hasPizzaBoxes: meta.hasPizzaBoxes,
+    noPizzaBoxes: meta.noPizzaBoxes,
     keyAim: meta.keyAim,
     mousePress: meta.mousePress,
     hasDeskRgb: meta.hasDeskRgb,
