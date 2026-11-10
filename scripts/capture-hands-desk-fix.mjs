@@ -213,9 +213,9 @@ const files = [];
 files.push(
   await shot("full-sit", {
     x: box.x,
-    y: box.y + box.height * 0.04,
+    y: box.y + box.height * 0.02,
     width: box.width,
-    height: box.height * 0.94,
+    height: box.height * 0.98,
   }),
 );
 files.push(
