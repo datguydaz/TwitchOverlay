@@ -102,12 +102,17 @@ export const scavengerSvg = `
       <circle cx="134" cy="124" r="7" fill="#121410" stroke="#5a5348"/>
       <circle cx="266" cy="124" r="7" fill="#121410" stroke="#5a5348"/>
       <rect x="144" y="88" width="112" height="92" rx="10" fill="url(#plateMetal)" stroke="#0a0c08" stroke-width="2.2"/>
-      <rect x="156" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
-      <rect x="174" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
-      <rect x="215" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
-      <rect x="233" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
-      <rect x="162" y="124" width="76" height="10" rx="2" fill="#0a0c08"/>
-      <rect id="visor-glow" class="eq-blink" x="168" y="126" width="64" height="5" rx="1" fill="#2e3824" opacity="0.9"/>
+      <!-- Cream bars split around the slit so no warm fringe reads as a gold brow -->
+      <rect x="156" y="94" width="11" height="28" rx="1.5" fill="#efe6d2"/>
+      <rect x="174" y="94" width="11" height="28" rx="1.5" fill="#efe6d2"/>
+      <rect x="215" y="94" width="11" height="28" rx="1.5" fill="#efe6d2"/>
+      <rect x="233" y="94" width="11" height="28" rx="1.5" fill="#efe6d2"/>
+      <rect x="156" y="136" width="11" height="38" rx="1.5" fill="#efe6d2"/>
+      <rect x="174" y="136" width="11" height="38" rx="1.5" fill="#efe6d2"/>
+      <rect x="215" y="136" width="11" height="38" rx="1.5" fill="#efe6d2"/>
+      <rect x="233" y="136" width="11" height="38" rx="1.5" fill="#efe6d2"/>
+      <rect x="162" y="122" width="76" height="14" rx="2" fill="#0a0c08"/>
+      <rect id="visor-glow" class="eq-blink" x="168" y="125" width="64" height="8" rx="1" fill="#243020" opacity="0.92"/>
       <ellipse cx="200" cy="168" rx="16" ry="10" fill="#1a1c16" stroke="#3a3830" stroke-width="1.2"/>
       <circle cx="200" cy="168" r="4" fill="#0a0c08"/>
     </g>
