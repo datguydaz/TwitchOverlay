@@ -84,6 +84,29 @@ In `npm run dev`, replace port **8787** with **5173**.
 
 **Do not** add `dashboard.html` as an OBS browser source — controls stay off-stream.
 
+### Streamlabs / OBS input not animating
+
+Keyboard/mouse reactions come from the **Windows companion**, not from the browser source having focus.
+
+1. Server: `npm run preview` → `http://127.0.0.1:8787`
+2. Companion (separate terminal): `cd companion && npm install && npm start` — must say `uIOhook started` and `Connected`
+3. Browser source URL must be **`http://127.0.0.1:8787/avatar.html`** (or gameplay) — prefer `127.0.0.1`, not a LAN IP
+4. Dashboard → status should show **Companion: CONNECTED** and **Last input** updating when you click/type anywhere
+5. Refresh the Streamlabs browser source after restarting the server (token/WS)
+
+The companion keeps hooks alive across WS reconnects so focusing Streamlabs or a game does not kill capture.
+
+### Mic reaction (levels only)
+
+1. Open dashboard → **Mic reaction** → enable → allow browser mic permission
+2. Keep the dashboard open (or the page that owns the mic stream) while live
+3. Talking drives mouth/filter vent + subtle torso lean on overlays
+4. **Nothing is recorded** — only a 0–1 level crosses the localhost WebSocket
+
+### Chat persona
+
+Dashboard **Chat persona**: send a line or sample. Avatar shows a short Zone Ops bubble. Optional auto demo lines. Twitch chat hook is modular/future — not fake-connected.
+
 ### Ultrawide / Streamlabs letterbox (3440×1440)
 
 When the canvas is ultrawide and 16:9 gameplay sits in the middle, use Zone Ops bars instead of empty black.

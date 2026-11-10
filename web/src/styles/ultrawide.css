@@ -46,21 +46,22 @@
   bottom: 0;
 }
 
-/* Inner-edge hazard energy rail (faces the 16:9 hole) */
+/* Inner-edge divider — thin olive/amber hint, not loud hazard tape */
 .uw-hazard-rail {
   position: relative;
-  flex: 0 0 calc(var(--uw-bar-h) * 0.12);
-  min-height: 10px;
-  max-height: 22px;
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--amber, #c7923a) 0 9px,
-    #121410 9px 18px
+  flex: 0 0 4px;
+  min-height: 3px;
+  max-height: 5px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(107, 115, 85, 0.55) 12%,
+    rgba(199, 146, 58, 0.35) 50%,
+    rgba(107, 115, 85, 0.55) 88%,
+    transparent 100%
   );
-  opacity: 0.92;
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.55),
-    0 0 18px rgba(199, 146, 58, 0.18);
+  opacity: 0.8;
+  box-shadow: none;
 }
 
 .uw-bar-top .uw-hazard-rail {

@@ -59,6 +59,7 @@ function saveSettings(settings: OverlaySettings): void {
 const localToken = loadOrCreateToken();
 let settings = loadSettings();
 let capturePaused = false;
+let lastInputAt: number | null = null;
 
 interface SockMeta {
   role: ClientRole | null;
@@ -90,6 +91,11 @@ app.get("/api/health", (_req, res) => {
     bind: "127.0.0.1",
     capturePaused,
     companionConnected,
+    lastInputAt,
+    overlayClients: wss
+      ? [...wss.clients].filter((c) => meta.get(c)?.role === "overlay" && meta.get(c)?.authed)
+          .length
+      : 0,
   });
 });
 
@@ -189,6 +195,7 @@ function statusPayload(): ServerToClientMessage {
     capturePaused,
     companionConnected,
     overlayClients,
+    lastInputAt,
     demoModeHint:
       "Demo mode is dashboard-local only and never reports as a live companion connection.",
   };
@@ -201,8 +208,10 @@ function broadcastStatus(): void {
 wss.on("connection", (ws, req) => {
   meta.set(ws, { role: null, authed: false });
 
+  // Streamlabs/OBS CEF often omits Origin or sends null — allow empty.
+  // Only block clearly non-loopback Origins.
   const origin = req.headers.origin || "";
-  if (origin && !LOCAL_ORIGIN_RE.test(origin)) {
+  if (origin && origin !== "null" && !LOCAL_ORIGIN_RE.test(origin)) {
     send(ws, {
       type: "error",
       code: "origin_blocked",
@@ -212,7 +221,7 @@ wss.on("connection", (ws, req) => {
     return;
   }
 
-  // Companion / test clients may omit Origin; require hello token either way.
+  // Companion / Streamlabs overlays / test clients: hello + token required.
   ws.on("message", (raw) => {
     let msg: ClientToServerMessage;
     try {
@@ -270,6 +279,7 @@ wss.on("connection", (ws, req) => {
           break;
         }
         if (capturePaused) break;
+        lastInputAt = Date.now();
         const forward: InputMessage = {
           type: "input",
           kind: msg.kind,
@@ -281,6 +291,48 @@ wss.on("connection", (ws, req) => {
           const r = meta.get(c)?.role;
           return r === "overlay" || r === "dashboard";
         });
+        break;
+      }
+      case "mic": {
+        // Levels only — dashboard (Web Audio) or companion may publish.
+        if (
+          state.role !== "dashboard" &&
+          state.role !== "companion" &&
+          state.role !== "test"
+        ) {
+          send(ws, {
+            type: "error",
+            code: "role",
+            message: "Only dashboard/companion/test may send mic levels",
+          });
+          break;
+        }
+        const level = Math.max(0, Math.min(1, Number(msg.level) || 0));
+        broadcast(
+          { type: "mic", level, talking: !!msg.talking },
+          (c) => meta.get(c)?.role === "overlay" || meta.get(c)?.role === "dashboard",
+        );
+        break;
+      }
+      case "chat-line": {
+        if (state.role !== "dashboard" && state.role !== "test") {
+          send(ws, {
+            type: "error",
+            code: "role",
+            message: "Only dashboard/test may send chat lines",
+          });
+          break;
+        }
+        const text = String(msg.text || "").trim().slice(0, 160);
+        if (!text) break;
+        broadcast(
+          {
+            type: "chat-line",
+            text,
+            from: msg.from === "demo" ? "demo" : "dashboard",
+          },
+          (c) => meta.get(c)?.role === "overlay" || meta.get(c)?.role === "dashboard",
+        );
         break;
       }
       default: {

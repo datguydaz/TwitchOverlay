@@ -6,6 +6,7 @@ import {
   saveSettings,
 } from "../lib/settingsClient.ts";
 import { applyDemoInput } from "../lib/inputClient.ts";
+import { MicCapture } from "../lib/micCapture.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 import type { StatusMessage } from "../../../shared/protocol.ts";
 
@@ -15,6 +16,8 @@ let demoOn = false;
 let holdTimer: number | null = null;
 let dashWs: WebSocket | null = null;
 let token = "";
+let mic: MicCapture | null = null;
+let lastInputAt: number | null = null;
 
 function toast(msg: string): void {
   const el = document.getElementById("toast");
@@ -46,6 +49,10 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("intensity") as HTMLInputElement).value = String(s.avatar.intensity);
   (document.getElementById("lightsEnabled") as HTMLInputElement).checked =
     s.avatar.lightsEnabled;
+  (document.getElementById("micEnabled") as HTMLInputElement).checked = s.mic.enabled;
+  (document.getElementById("micThreshold") as HTMLInputElement).value = String(s.mic.threshold);
+  (document.getElementById("chatEnabled") as HTMLInputElement).checked = s.chat.enabled;
+  (document.getElementById("chatDemoAuto") as HTMLInputElement).checked = s.chat.demoAuto;
 
   (document.getElementById("uwCanvasWidth") as HTMLInputElement).value = String(
     s.ultrawide.canvasWidth,
@@ -103,6 +110,12 @@ function readForm(): OverlaySettings {
   next.avatar.lightsEnabled = (
     document.getElementById("lightsEnabled") as HTMLInputElement
   ).checked;
+  next.mic.enabled = (document.getElementById("micEnabled") as HTMLInputElement).checked;
+  next.mic.threshold = Number(
+    (document.getElementById("micThreshold") as HTMLInputElement).value,
+  );
+  next.chat.enabled = (document.getElementById("chatEnabled") as HTMLInputElement).checked;
+  next.chat.demoAuto = (document.getElementById("chatDemoAuto") as HTMLInputElement).checked;
 
   next.ultrawide.canvasWidth = Number(
     (document.getElementById("uwCanvasWidth") as HTMLInputElement).value,
@@ -155,10 +168,52 @@ function showSample(kind: string): void {
   window.setTimeout(() => card.remove(), 5000);
 }
 
+function formatLastInput(ts: number | null): string {
+  if (!ts) return "—";
+  const ago = Math.max(0, Math.round((Date.now() - ts) / 1000));
+  if (ago < 2) return "just now";
+  if (ago < 60) return `${ago}s ago`;
+  return `${Math.floor(ago / 60)}m ago`;
+}
+
 function updateStatus(msg: StatusMessage): void {
   const el = document.getElementById("conn-status");
   if (!el) return;
-  el.textContent = `Companion: ${msg.companionConnected ? "connected" : "not connected"} · Capture: ${msg.capturePaused ? "PAUSED" : "active"} · Overlays: ${msg.overlayClients}${demoOn ? " · DEMO PREVIEW ON (not live)" : ""}`;
+  el.textContent = `Companion: ${msg.companionConnected ? "CONNECTED" : "not connected"} · Capture: ${msg.capturePaused ? "PAUSED" : "active"} · Overlays: ${msg.overlayClients}${demoOn ? " · DEMO PREVIEW ON (not live)" : ""}`;
+  if (msg.lastInputAt) lastInputAt = msg.lastInputAt;
+  const li = document.getElementById("last-input");
+  if (li) li.textContent = `Last input: ${formatLastInput(lastInputAt)}`;
+}
+
+async function syncMicCapture(): Promise<void> {
+  const enabled = (document.getElementById("micEnabled") as HTMLInputElement).checked;
+  const threshold = Number(
+    (document.getElementById("micThreshold") as HTMLInputElement).value,
+  );
+  if (!enabled) {
+    await mic?.stop();
+    mic = null;
+    const el = document.getElementById("mic-level");
+    if (el) el.textContent = "Mic level: off";
+    return;
+  }
+  if (!mic) {
+    mic = new MicCapture({
+      threshold,
+      onLevel: (level, talking) => {
+        const el = document.getElementById("mic-level");
+        if (el) {
+          el.textContent = `Mic level: ${level.toFixed(2)}${talking ? " · TALKING" : ""}`;
+        }
+        avatar.setMicLevel(level, talking);
+        dashWs?.send(JSON.stringify({ type: "mic", level, talking }));
+      },
+      onError: (message) => toast(`Mic: ${message}`),
+    });
+    await mic.start();
+  } else {
+    mic.setThreshold(threshold);
+  }
 }
 
 async function connectDashWs(): Promise<void> {
@@ -184,11 +239,18 @@ async function connectDashWs(): Promise<void> {
       if (msg.type === "status") {
         updateStatus(msg as StatusMessage);
       } else if (msg.type === "input" && !demoOn && msg.kind && msg.phase != null && msg.held != null) {
+        lastInputAt = Date.now();
+        const li = document.getElementById("last-input");
+        if (li) li.textContent = `Last input: just now (${msg.kind})`;
         avatar.setSource("live");
         avatar.handleInput(msg.kind, msg.phase, msg.held);
+      } else if (msg.type === "mic") {
+        /* dashboard is the publisher; ignore echo */
+      } else if (msg.type === "chat-line" && typeof msg.text === "string") {
+        avatar.say(msg.text);
       } else if (msg.type === "reset-idle") {
         avatar.resetIdle("server");
-      } else       if (msg.type === "settings-updated") {
+      } else if (msg.type === "settings-updated") {
         void fetchSettings().then((s) => {
           settings = s;
           fillForm(s);
@@ -222,6 +284,7 @@ async function main(): Promise<void> {
     intensity: settings.avatar.intensity,
     lightsEnabled: settings.avatar.lightsEnabled,
     streamerName: settings.streamerName,
+    chatEnabled: settings.chat.enabled,
   });
 
   document.getElementById("btn-save")?.addEventListener("click", async () => {
@@ -230,6 +293,8 @@ async function main(): Promise<void> {
     avatar.setIntensity(settings.avatar.intensity);
     avatar.setLightsEnabled(settings.avatar.lightsEnabled);
     avatar.setStreamerName(settings.streamerName);
+    avatar.setChatEnabled(settings.chat.enabled);
+    await syncMicCapture();
     toast("Settings saved");
   });
 
@@ -240,7 +305,37 @@ async function main(): Promise<void> {
     avatar.setIntensity(settings.avatar.intensity);
     avatar.setLightsEnabled(settings.avatar.lightsEnabled);
     avatar.setStreamerName(settings.streamerName);
+    avatar.setChatEnabled(settings.chat.enabled);
+    await syncMicCapture();
     toast("Defaults restored");
+  });
+
+  document.getElementById("micEnabled")?.addEventListener("change", () => {
+    void syncMicCapture();
+  });
+  document.getElementById("micThreshold")?.addEventListener("input", () => {
+    const v = Number((document.getElementById("micThreshold") as HTMLInputElement).value);
+    mic?.setThreshold(v);
+  });
+
+  document.getElementById("btn-chat-send")?.addEventListener("click", () => {
+    const text = (document.getElementById("chatLine") as HTMLInputElement).value.trim();
+    if (!text) return;
+    avatar.setChatEnabled(true);
+    avatar.say(text);
+    dashWs?.send(JSON.stringify({ type: "chat-line", text, from: "dashboard" }));
+    (document.getElementById("chatLine") as HTMLInputElement).value = "";
+  });
+  document.getElementById("btn-chat-sample")?.addEventListener("click", () => {
+    avatar.setChatEnabled(true);
+    avatar.sayDemoLine();
+    dashWs?.send(
+      JSON.stringify({
+        type: "chat-line",
+        text: "Zone quiet. Keep your head on a swivel.",
+        from: "demo",
+      }),
+    );
   });
 
   document.getElementById("streamerName")?.addEventListener("input", () => {
@@ -320,6 +415,12 @@ async function main(): Promise<void> {
   });
 
   await connectDashWs();
+  if (settings.mic.enabled) await syncMicCapture();
+
+  window.setInterval(() => {
+    const li = document.getElementById("last-input");
+    if (li && lastInputAt) li.textContent = `Last input: ${formatLastInput(lastInputAt)}`;
+  }, 1000);
 }
 
 void main();

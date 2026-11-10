@@ -1,4 +1,4 @@
-/** Minimal animation wire format — no characters or key names. */
+/** Minimal animation wire format — no characters or key names on input path. */
 
 export type InputKind = "key" | "mouseL" | "mouseR";
 export type InputPhase = "down" | "up";
@@ -19,6 +19,20 @@ export interface InputMessage {
   pressId: number;
   /** Count of currently held keys/buttons of this kind after applying this event. */
   held: number;
+}
+
+/** Mic level only — never audio samples / recordings. */
+export interface MicMessage {
+  type: "mic";
+  /** 0–1 instantaneous level */
+  level: number;
+  talking: boolean;
+}
+
+export interface ChatLineMessage {
+  type: "chat-line";
+  text: string;
+  from: "dashboard" | "demo" | "system";
 }
 
 export interface PauseMessage {
@@ -42,6 +56,8 @@ export interface StatusMessage {
   capturePaused: boolean;
   companionConnected: boolean;
   overlayClients: number;
+  /** Epoch ms of last companion/test input, or null */
+  lastInputAt: number | null;
   demoModeHint: string;
 }
 
@@ -63,6 +79,8 @@ export interface ResetIdleMessage {
 export type ClientToServerMessage =
   | HelloMessage
   | InputMessage
+  | MicMessage
+  | ChatLineMessage
   | PauseMessage
   | ResumeMessage
   | PingMessage;
@@ -71,6 +89,8 @@ export type ServerToClientMessage =
   | StatusMessage
   | SettingsUpdatedMessage
   | InputMessage
+  | MicMessage
+  | ChatLineMessage
   | ResetIdleMessage
   | PongMessage
   | ErrorMessage;

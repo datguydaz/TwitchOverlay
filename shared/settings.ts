@@ -53,6 +53,16 @@ export interface OverlaySettings {
     intensity: number;
     lightsEnabled: boolean;
   };
+  mic: {
+    /** Dashboard Web Audio mic → overlays (levels only). */
+    enabled: boolean;
+    threshold: number;
+  };
+  chat: {
+    enabled: boolean;
+    /** Auto demo one-liners occasionally when enabled. */
+    demoAuto: boolean;
+  };
   ultrawide: UltrawideSettings;
   demoModeDefault: boolean;
 }
@@ -85,6 +95,14 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     intensity: 1,
     lightsEnabled: true,
   },
+  mic: {
+    enabled: false,
+    threshold: 0.12,
+  },
+  chat: {
+    enabled: true,
+    demoAuto: false,
+  },
   ultrawide: {
     canvasWidth: 3440,
     canvasHeight: 1440,
@@ -115,6 +133,8 @@ export function mergeSettings(
       avatar: { ...base.modules.avatar, ...partial.modules?.avatar },
     },
     avatar: { ...base.avatar, ...partial.avatar },
+    mic: { ...base.mic, ...partial.mic },
+    chat: { ...base.chat, ...partial.chat },
     ultrawide: { ...base.ultrawide, ...partial.ultrawide },
   };
 }

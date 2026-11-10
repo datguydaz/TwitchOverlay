@@ -78,6 +78,26 @@
       </section>
 
       <section class="dash-panel">
+        <h2>Mic reaction</h2>
+        <p class="hint">Levels only — never records audio. Enable, allow mic permission, then talk. Overlay mouths/filter react.</p>
+        <label class="inline"><input id="micEnabled" type="checkbox" /> Enable mic → avatar</label>
+        <label>Talk threshold <input id="micThreshold" type="range" min="0.04" max="0.5" step="0.01" /></label>
+        <p id="mic-level">Mic level: —</p>
+        <p class="hint">How: check Enable → browser asks for mic → keep this dashboard open while streaming (or grant mic to the overlay page). Companion keyboard/mouse still requires <code>companion/npm start</code>.</p>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Chat persona</h2>
+        <label class="inline"><input id="chatEnabled" type="checkbox" /> Show chat bubble</label>
+        <label class="inline"><input id="chatDemoAuto" type="checkbox" /> Occasional demo lines</label>
+        <label>Send line <input id="chatLine" type="text" maxlength="160" placeholder="Zone quiet. Keep moving." /></label>
+        <div class="btn-row">
+          <button type="button" id="btn-chat-send" class="btn primary">Send to avatar</button>
+          <button type="button" id="btn-chat-sample" class="btn">Sample line</button>
+        </div>
+      </section>
+
+      <section class="dash-panel">
         <h2>Ultrawide letterbox</h2>
         <p class="hint">For 3440×1440 (or similar) canvases with centered 16:9 gameplay. Bars fill the empty top/bottom.</p>
         <label>Canvas width <input id="uwCanvasWidth" type="number" min="1280" max="7680" step="1" /></label>
@@ -96,7 +116,8 @@
         <label class="inline"><input id="lightsEnabled" type="checkbox" /> Equipment lights</label>
         <div class="status-block">
           <p id="conn-status">Companion: unknown</p>
-          <p class="hint">Demo preview is local to this page and never reports as a live companion.</p>
+          <p id="last-input">Last input: —</p>
+          <p class="hint">Demo preview is local to this page and never reports as a live companion. Streamlabs must use <code>http://127.0.0.1:8787/…</code> with companion running.</p>
         </div>
         <div class="btn-row">
           <button type="button" id="btn-demo-toggle" class="btn">Enable demo preview</button>

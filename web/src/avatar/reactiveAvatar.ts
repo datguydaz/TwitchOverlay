@@ -8,13 +8,21 @@ export interface ReactiveAvatarOptions {
   intensity?: number;
   lightsEnabled?: boolean;
   streamerName?: string;
+  chatEnabled?: boolean;
 }
+
+const DEMO_LINES = [
+  "Zone quiet. Keep your head on a swivel.",
+  "Copy. Filter's clean — for now.",
+  "Heard. Don't stack up on that door.",
+  "Signal nominal. Operator standing by.",
+  "Eyes open. Hands on glass.",
+];
 
 /**
  * Instant pose state from held counts — no animation queue.
- * Holding a key keeps data-key="1" without re-trigger jitter via CSS infinite tap.
- * Mouse clicks pulse via attribute toggle with rAF reset for distinct one-shots.
- * Idle flavor: breathing/sway CSS + rare cough / shoulder roll / eq blink.
+ * Idle flavor: breathing/sway + rare cough / shoulder roll / eq blink.
+ * Mic: data-talk from level messages. Chat: short Zone Ops bubble.
  */
 export class ReactiveAvatar {
   readonly root: HTMLElement;
@@ -25,10 +33,14 @@ export class ReactiveAvatar {
   private intensity = 1;
   private lightsEnabled = true;
   private streamerName = "datguydaz";
+  private chatEnabled = true;
   private mouseLTimer: number | null = null;
   private mouseRTimer: number | null = null;
   private flavorTimer: number | null = null;
   private flavorClearTimer: number | null = null;
+  private talkClearTimer: number | null = null;
+  private chatHideTimer: number | null = null;
+  private chatEl: HTMLElement | null = null;
   private disposed = false;
   private readonly onVis = (): void => {
     if (document.hidden) this.clearFlavorSchedule();
@@ -40,12 +52,18 @@ export class ReactiveAvatar {
     this.intensity = opts.intensity ?? 1;
     this.lightsEnabled = opts.lightsEnabled ?? true;
     this.streamerName = (opts.streamerName || "datguydaz").trim() || "datguydaz";
+    this.chatEnabled = opts.chatEnabled ?? true;
     this.root.classList.add("avatar-root");
     this.root.innerHTML = `
       <div class="demo-badge">DEMO INPUT</div>
       <div class="live-badge">LIVE INPUT</div>
+      <div class="avatar-chat" id="avatar-chat" data-show="0" aria-live="polite">
+        <span class="chat-tag">ZONE OPS // COMMS</span>
+        <span class="chat-body"></span>
+      </div>
       ${scavengerSvg}
     `;
+    this.chatEl = this.root.querySelector("#avatar-chat");
     this.setStreamerName(this.streamerName);
     this.applyVisualState();
     document.addEventListener("visibilitychange", this.onVis);
@@ -54,18 +72,24 @@ export class ReactiveAvatar {
 
   setStreamerName(name: string): void {
     this.streamerName = name.trim() || "datguydaz";
-    const el = this.root.querySelector("#desk-streamer-name");
-    if (el) {
-      el.textContent = this.streamerName;
-      el.setAttribute("aria-label", this.streamerName);
-      el.setAttribute("data-name", this.streamerName);
-    }
+    // Desk lettering removed — name is for chat/persona only.
+  }
+
+  setChatEnabled(on: boolean): void {
+    this.chatEnabled = on;
+    if (!on) this.hideChat();
   }
 
   setIntensity(value: number): void {
     this.intensity = Math.max(0.2, Math.min(2, value));
     this.root.style.setProperty("--avatar-intensity", String(this.intensity));
-    if (this.root.dataset.cough === "1" || this.root.dataset.roll === "1") return;
+    if (
+      this.root.dataset.cough === "1" ||
+      this.root.dataset.roll === "1" ||
+      this.root.dataset.talk === "1"
+    ) {
+      return;
+    }
     const torso = this.root.querySelector("#layer-torso") as SVGElement | null;
     const head = this.root.querySelector("#layer-head") as SVGElement | null;
     if (torso) torso.style.animationDuration = `${5.2 / this.intensity}s`;
@@ -82,6 +106,40 @@ export class ReactiveAvatar {
   setSource(source: AvatarInputSource): void {
     this.source = source;
     this.root.dataset.source = source;
+  }
+
+  /** Mic level → talking pose (levels only; no audio). */
+  setMicLevel(level: number, talking: boolean): void {
+    if (this.disposed) return;
+    if (talking || level > 0.08) {
+      this.root.dataset.talk = "1";
+      if (this.talkClearTimer != null) window.clearTimeout(this.talkClearTimer);
+      this.talkClearTimer = window.setTimeout(() => {
+        this.talkClearTimer = null;
+        delete this.root.dataset.talk;
+        this.setIntensity(this.intensity);
+      }, 220);
+    }
+  }
+
+  say(text: string, tag = "ZONE OPS // COMMS"): void {
+    if (!this.chatEnabled || this.disposed || !this.chatEl) return;
+    const body = this.chatEl.querySelector(".chat-body");
+    const tagEl = this.chatEl.querySelector(".chat-tag");
+    if (tagEl) tagEl.textContent = tag;
+    if (body) body.textContent = text.slice(0, 160);
+    this.chatEl.dataset.show = "1";
+    if (this.chatHideTimer != null) window.clearTimeout(this.chatHideTimer);
+    this.chatHideTimer = window.setTimeout(() => this.hideChat(), 4200);
+  }
+
+  sayDemoLine(): void {
+    const line = DEMO_LINES[Math.floor(Math.random() * DEMO_LINES.length)]!;
+    this.say(line, `${this.streamerName.toUpperCase()} // COMMS`);
+  }
+
+  hideChat(): void {
+    if (this.chatEl) this.chatEl.dataset.show = "0";
   }
 
   resetIdle(reason?: string): void {
@@ -115,7 +173,6 @@ export class ReactiveAvatar {
     this.applyVisualState();
   }
 
-  /** Demo helpers — same path as live, but source badge differs. */
   demoKey(down: boolean): void {
     this.setSource("demo");
     this.handleInput("key", down ? "down" : "up", down ? 1 : 0);
@@ -158,11 +215,10 @@ export class ReactiveAvatar {
     return this.keyHeld > 0 || this.mouseLHeld > 0 || this.mouseRHeld > 0;
   }
 
-  /** Rare idle flavor beats — cough, shoulder roll, equipment blink. */
   private scheduleFlavor(): void {
     this.clearFlavorSchedule();
     if (this.disposed || document.hidden) return;
-    const delay = 9000 + Math.random() * 14000; // 9–23s between beats
+    const delay = 9000 + Math.random() * 14000;
     this.flavorTimer = window.setTimeout(() => {
       this.flavorTimer = null;
       if (this.disposed || document.hidden) return;
@@ -204,10 +260,16 @@ export class ReactiveAvatar {
     document.removeEventListener("visibilitychange", this.onVis);
     this.clearFlavorSchedule();
     if (this.flavorClearTimer != null) window.clearTimeout(this.flavorClearTimer);
+    if (this.talkClearTimer != null) window.clearTimeout(this.talkClearTimer);
+    if (this.chatHideTimer != null) window.clearTimeout(this.chatHideTimer);
     this.flavorClearTimer = null;
+    this.talkClearTimer = null;
+    this.chatHideTimer = null;
     delete this.root.dataset.cough;
     delete this.root.dataset.roll;
     delete this.root.dataset.blink;
+    delete this.root.dataset.talk;
+    this.hideChat();
     this.resetIdle();
   }
 }

@@ -134,12 +134,20 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
       intensity: settings.avatar.intensity,
       lightsEnabled: settings.avatar.lightsEnabled,
       streamerName: settings.streamerName,
+      chatEnabled: settings.chat.enabled,
     });
     input = new InputClient({
       avatar,
       onConnection: setConnPill,
     });
     await input.start();
+    if (settings.chat.enabled && settings.chat.demoAuto) {
+      window.setInterval(() => {
+        if (!document.hidden && avatar && settings.chat.demoAuto) {
+          avatar.sayDemoLine();
+        }
+      }, 28000);
+    }
   } else {
     setConnPill("offline");
   }
@@ -159,6 +167,7 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
       avatar.setIntensity(settings.avatar.intensity);
       avatar.setLightsEnabled(settings.avatar.lightsEnabled);
       avatar.setStreamerName(settings.streamerName);
+      avatar.setChatEnabled(settings.chat.enabled);
       const hidden = !settings.modules.avatar.visible && opts.scene !== "avatar";
       if (hidden) {
         avatar.dispose();

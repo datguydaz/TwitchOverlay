@@ -11,6 +11,7 @@ export interface InputClientOptions {
   avatar: ReactiveAvatar;
   onStatus?: (status: StatusMessage) => void;
   onConnection?: (state: ConnectionState) => void;
+  onChatLine?: (text: string, from: string) => void;
   /** When true, never auto-connect; dashboard demo only. */
   demoOnly?: boolean;
 }
@@ -28,14 +29,21 @@ export class InputClient {
   private readonly avatar: ReactiveAvatar;
   private readonly onStatus?: (status: StatusMessage) => void;
   private readonly onConnection?: (state: ConnectionState) => void;
+  private readonly onChatLine?: (text: string, from: string) => void;
   private readonly demoOnly: boolean;
   private demoActive = false;
+  private lastInputAt: number | null = null;
 
   constructor(opts: InputClientOptions) {
     this.avatar = opts.avatar;
     this.onStatus = opts.onStatus;
     this.onConnection = opts.onConnection;
+    this.onChatLine = opts.onChatLine;
     this.demoOnly = opts.demoOnly ?? false;
+  }
+
+  getLastInputAt(): number | null {
+    return this.lastInputAt;
   }
 
   async start(): Promise<void> {
@@ -144,8 +152,16 @@ export class InputClient {
         break;
       case "input":
         if (this.demoActive) return; // demo preview supersedes live visuals when toggled
+        this.lastInputAt = Date.now();
         this.avatar.setSource("live");
         this.avatar.handleInput(msg.kind, msg.phase, msg.held);
+        break;
+      case "mic":
+        this.avatar.setMicLevel(msg.level, msg.talking);
+        break;
+      case "chat-line":
+        this.avatar.say(msg.text);
+        this.onChatLine?.(msg.text, msg.from);
         break;
       case "reset-idle":
         this.avatar.resetIdle(msg.reason);

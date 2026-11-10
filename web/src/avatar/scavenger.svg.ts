@@ -2,8 +2,7 @@
  * Original bulky zone-ops operator (Killa/Maska-inspired vibe only).
  * Fat padded silhouette, dark Maska-style shell + stripe bars, triple sleeve
  * stripes (no brand marks), chest-rig mass, KB+mouse under animatable hands.
- * Desk name: #desk-streamer-name uses self-hosted Bender (OFL).
- * Layers: #layer-torso #layer-head #hand-left #hand-right
+ * Layers: #layer-torso #layer-head #eyes #hand-left #hand-right #prop-mouse
  */
 /** Hi-res vector base: 3× user-space (1200×1020) so OBS/browser scale stays sharp. */
 export const scavengerSvg = `
@@ -36,22 +35,22 @@ export const scavengerSvg = `
       <stop offset="0%" stop-color="#3a3228"/>
       <stop offset="100%" stop-color="#1a1612"/>
     </linearGradient>
+    <clipPath id="visor-clip">
+      <rect x="168" y="124" width="64" height="10" rx="1"/>
+    </clipPath>
   </defs>
 
   <ellipse cx="200" cy="318" rx="140" ry="14" fill="#000" opacity="0.45"/>
 
   <!-- Operator -->
   <g id="operator">
-    <!-- DESK — Bender name fully on front panel -->
+    <!-- DESK — no front-panel lettering -->
     <g id="desk">
       <path d="M28 268 H372 L352 302 H48 Z" fill="url(#deskGrad)" stroke="#5a5348" stroke-width="1.6"/>
       <path d="M48 302 V328 H78 V302 M322 302 V328 H352 V302" fill="#241e18" stroke="#4a443c"/>
       <path d="M36 268 H364" stroke="#6b7355" stroke-width="1.2" opacity="0.5"/>
-      <text id="desk-streamer-name" x="200" y="294" text-anchor="middle"
-        fill="#d4a03a" stroke="#1a1408" stroke-width="0.85"
-        font-family="Bender, Oswald, sans-serif" font-weight="700" font-size="20"
-        letter-spacing="1.4" style="paint-order: stroke fill">datguydaz</text>
-      <path d="M110 300 H290" stroke="#6b7355" stroke-width="1" stroke-dasharray="5 3 2 3" opacity="0.65"/>
+      <path d="M70 288 H330" stroke="#3a342c" stroke-width="6" opacity="0.55"/>
+      <path d="M110 300 H290" stroke="#6b7355" stroke-width="1" stroke-dasharray="5 3 2 3" opacity="0.45"/>
     </g>
 
     <!-- TORSO: imposing fat armored mass -->
@@ -102,7 +101,6 @@ export const scavengerSvg = `
       <circle cx="134" cy="124" r="7" fill="#121410" stroke="#5a5348"/>
       <circle cx="266" cy="124" r="7" fill="#121410" stroke="#5a5348"/>
       <rect x="144" y="88" width="112" height="92" rx="10" fill="url(#plateMetal)" stroke="#0a0c08" stroke-width="2.2"/>
-      <!-- Cream bars split around the slit so no warm fringe reads as a gold brow -->
       <rect x="156" y="94" width="11" height="28" rx="1.5" fill="#efe6d2"/>
       <rect x="174" y="94" width="11" height="28" rx="1.5" fill="#efe6d2"/>
       <rect x="215" y="94" width="11" height="28" rx="1.5" fill="#efe6d2"/>
@@ -111,10 +109,30 @@ export const scavengerSvg = `
       <rect x="174" y="136" width="11" height="38" rx="1.5" fill="#efe6d2"/>
       <rect x="215" y="136" width="11" height="38" rx="1.5" fill="#efe6d2"/>
       <rect x="233" y="136" width="11" height="38" rx="1.5" fill="#efe6d2"/>
-      <rect x="162" y="122" width="76" height="14" rx="2" fill="#0a0c08"/>
-      <rect id="visor-glow" class="eq-blink" x="168" y="125" width="64" height="8" rx="1" fill="#243020" opacity="0.92"/>
-      <ellipse cx="200" cy="168" rx="16" ry="10" fill="#1a1c16" stroke="#3a3830" stroke-width="1.2"/>
-      <circle cx="200" cy="168" r="4" fill="#0a0c08"/>
+
+      <!-- Eyes behind visor (clipped); look group moves with idle sway -->
+      <g id="eyes" clip-path="url(#visor-clip)">
+        <rect x="168" y="124" width="64" height="10" fill="#1a2218"/>
+        <g id="eye-look">
+          <ellipse class="eye-white" cx="186" cy="129" rx="7" ry="3.2" fill="#c8c2b0"/>
+          <ellipse class="eye-white" cx="214" cy="129" rx="7" ry="3.2" fill="#c8c2b0"/>
+          <circle class="pupil" cx="186" cy="129" r="2.1" fill="#121410"/>
+          <circle class="pupil" cx="214" cy="129" r="2.1" fill="#121410"/>
+          <circle cx="185.2" cy="128.2" r="0.55" fill="#efe6d2" opacity="0.7"/>
+          <circle cx="213.2" cy="128.2" r="0.55" fill="#efe6d2" opacity="0.7"/>
+        </g>
+        <rect class="eyelid" x="168" y="124" width="64" height="10" fill="#1a1c16" opacity="0"/>
+      </g>
+
+      <rect x="162" y="122" width="76" height="14" rx="2" fill="#0a0c08" opacity="0.35"/>
+      <rect id="visor-glow" class="eq-blink" x="168" y="125" width="64" height="8" rx="1" fill="#243020" opacity="0.45"/>
+
+      <!-- Mouth / filter vent — reacts to mic -->
+      <g id="mouth-vent">
+        <ellipse cx="200" cy="168" rx="16" ry="10" fill="#1a1c16" stroke="#3a3830" stroke-width="1.2"/>
+        <circle cx="200" cy="168" r="4" fill="#0a0c08"/>
+        <path id="mouth-slats" d="M190 166 H210 M192 169 H208 M194 172 H206" stroke="#4a5240" stroke-width="1" opacity="0.75"/>
+      </g>
     </g>
 
     <!-- Field keyboard -->
@@ -146,14 +164,12 @@ export const scavengerSvg = `
       <rect x="58" y="278" width="176" height="2.5" fill="#c7923a" opacity="0.55"/>
     </g>
 
-    <!-- Field mouse -->
+    <!-- Single field mouse under right hand only -->
     <g id="prop-mouse">
-      <path d="M268 242 Q296 230 324 242 L330 272 Q296 290 262 272 Z" fill="#161a14" stroke="#d4c8b0" stroke-width="1.9"/>
-      <path d="M296 234 V266" stroke="#c7923a" stroke-width="1.8"/>
-      <path d="M276 250 Q296 242 316 250" fill="none" stroke="#6b7355" stroke-width="1.3"/>
-      <ellipse cx="296" cy="276" rx="10" ry="5.5" fill="#2a2e24" stroke="#5a6450" stroke-width="1"/>
-      <circle cx="286" cy="252" r="2.4" fill="#c7923a"/>
-      <circle cx="306" cy="252" r="2.4" fill="#6b7355"/>
+      <path d="M286 248 Q304 238 322 250 L324 268 Q304 280 284 268 Z" fill="#161a14" stroke="#d4c8b0" stroke-width="1.6"/>
+      <path d="M304 242 V264" stroke="#6b7355" stroke-width="1.4"/>
+      <path d="M292 254 Q304 248 316 254" fill="none" stroke="#4a5240" stroke-width="1.1"/>
+      <ellipse cx="304" cy="272" rx="8" ry="4" fill="#2a2e24" stroke="#5a6450" stroke-width="0.9"/>
     </g>
 
     <g id="desk-lights">
