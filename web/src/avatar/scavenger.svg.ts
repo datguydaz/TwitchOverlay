@@ -45,58 +45,17 @@ export const scavengerSvg = `
 
   <ellipse cx="200" cy="318" rx="140" ry="14" fill="#000" opacity="0.45"/>
 
-  <!-- Operator -->
+  <!-- Operator: torso/head FIRST, desk AFTER so body sits behind desk lip (no torso-through-table). -->
   <g id="operator">
-    <!-- DESK — Zone Ops wood, subtle grain + edge wear; no front-panel lettering -->
-    <g id="desk">
-      <path d="M28 268 H372 L352 302 H48 Z" fill="url(#deskGrad)" stroke="#5a5348" stroke-width="1.6"/>
-      <path d="M48 302 V328 H78 V302 M322 302 V328 H352 V302" fill="#241e18" stroke="#4a443c"/>
-      <!-- Front lip edge wear -->
-      <path d="M48 302 H352" stroke="#1a1610" stroke-width="1.2" opacity="0.55"/>
-      <path d="M52 303.5 H348" stroke="#6b7355" stroke-width="0.55" opacity="0.28"/>
-      <path d="M36 268 H364" stroke="#6b7355" stroke-width="1.2" opacity="0.5"/>
-      <path d="M70 288 H330" stroke="#3a342c" stroke-width="6" opacity="0.55"/>
-      <!-- Subtle grain (Zone Ops olive/charcoal, low opacity) -->
-      <g id="desk-grain" fill="none" stroke-linecap="butt" opacity="0.22">
-        <path d="M44 272 H360" stroke="#2a261e" stroke-width="0.45"/>
-        <path d="M50 277 H354" stroke="#3a342c" stroke-width="0.35"/>
-        <path d="M56 282 H348" stroke="#1c1812" stroke-width="0.4"/>
-        <path d="M62 287 H342" stroke="#2e2a22" stroke-width="0.35"/>
-        <path d="M68 292 H336" stroke="#3a342c" stroke-width="0.3"/>
-        <path d="M74 297 H328" stroke="#1a1610" stroke-width="0.35"/>
-      </g>
-      <!-- Crack + edge scuffs -->
-      <g id="desk-wear" fill="none" stroke-linecap="round">
-        <path d="M96 276 Q118 278 132 274 Q148 271 168 277" stroke="#1a1610" stroke-width="1.1" opacity="0.55"/>
-        <path d="M118 275 L124 279" stroke="#0c0a08" stroke-width="0.7" opacity="0.45"/>
-        <path d="M250 272 Q268 276 286 273" stroke="#2a241c" stroke-width="0.9" opacity="0.4"/>
-        <path d="M300 280 L318 284" stroke="#1c1812" stroke-width="0.8" opacity="0.35"/>
-        <path d="M78 292 Q90 294 102 291" stroke="#181410" stroke-width="0.7" opacity="0.3"/>
-        <path d="M40 270 L46 274" stroke="#0c0a08" stroke-width="0.6" opacity="0.35"/>
-        <path d="M358 271 L350 276" stroke="#0c0a08" stroke-width="0.55" opacity="0.3"/>
-      </g>
-    </g>
-
     <!-- TORSO: sit offset on INNER group so CSS breath/talk don't wipe desk-close. -->
     <g id="layer-torso">
-      <g id="torso-sit" transform="translate(0 42)">
-      <path d="M124 152 L140 138 L200 132 L260 138 L276 152 L282 234 L118 234 Z" fill="url(#suitDark)" stroke="#050505" stroke-width="1.5"/>
-      <!-- Thick black sleeves (stroke arms) — Killa track vibe; draw BEFORE vest so vest overlaps shoulders -->
+      <g id="torso-sit" transform="translate(0 38)">
+      <path d="M124 152 L140 138 L200 132 L260 138 L276 152 L282 236 L118 236 Z" fill="url(#suitDark)" stroke="#050505" stroke-width="1.5"/>
+      <!-- Thick black sleeves — draw BEFORE vest so vest overlaps shoulders -->
       <path id="sleeve-left-fill" d="M108 170 Q78 202 96 238" fill="none" stroke="#0e0e0e" stroke-width="38" stroke-linecap="round"/>
       <path id="sleeve-right-fill" d="M292 170 Q318 198 308 230" fill="none" stroke="#0e0e0e" stroke-width="32" stroke-linecap="butt"/>
-      <!-- THREE white Adidas-style track stripes ON black arms — locked to loved placement (do not shift with desk work) -->
-      <g id="sleeve-stripes-left" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.8">
-        <path d="M108 170 Q78 202 96 238" transform="translate(3 0)"/>
-        <path d="M108 170 Q78 202 96 238" transform="translate(8 0)"/>
-        <path d="M108 170 Q78 202 96 238" transform="translate(13 0)"/>
-      </g>
-      <g id="sleeve-stripes-right" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.6">
-        <path d="M292 170 Q318 198 308 230" transform="translate(-3 0)"/>
-        <path d="M292 170 Q318 198 308 230" transform="translate(-8 0)"/>
-        <path d="M292 170 Q318 198 308 230" transform="translate(-13 0)"/>
-      </g>
-      <!-- Slim near-black vest (vibe only — no logos). Do not touch helm/vest redesign. -->
-      <path d="M120 148 L138 136 L200 130 L262 136 L280 148 L286 232 L114 232 Z" fill="url(#armorOlive)" stroke="#050505" stroke-width="1.4"/>
+      <!-- Slim near-black vest (vibe only — no logos). -->
+      <path d="M120 148 L138 136 L200 130 L262 136 L280 148 L286 234 L114 234 Z" fill="url(#armorOlive)" stroke="#050505" stroke-width="1.4"/>
       <path d="M158 132 Q200 144 242 132 L238 152 Q200 160 162 152 Z" fill="#1a1a1a" stroke="#050505" stroke-width="1"/>
       <g id="shoulder-left" class="shoulder">
         <rect x="78" y="144" width="52" height="30" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
@@ -106,33 +65,67 @@ export const scavengerSvg = `
         <rect x="270" y="144" width="52" height="30" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
         <rect x="276" y="152" width="40" height="7" rx="1.5" fill="#0a0a0a" opacity="0.65"/>
       </g>
-      <!-- Slim pouches -->
-      <g id="chest-rig">
-        <rect x="132" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#050505" stroke-width="0.9"/>
-        <rect x="154" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#050505" stroke-width="0.9"/>
-        <rect x="230" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#050505" stroke-width="0.9"/>
-        <rect x="252" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#050505" stroke-width="0.9"/>
-        <path d="M135 181 H145 M157 181 H167 M233 181 H243 M255 181 H265" stroke="#333333" stroke-width="1.1"/>
+      <!-- THREE Adidas stripes centered on mid-sleeve mass (±5 around sleeve centerline; drawn after vest) -->
+      <g id="sleeve-stripes-left" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.7">
+        <path d="M98 188 Q80 212 94 234" transform="translate(-5 0)"/>
+        <path d="M98 188 Q80 212 94 234" transform="translate(0 0)"/>
+        <path d="M98 188 Q80 212 94 234" transform="translate(5 0)"/>
       </g>
-      <!-- Worn “KILLA” below faceplate bottom (y>180) in pouch gap — scratched vibe, no logos -->
-      <g id="chest-killa" font-family="Arial Black, Impact, 'Arial Narrow', sans-serif" font-weight="800" text-anchor="middle" letter-spacing="1.6">
-        <text x="200.5" y="209.2" fill="#050505" font-size="11.5" opacity="0.75">KILLA</text>
-        <text id="chest-killa-main" x="200" y="208.6" fill="#f0f0f0" font-size="11.5" opacity="0.92">KILLA</text>
-        <g id="chest-killa-scratches" fill="none" stroke="#0a0a0a" stroke-linecap="round" opacity="0.6">
-          <path d="M178 204 L186 210" stroke-width="0.8"/>
-          <path d="M191 203.5 L198 209" stroke-width="0.6"/>
-          <path d="M204 205 L214 208" stroke-width="0.7"/>
-          <path d="M186 211 L206 204" stroke-width="0.5"/>
-          <path d="M212 210 L222 206" stroke-width="0.55"/>
+      <g id="sleeve-stripes-right" fill="none" stroke="#f5f5f3" stroke-linecap="butt" stroke-width="2.6">
+        <path d="M302 186 Q318 208 310 228" transform="translate(-5 0)"/>
+        <path d="M302 186 Q318 208 310 228" transform="translate(0 0)"/>
+        <path d="M302 186 Q318 208 310 228" transform="translate(5 0)"/>
+      </g>
+      <!-- Four STANAG-style mag pouches across the vest (clear, tactical) -->
+      <g id="chest-rig">
+        <g id="stanag-0" class="stanag-pouch" transform="translate(124 168)">
+          <rect x="0" y="7" width="30" height="34" rx="2.2" fill="url(#pouchGrad)" stroke="#050505" stroke-width="1"/>
+          <path d="M1 7 H29 L26.5 0.5 H3.5 Z" fill="#1c1c1c" stroke="#050505" stroke-width="0.9"/>
+          <rect x="5" y="12" width="20" height="3.2" rx="0.6" fill="#0a0a0a"/>
+          <path d="M7 18 V36 M15 18 V36 M23 18 V36" stroke="#2a2a2a" stroke-width="1.1" opacity="0.75"/>
+          <rect x="10" y="3" width="10" height="2.2" rx="0.4" fill="#333333"/>
+        </g>
+        <g id="stanag-1" class="stanag-pouch" transform="translate(158 168)">
+          <rect x="0" y="7" width="30" height="34" rx="2.2" fill="url(#pouchGrad)" stroke="#050505" stroke-width="1"/>
+          <path d="M1 7 H29 L26.5 0.5 H3.5 Z" fill="#1c1c1c" stroke="#050505" stroke-width="0.9"/>
+          <rect x="5" y="12" width="20" height="3.2" rx="0.6" fill="#0a0a0a"/>
+          <path d="M7 18 V36 M15 18 V36 M23 18 V36" stroke="#2a2a2a" stroke-width="1.1" opacity="0.75"/>
+          <rect x="10" y="3" width="10" height="2.2" rx="0.4" fill="#333333"/>
+        </g>
+        <g id="stanag-2" class="stanag-pouch" transform="translate(192 168)">
+          <rect x="0" y="7" width="30" height="34" rx="2.2" fill="url(#pouchGrad)" stroke="#050505" stroke-width="1"/>
+          <path d="M1 7 H29 L26.5 0.5 H3.5 Z" fill="#1c1c1c" stroke="#050505" stroke-width="0.9"/>
+          <rect x="5" y="12" width="20" height="3.2" rx="0.6" fill="#0a0a0a"/>
+          <path d="M7 18 V36 M15 18 V36 M23 18 V36" stroke="#2a2a2a" stroke-width="1.1" opacity="0.75"/>
+          <rect x="10" y="3" width="10" height="2.2" rx="0.4" fill="#333333"/>
+        </g>
+        <g id="stanag-3" class="stanag-pouch" transform="translate(226 168)">
+          <rect x="0" y="7" width="30" height="34" rx="2.2" fill="url(#pouchGrad)" stroke="#050505" stroke-width="1"/>
+          <path d="M1 7 H29 L26.5 0.5 H3.5 Z" fill="#1c1c1c" stroke="#050505" stroke-width="0.9"/>
+          <rect x="5" y="12" width="20" height="3.2" rx="0.6" fill="#0a0a0a"/>
+          <path d="M7 18 V36 M15 18 V36 M23 18 V36" stroke="#2a2a2a" stroke-width="1.1" opacity="0.75"/>
+          <rect x="10" y="3" width="10" height="2.2" rx="0.4" fill="#333333"/>
         </g>
       </g>
-      <rect x="110" y="232" width="180" height="10" rx="1.5" fill="#0c0c0c" stroke="#222222"/>
+      <!-- Worn “KILLA” below the STANAG row — scratched vibe, no logos -->
+      <g id="chest-killa" font-family="Arial Black, Impact, 'Arial Narrow', sans-serif" font-weight="800" text-anchor="middle" letter-spacing="1.6">
+        <text x="200.5" y="218.2" fill="#050505" font-size="11.5" opacity="0.75">KILLA</text>
+        <text id="chest-killa-main" x="200" y="217.6" fill="#f0f0f0" font-size="11.5" opacity="0.92">KILLA</text>
+        <g id="chest-killa-scratches" fill="none" stroke="#0a0a0a" stroke-linecap="round" opacity="0.6">
+          <path d="M178 213 L186 219" stroke-width="0.8"/>
+          <path d="M191 212.5 L198 218" stroke-width="0.6"/>
+          <path d="M204 214 L214 217" stroke-width="0.7"/>
+          <path d="M186 220 L206 213" stroke-width="0.5"/>
+          <path d="M212 219 L222 215" stroke-width="0.55"/>
+        </g>
+      </g>
+      <rect x="110" y="228" width="180" height="10" rx="1.5" fill="#0c0c0c" stroke="#222222"/>
       </g>
     </g>
 
     <!-- HEAD: sit offset inner — CSS head-idle/talk-nod animate outer only -->
     <g id="layer-head">
-      <g id="head-sit" transform="translate(0 42)">
+      <g id="head-sit" transform="translate(0 38)">
       <ellipse cx="200" cy="108" rx="72" ry="58" fill="url(#helmDark)" stroke="#0a0c08" stroke-width="2"/>
       <path d="M188 58 Q200 48 212 58 L208 118 L192 118 Z" fill="#efe6d2"/>
       <path d="M170 64 Q180 52 186 66 L182 120 L168 118 Z" fill="#efe6d2" opacity="0.95"/>
@@ -184,6 +177,33 @@ export const scavengerSvg = `
         <circle cx="200" cy="168" r="4" fill="#0a0a0a"/>
         <path id="mouth-slats" d="M190 166 H210 M192 169 H208 M194 172 H206" stroke="#4a4a4a" stroke-width="1" opacity="0.75"/>
       </g>
+      </g>
+    </g>
+
+    <!-- DESK drawn AFTER torso/head so lower body sits BEHIND the table (no clip-through). -->
+    <g id="desk">
+      <path d="M28 268 H372 L352 302 H48 Z" fill="url(#deskGrad)" stroke="#5a5348" stroke-width="1.6"/>
+      <path d="M48 302 V328 H78 V302 M322 302 V328 H352 V302" fill="#241e18" stroke="#4a443c"/>
+      <path d="M48 302 H352" stroke="#1a1610" stroke-width="1.2" opacity="0.55"/>
+      <path d="M52 303.5 H348" stroke="#6b7355" stroke-width="0.55" opacity="0.28"/>
+      <path d="M36 268 H364" stroke="#6b7355" stroke-width="1.2" opacity="0.5"/>
+      <path d="M70 288 H330" stroke="#3a342c" stroke-width="6" opacity="0.55"/>
+      <g id="desk-grain" fill="none" stroke-linecap="butt" opacity="0.22">
+        <path d="M44 272 H360" stroke="#2a261e" stroke-width="0.45"/>
+        <path d="M50 277 H354" stroke="#3a342c" stroke-width="0.35"/>
+        <path d="M56 282 H348" stroke="#1c1812" stroke-width="0.4"/>
+        <path d="M62 287 H342" stroke="#2e2a22" stroke-width="0.35"/>
+        <path d="M68 292 H336" stroke="#3a342c" stroke-width="0.3"/>
+        <path d="M74 297 H328" stroke="#1a1610" stroke-width="0.35"/>
+      </g>
+      <g id="desk-wear" fill="none" stroke-linecap="round">
+        <path d="M96 276 Q118 278 132 274 Q148 271 168 277" stroke="#1a1610" stroke-width="1.1" opacity="0.55"/>
+        <path d="M118 275 L124 279" stroke="#0c0a08" stroke-width="0.7" opacity="0.45"/>
+        <path d="M250 272 Q268 276 286 273" stroke="#2a241c" stroke-width="0.9" opacity="0.4"/>
+        <path d="M300 280 L318 284" stroke="#1c1812" stroke-width="0.8" opacity="0.35"/>
+        <path d="M78 292 Q90 294 102 291" stroke="#181410" stroke-width="0.7" opacity="0.3"/>
+        <path d="M40 270 L46 274" stroke="#0c0a08" stroke-width="0.6" opacity="0.35"/>
+        <path d="M358 271 L350 276" stroke="#0c0a08" stroke-width="0.55" opacity="0.3"/>
       </g>
     </g>
 
@@ -268,7 +288,7 @@ export const scavengerSvg = `
 
     <!-- Hands: sit on inner group so JS key/mouse transforms don't wipe desk-close -->
     <g id="hand-left">
-      <g id="hand-left-sit" transform="translate(0 32)">
+      <g id="hand-left-sit" transform="translate(0 28)">
       <path d="M112 262 L148 260 L151 272 L116 275 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1"/>
       <rect x="118" y="272" width="4.5" height="12" rx="1.8" fill="#4a463c" stroke="#1a1810" stroke-width="0.55"/>
       <rect x="127" y="271" width="4.5" height="13" rx="1.8" fill="#4a463c" stroke="#1a1810" stroke-width="0.55"/>
@@ -279,7 +299,7 @@ export const scavengerSvg = `
     </g>
 
     <g id="hand-right">
-      <g id="hand-right-sit" transform="translate(0 32)">
+      <g id="hand-right-sit" transform="translate(0 28)">
       <path d="M302 258 L326 260 L324 272 L304 270 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1" opacity="0.92"/>
       <rect id="finger-lmb" x="306" y="266" width="4.2" height="11" rx="1.4" fill="#3a3630"/>
       <rect id="finger-rmb" x="315" y="267" width="4.2" height="10.5" rx="1.4" fill="#3a3630"/>
