@@ -71,10 +71,14 @@ export const scavengerSvg = `
       <path d="M330 218 Q318 230 306 236" fill="none" stroke="#3a4034" stroke-width="14" stroke-linecap="round"/>
       <path d="M96 142 L130 128 L200 122 L270 128 L304 142 L314 228 L86 228 Z" fill="url(#armorOlive)" stroke="#1a2014" stroke-width="2"/>
       <path d="M148 128 Q200 148 252 128 L246 158 Q200 172 154 158 Z" fill="#5a6440" stroke="#1a2014" stroke-width="1.4"/>
-      <rect x="62" y="138" width="72" height="44" rx="10" fill="#5a6842" stroke="#1a2014" stroke-width="1.6"/>
-      <rect x="266" y="138" width="72" height="44" rx="10" fill="#5a6842" stroke="#1a2014" stroke-width="1.6"/>
-      <rect x="70" y="148" width="56" height="12" rx="2" fill="#2a2e24" opacity="0.5"/>
-      <rect x="274" y="148" width="56" height="12" rx="2" fill="#2a2e24" opacity="0.5"/>
+      <g id="shoulder-left" class="shoulder">
+        <rect x="62" y="138" width="72" height="44" rx="10" fill="#5a6842" stroke="#1a2014" stroke-width="1.6"/>
+        <rect x="70" y="148" width="56" height="12" rx="2" fill="#2a2e24" opacity="0.5"/>
+      </g>
+      <g id="shoulder-right" class="shoulder">
+        <rect x="266" y="138" width="72" height="44" rx="10" fill="#5a6842" stroke="#1a2014" stroke-width="1.6"/>
+        <rect x="274" y="148" width="56" height="12" rx="2" fill="#2a2e24" opacity="0.5"/>
+      </g>
       <g id="chest-rig">
         <rect x="118" y="178" width="36" height="48" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
         <rect x="160" y="178" width="36" height="48" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
@@ -103,8 +107,7 @@ export const scavengerSvg = `
       <rect x="215" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
       <rect x="233" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
       <rect x="162" y="124" width="76" height="10" rx="2" fill="#0a0c08" stroke="#c7923a" stroke-width="1.4"/>
-      <rect x="168" y="126" width="64" height="5" rx="1" fill="#3a4a28" opacity="0.85"/>
-      <rect x="150" y="96" width="100" height="5" rx="1" fill="#c7923a" opacity="0.75"/>
+      <rect id="visor-glow" class="eq-blink" x="168" y="126" width="64" height="5" rx="1" fill="#3a4a28" opacity="0.85"/>
       <ellipse cx="200" cy="168" rx="16" ry="10" fill="#1a1c16" stroke="#3a3830" stroke-width="1.2"/>
       <circle cx="200" cy="168" r="4" fill="#0a0c08"/>
     </g>

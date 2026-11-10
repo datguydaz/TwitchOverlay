@@ -19,15 +19,23 @@ function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
   window.addEventListener("resize", apply);
 }
 
+function setVfxEnabled(on: boolean): void {
+  const stage = qs<HTMLElement>("#uw-stage");
+  if (stage) stage.dataset.vfx = on ? "on" : "off";
+}
+
 function applyUltrawide(settings: OverlaySettings): void {
   const uw = settings.ultrawide;
   const mode = document.body.dataset.uwMode; // top | bottom | undefined (full)
   const stage = qs<HTMLElement>("#uw-stage");
   if (!stage) return;
 
-  const barH = Math.max(48, Math.min(400, uw.barHeight || 180));
+  const barH = Math.max(64, Math.min(420, uw.barHeight || 180));
   const canvasW = Math.max(1280, uw.canvasWidth || 3440);
   const canvasH = Math.max(720, uw.canvasHeight || 1440);
+
+  stage.style.setProperty("--uw-bar-h", `${barH}px`);
+  stage.style.setProperty("--uw-canvas-w", `${canvasW}px`);
 
   if (!mode) {
     stage.style.width = `${canvasW}px`;
@@ -66,10 +74,62 @@ function applyUltrawide(settings: OverlaySettings): void {
   if (bottomStatus) bottomStatus.textContent = status;
 }
 
+/** Rare signal glitch — low duty cycle, paused when tab hidden. */
+function startGlitchLoop(): void {
+  let timer: number | null = null;
+  let clearTimer: number | null = null;
+
+  const clear = () => {
+    if (timer != null) window.clearTimeout(timer);
+    if (clearTimer != null) window.clearTimeout(clearTimer);
+    timer = null;
+    clearTimer = null;
+  };
+
+  const schedule = () => {
+    clear();
+    if (document.hidden) return;
+    const delay = 11000 + Math.random() * 17000;
+    timer = window.setTimeout(() => {
+      timer = null;
+      if (document.hidden) {
+        schedule();
+        return;
+      }
+      const bars = document.querySelectorAll<HTMLElement>(".uw-bar");
+      const pick = bars[Math.floor(Math.random() * Math.max(1, bars.length))];
+      if (pick && pick.dataset.hidden !== "true") {
+        pick.dataset.glitch = "1";
+        clearTimer = window.setTimeout(() => {
+          delete pick.dataset.glitch;
+          clearTimer = null;
+        }, 300);
+      }
+      schedule();
+    }, delay);
+  };
+
+  document.addEventListener("visibilitychange", () => {
+    setVfxEnabled(!document.hidden);
+    if (document.hidden) {
+      clear();
+      document.querySelectorAll(".uw-bar").forEach((el) => {
+        delete (el as HTMLElement).dataset.glitch;
+      });
+    } else {
+      schedule();
+    }
+  });
+
+  setVfxEnabled(!document.hidden);
+  schedule();
+}
+
 async function main(): Promise<void> {
   let settings = await fetchSettings();
   applyCssVars(settings);
   applyUltrawide(settings);
+  startGlitchLoop();
 
   const refresh = async () => {
     settings = await fetchSettings();

@@ -14,6 +14,7 @@ export interface ReactiveAvatarOptions {
  * Instant pose state from held counts — no animation queue.
  * Holding a key keeps data-key="1" without re-trigger jitter via CSS infinite tap.
  * Mouse clicks pulse via attribute toggle with rAF reset for distinct one-shots.
+ * Idle flavor: breathing/sway CSS + rare cough / shoulder roll / eq blink.
  */
 export class ReactiveAvatar {
   readonly root: HTMLElement;
@@ -26,7 +27,13 @@ export class ReactiveAvatar {
   private streamerName = "datguydaz";
   private mouseLTimer: number | null = null;
   private mouseRTimer: number | null = null;
+  private flavorTimer: number | null = null;
+  private flavorClearTimer: number | null = null;
   private disposed = false;
+  private readonly onVis = (): void => {
+    if (document.hidden) this.clearFlavorSchedule();
+    else this.scheduleFlavor();
+  };
 
   constructor(opts: ReactiveAvatarOptions) {
     this.root = opts.root;
@@ -41,6 +48,8 @@ export class ReactiveAvatar {
     `;
     this.setStreamerName(this.streamerName);
     this.applyVisualState();
+    document.addEventListener("visibilitychange", this.onVis);
+    this.scheduleFlavor();
   }
 
   setStreamerName(name: string): void {
@@ -56,10 +65,11 @@ export class ReactiveAvatar {
   setIntensity(value: number): void {
     this.intensity = Math.max(0.2, Math.min(2, value));
     this.root.style.setProperty("--avatar-intensity", String(this.intensity));
+    if (this.root.dataset.cough === "1" || this.root.dataset.roll === "1") return;
     const torso = this.root.querySelector("#layer-torso") as SVGElement | null;
     const head = this.root.querySelector("#layer-head") as SVGElement | null;
-    if (torso) torso.style.animationDuration = `${3.6 / this.intensity}s`;
-    if (head) head.style.animationDuration = `${7 / this.intensity}s`;
+    if (torso) torso.style.animationDuration = `${5.2 / this.intensity}s`;
+    if (head) head.style.animationDuration = `${12 / this.intensity}s`;
   }
 
   setLightsEnabled(on: boolean): void {
@@ -144,8 +154,60 @@ export class ReactiveAvatar {
     this.root.dataset.source = this.source;
   }
 
+  private isBusy(): boolean {
+    return this.keyHeld > 0 || this.mouseLHeld > 0 || this.mouseRHeld > 0;
+  }
+
+  /** Rare idle flavor beats — cough, shoulder roll, equipment blink. */
+  private scheduleFlavor(): void {
+    this.clearFlavorSchedule();
+    if (this.disposed || document.hidden) return;
+    const delay = 9000 + Math.random() * 14000; // 9–23s between beats
+    this.flavorTimer = window.setTimeout(() => {
+      this.flavorTimer = null;
+      if (this.disposed || document.hidden) return;
+      if (!this.isBusy()) this.triggerFlavorBeat();
+      this.scheduleFlavor();
+    }, delay);
+  }
+
+  private triggerFlavorBeat(): void {
+    const roll = Math.random();
+    if (roll < 0.38) this.pulseAttr("cough", 560);
+    else if (roll < 0.68) this.pulseAttr("roll", 720);
+    else this.pulseAttr("blink", 420);
+  }
+
+  private pulseAttr(attr: "cough" | "roll" | "blink", ms: number): void {
+    if (this.flavorClearTimer != null) window.clearTimeout(this.flavorClearTimer);
+    delete this.root.dataset.cough;
+    delete this.root.dataset.roll;
+    delete this.root.dataset.blink;
+    this.root.dataset[attr] = "1";
+    this.flavorClearTimer = window.setTimeout(() => {
+      this.flavorClearTimer = null;
+      if (this.disposed) return;
+      delete this.root.dataset[attr];
+      this.setIntensity(this.intensity);
+    }, ms);
+  }
+
+  private clearFlavorSchedule(): void {
+    if (this.flavorTimer != null) {
+      window.clearTimeout(this.flavorTimer);
+      this.flavorTimer = null;
+    }
+  }
+
   dispose(): void {
     this.disposed = true;
+    document.removeEventListener("visibilitychange", this.onVis);
+    this.clearFlavorSchedule();
+    if (this.flavorClearTimer != null) window.clearTimeout(this.flavorClearTimer);
+    this.flavorClearTimer = null;
+    delete this.root.dataset.cough;
+    delete this.root.dataset.roll;
+    delete this.root.dataset.blink;
     this.resetIdle();
   }
 }

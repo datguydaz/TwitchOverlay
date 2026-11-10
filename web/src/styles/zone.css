@@ -396,14 +396,22 @@ body.scene-opaque {
 /* Layer animation hooks — origins match 3× hi-res viewBox (1200×1020) */
 #layer-torso {
   transform-box: view-box;
-  transform-origin: 600px 660px;
-  animation: breath 3.6s ease-in-out infinite;
+  transform-origin: 600px 720px;
+  animation: breath 5.2s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  will-change: transform;
 }
 
 #layer-head {
   transform-box: view-box;
-  transform-origin: 600px 360px;
-  animation: head-idle 7s ease-in-out infinite;
+  transform-origin: 600px 390px;
+  animation: head-idle 12s ease-in-out infinite;
+  will-change: transform;
+}
+
+#shoulder-left,
+#shoulder-right {
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 #hand-left,
@@ -424,6 +432,32 @@ body.scene-opaque {
   animation: click-r 130ms ease-out 1;
 }
 
+/* Occasional flavor beats — cough / shoulder roll / eq blink */
+.avatar-root[data-cough="1"] #layer-head {
+  animation: cough-head 560ms cubic-bezier(0.33, 0, 0.2, 1) 1;
+}
+
+.avatar-root[data-cough="1"] #layer-torso {
+  animation: cough-torso 560ms cubic-bezier(0.33, 0, 0.2, 1) 1;
+}
+
+.avatar-root[data-roll="1"] #shoulder-left {
+  animation: shoulder-roll-l 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
+}
+
+.avatar-root[data-roll="1"] #shoulder-right {
+  animation: shoulder-roll-r 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
+}
+
+.avatar-root[data-roll="1"] #layer-torso {
+  animation: torso-settle 700ms ease-out 1;
+}
+
+.avatar-root[data-blink="1"] .eq-blink,
+.avatar-root[data-blink="1"] .eq-light {
+  animation: eq-blink 400ms ease-in-out 1;
+}
+
 .avatar-root[data-active="1"] .eq-light {
   opacity: 1;
 }
@@ -433,30 +467,137 @@ body.scene-opaque {
   transition: opacity 120ms linear;
 }
 
+.eq-blink {
+  transition: opacity 160ms linear;
+}
+
 @keyframes breath {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0) scale(1, 1);
   }
-  50% {
-    transform: translateY(-7.5px);
+  22% {
+    transform: translate3d(0, -3px, 0) scale(1.003, 1.008);
+  }
+  48% {
+    transform: translate3d(0, -11px, 0) scale(1.008, 1.02);
+  }
+  70% {
+    transform: translate3d(0, -6px, 0) scale(1.004, 1.012);
+  }
+  86% {
+    transform: translate3d(0, -2px, 0) scale(1.001, 1.004);
   }
 }
 
 @keyframes head-idle {
   0%,
-  40%,
   100% {
-    transform: rotate(0deg);
+    transform: translate3d(0, 0, 0) rotate(0deg);
   }
-  48% {
-    transform: rotate(-2.2deg);
+  12% {
+    transform: translate3d(-4px, 1px, 0) rotate(-1.4deg);
   }
-  56% {
-    transform: rotate(1.4deg);
+  26% {
+    transform: translate3d(-7px, 0, 0) rotate(-2.2deg);
   }
-  64% {
-    transform: rotate(0deg);
+  40% {
+    transform: translate3d(-1px, 2px, 0) rotate(0.2deg);
+  }
+  55% {
+    transform: translate3d(6px, 0, 0) rotate(1.9deg);
+  }
+  70% {
+    transform: translate3d(4px, 1px, 0) rotate(1.1deg);
+  }
+  84% {
+    transform: translate3d(-2px, 0, 0) rotate(-0.5deg);
+  }
+}
+
+@keyframes cough-head {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  18% {
+    transform: translate3d(2px, 8px, 0) rotate(2.8deg);
+  }
+  40% {
+    transform: translate3d(-2px, 18px, 0) rotate(5.5deg);
+  }
+  62% {
+    transform: translate3d(1px, 10px, 0) rotate(2deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+}
+
+@keyframes cough-torso {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1, 1);
+  }
+  28% {
+    transform: translate3d(0, 6px, 0) scale(1.012, 0.982);
+  }
+  52% {
+    transform: translate3d(0, 10px, 0) scale(1.016, 0.972);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1, 1);
+  }
+}
+
+@keyframes shoulder-roll-l {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  40% {
+    transform: translate3d(-4px, -8px, 0) rotate(-6deg);
+  }
+  70% {
+    transform: translate3d(-1px, -3px, 0) rotate(-2deg);
+  }
+}
+
+@keyframes shoulder-roll-r {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  45% {
+    transform: translate3d(3px, 4px, 0) rotate(3deg);
+  }
+}
+
+@keyframes torso-settle {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  40% {
+    transform: translate3d(-2px, -3px, 0) rotate(-0.8deg);
+  }
+}
+
+@keyframes eq-blink {
+  0%,
+  100% {
+    opacity: 0.85;
+    filter: brightness(1);
+  }
+  30% {
+    opacity: 1;
+    filter: brightness(1.55);
+  }
+  55% {
+    opacity: 0.35;
+    filter: brightness(0.7);
+  }
+  75% {
+    opacity: 1;
+    filter: brightness(1.35);
   }
 }
 
@@ -500,7 +641,14 @@ body.scene-opaque {
   #layer-torso,
   #layer-head,
   .signal-noise,
-  .avatar-root[data-key="1"] #hand-left {
+  .avatar-root[data-key="1"] #hand-left,
+  .avatar-root[data-cough="1"] #layer-head,
+  .avatar-root[data-cough="1"] #layer-torso,
+  .avatar-root[data-roll="1"] #shoulder-left,
+  .avatar-root[data-roll="1"] #shoulder-right,
+  .avatar-root[data-roll="1"] #layer-torso,
+  .avatar-root[data-blink="1"] .eq-blink,
+  .avatar-root[data-blink="1"] .eq-light {
     animation: none;
   }
 }

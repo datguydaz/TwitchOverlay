@@ -12,16 +12,27 @@
     <link rel="stylesheet" href="/src/styles/ultrawide.css" />
   </head>
   <body class="uw-bar-only" data-uw-mode="top">
-    <div id="uw-stage">
+    <div id="uw-stage" data-vfx="on">
       <div class="uw-bar uw-bar-top" id="uw-top" data-edge="top">
-        <div class="uw-bar-inner">
-          <div class="uw-hazard">
-            <span class="uw-hazard-strip" aria-hidden="true"></span>
-            <span class="uw-mark">ZONE OPS</span>
+        <div class="uw-bar-body">
+          <div class="uw-side">
+            <div class="uw-brand">ZONE OPS</div>
+            <div class="uw-callsign">FIELD NET</div>
+            <div class="uw-meta">CH-01 // SECURE</div>
           </div>
-          <div class="uw-title" id="uw-top-text">ZONE OPS // TRANSMISSION</div>
-          <div class="uw-status" id="uw-top-status">SIGNAL NOMINAL</div>
+          <div class="uw-center">
+            <div class="uw-title" id="uw-top-text">ZONE OPS // TRANSMISSION</div>
+            <div class="uw-rule" aria-hidden="true"></div>
+          </div>
+          <div class="uw-side uw-side-right">
+            <div class="uw-status" id="uw-top-status">SIGNAL NOMINAL</div>
+            <div class="uw-meta">UPLINK STABLE</div>
+          </div>
+          <span class="uw-tick uw-tick-l" aria-hidden="true"></span>
+          <span class="uw-tick uw-tick-r" aria-hidden="true"></span>
+          <div class="uw-scan" aria-hidden="true"></div>
         </div>
+        <div class="uw-hazard-rail" aria-hidden="true"></div>
       </div>
     </div>
     <script type="module" src="/src/pages/ultrawide.ts"></script>
