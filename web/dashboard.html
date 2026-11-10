@@ -78,6 +78,19 @@
       </section>
 
       <section class="dash-panel">
+        <h2>Ultrawide letterbox</h2>
+        <p class="hint">For 3440×1440 (or similar) canvases with centered 16:9 gameplay. Bars fill the empty top/bottom.</p>
+        <label>Canvas width <input id="uwCanvasWidth" type="number" min="1280" max="7680" step="1" /></label>
+        <label>Canvas height <input id="uwCanvasHeight" type="number" min="720" max="4320" step="1" /></label>
+        <label>Bar height (px) <input id="uwBarHeight" type="number" min="48" max="400" step="1" /></label>
+        <label class="inline"><input id="uwTopVisible" type="checkbox" /> Top bar visible</label>
+        <label class="inline"><input id="uwBottomVisible" type="checkbox" /> Bottom bar visible</label>
+        <label>Top text <input id="uwTopText" type="text" /></label>
+        <label>Bottom text (after name) <input id="uwBottomText" type="text" /></label>
+        <label>Status strip <input id="uwStatusText" type="text" /></label>
+      </section>
+
+      <section class="dash-panel">
         <h2>Avatar & input</h2>
         <label>Animation intensity <input id="intensity" type="range" min="0.2" max="2" step="0.1" /></label>
         <label class="inline"><input id="lightsEnabled" type="checkbox" /> Equipment lights</label>
@@ -101,13 +114,16 @@
 
       <section class="dash-panel">
         <h2>Scene previews</h2>
-        <p class="hint">OBS sources use these URLs at 1920×1080 with transparent background (except BRB / starting / ending which are opaque scenes).</p>
+        <p class="hint">OBS sources use these URLs at 1920×1080 with transparent background (except BRB / starting / ending which are opaque scenes). Ultrawide pages use your canvas size (default 3440×1440).</p>
         <ul class="url-list">
           <li><a href="/gameplay.html" target="_blank" rel="noopener">/gameplay.html</a></li>
           <li><a href="/starting-soon.html" target="_blank" rel="noopener">/starting-soon.html</a></li>
           <li><a href="/brb.html" target="_blank" rel="noopener">/brb.html</a></li>
           <li><a href="/ending.html" target="_blank" rel="noopener">/ending.html</a></li>
           <li><a href="/avatar.html" target="_blank" rel="noopener">/avatar.html</a></li>
+          <li><a href="/ultrawide.html" target="_blank" rel="noopener">/ultrawide.html</a> (full canvas + both bars)</li>
+          <li><a href="/ultrawide-top.html" target="_blank" rel="noopener">/ultrawide-top.html</a></li>
+          <li><a href="/ultrawide-bottom.html" target="_blank" rel="noopener">/ultrawide-bottom.html</a></li>
         </ul>
         <p class="warn">Do not add <strong>dashboard.html</strong> as an OBS browser source.</p>
       </section>

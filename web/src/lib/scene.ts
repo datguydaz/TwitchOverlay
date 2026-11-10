@@ -111,10 +111,12 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
     applyModuleTransform(qs("#mod-events"), settings.modules.events);
     applyModuleTransform(qs("#mod-avatar"), settings.modules.avatar);
   } else if (opts.scene === "avatar") {
+    // Dedicated OBS source: full hi-res draw (ignore composite corner scale)
     applyModuleTransform(qs("#mod-avatar"), {
       ...settings.modules.avatar,
       x: 0,
       y: 0,
+      scale: 1,
       visible: true,
     });
   }

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ultrawide Letterbox</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/fonts.css" />
+    <link rel="stylesheet" href="/src/styles/zone.css" />
+    <link rel="stylesheet" href="/src/styles/ultrawide.css" />
+  </head>
+  <body>
+    <div id="uw-stage">
+      <div class="uw-bar uw-bar-top" id="uw-top" data-edge="top">
+        <div class="uw-bar-inner">
+          <div class="uw-hazard">
+            <span class="uw-hazard-strip" aria-hidden="true"></span>
+            <span class="uw-mark">ZONE OPS</span>
+          </div>
+          <div class="uw-title" id="uw-top-text">ZONE OPS // TRANSMISSION</div>
+          <div class="uw-status" id="uw-top-status">SIGNAL NOMINAL</div>
+        </div>
+      </div>
+
+      <div class="uw-bar uw-bar-bottom" id="uw-bottom" data-edge="bottom">
+        <div class="uw-bar-inner">
+          <div class="uw-hazard">
+            <span class="uw-mark" data-streamer-name>datguydaz</span>
+            <span class="uw-hazard-strip" aria-hidden="true"></span>
+          </div>
+          <div class="uw-title" id="uw-bottom-text">
+            <span data-streamer-name>datguydaz</span> // OPERATOR ONLINE
+          </div>
+          <div class="uw-status" id="uw-bottom-status">SIGNAL NOMINAL</div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/pages/ultrawide.ts"></script>
+  </body>
+</html>

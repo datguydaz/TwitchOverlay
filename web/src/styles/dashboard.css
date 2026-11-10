@@ -154,8 +154,16 @@
   margin-top: 12px;
   width: 380px;
   max-width: 100%;
+  height: calc(380px * 1020 / 1200);
+  overflow: hidden;
   background: rgba(0, 0, 0, 0.25);
   border: 1px dashed var(--olive-dim);
+}
+
+/* Preview only: shrink the hi-res avatar into the dashboard panel */
+.dash-avatar-wrap .avatar-root {
+  transform: scale(calc(380 / 1200));
+  transform-origin: top left;
 }
 
 .status-block p {

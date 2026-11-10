@@ -1,0 +1,153 @@
+/* Ultrawide letterbox bars — charcoal/olive exclusion-zone, not neon */
+
+#uw-stage {
+  position: relative;
+  width: 3440px;
+  height: 1440px;
+  transform-origin: top left;
+  overflow: hidden;
+  background: transparent;
+}
+
+.uw-bar {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  background:
+    linear-gradient(180deg, #141612 0%, var(--charcoal, #1a1c18) 42%, #121410 100%);
+  border-color: var(--olive-dim, #4a5240);
+  border-style: solid;
+  color: var(--beige, #c4b59a);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.45);
+}
+
+.uw-bar[data-hidden="true"] {
+  display: none !important;
+}
+
+.uw-bar-top {
+  top: 0;
+  border-width: 0 0 1px;
+}
+
+.uw-bar-bottom {
+  bottom: 0;
+  border-width: 1px 0 0;
+}
+
+.uw-bar-inner {
+  position: relative;
+  flex: 1;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 28px;
+  padding: 0 36px;
+  min-height: 0;
+}
+
+.uw-bar-inner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  background:
+    repeating-linear-gradient(
+      -18deg,
+      transparent,
+      transparent 10px,
+      rgba(107, 115, 85, 0.07) 10px,
+      rgba(107, 115, 85, 0.07) 12px
+    );
+}
+
+.uw-hazard {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.uw-hazard-strip {
+  width: 72px;
+  height: 14px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--amber, #c7923a) 0 6px,
+    #1a1c18 6px 12px
+  );
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  opacity: 0.85;
+}
+
+.uw-mark {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--olive, #6b7355);
+}
+
+.uw-title {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(18px, 2.1vh, 28px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--beige, #c4b59a);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
+}
+
+.uw-title span {
+  color: var(--amber, #c7923a);
+}
+
+.uw-status {
+  position: relative;
+  z-index: 1;
+  justify-self: end;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--olive, #6b7355);
+  border: 1px solid rgba(107, 115, 85, 0.45);
+  padding: 6px 12px;
+  background: rgba(10, 12, 9, 0.45);
+}
+
+.uw-status[data-alert="1"] {
+  color: var(--amber, #c7923a);
+  border-color: rgba(199, 146, 58, 0.55);
+}
+
+/* Standalone thin bar pages (OBS separate sources) */
+body.uw-bar-only {
+  overflow: hidden;
+  background: transparent;
+}
+
+body.uw-bar-only #uw-stage {
+  width: 100vw;
+  height: 100vh;
+}
+
+body.uw-bar-only .uw-bar {
+  position: absolute;
+  inset: 0;
+  height: 100% !important;
+  top: 0 !important;
+  bottom: auto !important;
+}

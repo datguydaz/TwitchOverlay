@@ -5,8 +5,10 @@
  * Desk name: #desk-streamer-name uses self-hosted Bender (OFL).
  * Layers: #layer-torso #layer-head #hand-left #hand-right
  */
+/** Hi-res vector base: 3× user-space (1200×1020) so OBS/browser scale stays sharp. */
 export const scavengerSvg = `
-<svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg" aria-label="Zone scavenger avatar" role="img">
+<svg viewBox="0 0 1200 1020" width="1200" height="1020" xmlns="http://www.w3.org/2000/svg" aria-label="Zone scavenger avatar" role="img" shape-rendering="geometricPrecision">
+  <g id="avatar-draw" transform="scale(3)">
   <defs>
     <linearGradient id="armorOlive" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#6b7548"/>
@@ -167,6 +169,7 @@ export const scavengerSvg = `
       <ellipse cx="284" cy="250" rx="7" ry="6" fill="#3a3630"/>
       <path d="M286 238 Q306 228 322 244" fill="none" stroke="#c7923a" stroke-width="2"/>
     </g>
+  </g>
   </g>
 </svg>
 `.trim();

@@ -47,6 +47,23 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("lightsEnabled") as HTMLInputElement).checked =
     s.avatar.lightsEnabled;
 
+  (document.getElementById("uwCanvasWidth") as HTMLInputElement).value = String(
+    s.ultrawide.canvasWidth,
+  );
+  (document.getElementById("uwCanvasHeight") as HTMLInputElement).value = String(
+    s.ultrawide.canvasHeight,
+  );
+  (document.getElementById("uwBarHeight") as HTMLInputElement).value = String(
+    s.ultrawide.barHeight,
+  );
+  (document.getElementById("uwTopVisible") as HTMLInputElement).checked =
+    s.ultrawide.topVisible;
+  (document.getElementById("uwBottomVisible") as HTMLInputElement).checked =
+    s.ultrawide.bottomVisible;
+  (document.getElementById("uwTopText") as HTMLInputElement).value = s.ultrawide.topText;
+  (document.getElementById("uwBottomText") as HTMLInputElement).value = s.ultrawide.bottomText;
+  (document.getElementById("uwStatusText") as HTMLInputElement).value = s.ultrawide.statusText;
+
   for (const key of Object.keys(s.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);
     if (!root) continue;
@@ -86,6 +103,29 @@ function readForm(): OverlaySettings {
   next.avatar.lightsEnabled = (
     document.getElementById("lightsEnabled") as HTMLInputElement
   ).checked;
+
+  next.ultrawide.canvasWidth = Number(
+    (document.getElementById("uwCanvasWidth") as HTMLInputElement).value,
+  );
+  next.ultrawide.canvasHeight = Number(
+    (document.getElementById("uwCanvasHeight") as HTMLInputElement).value,
+  );
+  next.ultrawide.barHeight = Number(
+    (document.getElementById("uwBarHeight") as HTMLInputElement).value,
+  );
+  next.ultrawide.topVisible = (
+    document.getElementById("uwTopVisible") as HTMLInputElement
+  ).checked;
+  next.ultrawide.bottomVisible = (
+    document.getElementById("uwBottomVisible") as HTMLInputElement
+  ).checked;
+  next.ultrawide.topText = (document.getElementById("uwTopText") as HTMLInputElement).value;
+  next.ultrawide.bottomText = (
+    document.getElementById("uwBottomText") as HTMLInputElement
+  ).value;
+  next.ultrawide.statusText = (
+    document.getElementById("uwStatusText") as HTMLInputElement
+  ).value;
 
   for (const key of Object.keys(next.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);

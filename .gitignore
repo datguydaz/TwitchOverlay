@@ -9,3 +9,5 @@ data/settings.json
 data/local-token.txt
 companion/node_modules/
 *.tsbuildinfo
+
+_proofs/

@@ -340,10 +340,10 @@ body.scene-opaque {
   color: var(--beige-dim);
 }
 
-/* Avatar */
+/* Avatar — large CSS pixel base so OBS Browser Source scale stays crisp */
 .avatar-root {
-  width: 420px;
-  height: 360px;
+  width: 1200px;
+  height: 1020px;
   position: relative;
 }
 
@@ -351,6 +351,8 @@ body.scene-opaque {
   width: 100%;
   height: 100%;
   overflow: visible;
+  display: block;
+  shape-rendering: geometricPrecision;
 }
 
 .avatar-root[data-source="demo"] .demo-badge {
@@ -391,14 +393,16 @@ body.scene-opaque {
   z-index: 2;
 }
 
-/* Layer animation hooks */
+/* Layer animation hooks — origins match 3× hi-res viewBox (1200×1020) */
 #layer-torso {
-  transform-origin: 200px 220px;
+  transform-box: view-box;
+  transform-origin: 600px 660px;
   animation: breath 3.6s ease-in-out infinite;
 }
 
 #layer-head {
-  transform-origin: 200px 120px;
+  transform-box: view-box;
+  transform-origin: 600px 360px;
   animation: head-idle 7s ease-in-out infinite;
 }
 
@@ -435,7 +439,7 @@ body.scene-opaque {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-2.5px);
+    transform: translateY(-7.5px);
   }
 }
 
@@ -461,7 +465,7 @@ body.scene-opaque {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(4px) rotate(2deg);
+    transform: translateY(12px) rotate(2deg);
   }
   100% {
     transform: translateY(0);
@@ -473,7 +477,7 @@ body.scene-opaque {
     transform: translate(0, 0);
   }
   40% {
-    transform: translate(2px, 5px) rotate(-4deg);
+    transform: translate(6px, 15px) rotate(-4deg);
   }
   100% {
     transform: translate(0, 0);
@@ -485,7 +489,7 @@ body.scene-opaque {
     transform: translate(0, 0);
   }
   35% {
-    transform: translate(-3px, 6px) rotate(6deg);
+    transform: translate(-9px, 18px) rotate(6deg);
   }
   100% {
     transform: translate(0, 0);

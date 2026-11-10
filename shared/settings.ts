@@ -3,13 +3,27 @@ export type SceneId =
   | "starting-soon"
   | "brb"
   | "ending"
-  | "avatar";
+  | "avatar"
+  | "ultrawide";
 
 export interface ModuleTransform {
   visible: boolean;
   x: number;
   y: number;
   scale: number;
+}
+
+/** Letterbox fills for ultrawide canvas (e.g. 3440×1440) around centered 16:9. */
+export interface UltrawideSettings {
+  canvasWidth: number;
+  canvasHeight: number;
+  /** Each bar thickness in px. Default 180 → 1080px hole in 1440 canvas. */
+  barHeight: number;
+  topVisible: boolean;
+  bottomVisible: boolean;
+  topText: string;
+  bottomText: string;
+  statusText: string;
 }
 
 export interface OverlaySettings {
@@ -39,6 +53,7 @@ export interface OverlaySettings {
     intensity: number;
     lightsEnabled: boolean;
   };
+  ultrawide: UltrawideSettings;
   demoModeDefault: boolean;
 }
 
@@ -63,11 +78,22 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     identity: { visible: true, x: 48, y: 48, scale: 1 },
     webcam: { visible: true, x: 1560, y: 48, scale: 1 },
     events: { visible: true, x: 48, y: 820, scale: 1 },
-    avatar: { visible: true, x: 1500, y: 740, scale: 1 },
+    /* Visual size ~420px after 1200px hi-res base (1200 * 0.35 ≈ 420) */
+    avatar: { visible: true, x: 1500, y: 740, scale: 0.35 },
   },
   avatar: {
     intensity: 1,
     lightsEnabled: true,
+  },
+  ultrawide: {
+    canvasWidth: 3440,
+    canvasHeight: 1440,
+    barHeight: 180,
+    topVisible: true,
+    bottomVisible: true,
+    topText: "ZONE OPS // TRANSMISSION",
+    bottomText: "OPERATOR ONLINE",
+    statusText: "SIGNAL NOMINAL",
   },
   demoModeDefault: false,
 };
@@ -89,5 +115,6 @@ export function mergeSettings(
       avatar: { ...base.modules.avatar, ...partial.modules?.avatar },
     },
     avatar: { ...base.avatar, ...partial.avatar },
+    ultrawide: { ...base.ultrawide, ...partial.ultrawide },
   };
 }

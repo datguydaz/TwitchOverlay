@@ -76,10 +76,33 @@ body { background-color: rgba(0,0,0,0); margin: 0; overflow: hidden; }
 | Be Right Back | `http://127.0.0.1:8787/brb.html` | Opaque |
 | Stream Ending | `http://127.0.0.1:8787/ending.html` | Opaque |
 | Avatar only | `http://127.0.0.1:8787/avatar.html` | Transparent |
+| Ultrawide (both bars) | `http://127.0.0.1:8787/ultrawide.html` | Transparent center |
+| Ultrawide top bar | `http://127.0.0.1:8787/ultrawide-top.html` | Solid bar |
+| Ultrawide bottom bar | `http://127.0.0.1:8787/ultrawide-bottom.html` | Solid bar |
 
 In `npm run dev`, replace port **8787** with **5173**.
 
 **Do not** add `dashboard.html` as an OBS browser source — controls stay off-stream.
+
+### Ultrawide / Streamlabs letterbox (3440×1440)
+
+When the canvas is ultrawide and 16:9 gameplay sits in the middle, use Zone Ops bars instead of empty black.
+
+**Option A — one overlay**
+
+1. Set OBS/Streamlabs canvas to **3440×1440** (or your panel res).
+2. Place 16:9 game capture centered (e.g. 1920×1080 or scaled 16:9). With default **bar height 180**, the transparent hole matches a 1080px-tall center in a 1440 canvas.
+3. Add Browser Source → `http://127.0.0.1:8787/ultrawide.html`  
+   Width **3440**, Height **1440**, transparent background **on**. Put it above the black void / below game as needed so bars show in the letterbox.
+
+**Option B — separate top/bottom sources**
+
+1. Browser Source top → `http://127.0.0.1:8787/ultrawide-top.html`  
+   Width **3440**, Height **180** (match dashboard bar height), position Y **0**.
+2. Browser Source bottom → `http://127.0.0.1:8787/ultrawide-bottom.html`  
+   Width **3440**, Height **180**, position Y **1260** (1440 − 180).
+
+Tune bar height, copy, and visibility in the dashboard **Ultrawide letterbox** panel. Keep gameplay/avatar overlays as their own 16:9 (or avatar-only) sources on top of the game.
 
 ## Reactive avatar
 
