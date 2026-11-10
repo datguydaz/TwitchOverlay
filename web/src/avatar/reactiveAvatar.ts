@@ -448,8 +448,8 @@ export class ReactiveAvatar {
 
     const lmb = this.root.querySelector("#mouse-lmb") as SVGElement | null;
     const rmb = this.root.querySelector("#mouse-rmb") as SVGElement | null;
-    if (lmb) lmb.style.fill = this.mouseLHeld > 0 ? "#c7923a" : "#1a1c16";
-    if (rmb) rmb.style.fill = this.mouseRHeld > 0 ? "#c7923a" : "#1a1c16";
+    if (lmb) lmb.style.fill = this.mouseLHeld > 0 ? "#c7923a" : "#1a1a1a";
+    if (rmb) rmb.style.fill = this.mouseRHeld > 0 ? "#c7923a" : "#1a1a1a";
 
     const wheelBusy = this.root.dataset.wheel === "up" || this.root.dataset.wheel === "down";
     const active =

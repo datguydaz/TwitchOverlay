@@ -520,7 +520,7 @@ body.scene-opaque {
 }
 
 .kb-label {
-  fill: #c4b59a;
+  fill: #b0b0b0;
   font-family: ui-monospace, Consolas, monospace;
   font-size: 5px;
   text-anchor: middle;
@@ -529,21 +529,21 @@ body.scene-opaque {
   opacity: 0.82;
 }
 
-/* Scuffed / worn legend — uneven ink, still readable */
-.kb-label.wear-a { opacity: 0.94; fill: #d2c6aa; }
-.kb-label.wear-b { opacity: 0.7; fill: #a89878; }
-.kb-label.wear-c { opacity: 0.52; fill: #7a7360; }
-.kb-label.wear-d { opacity: 0.78; fill: #b8aa8e; }
-.kb-label.wear-e { opacity: 0.6; fill: #9a8f78; }
+/* Scuffed / worn legend — charcoal theme, uneven opacity, still readable */
+.kb-label.wear-a { opacity: 0.94; fill: #d0d0d0; }
+.kb-label.wear-b { opacity: 0.7; fill: #9a9a9a; }
+.kb-label.wear-c { opacity: 0.52; fill: #6e6e6e; }
+.kb-label.wear-d { opacity: 0.78; fill: #b5b5b5; }
+.kb-label.wear-e { opacity: 0.6; fill: #888888; }
 .kb-deco-label {
   opacity: 0.48;
 }
 .kb-labels-num text {
   opacity: 0.72;
 }
-.kb-labels-num text:nth-child(3n) { opacity: 0.5; fill: #6b7355; }
-.kb-labels-num text:nth-child(3n + 1) { opacity: 0.85; fill: #8a8070; }
-.kb-labels-num text:nth-child(3n + 2) { opacity: 0.62; fill: #7a735f; }
+.kb-labels-num text:nth-child(3n) { opacity: 0.5; fill: #5a5a5a; }
+.kb-labels-num text:nth-child(3n + 1) { opacity: 0.85; fill: #8a8a8a; }
+.kb-labels-num text:nth-child(3n + 2) { opacity: 0.62; fill: #707070; }
 
 .kb-key[data-pressed="1"] {
   transform: translateY(2.5px) scale(0.96, 0.88);
@@ -658,7 +658,7 @@ body.scene-opaque {
 
 .mouse-lmb,
 .mouse-rmb {
-  fill: #1a1c16 !important;
+  fill: #1a1a1a !important;
 }
 
 .avatar-root[data-mouse-l="1"] .mouse-lmb {
