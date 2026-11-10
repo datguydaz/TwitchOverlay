@@ -342,8 +342,8 @@ body.scene-opaque {
 
 /* Avatar */
 .avatar-root {
-  width: 380px;
-  height: 320px;
+  width: 420px;
+  height: 360px;
   position: relative;
 }
 
@@ -393,12 +393,12 @@ body.scene-opaque {
 
 /* Layer animation hooks */
 #layer-torso {
-  transform-origin: 190px 210px;
+  transform-origin: 200px 220px;
   animation: breath 3.6s ease-in-out infinite;
 }
 
 #layer-head {
-  transform-origin: 190px 118px;
+  transform-origin: 200px 120px;
   animation: head-idle 7s ease-in-out infinite;
 }
 

@@ -1,157 +1,196 @@
 /**
- * Original zone-ops operator — clearly Killa/Maska-inspired silhouette:
- * cream face-plate helmet with bold vertical bars, athletic armored tracksuit,
- * thick sleeve stripes. No logos / extracted assets.
- * Anim layers: #layer-torso #layer-head #hand-left #hand-right
+ * Original bulky zone-ops operator (Killa/Maska-inspired vibe only).
+ * Fat padded silhouette, dark Maska-style shell + stripe bars, triple sleeve
+ * stripes (no brand marks), chest-rig mass, KB+mouse under animatable hands.
+ * Layers: #layer-torso #layer-head #hand-left #hand-right
  * Desk name: #desk-streamer-name (settings-bound)
  */
 export const scavengerSvg = `
-<svg viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg" aria-label="Zone scavenger avatar" role="img">
+<svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg" aria-label="Zone scavenger avatar" role="img">
   <defs>
-    <linearGradient id="suitBody" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#6a7a4e"/>
-      <stop offset="50%" stop-color="#4a5a38"/>
-      <stop offset="100%" stop-color="#2e3a28"/>
+    <linearGradient id="armorOlive" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6b7548"/>
+      <stop offset="45%" stop-color="#4a5434"/>
+      <stop offset="100%" stop-color="#2c3420"/>
     </linearGradient>
-    <linearGradient id="armorPlate" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#7a8a58"/>
-      <stop offset="100%" stop-color="#3a4a30"/>
+    <linearGradient id="suitDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a2e28"/>
+      <stop offset="100%" stop-color="#121410"/>
+    </linearGradient>
+    <linearGradient id="helmDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a4034"/>
+      <stop offset="100%" stop-color="#141812"/>
+    </linearGradient>
+    <linearGradient id="plateMetal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a4e44"/>
+      <stop offset="50%" stop-color="#2e3228"/>
+      <stop offset="100%" stop-color="#1a1c16"/>
     </linearGradient>
     <linearGradient id="deskGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3d3830"/>
-      <stop offset="100%" stop-color="#221e18"/>
+      <stop offset="0%" stop-color="#3a342c"/>
+      <stop offset="100%" stop-color="#1c1812"/>
     </linearGradient>
-    <linearGradient id="creamPlate" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f5eedc"/>
-      <stop offset="50%" stop-color="#e8dcc4"/>
-      <stop offset="100%" stop-color="#c8b898"/>
+    <linearGradient id="pouchGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a3228"/>
+      <stop offset="100%" stop-color="#1a1612"/>
     </linearGradient>
-    <linearGradient id="helmShell" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#4a5040"/>
-      <stop offset="100%" stop-color="#1c2018"/>
-    </linearGradient>
-    <radialGradient id="lensGlow" cx="40%" cy="35%" r="60%">
-      <stop offset="0%" stop-color="#f0c060"/>
-      <stop offset="55%" stop-color="#a87828"/>
-      <stop offset="100%" stop-color="#2a1c08"/>
-    </radialGradient>
+    <filter id="stencilScratch" x="-5%" y="-20%" width="110%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" result="noise" seed="7"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.4" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
   </defs>
 
-  <ellipse cx="190" cy="298" rx="128" ry="12" fill="#000" opacity="0.42"/>
+  <ellipse cx="200" cy="318" rx="140" ry="14" fill="#000" opacity="0.45"/>
 
-  <!-- Desk -->
+  <!-- DESK with KB + mouse -->
   <g id="desk">
-    <path d="M36 254 H344 L326 286 H54 Z" fill="url(#deskGrad)" stroke="#5a5348" stroke-width="1.5"/>
-    <path d="M54 286 V312 H82 V286 M298 286 V312 H326 V286" fill="#2a2620" stroke="#4a443c"/>
-    <rect x="68" y="242" width="164" height="20" rx="2" fill="#141612" stroke="#6b7355"/>
-    <g fill="#2a2e24" stroke="#4a5240" stroke-width="0.5">
-      <rect x="74" y="246" width="12" height="8" rx="1"/>
-      <rect x="90" y="246" width="12" height="8" rx="1"/>
-      <rect x="106" y="246" width="12" height="8" rx="1"/>
-      <rect x="122" y="246" width="12" height="8" rx="1"/>
-      <rect x="138" y="246" width="12" height="8" rx="1"/>
-      <rect x="154" y="246" width="12" height="8" rx="1"/>
-      <rect x="170" y="246" width="12" height="8" rx="1"/>
-      <rect x="186" y="246" width="12" height="8" rx="1"/>
-      <rect x="202" y="246" width="22" height="8" rx="1"/>
+    <path d="M28 268 H372 L352 302 H48 Z" fill="url(#deskGrad)" stroke="#5a5348" stroke-width="1.6"/>
+    <path d="M48 302 V328 H78 V302 M322 302 V328 H352 V302" fill="#241e18" stroke="#4a443c"/>
+
+    <!-- Keyboard under left hand -->
+    <g id="prop-keyboard">
+      <rect x="70" y="252" width="168" height="24" rx="2" fill="#121410" stroke="#6b7355" stroke-width="1.2"/>
+      <g fill="#2a2e24" stroke="#4a5240" stroke-width="0.55">
+        <rect x="76" y="256" width="12" height="9" rx="1"/>
+        <rect x="92" y="256" width="12" height="9" rx="1"/>
+        <rect x="108" y="256" width="12" height="9" rx="1"/>
+        <rect x="124" y="256" width="12" height="9" rx="1"/>
+        <rect x="140" y="256" width="12" height="9" rx="1"/>
+        <rect x="156" y="256" width="12" height="9" rx="1"/>
+        <rect x="172" y="256" width="12" height="9" rx="1"/>
+        <rect x="188" y="256" width="12" height="9" rx="1"/>
+        <rect x="204" y="256" width="26" height="9" rx="1"/>
+        <rect x="82" y="267" width="140" height="5" rx="1"/>
+      </g>
+      <rect x="78" y="270" width="150" height="2" fill="#c7923a" opacity="0.35"/>
     </g>
-    <ellipse cx="276" cy="252" rx="18" ry="24" fill="#22241e" stroke="#6b7355"/>
-    <line x1="276" y1="234" x2="276" y2="252" stroke="#c7923a" stroke-width="1.4"/>
-    <rect x="302" y="234" width="32" height="11" rx="1" fill="#141612" stroke="#4a5240"/>
-    <circle class="eq-light" cx="310" cy="248" r="4" fill="#c7923a">
-      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite"/>
+
+    <!-- Mouse under right hand -->
+    <g id="prop-mouse">
+      <ellipse cx="292" cy="264" rx="20" ry="26" fill="#1e201a" stroke="#6b7355" stroke-width="1.2"/>
+      <line x1="292" y1="244" x2="292" y2="264" stroke="#8a6528" stroke-width="1.5"/>
+      <path d="M280 252 Q292 248 304 252" fill="none" stroke="#4a5240" stroke-width="1"/>
+    </g>
+
+    <rect x="322" y="248" width="34" height="12" rx="1" fill="#121410" stroke="#4a5240"/>
+    <circle class="eq-light" cx="330" cy="266" r="4" fill="#c7923a">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.15s" repeatCount="indefinite"/>
     </circle>
-    <circle class="eq-light" cx="324" cy="248" r="4" fill="#c7923a" opacity="0.35"/>
-    <text id="desk-streamer-name" x="190" y="276" text-anchor="middle" fill="#e8dcc4" font-size="15" font-family="Oswald, 'Arial Narrow', sans-serif" font-weight="600" letter-spacing="3">datguydaz</text>
+    <circle class="eq-light" cx="344" cy="266" r="4" fill="#c7923a" opacity="0.35"/>
+
+    <!-- Distressed stencil / hazard desk lettering -->
+    <g filter="url(#stencilScratch)">
+      <text id="desk-streamer-name" x="200" y="292" text-anchor="middle"
+        fill="#c7923a" stroke="#1a1408" stroke-width="0.8"
+        font-size="18" font-family="Oswald, 'Arial Narrow', Impact, sans-serif"
+        font-weight="700" letter-spacing="3.5"
+        style="paint-order: stroke fill">datguydaz</text>
+      <text aria-hidden="true" x="201.5" y="293.5" text-anchor="middle"
+        fill="#2a2418" opacity="0.45"
+        font-size="18" font-family="Oswald, 'Arial Narrow', Impact, sans-serif"
+        font-weight="700" letter-spacing="3.5">datguydaz</text>
+    </g>
+    <!-- scratched underline / hazard tick marks -->
+    <path d="M118 298 H282" stroke="#6b7355" stroke-width="1" stroke-dasharray="6 4 2 4" opacity="0.7"/>
+    <path d="M124 296 L128 300 M270 296 L274 300" stroke="#c7923a" stroke-width="1.2" opacity="0.6"/>
   </g>
 
-  <!-- TORSO: boxy armored athletic jacket (not a soft hooded blob) -->
+  <!-- TORSO: imposing fat armored mass -->
   <g id="layer-torso">
-    <!-- main jacket body — wider, more rectangular -->
-    <path d="M88 150 L120 138 L190 132 L260 138 L292 150 L310 258 L70 258 Z" fill="url(#suitBody)" stroke="#1c2018" stroke-width="2"/>
-    <!-- hard armor chest panels -->
-    <rect x="108" y="158" width="72" height="78" rx="6" fill="url(#armorPlate)" stroke="#1c2018" stroke-width="1.5"/>
-    <rect x="200" y="158" width="72" height="78" rx="6" fill="url(#armorPlate)" stroke="#1c2018" stroke-width="1.5"/>
-    <line x1="118" y1="178" x2="170" y2="178" stroke="#c4b59a" stroke-width="1.2" opacity="0.35"/>
-    <line x1="118" y1="198" x2="170" y2="198" stroke="#c4b59a" stroke-width="1.2" opacity="0.35"/>
-    <line x1="210" y1="178" x2="262" y2="178" stroke="#c4b59a" stroke-width="1.2" opacity="0.35"/>
-    <line x1="210" y1="198" x2="262" y2="198" stroke="#c4b59a" stroke-width="1.2" opacity="0.35"/>
-    <!-- center zipper track -->
-    <rect x="184" y="140" width="12" height="112" rx="2" fill="#1a1c18"/>
-    <rect x="187" y="144" width="6" height="104" rx="1" fill="#8a9480" opacity="0.5"/>
-    <!-- blocky shoulder armor -->
-    <rect x="72" y="140" width="58" height="36" rx="8" fill="#5a6a44" stroke="#1c2018" stroke-width="1.6"/>
-    <rect x="250" y="140" width="58" height="36" rx="8" fill="#5a6a44" stroke="#1c2018" stroke-width="1.6"/>
-    <rect x="78" y="146" width="46" height="10" rx="2" fill="#c7923a" opacity="0.55"/>
-    <rect x="256" y="146" width="46" height="10" rx="2" fill="#c7923a" opacity="0.55"/>
-    <!-- thick arms -->
-    <path d="M95 170 Q55 205 88 248" fill="none" stroke="#3a4a30" stroke-width="36" stroke-linecap="round"/>
-    <path d="M285 170 Q325 205 292 248" fill="none" stroke="#3a4a30" stroke-width="36" stroke-linecap="round"/>
-    <path d="M95 170 Q55 205 88 248" fill="none" stroke="#526240" stroke-width="26" stroke-linecap="round"/>
-    <path d="M285 170 Q325 205 292 248" fill="none" stroke="#526240" stroke-width="26" stroke-linecap="round"/>
-    <!-- THICK sleeve track stripes — unmistakable -->
-    <path d="M68 188 Q52 214 74 242" fill="none" stroke="#f5eedc" stroke-width="10" stroke-linecap="round"/>
-    <path d="M78 186 Q62 214 84 240" fill="none" stroke="#c7923a" stroke-width="6" stroke-linecap="round"/>
-    <path d="M88 188 Q74 214 94 238" fill="none" stroke="#f5eedc" stroke-width="4" stroke-linecap="round"/>
-    <path d="M312 188 Q328 214 306 242" fill="none" stroke="#f5eedc" stroke-width="10" stroke-linecap="round"/>
-    <path d="M302 186 Q318 214 296 240" fill="none" stroke="#c7923a" stroke-width="6" stroke-linecap="round"/>
-    <path d="M292 188 Q306 214 286 238" fill="none" stroke="#f5eedc" stroke-width="4" stroke-linecap="round"/>
+    <!-- dark tracksuit base under armor -->
+    <path d="M78 148 L118 132 L200 124 L282 132 L322 148 L342 272 L58 272 Z" fill="url(#suitDark)" stroke="#0e100c" stroke-width="1.5"/>
+
+    <!-- thick arms (dark suit) -->
+    <path d="M95 165 Q48 210 82 262" fill="none" stroke="#1a1e18" stroke-width="42" stroke-linecap="round"/>
+    <path d="M305 165 Q352 210 318 262" fill="none" stroke="#1a1e18" stroke-width="42" stroke-linecap="round"/>
+    <path d="M95 165 Q48 210 82 262" fill="none" stroke="#2a2e28" stroke-width="32" stroke-linecap="round"/>
+    <path d="M305 165 Q352 210 318 262" fill="none" stroke="#2a2e28" stroke-width="32" stroke-linecap="round"/>
+
+    <!-- THREE sleeve track stripes (no logos) — left -->
+    <path d="M64 188 Q48 220 70 252" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M74 186 Q58 220 80 250" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M84 188 Q70 220 90 248" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+    <!-- THREE sleeve track stripes — right -->
+    <path d="M336 188 Q352 220 330 252" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M326 186 Q342 220 320 250" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M316 188 Q330 220 310 248" fill="none" stroke="#efe6d2" stroke-width="5" stroke-linecap="round"/>
+
     <!-- forearm cuffs -->
-    <path d="M72 220 Q84 236 96 246" fill="none" stroke="#6a7850" stroke-width="14" stroke-linecap="round"/>
-    <path d="M308 220 Q296 236 284 246" fill="none" stroke="#6a7850" stroke-width="14" stroke-linecap="round"/>
-    <!-- waistband with stripe tabs -->
-    <rect x="96" y="246" width="188" height="14" rx="2" fill="#1c2018" stroke="#3a4032"/>
-    <rect x="104" y="249" width="50" height="8" rx="1" fill="#f5eedc" opacity="0.7"/>
-    <rect x="226" y="249" width="50" height="8" rx="1" fill="#f5eedc" opacity="0.7"/>
+    <path d="M68 232 Q80 250 92 260" fill="none" stroke="#3a4034" stroke-width="16" stroke-linecap="round"/>
+    <path d="M332 232 Q320 250 308 260" fill="none" stroke="#3a4034" stroke-width="16" stroke-linecap="round"/>
+
+    <!-- massive olive armor vest -->
+    <path d="M96 142 L130 128 L200 122 L270 128 L304 142 L318 250 L82 250 Z" fill="url(#armorOlive)" stroke="#1a2014" stroke-width="2"/>
+    <!-- high neck / gorget pad -->
+    <path d="M148 128 Q200 148 252 128 L246 158 Q200 172 154 158 Z" fill="#5a6440" stroke="#1a2014" stroke-width="1.4"/>
+    <!-- blocky shoulders -->
+    <rect x="62" y="138" width="72" height="44" rx="10" fill="#5a6842" stroke="#1a2014" stroke-width="1.6"/>
+    <rect x="266" y="138" width="72" height="44" rx="10" fill="#5a6842" stroke="#1a2014" stroke-width="1.6"/>
+    <rect x="70" y="148" width="56" height="12" rx="2" fill="#2a2e24" opacity="0.5"/>
+    <rect x="274" y="148" width="56" height="12" rx="2" fill="#2a2e24" opacity="0.5"/>
+
+    <!-- chest rig: four mag pouches -->
+    <g id="chest-rig">
+      <rect x="118" y="178" width="36" height="52" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
+      <rect x="160" y="178" width="36" height="52" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
+      <rect x="204" y="178" width="36" height="52" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
+      <rect x="246" y="178" width="36" height="52" rx="3" fill="url(#pouchGrad)" stroke="#0e100c" stroke-width="1.3"/>
+      <path d="M124 186 H148 M166 186 H190 M210 186 H234 M252 186 H276" stroke="#5a5348" stroke-width="2"/>
+      <path d="M124 200 H148 M166 200 H190 M210 200 H234 M252 200 H276" stroke="#3a3830" stroke-width="1" opacity="0.6"/>
+    </g>
+
+    <!-- waistband -->
+    <rect x="90" y="248" width="220" height="16" rx="2" fill="#1a1c16" stroke="#3a4032"/>
+    <rect x="100" y="252" width="48" height="8" rx="1" fill="#efe6d2" opacity="0.55"/>
+    <rect x="252" y="252" width="48" height="8" rx="1" fill="#efe6d2" opacity="0.55"/>
   </g>
 
-  <!-- HEAD: hard sports-visor helmet + large cream face plate (NOT a round gas mask) -->
+  <!-- HEAD: dark Maska-energy shell + vertical bars + crown stripes -->
   <g id="layer-head">
-    <!-- short athletic hood cuff behind helmet only -->
-    <path d="M118 108 L140 78 L190 68 L240 78 L262 108 L248 128 L190 138 L132 128 Z" fill="#3a4a30" stroke="#1c2018" stroke-width="1.4"/>
-    <!-- hard helmet dome / shell -->
-    <path d="M125 100 Q190 52 255 100 L248 118 Q190 98 132 118 Z" fill="url(#helmShell)" stroke="#0e100c" stroke-width="1.8"/>
-    <!-- side ear cups / pods -->
-    <rect x="108" y="112" width="28" height="42" rx="10" fill="#2e3428" stroke="#0e100c" stroke-width="1.5"/>
-    <rect x="244" y="112" width="28" height="42" rx="10" fill="#2e3428" stroke="#0e100c" stroke-width="1.5"/>
-    <circle cx="122" cy="133" r="6" fill="#1a1c18" stroke="#6b7355"/>
-    <circle cx="258" cy="133" r="6" fill="#1a1c18" stroke="#6b7355"/>
-    <!-- LARGE pale cream face plate — dominant head feature -->
-    <rect x="138" y="92" width="104" height="86" rx="14" fill="url(#creamPlate)" stroke="#6a6050" stroke-width="2.2"/>
-    <!-- BOLD vertical bars across the plate -->
-    <rect x="150" y="96" width="12" height="78" rx="2" fill="#141612"/>
-    <rect x="170" y="96" width="12" height="78" rx="2" fill="#141612"/>
-    <rect x="198" y="96" width="12" height="78" rx="2" fill="#141612"/>
-    <rect x="218" y="96" width="12" height="78" rx="2" fill="#141612"/>
-    <!-- large round lenses sitting on the plate -->
-    <circle cx="166" cy="128" r="22" fill="#0e100c" stroke="#3a3830" stroke-width="2.5"/>
-    <circle cx="214" cy="128" r="22" fill="#0e100c" stroke="#3a3830" stroke-width="2.5"/>
-    <circle cx="166" cy="128" r="17" fill="url(#lensGlow)"/>
-    <circle cx="214" cy="128" r="17" fill="url(#lensGlow)"/>
-    <ellipse cx="160" cy="120" rx="6" ry="4" fill="#ffe6a0" opacity="0.5"/>
-    <ellipse cx="208" cy="120" rx="6" ry="4" fill="#ffe6a0" opacity="0.5"/>
-    <!-- amber brow / visor lip -->
-    <rect x="142" y="98" width="96" height="6" rx="2" fill="#c7923a"/>
-    <!-- chin seal -->
-    <path d="M152 168 Q190 188 228 168" fill="none" stroke="#6a6050" stroke-width="5" stroke-linecap="round"/>
-    <ellipse cx="190" cy="172" rx="14" ry="9" fill="#2a2e24" stroke="#5a5348" stroke-width="1.2"/>
-    <circle cx="190" cy="172" r="4" fill="#0e100c"/>
+    <!-- helmet dome -->
+    <ellipse cx="200" cy="108" rx="72" ry="58" fill="url(#helmDark)" stroke="#0a0c08" stroke-width="2"/>
+    <!-- THREE white crown / face stripes over helmet (racing energy, original) -->
+    <path d="M188 58 Q200 48 212 58 L208 118 L192 118 Z" fill="#efe6d2"/>
+    <path d="M170 64 Q180 52 186 66 L182 120 L168 118 Z" fill="#efe6d2" opacity="0.95"/>
+    <path d="M214 66 Q220 52 230 64 L232 118 L218 120 Z" fill="#efe6d2" opacity="0.95"/>
+
+    <!-- ear cups -->
+    <rect x="118" y="100" width="32" height="48" rx="12" fill="#2a2e24" stroke="#0a0c08" stroke-width="1.5"/>
+    <rect x="250" y="100" width="32" height="48" rx="12" fill="#2a2e24" stroke="#0a0c08" stroke-width="1.5"/>
+    <circle cx="134" cy="124" r="7" fill="#121410" stroke="#5a5348"/>
+    <circle cx="266" cy="124" r="7" fill="#121410" stroke="#5a5348"/>
+
+    <!-- heavy dark face plate -->
+    <rect x="144" y="88" width="112" height="92" rx="10" fill="url(#plateMetal)" stroke="#0a0c08" stroke-width="2.2"/>
+    <!-- bold vertical white bars on plate -->
+    <rect x="156" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
+    <rect x="174" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
+    <rect x="215" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
+    <rect x="233" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
+    <!-- narrow horizontal vision slit (Maska energy) -->
+    <rect x="162" y="124" width="76" height="10" rx="2" fill="#0a0c08" stroke="#c7923a" stroke-width="1.4"/>
+    <rect x="168" y="126" width="64" height="5" rx="1" fill="#3a4a28" opacity="0.85"/>
+    <!-- amber brow lip -->
+    <rect x="150" y="96" width="100" height="5" rx="1" fill="#c7923a" opacity="0.75"/>
+    <!-- chin / seal -->
+    <ellipse cx="200" cy="168" rx="16" ry="10" fill="#1a1c16" stroke="#3a3830" stroke-width="1.2"/>
+    <circle cx="200" cy="168" r="4" fill="#0a0c08"/>
   </g>
 
-  <!-- Left hand -->
+  <!-- Left hand over keyboard -->
   <g id="hand-left">
-    <path d="M86 234 Q108 218 140 232 Q150 244 132 252 Q104 256 88 244 Z" fill="#5a5648" stroke="#1c2018" stroke-width="1.3"/>
-    <path d="M100 232 L104 246 M112 230 L116 246 M124 232 L126 246" stroke="#2a2820" stroke-width="2.4" stroke-linecap="round"/>
-    <ellipse cx="94" cy="238" rx="6" ry="5" fill="#4a463c"/>
-    <path d="M96 230 Q116 220 134 232" fill="none" stroke="#c7923a" stroke-width="2.2"/>
+    <path d="M88 248 Q112 232 148 246 Q158 258 138 268 Q108 272 90 258 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
+    <path d="M104 246 L108 262 M116 244 L120 262 M128 246 L130 262" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="96" cy="252" rx="7" ry="6" fill="#3a3630"/>
+    <path d="M98 244 Q120 234 140 246" fill="none" stroke="#c7923a" stroke-width="2"/>
   </g>
 
-  <!-- Right hand -->
+  <!-- Right hand over mouse -->
   <g id="hand-right">
-    <path d="M254 232 Q278 214 302 234 Q308 248 284 256 Q258 258 252 242 Z" fill="#5a5648" stroke="#1c2018" stroke-width="1.3"/>
-    <path d="M266 230 L268 248 M276 228 L280 248 M288 232 L290 246" stroke="#2a2820" stroke-width="2.4" stroke-linecap="round"/>
-    <ellipse cx="260" cy="238" rx="6" ry="5" fill="#4a463c"/>
-    <path d="M260 228 Q280 216 298 232" fill="none" stroke="#c7923a" stroke-width="2.2"/>
+    <path d="M268 246 Q294 228 320 248 Q326 262 300 272 Q272 274 266 256 Z" fill="#4a463c" stroke="#1a1810" stroke-width="1.3"/>
+    <path d="M282 244 L284 264 M292 242 L296 264 M304 246 L306 260" stroke="#2a261c" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="274" cy="252" rx="7" ry="6" fill="#3a3630"/>
+    <path d="M274 240 Q296 228 316 246" fill="none" stroke="#c7923a" stroke-width="2"/>
   </g>
 </svg>
 `.trim();
