@@ -141,33 +141,73 @@ export const scavengerSvg = `
       </g>
     </g>
 
-    <!-- Field keyboard — keycaps id=kb-sN match opaque companion slots -->
+    <!-- Nordic field keyboard — ÅÄÖ placement; id=kb-sN match opaque companion slots -->
     <g id="prop-keyboard">
-      <rect x="48" y="244" width="196" height="40" rx="3.5" fill="#0c0e0a" stroke="#c4b59a" stroke-width="1.8"/>
-      <rect x="54" y="249" width="184" height="30" rx="2" fill="#161a14"/>
-      <g class="kb-row" fill="#3a4434" stroke="#9a8f78" stroke-width="0.9">
-        <rect id="kb-s0" class="kb-key" data-slot="0" x="60" y="252" width="15" height="11" rx="1.5"/>
-        <rect id="kb-s1" class="kb-key" data-slot="1" x="78" y="252" width="15" height="11" rx="1.5"/>
-        <rect id="kb-s2" class="kb-key" data-slot="2" x="96" y="252" width="15" height="11" rx="1.5"/>
-        <rect id="kb-s3" class="kb-key" data-slot="3" x="114" y="252" width="15" height="11" rx="1.5"/>
-        <rect id="kb-s4" class="kb-key" data-slot="4" x="132" y="252" width="15" height="11" rx="1.5"/>
-        <rect id="kb-s5" class="kb-key" data-slot="5" x="150" y="252" width="15" height="11" rx="1.5"/>
-        <rect id="kb-s6" class="kb-key" data-slot="6" x="168" y="252" width="15" height="11" rx="1.5"/>
-        <rect id="kb-s7" class="kb-key" data-slot="7" x="186" y="252" width="15" height="11" rx="1.5"/>
-        <rect id="kb-s8" class="kb-key" data-slot="8" x="204" y="252" width="15" height="11" rx="1.5"/>
-        <rect id="kb-s9" class="kb-key" data-slot="9" x="222" y="252" width="12" height="11" rx="1.5"/>
+      <rect x="44" y="236" width="208" height="50" rx="3.5" fill="#0c0e0a" stroke="#c4b59a" stroke-width="1.8"/>
+      <rect x="48" y="240" width="200" height="42" rx="2" fill="#161a14"/>
+      <!-- Number row (visual only — Nordic + after 0) -->
+      <g class="kb-row kb-num" fill="#2a3228" stroke="#6b7355" stroke-width="0.55">
+        <rect x="50" y="241.5" width="11" height="6.5" rx="1"/>
+        <rect x="62.5" y="241.5" width="11" height="6.5" rx="1"/>
+        <rect x="75" y="241.5" width="11" height="6.5" rx="1"/>
+        <rect x="87.5" y="241.5" width="11" height="6.5" rx="1"/>
+        <rect x="100" y="241.5" width="11" height="6.5" rx="1"/>
+        <rect x="112.5" y="241.5" width="11" height="6.5" rx="1"/>
+        <rect x="125" y="241.5" width="11" height="6.5" rx="1"/>
+        <rect x="137.5" y="241.5" width="11" height="6.5" rx="1"/>
+        <rect x="150" y="241.5" width="11" height="6.5" rx="1"/>
+        <rect x="162.5" y="241.5" width="11" height="6.5" rx="1"/>
+        <rect x="175" y="241.5" width="11" height="6.5" rx="1"/>
+        <rect x="187.5" y="241.5" width="11" height="6.5" rx="1"/>
       </g>
-      <g class="kb-row" fill="#2e362a" stroke="#6b7355" stroke-width="0.8">
-        <rect id="kb-s10" class="kb-key" data-slot="10" x="66" y="266" width="14" height="9" rx="1.2"/>
-        <rect id="kb-s11" class="kb-key" data-slot="11" x="83" y="266" width="14" height="9" rx="1.2"/>
-        <rect id="kb-s12" class="kb-key" data-slot="12" x="100" y="266" width="14" height="9" rx="1.2"/>
-        <rect id="kb-s13" class="kb-key" data-slot="13" x="117" y="266" width="52" height="9" rx="1.2"/>
-        <rect id="kb-s14" class="kb-key" data-slot="14" x="172" y="266" width="14" height="9" rx="1.2"/>
-        <rect id="kb-s15" class="kb-key" data-slot="15" x="189" y="266" width="14" height="9" rx="1.2"/>
-        <rect id="kb-s16" class="kb-key" data-slot="16" x="206" y="266" width="14" height="9" rx="1.2"/>
-        <rect id="kb-s17" class="kb-key" data-slot="17" x="223" y="266" width="12" height="9" rx="1.2"/>
+      <g class="kb-labels-num" fill="#6b7355" font-family="ui-monospace, Consolas, monospace" font-size="4.2" text-anchor="middle" dominant-baseline="central">
+        <text x="55.5" y="244.75">1</text><text x="68" y="244.75">2</text><text x="80.5" y="244.75">3</text>
+        <text x="93" y="244.75">4</text><text x="105.5" y="244.75">5</text><text x="118" y="244.75">6</text>
+        <text x="130.5" y="244.75">7</text><text x="143" y="244.75">8</text><text x="155.5" y="244.75">9</text>
+        <text x="168" y="244.75">0</text><text x="180.5" y="244.75">+</text><text x="193" y="244.75">´</text>
       </g>
-      <rect x="58" y="278" width="176" height="2.5" fill="#c7923a" opacity="0.55"/>
+      <!-- Q-row: QWERTYUIOPÅ -->
+      <g class="kb-row" fill="#3a4434" stroke="#9a8f78" stroke-width="0.7">
+        <g id="kb-s0" class="kb-key" data-slot="0"><rect x="50" y="250" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="56.1" y="254.25">Q</text></g>
+        <g id="kb-s1" class="kb-key" data-slot="1"><rect x="63.5" y="250" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="69.6" y="254.25">W</text></g>
+        <g id="kb-s2" class="kb-key" data-slot="2"><rect x="77" y="250" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="83.1" y="254.25">E</text></g>
+        <g id="kb-s3" class="kb-key" data-slot="3"><rect x="90.5" y="250" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="96.6" y="254.25">R</text></g>
+        <g id="kb-s4" class="kb-key" data-slot="4"><rect x="104" y="250" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="110.1" y="254.25">T</text></g>
+        <g id="kb-s5" class="kb-key" data-slot="5"><rect x="117.5" y="250" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="123.6" y="254.25">Y</text></g>
+        <g id="kb-s6" class="kb-key" data-slot="6"><rect x="131" y="250" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="137.1" y="254.25">U</text></g>
+        <g id="kb-s7" class="kb-key" data-slot="7"><rect x="144.5" y="250" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="150.6" y="254.25">I</text></g>
+        <g id="kb-s8" class="kb-key" data-slot="8"><rect x="158" y="250" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="164.1" y="254.25">O</text></g>
+        <g id="kb-s9" class="kb-key" data-slot="9"><rect x="171.5" y="250" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="177.6" y="254.25">P</text></g>
+        <g id="kb-s10" class="kb-key" data-slot="10"><rect x="185" y="250" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="191.1" y="254.25">Å</text></g>
+      </g>
+      <!-- A-row: ASDFGHJKLÖÄ -->
+      <g class="kb-row" fill="#323a2e" stroke="#8a8070" stroke-width="0.7">
+        <g id="kb-s11" class="kb-key" data-slot="11"><rect x="56.5" y="260.5" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="62.6" y="264.75">A</text></g>
+        <g id="kb-s12" class="kb-key" data-slot="12"><rect x="70" y="260.5" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="76.1" y="264.75">S</text></g>
+        <g id="kb-s13" class="kb-key" data-slot="13"><rect x="83.5" y="260.5" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="89.6" y="264.75">D</text></g>
+        <g id="kb-s14" class="kb-key" data-slot="14"><rect x="97" y="260.5" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="103.1" y="264.75">F</text></g>
+        <g id="kb-s15" class="kb-key" data-slot="15"><rect x="110.5" y="260.5" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="116.6" y="264.75">G</text></g>
+        <g id="kb-s16" class="kb-key" data-slot="16"><rect x="124" y="260.5" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="130.1" y="264.75">H</text></g>
+        <g id="kb-s17" class="kb-key" data-slot="17"><rect x="137.5" y="260.5" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="143.6" y="264.75">J</text></g>
+        <g id="kb-s18" class="kb-key" data-slot="18"><rect x="151" y="260.5" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="157.1" y="264.75">K</text></g>
+        <g id="kb-s19" class="kb-key" data-slot="19"><rect x="164.5" y="260.5" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="170.6" y="264.75">L</text></g>
+        <g id="kb-s20" class="kb-key" data-slot="20"><rect x="178" y="260.5" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="184.1" y="264.75">Ö</text></g>
+        <g id="kb-s21" class="kb-key" data-slot="21"><rect x="191.5" y="260.5" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="197.6" y="264.75">Ä</text></g>
+      </g>
+      <!-- Z-row + space: &lt; Z X C V [SPACE] B N M -->
+      <g class="kb-row" fill="#2e362a" stroke="#6b7355" stroke-width="0.65">
+        <rect class="kb-deco" x="43.5" y="271" width="5.5" height="8.5" rx="1" fill="#252a22"/>
+        <g id="kb-s22" class="kb-key" data-slot="22"><rect x="50" y="271" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="56.1" y="275.25">Z</text></g>
+        <g id="kb-s23" class="kb-key" data-slot="23"><rect x="63.5" y="271" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="69.6" y="275.25">X</text></g>
+        <g id="kb-s24" class="kb-key" data-slot="24"><rect x="77" y="271" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="83.1" y="275.25">C</text></g>
+        <g id="kb-s25" class="kb-key" data-slot="25"><rect x="90.5" y="271" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="96.6" y="275.25">V</text></g>
+        <g id="kb-s26" class="kb-key" data-slot="26"><rect x="104" y="271" width="52" height="8.5" rx="1.1"/><text class="kb-label" x="130" y="275.25" font-size="3.8">SPC</text></g>
+        <g id="kb-s27" class="kb-key" data-slot="27"><rect x="160" y="271" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="166.1" y="275.25">B</text></g>
+        <g id="kb-s28" class="kb-key" data-slot="28"><rect x="173.5" y="271" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="179.6" y="275.25">N</text></g>
+        <g id="kb-s29" class="kb-key" data-slot="29"><rect x="187" y="271" width="12.2" height="8.5" rx="1.1"/><text class="kb-label" x="193.1" y="275.25">M</text></g>
+      </g>
+      <text class="kb-deco-label" x="46.25" y="275.25" fill="#6b7355" font-family="ui-monospace, Consolas, monospace" font-size="3.6" text-anchor="middle" dominant-baseline="central">&lt;</text>
+      <rect x="52" y="281.5" width="192" height="2.2" fill="#c7923a" opacity="0.55"/>
     </g>
 
     <!-- ONE mouse — amber LMB / RMB pads (press → dark via CSS) -->

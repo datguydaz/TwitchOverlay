@@ -1,4 +1,5 @@
 import { ReactiveAvatar, ZONE_TRASH_TALK } from "../avatar/reactiveAvatar.ts";
+import { KEY_SLOT_COUNT } from "../../../shared/keyGrid.ts";
 
 import {
   applyCssVars,
@@ -434,7 +435,7 @@ async function main(): Promise<void> {
 
   document.getElementById("btn-demo-key")?.addEventListener("click", () => {
     demoOn = true;
-    const slot = Math.floor(Math.random() * 18);
+    const slot = Math.floor(Math.random() * KEY_SLOT_COUNT);
     const pid = 8000 + slot;
     applyDemoInput(avatar, "key", "down", 1, slot, pid);
     window.setTimeout(() => applyDemoInput(avatar, "key", "up", 0, slot, pid), 100);

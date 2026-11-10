@@ -104,6 +104,8 @@ The companion keeps hooks alive across WS reconnects so focusing Streamlabs or a
 4. **Nothing is recorded** — only a 0–1 level crosses the localhost WebSocket
 5. **Not AI / not chat understanding:** mic levels do not parse speech or Twitch chat. Dashboard **Topic react** is a local keyword demo only. True topic understanding needs STT or a Twitch/Kick chat API later.
 
+See **[`docs/talk-react-limits.md`](docs/talk-react-limits.md)** for the current can/cannot list.
+
 ### Chat persona
 
 Large Zone Ops chat sits along the ultrawide **bottom banner** (`#uw-chat`). Dashboard **Chat persona**: send a line, sample trash-talk, or enable the random timer. Avatar source mirrors the same lines. Twitch chat hook is modular/future — not fake-connected.
@@ -138,7 +140,7 @@ Tune bar height, copy, social plates, and visibility in the dashboard **Ultrawid
 
 Seated SVG scavenger (Maska-style helm, charcoal tracksuit vest vibe — no logos). Layered hands / head / torso:
 
-- Keyboard → hand aims opaque key-grid slot; keycaps depress; holds stay; taps stay snappy
+- Nordic keyboard (ÅÄÖ placement) → hand aims opaque key-grid slot; keycaps depress; holds stay; taps stay snappy
 - Mouse L/R → amber LMB/RMB pads dim while held
 - Mic levels → stronger talk (vent/lean/nod) + optional ACK bubble
 - Idle breathing + occasional cough / shoulder roll

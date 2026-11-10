@@ -2,12 +2,13 @@
  * Opaque keyboard animation grid — never sends key names/characters on the wire.
  * Companion maps uiohook keycodes → slot index; overlay moves hand / depresses keycaps.
  *
- * Visual layout matches scavenger.svg #prop-keyboard (2 rows).
- * Row 0: 10 keys  slots 0–9
- * Row 1: 8 keys   slots 10–17 (slot 13 = spacebar)
+ * Visual layout matches scavenger.svg #prop-keyboard (Nordic / Swedish-style).
+ * Row Q:  Q W E R T Y U I O P Å     slots 0–10
+ * Row A:  A S D F G H J K L Ö Ä     slots 11–21
+ * Row Z:  Z X C V [SPACE] B N M     slots 22–29 (26 = spacebar)
  */
 
-export const KEY_SLOT_COUNT = 18;
+export const KEY_SLOT_COUNT = 30;
 
 export interface KeySlotPos {
   /** Center X in avatar SVG user space (pre-scale). */
@@ -16,36 +17,44 @@ export interface KeySlotPos {
   cy: number;
 }
 
-/** Rest / home pose — over home-row SDF cluster. */
-export const HAND_HOME = { cx: 128, cy: 248 };
+/** Rest / home pose — over home-row F/G cluster. */
+export const HAND_HOME = { cx: 110, cy: 255 };
+
+const KW = 12.2;
+const STRIDE = 13.5;
+const KH = 8.5;
+
+function rowCenters(
+  startX: number,
+  y: number,
+  count: number,
+): KeySlotPos[] {
+  const cy = y + KH / 2;
+  const out: KeySlotPos[] = [];
+  for (let i = 0; i < count; i++) {
+    out.push({ cx: startX + i * STRIDE + KW / 2, cy });
+  }
+  return out;
+}
+
+const Q_ROW = rowCenters(50, 250, 11);
+const A_ROW = rowCenters(56.5, 260.5, 11);
+const Z_LEFT = rowCenters(50, 271, 4); // Z X C V
+const SPACE = { cx: 104 + 52 / 2, cy: 271 + KH / 2 };
+const Z_RIGHT = rowCenters(160, 271, 3); // B N M
 
 /** Slot centers aligned to keycap rects in scavenger.svg.ts */
 export const KEY_SLOTS: readonly KeySlotPos[] = [
-  // Row 0 (top) — QWERTY row visual
-  { cx: 67.5, cy: 257.5 },
-  { cx: 85.5, cy: 257.5 },
-  { cx: 103.5, cy: 257.5 },
-  { cx: 121.5, cy: 257.5 },
-  { cx: 139.5, cy: 257.5 },
-  { cx: 157.5, cy: 257.5 },
-  { cx: 175.5, cy: 257.5 },
-  { cx: 193.5, cy: 257.5 },
-  { cx: 211.5, cy: 257.5 },
-  { cx: 228, cy: 257.5 },
-  // Row 1 (bottom) — ASDF + space + right cluster
-  { cx: 73, cy: 270.5 },
-  { cx: 90, cy: 270.5 },
-  { cx: 107, cy: 270.5 },
-  { cx: 143, cy: 270.5 }, // space
-  { cx: 179, cy: 270.5 },
-  { cx: 196, cy: 270.5 },
-  { cx: 213, cy: 270.5 },
-  { cx: 229, cy: 270.5 },
+  ...Q_ROW,
+  ...A_ROW,
+  ...Z_LEFT,
+  SPACE,
+  ...Z_RIGHT,
 ];
 
-/** uiohook-napi UiohookKey values → slot (opaque). */
+/** uiohook-napi UiohookKey values → slot (opaque). Nordic OEM keys included. */
 export const KEYCODE_TO_SLOT: Readonly<Record<number, number>> = {
-  // Number row → top row slots
+  // Number row → Q-row slots (visual aim only)
   2: 0,
   3: 1,
   4: 2,
@@ -56,7 +65,9 @@ export const KEYCODE_TO_SLOT: Readonly<Record<number, number>> = {
   9: 7,
   10: 8,
   11: 9,
-  // QWERTY
+  12: 10, // Minus / Nordic +
+  13: 10, // Equals / Nordic ´
+  // QWERTY…P
   16: 0, // Q
   17: 1, // W
   18: 2, // E
@@ -67,39 +78,46 @@ export const KEYCODE_TO_SLOT: Readonly<Record<number, number>> = {
   23: 7, // I
   24: 8, // O
   25: 9, // P
-  // Home row
-  30: 10, // A
-  31: 11, // S
-  32: 12, // D
-  33: 13, // F → space visual zone (wide) — use slot near space left; prefer 12/13
-  34: 13, // G → space area
-  35: 14, // H
-  36: 15, // J
-  37: 16, // K
-  38: 17, // L
-  // Bottom letter row → bottom slots
-  44: 10, // Z
-  45: 11, // X
-  46: 12, // C
-  47: 13, // V
-  48: 14, // B
-  49: 15, // N
-  50: 16, // M
+  26: 10, // BracketLeft → Å on Nordic
+  // Home row A…L
+  30: 11, // A
+  31: 12, // S
+  32: 13, // D
+  33: 14, // F
+  34: 15, // G
+  35: 16, // H
+  36: 17, // J
+  37: 18, // K
+  38: 19, // L
+  39: 20, // Semicolon → Ö on Nordic
+  40: 21, // Quote → Ä on Nordic
+  // Bottom letter row
+  44: 22, // Z
+  45: 23, // X
+  46: 24, // C
+  47: 25, // V
+  48: 27, // B
+  49: 28, // N
+  50: 29, // M
+  51: 29, // Comma
+  52: 29, // Period
+  53: 29, // Slash
+  86: 22, // IntlBackslash → < > on Nordic
+  57: 26, // Space
   // Mods / navigation → edges
-  57: 13, // Space
   15: 0, // Tab
-  58: 10, // Caps
-  28: 17, // Enter
-  14: 9, // Backspace
+  58: 11, // Caps
+  28: 21, // Enter → near Ä
+  14: 10, // Backspace → near Å
   1: 0, // Esc
-  42: 10, // Shift
-  54: 17, // ShiftRight (common)
-  29: 10, // Ctrl
-  56: 11, // Alt
-  57419: 10, // Left
+  42: 22, // Shift
+  54: 29, // ShiftRight
+  29: 22, // Ctrl
+  56: 23, // Alt
+  57419: 22, // Left
   57416: 1, // Up
-  57421: 17, // Right
-  57424: 12, // Down
+  57421: 29, // Right
+  57424: 24, // Down
 };
 
 export function slotFromKeycode(keycode: number): number {
