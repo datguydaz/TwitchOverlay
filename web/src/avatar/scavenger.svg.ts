@@ -106,8 +106,8 @@ export const scavengerSvg = `
       <rect x="174" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
       <rect x="215" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
       <rect x="233" y="94" width="11" height="80" rx="1.5" fill="#efe6d2"/>
-      <rect x="162" y="124" width="76" height="10" rx="2" fill="#0a0c08" stroke="#2a2e24" stroke-width="1.4"/>
-      <rect id="visor-glow" class="eq-blink" x="168" y="126" width="64" height="5" rx="1" fill="#3a4a28" opacity="0.85"/>
+      <rect x="162" y="124" width="76" height="10" rx="2" fill="#0a0c08"/>
+      <rect id="visor-glow" class="eq-blink" x="168" y="126" width="64" height="5" rx="1" fill="#2e3824" opacity="0.9"/>
       <ellipse cx="200" cy="168" rx="16" ry="10" fill="#1a1c16" stroke="#3a3830" stroke-width="1.2"/>
       <circle cx="200" cy="168" r="4" fill="#0a0c08"/>
     </g>
