@@ -579,7 +579,7 @@ body.scene-opaque {
   animation: click-r 130ms ease-out 1;
 }
 
-/* Scroll wheel pulse — LMB/RMB held poses still override via higher specificity */
+/* Scroll wheel — amber flash like LMB/RMB (no spin) */
 .avatar-root[data-wheel="up"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right,
 .avatar-root[data-wheel="down"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right {
   animation: none;
@@ -587,17 +587,33 @@ body.scene-opaque {
   transition: transform 70ms ease-out;
 }
 
-.avatar-root[data-wheel="up"] #mouse-wheel {
-  animation: wheel-spin-up 220ms ease-out 1;
-}
-
-.avatar-root[data-wheel="down"] #mouse-wheel {
-  animation: wheel-spin-down 220ms ease-out 1;
-}
-
 #mouse-wheel {
   transform-box: fill-box;
   transform-origin: center;
+}
+
+#mouse-wheel ellipse {
+  transition: fill 90ms linear, stroke 90ms linear;
+}
+
+#mouse-wheel path {
+  transition: stroke 90ms linear;
+}
+
+.avatar-root[data-wheel="up"] #mouse-wheel,
+.avatar-root[data-wheel="down"] #mouse-wheel {
+  animation: none;
+}
+
+.avatar-root[data-wheel="up"] #mouse-wheel ellipse,
+.avatar-root[data-wheel="down"] #mouse-wheel ellipse {
+  fill: #c7923a !important;
+  stroke: #e0b35a;
+}
+
+.avatar-root[data-wheel="up"] #mouse-wheel path,
+.avatar-root[data-wheel="down"] #mouse-wheel path {
+  stroke: #1a1810;
 }
 
 /* Occasional flavor beats — cough / shoulder roll / eq blink */
@@ -913,24 +929,6 @@ body.scene-opaque {
   }
 }
 
-@keyframes wheel-spin-up {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(-55deg);
-  }
-}
-
-@keyframes wheel-spin-down {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(55deg);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   #layer-torso,
   #layer-head,
@@ -941,8 +939,6 @@ body.scene-opaque {
   .avatar-root[data-key="1"][data-key-pulse="1"] #hand-left,
   .avatar-root[data-mouse-l="1"] #hand-right,
   .avatar-root[data-mouse-r="1"] #hand-right,
-  .avatar-root[data-wheel="up"] #mouse-wheel,
-  .avatar-root[data-wheel="down"] #mouse-wheel,
   .avatar-root[data-cough="1"] #layer-head,
   .avatar-root[data-cough="1"] #layer-torso,
   .avatar-root[data-roll="1"] #shoulder-left,

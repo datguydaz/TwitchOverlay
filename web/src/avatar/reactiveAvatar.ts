@@ -368,12 +368,13 @@ export class ReactiveAvatar {
   }
 
   private pulseWheel(dir: "up" | "down"): void {
+    // Amber flash only (same language as LMB/RMB) — never spin the wheel graphic.
     this.root.dataset.wheel = dir;
     if (this.wheelClearTimer != null) window.clearTimeout(this.wheelClearTimer);
     this.wheelClearTimer = window.setTimeout(() => {
       this.wheelClearTimer = null;
       delete this.root.dataset.wheel;
-    }, 220);
+    }, 140);
   }
 
   private depressKeycap(slot: number, on: boolean): void {
