@@ -100,7 +100,7 @@ const meta = await page.evaluate(() => {
     hasDeskTop: !!deskTop,
     hasApron: !!apronEl,
     stanag,
-    stanagCentered: stanag.length === 4 && stanag.every((t) => /translate\(\s*\d+\s+180\)/.test(t || "")),
+    stanagCentered: stanag.length === 4 && stanag.every((t) => /translate\(\s*\d+\s+186\)/.test(t || "")),
     killaAbovePouches: killaIdx >= 0 && rigIdx > killaIdx && killaY > 0 && pouchY > killaY,
     killaY: killa?.getAttribute("y"),
     killaSize: killa?.getAttribute("font-size"),
@@ -129,9 +129,19 @@ const meta = await page.evaluate(() => {
       /scale\(([\d.]+)\)/,
     )?.[1] || "",
     headScale: document.querySelector("#head-scale")?.getAttribute("transform") || "",
-    headSmaller: /scale\(0\.8[4-9]\)/.test(
-      document.querySelector("#head-scale")?.getAttribute("transform") || "",
-    ),
+    headSmaller: (() => {
+      const t = document.querySelector("#head-scale")?.getAttribute("transform") || "";
+      const v = Number((t.match(/scale\(([\d.]+)\)/) || [])[1] || 0);
+      const torso = Number(
+        (
+          (document.querySelector("#torso-scale")?.getAttribute("transform") || "").match(
+            /scale\(([\d.]+)\)/,
+          ) || []
+        )[1] || 0,
+      );
+      // Hard shrink vs refs — head must read smaller than bulky vest
+      return v > 0.6 && v <= 0.74 && torso >= 0.88 && v < torso - 0.12;
+    })(),
     headScaleVal: (document.querySelector("#head-scale")?.getAttribute("transform") || "").match(
       /scale\(([\d.]+)\)/,
     )?.[1] || "",
@@ -170,16 +180,21 @@ const meta = await page.evaluate(() => {
     })(),
     helmCoversHead: (() => {
       const dome = document.querySelector("#helm-dome");
-      const brow = document.querySelector("#helm-brow-rim");
       const plate = document.querySelector("#helm-faceplate");
-      const cheekL = document.querySelector("#helm-cheek-l");
       const stripes = document.querySelector("#helm-stripes");
-      if (!dome || !brow || !plate || !cheekL || !stripes) return false;
+      const slit = document.querySelector("#eye-slit");
+      const eyes = document.querySelector("#eyes");
+      if (!dome || !plate || !stripes || !slit || !eyes) return false;
       const rx = Number(dome.getAttribute("rx") || 0);
       const ry = Number(dome.getAttribute("ry") || 0);
       const plateW = Number(plate.getAttribute("width") || 0);
-      const stripeCount = stripes.querySelectorAll("path").length;
-      return rx >= 70 && ry >= 58 && plateW >= 100 && stripeCount === 3;
+      const stripePaths = stripes.querySelectorAll("path[id^=helm-stripe-]").length;
+      // Slit must paint AFTER stripes in DOM so cut covers stripe paint (no paint-through-eyes)
+      const kids = [...(document.querySelector("#head-scale")?.children || [])];
+      const stripeIdx = kids.indexOf(stripes);
+      const eyesIdx = kids.indexOf(eyes);
+      const slitOverStripes = stripeIdx >= 0 && eyesIdx > stripeIdx;
+      return rx >= 68 && ry >= 54 && plateW >= 100 && stripePaths >= 3 && slitOverStripes;
     })(),
     noFingerGlowCss: (() => {
       const css = [...document.styleSheets]
@@ -239,13 +254,15 @@ const meta = await page.evaluate(() => {
       return rot(label) && rot(num) && rot(deco);
     })(),
     svgPolarAim: (() => {
-      // Left aim must NOT rely on CSS fill-box transforms (that flung W off desk)
+      // Left aim must use SVG transform attr only. Chromium reports SVG attr via
+      // getComputedStyle — so only reject real CSS/inline style transforms.
       const aim = document.querySelector("#hand-left-aim");
       if (!aim) return false;
-      const cs = getComputedStyle(aim);
-      const cssTx = cs.transform;
-      const cssNone = !cssTx || cssTx === "none";
-      return cssNone;
+      const inline = (aim.style?.transform || "").trim();
+      const styleAttr = aim.getAttribute("style") || "";
+      const hasCssInline = !!inline && inline !== "none";
+      const hasStyleTx = /(?:^|;)\s*transform\s*:/.test(styleAttr);
+      return !hasCssInline && !hasStyleTx;
     })(),
     skinHands: (() => {
       const p = document.querySelector("#hand-left-sit > path");
