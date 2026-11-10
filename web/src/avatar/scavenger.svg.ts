@@ -105,6 +105,19 @@ export const scavengerSvg = `
         <rect x="270" y="144" width="52" height="30" rx="7" fill="#141414" stroke="#050505" stroke-width="1.2"/>
         <rect x="276" y="152" width="40" height="7" rx="1.5" fill="#0a0a0a" opacity="0.65"/>
       </g>
+      <!-- Worn “KILLA” on vest (vibe only — scratched print, no brand marks) -->
+      <g id="chest-killa" font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif" text-anchor="middle" letter-spacing="1.2">
+        <text x="200.4" y="168.3" fill="#1a1a1a" font-size="11" opacity="0.55">KILLA</text>
+        <text x="199.6" y="167.6" fill="#c8c8c8" font-size="11" opacity="0.38">KILLA</text>
+        <text id="chest-killa-main" x="200" y="168" fill="#d8d8d8" font-size="11" opacity="0.72">KILLA</text>
+        <g id="chest-killa-scratches" fill="none" stroke="#0a0a0a" stroke-linecap="round" opacity="0.55">
+          <path d="M178 164 L186 170" stroke-width="0.7"/>
+          <path d="M192 163.5 L198 169" stroke-width="0.55"/>
+          <path d="M205 165 L214 168.5" stroke-width="0.65"/>
+          <path d="M188 171 L204 164.5" stroke-width="0.45" opacity="0.7"/>
+          <path d="M210 170 L220 166" stroke-width="0.5"/>
+        </g>
+      </g>
       <!-- Slim pouches -->
       <g id="chest-rig">
         <rect x="132" y="176" width="16" height="30" rx="1.5" fill="url(#pouchGrad)" stroke="#050505" stroke-width="0.9"/>

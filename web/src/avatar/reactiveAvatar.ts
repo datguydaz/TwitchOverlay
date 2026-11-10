@@ -176,8 +176,8 @@ export class ReactiveAvatar {
     }
     const torso = this.root.querySelector("#layer-torso") as SVGElement | null;
     const head = this.root.querySelector("#layer-head") as SVGElement | null;
-    if (torso) torso.style.animationDuration = `${5.2 / this.intensity}s`;
-    if (head) head.style.animationDuration = `${12 / this.intensity}s`;
+    if (torso) torso.style.animationDuration = `${6.8 / this.intensity}s`;
+    if (head) head.style.animationDuration = `${8.5 / this.intensity}s`;
   }
 
   setLightsEnabled(on: boolean): void {

@@ -404,7 +404,7 @@ body.scene-opaque {
 #layer-head {
   transform-box: view-box;
   transform-origin: 600px 390px;
-  animation: head-idle 12s ease-in-out infinite;
+  animation: head-idle 8.5s ease-in-out infinite;
   will-change: transform;
 }
 
@@ -678,22 +678,20 @@ body.scene-opaque {
   transition: opacity 160ms linear;
 }
 
+/* Quiet chest breath — head carries most of the idle life */
 @keyframes breath {
   0%,
   100% {
     transform: translate3d(0, 0, 0) scale(1, 1);
   }
-  22% {
-    transform: translate3d(0, -3px, 0) scale(1.003, 1.008);
+  25% {
+    transform: translate3d(0, -1px, 0) scale(1.001, 1.003);
   }
-  48% {
-    transform: translate3d(0, -11px, 0) scale(1.008, 1.02);
+  50% {
+    transform: translate3d(0, -2.5px, 0) scale(1.002, 1.005);
   }
-  70% {
-    transform: translate3d(0, -6px, 0) scale(1.004, 1.012);
-  }
-  86% {
-    transform: translate3d(0, -2px, 0) scale(1.001, 1.004);
+  75% {
+    transform: translate3d(0, -1px, 0) scale(1.001, 1.002);
   }
 }
 
@@ -702,23 +700,26 @@ body.scene-opaque {
   100% {
     transform: translate3d(0, 0, 0) rotate(0deg);
   }
-  12% {
-    transform: translate3d(-4px, 1px, 0) rotate(-1.4deg);
+  10% {
+    transform: translate3d(-7px, 2px, 0) rotate(-2.6deg);
   }
-  26% {
-    transform: translate3d(-7px, 0, 0) rotate(-2.2deg);
+  22% {
+    transform: translate3d(-12px, 1px, 0) rotate(-3.8deg);
   }
-  40% {
-    transform: translate3d(-1px, 2px, 0) rotate(0.2deg);
+  36% {
+    transform: translate3d(-3px, 3px, 0) rotate(-0.6deg);
   }
-  55% {
-    transform: translate3d(6px, 0, 0) rotate(1.9deg);
+  48% {
+    transform: translate3d(4px, 1px, 0) rotate(1.4deg);
   }
-  70% {
-    transform: translate3d(4px, 1px, 0) rotate(1.1deg);
+  62% {
+    transform: translate3d(11px, 2px, 0) rotate(3.4deg);
   }
-  84% {
-    transform: translate3d(-2px, 0, 0) rotate(-0.5deg);
+  76% {
+    transform: translate3d(6px, 0, 0) rotate(1.8deg);
+  }
+  88% {
+    transform: translate3d(-4px, 1px, 0) rotate(-1.2deg);
   }
 }
 
@@ -745,10 +746,10 @@ body.scene-opaque {
     transform: translate3d(0, 0, 0) scale(1, 1);
   }
   28% {
-    transform: translate3d(0, 6px, 0) scale(1.012, 0.982);
+    transform: translate3d(0, 2px, 0) scale(1.003, 0.994);
   }
   52% {
-    transform: translate3d(0, 10px, 0) scale(1.016, 0.972);
+    transform: translate3d(0, 3px, 0) scale(1.004, 0.99);
   }
   100% {
     transform: translate3d(0, 0, 0) scale(1, 1);
@@ -860,13 +861,14 @@ body.scene-opaque {
   }
 }
 
+/* Talk: barely move chest; head nods more */
 @keyframes talk-lean {
   0%,
   100% {
     transform: translate3d(0, 0, 0) scale(1, 1);
   }
   50% {
-    transform: translate3d(0, 3px, 0) scale(1.005, 0.992);
+    transform: translate3d(0, 1px, 0) scale(1.001, 0.998);
   }
 }
 
@@ -876,7 +878,7 @@ body.scene-opaque {
     transform: translate3d(0, 0, 0) scale(1, 1);
   }
   50% {
-    transform: translate3d(0, 5px, 0) scale(1.01, 0.985);
+    transform: translate3d(0, 1.5px, 0) scale(1.002, 0.996);
   }
 }
 
@@ -885,11 +887,14 @@ body.scene-opaque {
   100% {
     transform: translate3d(0, 0, 0) rotate(0deg);
   }
-  35% {
-    transform: translate3d(0, 6px, 0) rotate(2.2deg);
+  30% {
+    transform: translate3d(-2px, 9px, 0) rotate(3.4deg);
   }
-  65% {
-    transform: translate3d(1px, 2px, 0) rotate(0.4deg);
+  55% {
+    transform: translate3d(2px, 4px, 0) rotate(-1.2deg);
+  }
+  75% {
+    transform: translate3d(1px, 7px, 0) rotate(2.2deg);
   }
 }
 
