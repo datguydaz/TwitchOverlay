@@ -432,20 +432,21 @@ body.uw-bar-only[data-uw-mode="bottom"] .uw-chat {
   width: min(1100px, 70vw);
 }
 
-/* Latest Follow / Sub — live inside top bar corners (replaces FIELD NET / uplink) */
+/* Latest Follow / Sub — framed plates in top bar corners */
 .uw-social-inbar {
   position: relative;
   z-index: 5;
-  min-width: 0;
-  max-width: 100%;
-  padding: 4px 0;
-  background: transparent;
-  border: none;
-  box-shadow: none;
+  display: block;
+  min-width: min(200px, 18vw);
+  max-width: min(420px, 28vw);
+  padding: 10px 14px 12px;
+  background: rgba(10, 12, 9, 0.88);
+  border: 1px solid rgba(107, 115, 85, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
   color: var(--beige, #c4b59a);
   font-family: var(--font-mono);
   pointer-events: none;
-  clip-path: none;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
 }
 
 .uw-social-inbar[hidden] {
@@ -453,33 +454,28 @@ body.uw-bar-only[data-uw-mode="bottom"] .uw-chat {
 }
 
 .uw-social-inbar .uw-social-tag {
-  font-size: clamp(10px, calc(var(--uw-bar-h) * 0.08), 13px);
-  letter-spacing: 0.2em;
+  font-size: clamp(10px, calc(var(--uw-bar-h) * 0.075), 12px);
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--olive, #6b7355);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .uw-social-inbar .uw-social-name {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(16px, calc(var(--uw-bar-h) * 0.16), 28px);
+  font-size: clamp(16px, calc(var(--uw-bar-h) * 0.15), 26px);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--beige, #c4b59a);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: min(420px, 28vw);
 }
 
 .uw-side-right .uw-social-inbar {
-  align-items: flex-end;
-  text-align: right;
-}
-
-.uw-side-right .uw-social-inbar .uw-social-name {
   margin-left: auto;
+  text-align: right;
 }
 
 /* Standalone thin bar pages (OBS separate sources) */
