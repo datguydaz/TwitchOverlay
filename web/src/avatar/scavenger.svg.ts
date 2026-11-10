@@ -2,12 +2,11 @@
  * Original bulky zone-ops operator (Killa/Maska-inspired vibe only).
  * Fat padded silhouette, dark Maska-style shell + stripe bars, triple sleeve
  * stripes (no brand marks), chest-rig mass, KB+mouse under animatable hands.
- * Original LMG side-profile (barrel/receiver/drum/grip/stock) clear on left flank.
  * Desk name: #desk-streamer-name uses self-hosted Bender (OFL).
  * Layers: #layer-torso #layer-head #hand-left #hand-right
  */
 export const scavengerSvg = `
-<svg viewBox="0 0 460 340" xmlns="http://www.w3.org/2000/svg" aria-label="Zone scavenger avatar" role="img">
+<svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg" aria-label="Zone scavenger avatar" role="img">
   <defs>
     <linearGradient id="armorOlive" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#6b7548"/>
@@ -35,49 +34,12 @@ export const scavengerSvg = `
       <stop offset="0%" stop-color="#3a3228"/>
       <stop offset="100%" stop-color="#1a1612"/>
     </linearGradient>
-    <linearGradient id="gunMetal" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3a3e36"/>
-      <stop offset="100%" stop-color="#1a1c16"/>
-    </linearGradient>
   </defs>
 
-  <ellipse cx="260" cy="318" rx="155" ry="14" fill="#000" opacity="0.45"/>
+  <ellipse cx="200" cy="318" rx="140" ry="14" fill="#000" opacity="0.45"/>
 
-  <!-- Original LMG: classic side-profile ABOVE the arm line, left of helmet -->
-  <g id="prop-lmg" transform="translate(6 0) rotate(-10 70 100)">
-    <!-- flash hider -->
-    <path d="M4 92 H20 V112 H4 L10 102 Z" fill="#1a1c16" stroke="#0e100c" stroke-width="1.3"/>
-    <!-- long barrel -->
-    <rect x="18" y="96" width="86" height="12" rx="2" fill="#2a2e26" stroke="#0e100c" stroke-width="1.6"/>
-    <!-- gas tube -->
-    <rect x="30" y="88" width="64" height="6" rx="1" fill="#3a4034" stroke="#0e100c"/>
-    <!-- front sight -->
-    <path d="M68 88 L72 74 H86 L90 88" fill="none" stroke="#3a4034" stroke-width="2.6"/>
-    <!-- receiver -->
-    <rect x="102" y="86" width="78" height="28" rx="2" fill="url(#gunMetal)" stroke="#0e100c" stroke-width="1.7"/>
-    <rect x="110" y="90" width="56" height="8" rx="1" fill="#4a5240" opacity="0.55"/>
-    <!-- rear sight -->
-    <path d="M152 86 H170 V72 H156 Z" fill="#1a1c16" stroke="#0e100c"/>
-    <!-- round drum magazine hanging under receiver (above fat arms) -->
-    <circle cx="132" cy="142" r="34" fill="#2a2e24" stroke="#0e100c" stroke-width="2.6"/>
-    <circle cx="132" cy="142" r="23" fill="#121410" stroke="#6b7355" stroke-width="1.8"/>
-    <circle cx="132" cy="142" r="8" fill="#0e100c"/>
-    <path d="M132 108 L140 120 M156 122 L146 134 M156 162 L144 154 M108 162 L116 148 M108 122 L122 130"
-      stroke="#8a9480" stroke-width="2" opacity="0.9"/>
-    <path d="M132 108 V118" stroke="#3a4034" stroke-width="7" stroke-linecap="round"/>
-    <!-- pistol grip -->
-    <path d="M162 114 L182 114 L194 158 L172 164 L156 128 Z" fill="#2a241c" stroke="#0e100c" stroke-width="1.5"/>
-    <!-- trigger guard -->
-    <path d="M154 114 Q170 136 184 114" fill="none" stroke="#0e100c" stroke-width="2.5"/>
-    <!-- wooden stock into left shoulder / behind helm -->
-    <path d="M178 88 L248 68 L264 90 L248 124 L198 124 L178 106 Z" fill="#3a2e22" stroke="#0e100c" stroke-width="1.5"/>
-    <path d="M192 98 H230" stroke="#5a4638" stroke-width="2.2" opacity="0.7"/>
-    <!-- folded bipod -->
-    <path d="M42 108 L28 148 M58 108 L72 148" stroke="#3a4034" stroke-width="3.4" stroke-linecap="round"/>
-  </g>
-
-  <!-- Operator shifted right — keeps LMG fully readable beside the body -->
-  <g id="operator" transform="translate(72 0)">
+  <!-- Operator -->
+  <g id="operator">
     <!-- DESK — Bender name fully on front panel -->
     <g id="desk">
       <path d="M28 268 H372 L352 302 H48 Z" fill="url(#deskGrad)" stroke="#5a5348" stroke-width="1.6"/>
