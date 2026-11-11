@@ -98,27 +98,72 @@
         <div class="uw-grime" aria-hidden="true">
           <i class="uw-scratch c"></i>
         </div>
-        <!-- Bottom-right surface abuse: dense scratches + dried blood (below rail VFX) -->
+        <!-- Bottom-right claw slashes: jagged parallel cuts, deep blood interior (below rail VFX) -->
         <div class="uw-footer-wear" aria-hidden="true">
-          <span class="uw-wear-blood b1"></span>
-          <span class="uw-wear-blood b2"></span>
-          <span class="uw-wear-blood b3"></span>
-          <span class="uw-wear-blood b4"></span>
-          <i class="uw-wear-scratch s1"></i>
-          <i class="uw-wear-scratch s2"></i>
-          <i class="uw-wear-scratch s3"></i>
-          <i class="uw-wear-scratch s4"></i>
-          <i class="uw-wear-scratch s5"></i>
-          <i class="uw-wear-scratch s6"></i>
-          <i class="uw-wear-scratch s7"></i>
-          <i class="uw-wear-scratch s8"></i>
-          <i class="uw-wear-scratch s9"></i>
-          <i class="uw-wear-scratch s10"></i>
-          <i class="uw-wear-scratch s11"></i>
-          <i class="uw-wear-scratch s12"></i>
-          <i class="uw-wear-scratch s13"></i>
-          <i class="uw-wear-scratch s14"></i>
-          <i class="uw-wear-gouges"></i>
+          <svg class="uw-claw-slashes" viewBox="0 0 420 180" preserveAspectRatio="xMaxYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="claw-blood-a" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#2a0606" stop-opacity="0.95"/>
+                <stop offset="35%" stop-color="#8b1510" stop-opacity="1"/>
+                <stop offset="55%" stop-color="#c41e12" stop-opacity="1"/>
+                <stop offset="78%" stop-color="#5c0c0a" stop-opacity="1"/>
+                <stop offset="100%" stop-color="#1a0303" stop-opacity="0.9"/>
+              </linearGradient>
+              <linearGradient id="claw-blood-b" x1="0" y1="0.2" x2="1" y2="0.8">
+                <stop offset="0%" stop-color="#1f0404" stop-opacity="0.92"/>
+                <stop offset="40%" stop-color="#a01812" stop-opacity="1"/>
+                <stop offset="62%" stop-color="#e02818" stop-opacity="0.95"/>
+                <stop offset="100%" stop-color="#3a0806" stop-opacity="0.88"/>
+              </linearGradient>
+              <filter id="claw-inset" x="-20%" y="-40%" width="140%" height="180%">
+                <feDropShadow dx="0" dy="1.2" stdDeviation="0.6" flood-color="#000" flood-opacity="0.85"/>
+              </filter>
+            </defs>
+            <!-- Torn edge highlights (pale rim) under the fills -->
+            <g class="uw-claw-rims" fill="none" stroke="#d4b59a" stroke-opacity="0.35" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M38 42 C90 28 150 48 210 36 C270 24 330 44 392 28" stroke-width="5.5"/>
+              <path d="M52 78 C110 62 168 88 230 70 C290 54 348 82 400 64" stroke-width="6.2"/>
+              <path d="M28 118 C95 98 155 128 220 108 C285 90 345 126 405 104" stroke-width="5.8"/>
+              <path d="M68 148 C125 136 185 158 248 142 C310 128 360 152 398 140" stroke-width="4.6"/>
+            </g>
+            <!-- Deep blood-red slash interiors — jagged parallel claws -->
+            <g class="uw-claw-fills" filter="url(#claw-inset)">
+              <path fill="url(#claw-blood-a)" d="M36 36
+                C78 24 130 46 178 34 C230 22 286 40 340 30 C366 26 386 24 396 22
+                L402 30 C388 34 366 40 342 44 C290 54 236 38 186 48 C140 58 90 40 48 50
+                L40 44 Z"/>
+              <path fill="url(#claw-blood-b)" d="M48 70
+                C100 56 155 84 212 66 C268 50 325 78 378 62 C390 58 398 56 404 54
+                L410 66 C396 72 378 80 352 86 C300 98 248 72 196 88 C148 102 98 78 56 90
+                L50 78 Z"/>
+              <path fill="url(#claw-blood-a)" d="M24 110
+                C85 92 145 124 208 104 C270 86 330 122 392 100 C400 97 406 95 412 93
+                L416 106 C402 112 384 122 356 128 C300 142 244 108 186 126 C130 142 78 116 34 130
+                L28 118 Z"/>
+              <path fill="url(#claw-blood-b)" d="M64 140
+                C118 128 175 152 236 136 C292 122 340 148 390 134 C396 132 400 131 404 130
+                L408 140 C392 146 368 156 336 160 C286 168 236 146 180 158 C130 168 90 150 70 152
+                L66 146 Z"/>
+            </g>
+            <!-- Inner shadow slits (cut-into-surface) -->
+            <g class="uw-claw-depths" fill="none" stroke="#0a0101" stroke-opacity="0.75" stroke-linecap="round">
+              <path d="M44 40 C100 30 160 48 220 38 C280 28 340 42 390 30" stroke-width="1.4"/>
+              <path d="M56 76 C115 64 175 88 235 72 C295 58 350 80 398 66" stroke-width="1.7"/>
+              <path d="M34 116 C95 102 155 126 218 110 C280 96 340 122 400 106" stroke-width="1.5"/>
+              <path d="M72 146 C130 138 185 154 245 144 C300 136 350 150 396 138" stroke-width="1.2"/>
+            </g>
+            <!-- Spatter flecks along torn edges -->
+            <g class="uw-claw-spatter" fill="#9a1610">
+              <circle cx="118" cy="52" r="2.2" opacity="0.85"/>
+              <circle cx="206" cy="58" r="1.6" opacity="0.7"/>
+              <circle cx="292" cy="48" r="2.8" opacity="0.8"/>
+              <circle cx="164" cy="98" r="2" opacity="0.75"/>
+              <circle cx="318" cy="92" r="1.8" opacity="0.65"/>
+              <circle cx="246" cy="128" r="2.4" opacity="0.8"/>
+              <circle cx="360" cy="118" r="1.5" opacity="0.7"/>
+              <circle cx="88" cy="132" r="1.9" opacity="0.6"/>
+            </g>
+          </svg>
         </div>
         <div class="uw-bar-body uw-wall-footer">
           <div class="uw-side">
