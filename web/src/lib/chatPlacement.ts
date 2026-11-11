@@ -17,7 +17,7 @@ export function applyChatPlacement(
   const oy = Math.max(0, Math.min(40, Number(chat.offsetYPct) || 0));
   const scaleRaw = Number(chat.scale);
   const scale = Number.isFinite(scaleRaw)
-    ? Math.max(0.6, Math.min(2, Math.round(scaleRaw * 100) / 100))
+    ? Math.max(0.6, Math.min(10, Math.round(scaleRaw * 100) / 100))
     : 1;
   el.dataset.placement = placement;
   el.style.setProperty("--chat-ox", `${ox}%`);

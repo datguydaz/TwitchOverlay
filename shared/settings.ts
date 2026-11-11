@@ -76,7 +76,7 @@ export interface ChatSettings {
   offsetXPct: number;
   /** Inset from the chosen vertical edge, percent of overlay height (0–40). */
   offsetYPct: number;
-  /** COMMS bubble scale multiplier (0.6–2.0, default 1). */
+  /** COMMS bubble scale multiplier (0.6–10, default 1). */
   scale: number;
 }
 
@@ -245,7 +245,7 @@ export function mergeSettings(
       const clampScale = (n: unknown, fallback: number) => {
         const v = Number(n);
         if (!Number.isFinite(v)) return fallback;
-        return Math.max(0.6, Math.min(2, Math.round(v * 100) / 100));
+        return Math.max(0.6, Math.min(10, Math.round(v * 100) / 100));
       };
       return {
         ...c,

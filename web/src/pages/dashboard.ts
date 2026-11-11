@@ -173,7 +173,7 @@ function readForm(): OverlaySettings {
   {
     const raw = Number((document.getElementById("chatScale") as HTMLInputElement).value);
     next.chat.scale = Number.isFinite(raw)
-      ? Math.max(0.6, Math.min(2, Math.round(raw * 100) / 100))
+      ? Math.max(0.6, Math.min(10, Math.round(raw * 100) / 100))
       : 1;
   }
   next.chat.games = (document.getElementById("chatGames") as HTMLTextAreaElement).value
