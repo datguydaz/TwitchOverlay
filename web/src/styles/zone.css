@@ -393,34 +393,20 @@ body.scene-opaque {
   z-index: 2;
 }
 
-/* Layer animation hooks — origins match 3× hi-res viewBox (1200×1020).
- * Idle loops stay on #layer-* forever (never swapped) so they never hitch/reset.
- * Talk / cough / roll ride on #torso-sit / #head-sit instead. */
+/* Layer animation hooks — origins match 3× hi-res viewBox (1200×1020) */
 #layer-torso {
   transform-box: view-box;
   transform-origin: 600px 720px;
-  animation: breath 6.4s ease-in-out infinite;
+  animation: breath 5.2s cubic-bezier(0.37, 0, 0.63, 1) infinite;
   will-change: transform;
 }
 
 #layer-head {
   transform-box: view-box;
   transform-origin: 600px 390px;
-  /* Continuous sway + soft bob — fixed duration; intensity via playback-rate */
-  animation:
-    head-idle 20s linear infinite,
-    head-bob 6.4s ease-in-out infinite;
+  /* slower cycle + tiny amplitude; duration jittered in JS */
+  animation: head-idle 12.5s linear infinite;
   will-change: transform;
-}
-
-#torso-sit {
-  transform-box: view-box;
-  transform-origin: 600px 720px;
-}
-
-#head-sit {
-  transform-box: view-box;
-  transform-origin: 600px 390px;
 }
 
 #arm-left,
@@ -468,17 +454,16 @@ body.scene-opaque {
   animation: talk-vent-strong 120ms ease-in-out infinite;
 }
 
-/* Additive on sit layers — keeps breath / head-idle running underneath */
-.avatar-root[data-talk="1"] #torso-sit,
-.avatar-root[data-talk="2"] #torso-sit {
+.avatar-root[data-talk="1"] #layer-torso,
+.avatar-root[data-talk="2"] #layer-torso {
   animation: talk-lean 480ms ease-in-out infinite;
 }
 
-.avatar-root[data-talk="2"] #torso-sit {
+.avatar-root[data-talk="2"] #layer-torso {
   animation: talk-lean-strong 420ms ease-in-out infinite;
 }
 
-.avatar-root[data-talk-nod="1"] #head-sit {
+.avatar-root[data-talk-nod="1"] #layer-head {
   animation: talk-nod 520ms ease-in-out infinite;
 }
 
@@ -701,12 +686,12 @@ body.scene-opaque {
   stroke: #1a1810;
 }
 
-/* Occasional flavor beats — cough / shoulder roll / eq blink (sit layers only) */
-.avatar-root[data-cough="1"] #head-sit {
+/* Occasional flavor beats — cough / shoulder roll / eq blink */
+.avatar-root[data-cough="1"] #layer-head {
   animation: cough-head 560ms cubic-bezier(0.33, 0, 0.2, 1) 1;
 }
 
-.avatar-root[data-cough="1"] #torso-sit {
+.avatar-root[data-cough="1"] #layer-torso {
   animation: cough-torso 560ms cubic-bezier(0.33, 0, 0.2, 1) 1;
 }
 
@@ -718,7 +703,7 @@ body.scene-opaque {
   animation: shoulder-roll-r 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
 }
 
-.avatar-root[data-roll="1"] #torso-sit {
+.avatar-root[data-roll="1"] #layer-torso {
   animation: torso-settle 700ms ease-out 1;
 }
 
@@ -848,80 +833,58 @@ body.scene-opaque {
   }
 }
 
-/* Quiet continuous chest breath — matched endpoints, no loop hitch */
+/* Quiet chest breath — head carries most of the idle life */
 @keyframes breath {
   0%,
   100% {
     transform: translate3d(0, 0, 0) scale(1, 1);
   }
-  20% {
-    transform: translate3d(0, -0.8px, 0) scale(1.0008, 1.002);
+  25% {
+    transform: translate3d(0, -1px, 0) scale(1.001, 1.003);
   }
   50% {
-    transform: translate3d(0, -2.2px, 0) scale(1.0018, 1.0045);
+    transform: translate3d(0, -2.5px, 0) scale(1.002, 1.005);
   }
-  80% {
-    transform: translate3d(0, -0.7px, 0) scale(1.0006, 1.0015);
-  }
-}
-
-/* Soft vertical bob synced to breath — additive with head-idle */
-@keyframes head-bob {
-  0%,
-  100% {
-    transform: translate3d(0, 0.15px, 0);
-  }
-  50% {
-    transform: translate3d(0, -1.1px, 0);
+  75% {
+    transform: translate3d(0, -1px, 0) scale(1.001, 1.002);
   }
 }
 
 /*
- * Continuous head life — dense path, matched 0%/100%, linear sampling.
- * Never reseed duration from JS (that restarts the loop).
+ * Soft head life: mostly micro sway, rare mild looks.
+ * linear + matched endpoints = no loop hitch. Still >> quiet chest breath.
  */
 @keyframes head-idle {
   0% {
-    transform: translate3d(0, 0.15px, 0) rotate(0deg);
+    transform: translate3d(0, 0.2px, 0) rotate(0deg);
   }
-  8% {
-    transform: translate3d(-0.9px, 0.25px, 0) rotate(-0.32deg);
+  12% {
+    transform: translate3d(-1.5px, 0.4px, 0) rotate(-0.55deg);
   }
-  16% {
-    transform: translate3d(-1.8px, 0.35px, 0) rotate(-0.62deg);
+  22% {
+    transform: translate3d(-2.2px, 0.3px, 0) rotate(-0.75deg);
   }
-  24% {
-    transform: translate3d(-2.1px, 0.3px, 0) rotate(-0.72deg);
-  }
-  32% {
-    transform: translate3d(-1.1px, 0.4px, 0) rotate(-0.35deg);
-  }
-  40% {
-    transform: translate3d(0.2px, 0.35px, 0) rotate(0.08deg);
+  34% {
+    transform: translate3d(-0.4px, 0.5px, 0) rotate(-0.15deg);
   }
   48% {
-    transform: translate3d(1.4px, 0.3px, 0) rotate(0.48deg);
+    transform: translate3d(1.2px, 0.35px, 0) rotate(0.4deg);
   }
-  56% {
-    transform: translate3d(2.6px, 0.45px, 0) rotate(0.88deg);
+  /* one slightly bigger look — still subtle */
+  58% {
+    transform: translate3d(3.2px, 0.6px, 0) rotate(1.05deg);
   }
-  64% {
-    transform: translate3d(2.0px, 0.35px, 0) rotate(0.68deg);
-  }
-  72% {
-    transform: translate3d(0.6px, 0.25px, 0) rotate(0.2deg);
+  68% {
+    transform: translate3d(1.4px, 0.3px, 0) rotate(0.45deg);
   }
   80% {
-    transform: translate3d(-0.7px, 0.3px, 0) rotate(-0.22deg);
+    transform: translate3d(-0.8px, 0.25px, 0) rotate(-0.25deg);
   }
-  88% {
-    transform: translate3d(-1.5px, 0.35px, 0) rotate(-0.5deg);
-  }
-  94% {
-    transform: translate3d(-0.7px, 0.25px, 0) rotate(-0.22deg);
+  90% {
+    transform: translate3d(-1.8px, 0.4px, 0) rotate(-0.6deg);
   }
   100% {
-    transform: translate3d(0, 0.15px, 0) rotate(0deg);
+    transform: translate3d(0, 0.2px, 0) rotate(0deg);
   }
 }
 
@@ -1150,18 +1113,18 @@ body.scene-opaque {
   .avatar-root[data-key="1"][data-key-pulse="1"] #hand-left,
   .avatar-root[data-mouse-l="1"] #hand-right-aim,
   .avatar-root[data-mouse-r="1"] #hand-right-aim,
-  .avatar-root[data-cough="1"] #head-sit,
-  .avatar-root[data-cough="1"] #torso-sit,
+  .avatar-root[data-cough="1"] #layer-head,
+  .avatar-root[data-cough="1"] #layer-torso,
   .avatar-root[data-roll="1"] #arm-left,
   .avatar-root[data-roll="1"] #arm-right,
-  .avatar-root[data-roll="1"] #torso-sit,
+  .avatar-root[data-roll="1"] #layer-torso,
   .avatar-root[data-blink="1"] .eq-blink,
   .avatar-root[data-blink="1"] .eq-light,
   .avatar-root[data-talk="1"] #mouth-vent,
   .avatar-root[data-talk="2"] #mouth-vent,
-  .avatar-root[data-talk="1"] #torso-sit,
-  .avatar-root[data-talk="2"] #torso-sit,
-  .avatar-root[data-talk-nod="1"] #head-sit {
+  .avatar-root[data-talk="1"] #layer-torso,
+  .avatar-root[data-talk="2"] #layer-torso,
+  .avatar-root[data-talk-nod="1"] #layer-head {
     animation: none;
   }
 }

@@ -269,8 +269,6 @@ export class ReactiveAvatar {
     this.bindChatDrag();
     document.addEventListener("visibilitychange", this.onVis);
     this.scheduleFlavor();
-    // Apply intensity playback-rate once; never reseed durations afterward.
-    this.applyIdleMotionTiming();
   }
 
   /**
@@ -403,34 +401,36 @@ export class ReactiveAvatar {
   }
 
   setIntensity(value: number): void {
-    const next = Math.max(0.2, Math.min(2, value));
-    const changed = next !== this.intensity;
-    this.intensity = next;
+    this.intensity = Math.max(0.2, Math.min(2, value));
     this.root.style.setProperty("--avatar-intensity", String(this.intensity));
-    // Only touch playback-rate when intensity actually changes — never reseed duration
-    // (changing animation-duration restarts the loop → visible head hitch).
-    if (changed) this.applyIdleMotionTiming();
+    if (
+      this.root.dataset.cough === "1" ||
+      this.root.dataset.roll === "1" ||
+      this.root.dataset.talk === "1"
+    ) {
+      return;
+    }
+    this.applyIdleMotionTiming();
   }
 
-  /**
-   * Drive idle breath/head via playback-rate only.
-   * Durations stay fixed in CSS so loops never reset/reseed.
-   */
+  /** Quiet chest + varied head cycle length (avoids a metronome hitch feel). */
   private applyIdleMotionTiming(): void {
-    const rate = this.intensity;
-    for (const sel of ["#layer-torso", "#layer-head"] as const) {
-      const el = this.root.querySelector(sel) as SVGElement | null;
-      if (!el) continue;
-      // Clear any legacy duration overrides from older builds
-      el.style.animationDuration = "";
-      try {
-        const anims = el.getAnimations?.() ?? [];
-        if (anims.length) {
-          for (const a of anims) a.playbackRate = rate;
-        }
-      } catch {
-        /* ignore */
-      }
+    if (
+      this.root.dataset.cough === "1" ||
+      this.root.dataset.roll === "1" ||
+      this.root.dataset.talk === "1" ||
+      this.root.dataset.talkNod === "1"
+    ) {
+      return;
+    }
+    const torso = this.root.querySelector("#layer-torso") as SVGElement | null;
+    const head = this.root.querySelector("#layer-head") as SVGElement | null;
+    if (torso) {
+      torso.style.animationDuration = `${(5.0 + Math.random() * 0.8) / this.intensity}s`;
+    }
+    if (head) {
+      // Slow varied cycle (11–15s); linear keyframes stay hitch-free.
+      head.style.animationDuration = `${(11 + Math.random() * 4) / this.intensity}s`;
     }
   }
 
@@ -479,7 +479,7 @@ export class ReactiveAvatar {
       this.talkBurstMs = 0;
       delete this.root.dataset.talk;
       delete this.root.dataset.talkNod;
-      // Idle head/breath keep running on #layer-* — do not reseed.
+      this.setIntensity(this.intensity);
     }, 280);
   }
 
@@ -494,6 +494,7 @@ export class ReactiveAvatar {
       this.talkClearTimer = null;
       delete this.root.dataset.talk;
       delete this.root.dataset.talkNod;
+      this.setIntensity(this.intensity);
     }, 700);
   }
 
@@ -810,7 +811,7 @@ export class ReactiveAvatar {
       this.flavorClearTimer = null;
       if (this.disposed) return;
       delete this.root.dataset[attr];
-      // Sit-layer beats end; layer idle loops were never interrupted.
+      this.setIntensity(this.intensity);
     }, ms);
   }
 
