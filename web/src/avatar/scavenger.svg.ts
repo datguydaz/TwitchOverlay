@@ -351,12 +351,8 @@ export const scavengerSvg = `
           <path d="M226 120 L232 124" stroke="#3a3c3e" stroke-width="0.32" opacity="0.26"/>
         </g>
         <!-- Restrained asymmetrical battle damage — does NOT alter silhouette or cover stripes/slit -->
-        <g id="helm-battle" pointer-events="none">
-          <!-- small bullet dent upper-right dome (away from slit / stripe core) -->
-          <ellipse cx="228" cy="90" rx="5" ry="3.6" fill="#050607" opacity="0.55"/>
-          <ellipse cx="227.2" cy="89.2" rx="2.6" ry="1.8" fill="#3a3c40" opacity="0.4"/>
-          <path d="M223 88 Q228 86 232 90" fill="none" stroke="#6a6c70" stroke-width="0.35" opacity="0.35"/>
-          <!-- second subtle impact nick lower-right cheek (not on slit) -->
+        <g id="helm-battle" clip-path="url(#maska-shell-clip)" pointer-events="none">
+          <!-- Impact nick on right cheek only (upper-dome almond removed — floated outside shell) -->
           <ellipse cx="234" cy="148" rx="2.4" ry="1.6" fill="#050607" opacity="0.4"/>
           <path d="M232 146 L236 150" fill="none" stroke="#5a5c60" stroke-width="0.3" opacity="0.35"/>
           <!-- dried blood smear + flecks on left faceplate / cheek edge -->
