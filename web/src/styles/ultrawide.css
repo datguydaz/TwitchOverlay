@@ -627,7 +627,7 @@
   text-align: right;
 }
 
-/* Plate material — slightly shorter so top-bar pulse/embers read around them */
+/* Plate material — compact housing; room for larger name glyphs */
 .uw-glass-well {
   position: relative;
   display: flex;
@@ -635,9 +635,9 @@
   flex: 0 0 auto;
   width: 100%;
   box-sizing: border-box;
-  min-height: calc(var(--uw-bar-h) * 0.4);
-  height: calc(var(--uw-bar-h) * 0.44);
-  padding: 10px 18px 10px 44px;
+  min-height: calc(var(--uw-bar-h) * 0.46);
+  height: calc(var(--uw-bar-h) * 0.5);
+  padding: 8px 16px 8px 46px;
   overflow: hidden;
   background: rgba(6, 6, 5, 0.78);
   border: 1px solid rgba(55, 50, 42, 0.8);
@@ -645,7 +645,7 @@
 }
 
 .uw-side-right .uw-glass-well {
-  padding: 10px 44px 10px 18px;
+  padding: 8px 46px 8px 16px;
   justify-content: flex-end;
 }
 
@@ -708,8 +708,9 @@
   width: 100%;
   font-family: var(--font-op);
   font-weight: 700;
-  font-size: clamp(32px, calc(var(--uw-bar-h) * 0.36), 52px);
-  letter-spacing: 0.1em;
+  /* Noticeable jump vs pre-v9 42px / first-v9 52px — IDs beat any stale alias */
+  font-size: clamp(48px, calc(var(--uw-bar-h) * 0.42), 68px);
+  letter-spacing: 0.08em;
   line-height: 1;
   text-transform: uppercase;
   color: #efe6d0;
@@ -719,6 +720,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+#uw-follower .uw-glass-name,
+#uw-subscriber .uw-glass-name,
+#uw-follower-name,
+#uw-subscriber-name {
+  font-size: clamp(48px, calc(var(--uw-bar-h) * 0.42), 68px) !important;
 }
 
 .uw-side-right .uw-glass-name {

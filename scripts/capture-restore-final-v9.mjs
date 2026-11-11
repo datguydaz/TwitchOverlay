@@ -16,9 +16,11 @@ const page = await (
   await browser.newContext({ viewport: { width: 1720, height: 760 }, deviceScaleFactor: 1 })
 ).newPage();
 
-await page.goto("http://127.0.0.1:8787/ultrawide.html", { waitUntil: "networkidle" });
+// Soft hard-refresh: cache-bust query + reload
+const url = `http://127.0.0.1:8787/ultrawide.html?v9=${Date.now()}`;
+await page.goto(url, { waitUntil: "networkidle" });
 await page.reload({ waitUntil: "networkidle" });
-await page.waitForTimeout(800);
+await page.waitForTimeout(700);
 
 await page.addStyleTag({ content: "html,body{background:#070706!important}" });
 const metrics = await page.evaluate(() => {
@@ -34,38 +36,45 @@ const metrics = await page.evaluate(() => {
   const bot = document.getElementById("uw-bottom");
   bot.dataset.footerPulse = "1";
   bot.dataset.sparks = "l";
-  document.querySelectorAll(".uw-header-ember").forEach((el, i) => {
+  document.querySelectorAll(".uw-header-ember,.uw-footer-ember").forEach((el, i) => {
     el.style.animation = "none";
-    el.style.opacity = String(0.75 - i * 0.08);
-    el.style.transform = `translate3d(${12 + i * 6}px, ${-10 - i * 4}px, 0) scale(1)`;
-  });
-  document.querySelectorAll(".uw-footer-ember").forEach((el, i) => {
-    el.style.animation = "none";
-    el.style.opacity = String(0.7 - i * 0.1);
-    el.style.transform = `translate3d(${10 + i * 8}px, ${-12 - i * 5}px, 0) scale(1)`;
+    el.style.opacity = String(0.72 - (i % 4) * 0.08);
+    el.style.transform = `translate3d(${10 + i * 6}px, ${-10 - i * 3}px, 0) scale(1)`;
   });
 
-  const fol = document.querySelector("#uw-follower .uw-glass-well");
-  const sub = document.querySelector("#uw-subscriber .uw-glass-well");
-  const folName = document.querySelector("#uw-follower .uw-glass-name");
-  const topBar = document.getElementById("uw-top");
-  const folBox = fol.getBoundingClientRect();
-  const topBox = topBar.getBoundingClientRect();
+  const fol = document.getElementById("uw-follower-name");
+  const sub = document.getElementById("uw-subscriber-name");
+  const well = document.querySelector("#uw-follower .uw-glass-well");
   const folCs = getComputedStyle(fol);
-  const nameCs = getComputedStyle(folName);
+  const subCs = getComputedStyle(sub);
+  const wellCs = getComputedStyle(well);
+  const barH = getComputedStyle(s).getPropertyValue("--uw-bar-h").trim();
+  let rule = null;
+  for (const sheet of document.styleSheets) {
+    let rules;
+    try {
+      rules = [...sheet.cssRules];
+    } catch {
+      continue;
+    }
+    for (const r of rules) {
+      if (r.selectorText?.includes("#uw-follower-name") && r.style?.fontSize) {
+        rule = { sel: r.selectorText, fontSize: r.style.fontSize };
+      }
+    }
+  }
   return {
-    wellH: Math.round(folBox.height),
-    barH: Math.round(topBox.height),
-    wellRatio: +(folBox.height / topBox.height).toFixed(3),
-    wellPad: folCs.padding,
-    nameSize: nameCs.fontSize,
-    folLeft: Math.round(folBox.left - topBox.left),
-    subRight: Math.round(topBox.right - sub.getBoundingClientRect().right),
-    edgeFlush: Math.abs(folBox.left - topBox.left) < 2 && Math.abs(topBox.right - sub.getBoundingClientRect().right) < 2,
+    beforeClaimNote: "pre-af26231 clamp max was 42px; af26231 first pass max was 52px",
+    folFont: folCs.fontSize,
+    subFont: subCs.fontSize,
+    wellH: wellCs.height,
+    barH,
+    idRule: rule,
+    cssHref: [...document.styleSheets].map((x) => x.href).filter((h) => h && /ultrawide/.test(h)),
   };
 });
 console.log(JSON.stringify(metrics, null, 2));
-await page.waitForTimeout(400);
+await page.waitForTimeout(350);
 
 const stage = await page.locator("#uw-stage").boundingBox();
 const out = "restore-final-v9-social-scale-static.png";
