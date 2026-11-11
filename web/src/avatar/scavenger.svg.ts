@@ -427,59 +427,62 @@ export const scavengerSvg = `
           <g id="hand-left-sit" transform="translate(-128 -220)">
             <g id="arm-left" class="arm-continuous">
               <!--
-                Filled sleeve (not round-cap stroke): root under olive so the vest
-                truncates the shoulder; body bulges outboard then lands on the KB cuff.
+                High under-vest TONGUE (y≈150, x→218) fills the upper shoulder wedge
+                under olive; outboard shelf at y≈164 (x→116) so no bg notch at the
+                vest curve. Body-side stays x≳168 until mid-armpit.
               -->
-              <path id="sleeve-left-bridge" d="M178 186
-                C166 182 152 184 140 192
-                C128 200 118 214 112 230
-                C108 244 108 256 112 264
-                L128 262
-                C126 250 128 236 134 224
-                C142 208 154 196 166 190
-                C170 188 176 186 178 186 Z"
-                fill="#0e0e0e" opacity="0"/>
-              <path d="M186 182
-                C170 180 152 186 138 198
-                C124 212 112 228 106 244
-                C104 254 106 262 112 268
-                L126 266
-                C120 256 118 246 122 232
-                C128 216 142 200 160 190
-                C170 184 180 182 186 182 Z"
+              <path id="sleeve-left-bridge" d="M218 148
+                C196 148 176 150 162 156
+                C150 160 136 164 114 164
+                C106 178 100 200 100 224
+                C100 246 108 260 118 268
+                L144 264
+                C136 248 140 224 158 198
+                C172 176 192 156 218 148 Z"
+                fill="#0e0e0e"/>
+              <path d="M216 150
+                C194 150 174 152 160 158
+                C148 162 134 166 116 166
+                C108 180 102 202 102 226
+                C102 246 110 262 118 268
+                L142 266
+                C134 250 138 226 156 200
+                C170 178 190 158 216 150 Z"
                 fill="#050507" opacity="0.55"/>
-              <path id="sleeve-left-fill" d="M184 184
-                C168 182 152 188 138 200
-                C124 214 114 230 108 244
-                C106 254 108 262 114 268
-                L126 266
-                C120 256 120 246 124 234
-                C130 218 144 202 162 192
-                C170 186 180 184 184 184 Z"
-                fill="#0e0e0e" stroke="#050507" stroke-width="0.85" stroke-linejoin="round"/>
-              <path d="M176 190
-                C162 188 148 194 136 206
-                C124 220 116 234 112 248
-                C110 256 112 262 116 266
-                L124 264
-                C120 256 120 248 124 238
-                C128 226 140 212 154 200
-                C162 194 170 190 176 190 Z"
-                fill="#181a1e" opacity="0.45"/>
+              <path id="sleeve-left-fill" d="M214 152
+                C192 152 172 154 158 160
+                C146 164 132 168 118 168
+                C110 182 104 204 104 228
+                C104 248 112 262 118 268
+                L140 266
+                C132 250 136 228 154 202
+                C168 180 188 160 214 152 Z"
+                fill="#0e0e0e"/>
+              <path d="M118 168 C110 182 104 204 104 228 C104 248 112 262 118 268"
+                fill="none" stroke="#050507" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M204 156
+                C184 156 166 158 154 164
+                C142 168 130 172 124 172
+                C116 186 112 206 112 228
+                C112 246 116 260 122 266
+                L136 264
+                C128 250 132 230 148 206
+                C160 186 178 164 204 156 Z"
+                fill="#181a1e" opacity="0.4"/>
               <g id="sleeve-stripes-left" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.15">
-                <path d="M168 190 C154 196 140 208 128 222 L116 240 L112 254 L118 266" transform="translate(-4.2 0)"/>
-                <path d="M168 190 C154 196 140 208 128 222 L116 240 L112 254 L118 266"/>
-                <path d="M168 190 C154 196 140 208 128 222 L116 240 L112 254 L118 266" transform="translate(4.2 0)"/>
+                <path d="M188 168 C166 178 148 196 134 218 L120 242 L112 254 L120 266" transform="translate(-4.2 0)"/>
+                <path d="M188 168 C166 178 148 196 134 218 L120 242 L112 254 L120 266"/>
+                <path d="M188 168 C166 178 148 196 134 218 L120 242 L112 254 L120 266" transform="translate(4.2 0)"/>
               </g>
               <g id="sleeve-folds-left" fill="none" stroke-linecap="round">
-                <path d="M130 228 Q124 234 120 232" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
-                <path d="M120 242 Q114 248 112 246" stroke="#000" stroke-width="0.85" opacity="0.38"/>
-                <path d="M114 254 Q110 260 114 258" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
+                <path d="M148 232 Q142 238 138 236" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
+                <path d="M140 244 Q134 250 132 248" stroke="#000" stroke-width="0.85" opacity="0.38"/>
+                <path d="M130 254 Q126 260 128 258" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
               </g>
               <g id="sleeve-wear-left" fill="none" stroke-linecap="round">
-                <path d="M154 200 L144 210" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
-                <path d="M132 226 L124 236" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
-                <path d="M118 246 Q114 252 116 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
+                <path d="M168 196 L158 208" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
+                <path d="M152 224 L144 236" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
+                <path d="M136 248 Q130 254 132 258" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
               </g>
               <ellipse cx="118" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
               <ellipse cx="118" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
@@ -503,57 +506,59 @@ export const scavengerSvg = `
             <circle cx="0" cy="0" r="0.5" fill="none" opacity="0"/>
             <g id="hand-right-sit" transform="translate(-272 -220)">
               <g id="arm-right" class="arm-continuous">
-                <!-- Mirror filled sleeve: root under olive, outboard bulge, mouse cuff -->
-                <path id="sleeve-right-bridge" d="M222 186
-                  C234 182 248 184 260 192
-                  C272 200 282 214 288 230
-                  C292 244 292 256 288 264
-                  L272 262
-                  C274 250 272 236 266 224
-                  C258 208 246 196 234 190
-                  C230 188 224 186 222 186 Z"
-                  fill="#0e0e0e" opacity="0"/>
-                <path d="M224 188
-                  C240 186 256 194 270 208
-                  C282 220 294 236 302 250
-                  C306 258 310 264 314 268
-                  L300 266
-                  C296 258 290 248 282 236
-                  C272 220 256 204 240 194
-                  C232 190 226 188 224 188 Z"
+                <!-- Exact mirror of left high under-vest tongue + outboard shelf → mouse cuff -->
+                <path id="sleeve-right-bridge" d="M182 148
+                  C204 148 224 150 238 156
+                  C250 160 264 164 286 164
+                  C294 178 300 200 300 224
+                  C300 246 306 260 314 268
+                  L288 264
+                  C296 248 292 224 274 198
+                  C260 176 240 156 182 148 Z"
+                  fill="#0e0e0e"/>
+                <path d="M184 150
+                  C206 150 226 152 240 158
+                  C252 162 266 166 284 166
+                  C292 180 298 202 298 226
+                  C298 246 304 262 314 268
+                  L290 266
+                  C298 250 294 226 276 200
+                  C262 178 242 158 184 150 Z"
                   fill="#050507" opacity="0.55"/>
-                <path id="sleeve-right-fill" d="M226 190
-                  C242 188 258 196 272 210
-                  C284 222 296 238 304 252
-                  C308 260 312 266 314 268
-                  L302 266
-                  C298 258 292 248 284 236
-                  C274 220 258 204 242 196
-                  C234 192 228 190 226 190 Z"
-                  fill="#0e0e0e" stroke="#050507" stroke-width="0.85" stroke-linejoin="round"/>
-                <path d="M232 196
-                  C246 194 260 202 272 214
-                  C284 226 294 240 300 252
-                  C304 258 308 264 310 266
-                  L302 264
-                  C298 256 292 248 284 238
-                  C276 226 262 212 248 202
-                  C240 198 234 196 232 196 Z"
-                  fill="#181a1e" opacity="0.45"/>
+                <path id="sleeve-right-fill" d="M186 152
+                  C208 152 228 154 242 160
+                  C254 164 268 168 282 168
+                  C290 182 296 204 296 228
+                  C296 248 304 262 314 268
+                  L292 266
+                  C300 250 296 228 278 202
+                  C264 180 244 160 186 152 Z"
+                  fill="#0e0e0e"/>
+                <path d="M282 168 C290 182 296 204 296 228 C296 248 304 262 314 268"
+                  fill="none" stroke="#050507" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M196 156
+                  C216 156 234 158 246 164
+                  C258 168 270 172 276 172
+                  C284 186 288 206 288 228
+                  C288 246 298 260 308 266
+                  L296 264
+                  C304 250 300 230 284 206
+                  C272 186 254 164 196 156 Z"
+                  fill="#181a1e" opacity="0.4"/>
                 <g id="sleeve-stripes-right" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.15">
-                  <path d="M240 194 C254 202 268 214 280 228 L292 244 L304 258 L314 266" transform="translate(-4.2 0)"/>
-                  <path d="M240 194 C254 202 268 214 280 228 L292 244 L304 258 L314 266"/>
-                  <path d="M240 194 C254 202 268 214 280 228 L292 244 L304 258 L314 266" transform="translate(4.2 0)"/>
+                  <path d="M212 168 C234 178 252 196 266 218 L280 242 L298 254 L314 266" transform="translate(-4.2 0)"/>
+                  <path d="M212 168 C234 178 252 196 266 218 L280 242 L298 254 L314 266"/>
+                  <path d="M212 168 C234 178 252 196 266 218 L280 242 L298 254 L314 266" transform="translate(4.2 0)"/>
                 </g>
                 <g id="sleeve-folds-right" fill="none" stroke-linecap="round">
-                  <path d="M270 228 Q276 234 280 232" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
-                  <path d="M280 242 Q286 248 288 246" stroke="#000" stroke-width="0.85" opacity="0.38"/>
-                  <path d="M286 254 Q290 260 286 258" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
+                  <path d="M252 232 Q258 238 262 236" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
+                  <path d="M260 244 Q266 250 268 248" stroke="#000" stroke-width="0.85" opacity="0.38"/>
+                  <path d="M270 254 Q274 260 272 258" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
                 </g>
                 <g id="sleeve-wear-right" fill="none" stroke-linecap="round">
-                  <path d="M246 200 L256 210" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
-                  <path d="M268 226 L276 236" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
-                  <path d="M282 246 Q286 252 284 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
+                  <path d="M232 196 L242 208" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
+                  <path d="M248 224 L256 236" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
+                  <path d="M264 248 Q270 254 268 258" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
                 </g>
                 <ellipse cx="314" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
                 <ellipse cx="314" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
