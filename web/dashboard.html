@@ -146,6 +146,32 @@
       </section>
 
       <section class="dash-panel">
+        <h2>Overlay Atmosphere</h2>
+        <p class="hint">Bunker frame VFX only (ultrawide bars). Not in broadcast as a separate source — toggles live here; OBS reads ultrawide pages. Default intensity Low. Decorative LEDs are not connection status.</p>
+        <label class="inline"><input id="atmEnabled" type="checkbox" /> Master enable</label>
+        <label>Intensity
+          <select id="atmIntensity">
+            <option value="low">Low (default)</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+        <label class="inline"><input id="atmDust" type="checkbox" /> Dust</label>
+        <label class="inline"><input id="atmSmoke" type="checkbox" /> Smoke wisps</label>
+        <label class="inline"><input id="atmSparks" type="checkbox" /> Corner sparks</label>
+        <label class="inline"><input id="atmFlicker" type="checkbox" /> Local amber flicker</label>
+        <label class="inline"><input id="atmReducedMotion" type="checkbox" /> Reduced motion</label>
+        <p class="hint">Preview (simulated — labels only; follow/sub also pulse recessed readouts):</p>
+        <div class="btn-row">
+          <button type="button" class="btn" data-atm-preview="flicker">Preview flicker</button>
+          <button type="button" class="btn" data-atm-preview="smoke">Preview smoke</button>
+          <button type="button" class="btn" data-atm-preview="sparks">Preview sparks</button>
+          <button type="button" class="btn" data-atm-preview="follow">Sim follow react</button>
+          <button type="button" class="btn" data-atm-preview="sub">Sim sub react</button>
+        </div>
+      </section>
+
+      <section class="dash-panel">
         <h2>Avatar & input</h2>
         <label>Animation intensity <input id="intensity" type="range" min="0.2" max="2" step="0.1" /></label>
         <label class="inline"><input id="lightsEnabled" type="checkbox" /> Equipment lights</label>

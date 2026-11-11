@@ -2,6 +2,7 @@ import {
   applyCssVars,
   fetchSettings,
 } from "../lib/settingsClient.ts";
+import { AtmosphereVfx } from "../lib/atmosphereVfx.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 
 function qs<T extends HTMLElement>(sel: string): T | null {
@@ -10,7 +11,6 @@ function qs<T extends HTMLElement>(sel: string): T | null {
 
 function displayName(raw: string | undefined): string {
   const t = (raw || "").trim();
-  // No em-dash / "--" placeholder — leave blank until a real name exists
   if (!t || t === "—" || t === "--" || t === "-") return "";
   return t;
 }
@@ -26,10 +26,9 @@ function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
   window.addEventListener("resize", apply);
 }
 
-function setVfxEnabled(on: boolean): void {
-  const stage = qs<HTMLElement>("#uw-stage");
-  if (stage) stage.dataset.vfx = on ? "on" : "off";
-}
+let atm: AtmosphereVfx | null = null;
+let lastFollower = "";
+let lastSubscriber = "";
 
 function applyUltrawide(settings: OverlaySettings): void {
   const uw = settings.ultrawide;
@@ -56,7 +55,8 @@ function applyUltrawide(settings: OverlaySettings): void {
 
   const top = qs<HTMLElement>("#uw-top");
   const bottom = qs<HTMLElement>("#uw-bottom");
-  const topText = qs<HTMLElement>("#uw-top-text");
+  const topPlate = qs<HTMLElement>("#uw-top-text");
+  const opSuffix = qs<HTMLElement>("#uw-operator-suffix");
   const bottomText = qs<HTMLElement>("#uw-bottom-text");
   const bottomStatus = qs<HTMLElement>("#uw-bottom-status");
 
@@ -70,12 +70,32 @@ function applyUltrawide(settings: OverlaySettings): void {
   }
 
   const name = settings.streamerName || "datguydaz";
-  if (topText) {
+  if (topPlate) {
+    const nameEl = topPlate.querySelector<HTMLElement>("[data-streamer-name]");
+    const opLine = topPlate.querySelector<HTMLElement>(".uw-op-line");
+    const legacyTitle = topPlate.querySelector<HTMLElement>(".uw-legacy-title");
     if (uw.operatorLineOnTop !== false) {
-      const suffix = (uw.operatorLine || "OPERATOR ONLINE").trim() || "OPERATOR ONLINE";
-      topText.innerHTML = `<span data-streamer-name>${name}</span> // ${suffix}`;
+      if (nameEl) {
+        nameEl.hidden = false;
+        nameEl.textContent = name;
+      }
+      if (opLine) opLine.hidden = false;
+      if (legacyTitle) legacyTitle.hidden = true;
+      if (opSuffix) {
+        opSuffix.textContent =
+          (uw.operatorLine || "OPERATOR ONLINE").trim() || "OPERATOR ONLINE";
+      }
     } else {
-      topText.textContent = uw.topText || "ZONE OPS // TRANSMISSION";
+      if (nameEl) nameEl.hidden = true;
+      if (opLine) opLine.hidden = true;
+      let legacy = legacyTitle;
+      if (!legacy) {
+        legacy = document.createElement("div");
+        legacy.className = "uw-legacy-title uw-title";
+        topPlate.appendChild(legacy);
+      }
+      legacy.hidden = false;
+      legacy.textContent = uw.topText || "ZONE OPS // TRANSMISSION";
     }
   }
 
@@ -91,76 +111,30 @@ function applyUltrawide(settings: OverlaySettings): void {
   const subscriber = qs<HTMLElement>("#uw-subscriber");
   const followerName = qs<HTMLElement>("#uw-follower-name");
   const subscriberName = qs<HTMLElement>("#uw-subscriber-name");
-  if (followerName) {
-    followerName.textContent = displayName(
-      social.latestFollower ?? social.latestFollowerSample,
-    );
-  }
-  if (subscriberName) {
-    subscriberName.textContent = displayName(
-      social.latestSubscriber ?? social.latestSubscriberSample,
-    );
-  }
+  const nextFol = displayName(social.latestFollower ?? social.latestFollowerSample);
+  const nextSub = displayName(social.latestSubscriber ?? social.latestSubscriberSample);
+  if (followerName) followerName.textContent = nextFol;
+  if (subscriberName) subscriberName.textContent = nextSub;
   if (follower) follower.hidden = !social.showFollower;
   if (subscriber) subscriber.hidden = !social.showSubscriber;
-}
 
-/** Rare signal glitch — low duty cycle, paused when tab hidden. */
-function startGlitchLoop(): void {
-  let timer: number | null = null;
-  let clearTimer: number | null = null;
+  if (atm) {
+    if (nextFol && nextFol !== lastFollower) atm.pulseSocial("follow");
+    if (nextSub && nextSub !== lastSubscriber) atm.pulseSocial("sub");
+  }
+  lastFollower = nextFol;
+  lastSubscriber = nextSub;
 
-  const clear = () => {
-    if (timer != null) window.clearTimeout(timer);
-    if (clearTimer != null) window.clearTimeout(clearTimer);
-    timer = null;
-    clearTimer = null;
-  };
+  if (!atm) atm = new AtmosphereVfx(stage, settings.atmosphere);
+  else atm.applyConfig(settings.atmosphere);
 
-  const schedule = () => {
-    clear();
-    if (document.hidden) return;
-    const delay = 11000 + Math.random() * 17000;
-    timer = window.setTimeout(() => {
-      timer = null;
-      if (document.hidden) {
-        schedule();
-        return;
-      }
-      const bars = document.querySelectorAll<HTMLElement>(".uw-bar");
-      const pick = bars[Math.floor(Math.random() * Math.max(1, bars.length))];
-      if (pick && pick.dataset.hidden !== "true") {
-        pick.dataset.glitch = "1";
-        clearTimer = window.setTimeout(() => {
-          delete pick.dataset.glitch;
-          clearTimer = null;
-        }, 300);
-      }
-      schedule();
-    }, delay);
-  };
-
-  document.addEventListener("visibilitychange", () => {
-    setVfxEnabled(!document.hidden);
-    if (document.hidden) {
-      clear();
-      document.querySelectorAll(".uw-bar").forEach((el) => {
-        delete (el as HTMLElement).dataset.glitch;
-      });
-    } else {
-      schedule();
-    }
-  });
-
-  setVfxEnabled(!document.hidden);
-  schedule();
+  stage.dataset.vfx = settings.atmosphere.enabled && !settings.atmosphere.reducedMotion ? "on" : "off";
 }
 
 async function main(): Promise<void> {
   let settings = await fetchSettings();
   applyCssVars(settings);
   applyUltrawide(settings);
-  startGlitchLoop();
 
   const refresh = async () => {
     settings = await fetchSettings();
@@ -172,6 +146,17 @@ async function main(): Promise<void> {
     if (!document.hidden) void refresh();
   }, 2500);
 
+  // Dashboard can ask for atmosphere preview via query (local only)
+  const params = new URLSearchParams(location.search);
+  const preview = params.get("atmPreview");
+  if (preview && atm) {
+    window.setTimeout(() => {
+      if (preview === "flicker" || preview === "smoke" || preview === "sparks" || preview === "follow" || preview === "sub") {
+        atm?.preview(preview);
+      }
+    }, 400);
+  }
+
   const proto = location.protocol === "https:" ? "wss" : "ws";
   try {
     const tokenRes = await fetch("/api/token");
@@ -182,9 +167,14 @@ async function main(): Promise<void> {
     });
     ws.addEventListener("message", (ev) => {
       try {
-        const msg = JSON.parse(String(ev.data)) as { type?: string };
+        const msg = JSON.parse(String(ev.data)) as {
+          type?: string;
+          kind?: string;
+        };
         if (msg.type === "settings-updated") void refresh();
-        // AI / chat-line bubbles intentionally not shown on ultrawide bars
+        if (msg.type === "atm-preview" && msg.kind && atm) {
+          atm.preview(msg.kind as "flicker" | "smoke" | "sparks" | "follow" | "sub");
+        }
       } catch {
         /* ignore */
       }

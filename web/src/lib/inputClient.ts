@@ -178,6 +178,8 @@ export class InputClient {
         this.avatar.resetIdle(msg.reason);
         break;
       case "settings-updated":
+      case "atm-preview":
+      case "status":
       case "pong":
       case "error":
         break;

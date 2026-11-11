@@ -114,6 +114,15 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("uwBottomText") as HTMLInputElement).value = s.ultrawide.bottomText;
   (document.getElementById("uwStatusText") as HTMLInputElement).value = s.ultrawide.statusText;
 
+  (document.getElementById("atmEnabled") as HTMLInputElement).checked = s.atmosphere.enabled;
+  (document.getElementById("atmIntensity") as HTMLSelectElement).value = s.atmosphere.intensity;
+  (document.getElementById("atmDust") as HTMLInputElement).checked = s.atmosphere.dust;
+  (document.getElementById("atmSmoke") as HTMLInputElement).checked = s.atmosphere.smoke;
+  (document.getElementById("atmSparks") as HTMLInputElement).checked = s.atmosphere.sparks;
+  (document.getElementById("atmFlicker") as HTMLInputElement).checked = s.atmosphere.flicker;
+  (document.getElementById("atmReducedMotion") as HTMLInputElement).checked =
+    s.atmosphere.reducedMotion;
+
   for (const key of Object.keys(s.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);
     if (!root) continue;
@@ -244,6 +253,23 @@ function readForm(): OverlaySettings {
   next.ultrawide.statusText = (
     document.getElementById("uwStatusText") as HTMLInputElement
   ).value;
+
+  {
+    const intensityRaw = (
+      document.getElementById("atmIntensity") as HTMLSelectElement
+    ).value;
+    next.atmosphere = {
+      enabled: (document.getElementById("atmEnabled") as HTMLInputElement).checked,
+      intensity:
+        intensityRaw === "medium" || intensityRaw === "high" ? intensityRaw : "low",
+      dust: (document.getElementById("atmDust") as HTMLInputElement).checked,
+      smoke: (document.getElementById("atmSmoke") as HTMLInputElement).checked,
+      sparks: (document.getElementById("atmSparks") as HTMLInputElement).checked,
+      flicker: (document.getElementById("atmFlicker") as HTMLInputElement).checked,
+      reducedMotion: (document.getElementById("atmReducedMotion") as HTMLInputElement)
+        .checked,
+    };
+  }
 
   for (const key of Object.keys(next.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);
@@ -576,7 +602,21 @@ async function main(): Promise<void> {
 
   document.querySelectorAll("[data-sample]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      showSample((btn as HTMLElement).dataset.sample || "");
+      const kind = (btn as HTMLElement).dataset.sample || "";
+      showSample(kind);
+      // Simulated social react on bunker frame (labeled preview — not live Twitch)
+      if (kind === "follow" || kind === "sub") {
+        dashWs?.send(JSON.stringify({ type: "atm-preview", kind }));
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-atm-preview]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const kind = (btn as HTMLElement).dataset.atmPreview || "";
+      if (!kind) return;
+      dashWs?.send(JSON.stringify({ type: "atm-preview", kind }));
+      toast(`Atmosphere preview: ${kind} (simulated)`);
     });
   });
 

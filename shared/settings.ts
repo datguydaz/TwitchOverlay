@@ -59,6 +59,21 @@ export interface UltrawideSettings {
   operatorLine: string;
 }
 
+export type AtmosphereIntensity = "low" | "medium" | "high";
+
+/** Ultrawide / bunker frame ambient VFX — dashboard only; not real connection status. */
+export interface AtmosphereSettings {
+  /** Master enable for decorative atmosphere. */
+  enabled: boolean;
+  intensity: AtmosphereIntensity;
+  dust: boolean;
+  smoke: boolean;
+  sparks: boolean;
+  flicker: boolean;
+  /** Force-disable motion even if OS allows it. */
+  reducedMotion: boolean;
+}
+
 export interface ChatSettings {
   enabled: boolean;
   /** Auto Zone Ops trash-talk on a timer. */
@@ -151,6 +166,7 @@ export interface OverlaySettings {
   chat: ChatSettings;
   social: SocialSettings;
   ultrawide: UltrawideSettings;
+  atmosphere: AtmosphereSettings;
   demoModeDefault: boolean;
 }
 
@@ -217,6 +233,15 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     statusText: "ZONE THREAT // RAID READY",
     operatorLineOnTop: true,
     operatorLine: "OPERATOR ONLINE",
+  },
+  atmosphere: {
+    enabled: true,
+    intensity: "low",
+    dust: true,
+    smoke: true,
+    sparks: true,
+    flicker: true,
+    reducedMotion: false,
   },
   demoModeDefault: false,
 };
@@ -312,5 +337,24 @@ export function mergeSettings(
       };
     })(),
     ultrawide: { ...base.ultrawide, ...partial.ultrawide },
+    atmosphere: (() => {
+      const a = { ...base.atmosphere, ...partial.atmosphere };
+      const raw = String(a.intensity || "low").toLowerCase();
+      const intensity: AtmosphereIntensity =
+        raw === "medium" || raw === "med"
+          ? "medium"
+          : raw === "high"
+            ? "high"
+            : "low";
+      return {
+        enabled: a.enabled !== false,
+        intensity,
+        dust: a.dust !== false,
+        smoke: a.smoke !== false,
+        sparks: a.sparks !== false,
+        flicker: a.flicker !== false,
+        reducedMotion: !!a.reducedMotion,
+      };
+    })(),
   };
 }

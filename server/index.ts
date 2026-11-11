@@ -344,6 +344,24 @@ wss.on("connection", (ws, req) => {
         );
         break;
       }
+      case "atm-preview": {
+        if (state.role !== "dashboard" && state.role !== "test") {
+          send(ws, {
+            type: "error",
+            code: "role",
+            message: "Only dashboard/test may preview atmosphere",
+          });
+          break;
+        }
+        const kind = String(msg.kind || "");
+        const allowed = new Set(["flicker", "smoke", "sparks", "follow", "sub"]);
+        if (!allowed.has(kind)) break;
+        broadcast(
+          { type: "atm-preview", kind: kind as "flicker" | "smoke" | "sparks" | "follow" | "sub" },
+          (c) => meta.get(c)?.role === "overlay",
+        );
+        break;
+      }
       default: {
         const _exhaustive: never = msg;
         void _exhaustive;

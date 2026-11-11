@@ -52,6 +52,14 @@ export interface ChatLineMessage {
   from: "dashboard" | "demo" | "system";
 }
 
+/** Dashboard-only preview of bunker atmosphere / social panel reaction. */
+export type AtmPreviewKind = "flicker" | "smoke" | "sparks" | "follow" | "sub";
+
+export interface AtmPreviewMessage {
+  type: "atm-preview";
+  kind: AtmPreviewKind;
+}
+
 export interface PauseMessage {
   type: "pause";
 }
@@ -98,6 +106,7 @@ export type ClientToServerMessage =
   | InputMessage
   | MicMessage
   | ChatLineMessage
+  | AtmPreviewMessage
   | PauseMessage
   | ResumeMessage
   | PingMessage;
@@ -108,6 +117,7 @@ export type ServerToClientMessage =
   | InputMessage
   | MicMessage
   | ChatLineMessage
+  | AtmPreviewMessage
   | ResetIdleMessage
   | PongMessage
   | ErrorMessage;
