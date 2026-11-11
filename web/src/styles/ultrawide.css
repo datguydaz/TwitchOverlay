@@ -20,7 +20,7 @@
   pointer-events: none;
 }
 
-/* —— Near-black bars with smoky depth —— */
+/* —— Near-black bars with smooth smoky depth (no tiling / polygon debris) —— */
 .uw-bar {
   position: absolute;
   left: 0;
@@ -31,9 +31,7 @@
   overflow: hidden;
   isolation: isolate;
   color: var(--uw-bone);
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(36, 34, 30, 0.35), transparent 55%),
-    linear-gradient(180deg, #121110 0%, var(--uw-charcoal) 40%, #0e0e0d 100%);
+  background: linear-gradient(180deg, #131211 0%, #141312 42%, #0f0e0d 100%);
 }
 
 .uw-smoke-depth {
@@ -42,10 +40,9 @@
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 18% 60%, rgba(8, 8, 7, 0.55), transparent 42%),
-    radial-gradient(ellipse at 82% 40%, rgba(8, 8, 7, 0.5), transparent 40%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.35), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.35));
-  opacity: 0.9;
+    radial-gradient(ellipse 80% 120% at 50% 0%, rgba(40, 36, 30, 0.28), transparent 70%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 22%, transparent 78%, rgba(0, 0, 0, 0.28));
+  opacity: 0.85;
 }
 
 .uw-grime {
@@ -56,52 +53,53 @@
   overflow: hidden;
 }
 
-/* Contained thin smoke / haze — clipped by .uw-bar overflow */
+/* Contained soft haze — large soft ellipses only (no hard polygon/tile shapes) */
 .uw-bar-haze {
   position: absolute;
-  inset: 0;
+  inset: -8% -4%;
   z-index: 1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 28% 65%, rgba(120, 105, 85, 0.13), transparent 52%),
-    radial-gradient(ellipse at 72% 35%, rgba(95, 82, 65, 0.11), transparent 48%),
-    radial-gradient(ellipse at 50% 90%, rgba(70, 60, 48, 0.09), transparent 40%);
-  opacity: 0.7;
-  animation: uw-haze-drift 11s ease-in-out infinite alternate;
+    radial-gradient(ellipse 55% 90% at 30% 60%, rgba(110, 95, 75, 0.1), transparent 72%),
+    radial-gradient(ellipse 50% 80% at 75% 40%, rgba(90, 78, 62, 0.09), transparent 70%);
+  filter: blur(6px);
+  opacity: 0.65;
+  animation: uw-haze-drift 14s ease-in-out infinite alternate;
 }
 .uw-bar-haze-footer {
-  opacity: 0.9;
+  opacity: 0.8;
   background:
-    radial-gradient(ellipse at 42% 55%, rgba(140, 115, 85, 0.16), transparent 55%),
-    radial-gradient(ellipse at 75% 40%, rgba(100, 85, 65, 0.13), transparent 46%),
-    radial-gradient(ellipse at 18% 50%, rgba(80, 70, 55, 0.11), transparent 42%);
-  animation: uw-haze-drift 8.5s ease-in-out 1s infinite alternate;
+    radial-gradient(ellipse 60% 100% at 45% 55%, rgba(130, 108, 80, 0.12), transparent 74%),
+    radial-gradient(ellipse 45% 85% at 78% 45%, rgba(95, 80, 60, 0.1), transparent 72%);
+  animation: uw-haze-drift 11s ease-in-out 1.2s infinite alternate;
+}
+.uw-footer-atm {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 36px;
+  overflow: hidden;
 }
 .uw-footer-drift {
   position: absolute;
-  left: 50%;
-  bottom: 18%;
-  width: 140px;
-  height: 40px;
-  margin-left: -70px;
   border-radius: 50%;
-  filter: blur(10px);
-  background: radial-gradient(circle, rgba(180, 150, 110, 0.26), transparent 70%);
+  filter: blur(12px);
+  background: radial-gradient(circle, rgba(180, 150, 110, 0.24), transparent 72%);
   opacity: 0;
   pointer-events: none;
   z-index: 2;
 }
 .uw-footer-drift.a {
-  left: 28%;
-  margin-left: 0;
+  left: 18%;
+  bottom: 10%;
+  width: 160px;
+  height: 44px;
 }
 .uw-footer-drift.b {
-  left: auto;
-  right: 26%;
-  margin-left: 0;
-  width: 110px;
-  height: 32px;
-  bottom: 28%;
+  right: 20%;
+  bottom: 22%;
+  width: 120px;
+  height: 34px;
 }
 #uw-stage[data-atm="on"] .uw-footer-drift.a {
   animation: uw-footer-smoke 7.5s ease-in-out infinite;
@@ -110,57 +108,30 @@
   animation: uw-footer-smoke 10s ease-in-out 2s infinite;
 }
 
-/* Sparse low-contrast scratches — not full-width texture */
+/* Sparse soft hairline scratches — no hard geometric debris */
 .uw-scratch {
   position: absolute;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(90, 86, 78, 0.22), transparent);
-  opacity: 0.55;
+  background: linear-gradient(90deg, transparent, rgba(90, 86, 78, 0.16), transparent);
+  opacity: 0.4;
+  filter: blur(0.35px);
 }
 .uw-scratch.a {
   top: 28%;
   left: 8%;
-  width: 14%;
-  transform: rotate(-2deg);
+  width: 12%;
+  transform: rotate(-1.5deg);
 }
 .uw-scratch.b {
   top: 62%;
   right: 10%;
-  width: 11%;
-  transform: rotate(1.5deg);
+  width: 9%;
+  transform: rotate(1deg);
 }
 .uw-scratch.c {
   top: 44%;
   left: 30%;
-  width: 9%;
-}
-
-/* Sparse asymmetric dried-red staining */
-.uw-blood {
-  position: absolute;
-  background: radial-gradient(ellipse at center, rgba(58, 24, 22, 0.55), transparent 70%);
-  opacity: 0.45;
-  filter: blur(0.4px);
-}
-.uw-blood.a {
-  left: 4%;
-  bottom: 0;
-  width: 7%;
-  height: 38%;
-}
-.uw-blood.b {
-  right: 16%;
-  top: 0;
-  width: 4%;
-  height: 22%;
-  opacity: 0.28;
-}
-.uw-blood.c {
-  left: 58%;
-  bottom: 0;
-  width: 5%;
-  height: 30%;
-  opacity: 0.32;
+  width: 8%;
 }
 
 .uw-bar[data-hidden="true"] {
@@ -207,22 +178,26 @@
   position: relative;
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(300px, 1fr) minmax(480px, 1.45fr) minmax(300px, 1fr);
-  align-items: center;
-  gap: clamp(14px, 1.2vw, 36px);
-  padding: 0 clamp(22px, 2vw, 56px);
+  /* Side columns dominate — follow/sub hug center banner without crossing */
+  grid-template-columns: minmax(560px, 1.55fr) minmax(280px, 0.7fr) minmax(560px, 1.55fr);
+  align-items: stretch;
+  gap: clamp(4px, 0.35vw, 10px);
+  padding: 6px clamp(8px, 0.75vw, 18px);
   min-height: 0;
   z-index: 3;
   order: 1;
 }
 
 .uw-wall-footer {
-  grid-template-columns: minmax(120px, 0.55fr) minmax(420px, 1.8fr) minmax(220px, 0.85fr);
+  grid-template-columns: minmax(100px, 0.45fr) minmax(1fr, 2fr) minmax(220px, 0.85fr);
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .uw-side {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   min-width: 0;
 }
 .uw-side-right {
@@ -231,6 +206,7 @@
 .uw-center {
   position: relative;
   display: flex;
+  align-items: center;
   justify-content: center;
   min-width: 0;
 }
@@ -238,8 +214,9 @@
 /* —— DATGUYDAZ: typography only, no slab —— */
 .uw-id-block {
   position: relative;
-  width: min(640px, 54vw);
-  padding: 4px 48px 4px 4px;
+  width: 100%;
+  max-width: 100%;
+  padding: 4px 28px 4px 2px;
   text-align: left;
 }
 
@@ -352,15 +329,21 @@
   mix-blend-mode: screen;
 }
 
-/* —— Follow/sub: clean recessed readouts (enlarged, thin hairline — match preferred ref) —— */
+/* —— Follow/sub: fill side columns; sit close to bar hairlines without crossing —— */
 .uw-readout {
   position: relative;
   z-index: 4;
-  width: min(476px, 39vw);
-  min-width: min(340px, 26vw);
-  padding: 12px 14px 14px;
-  background: rgba(8, 8, 7, 0.55);
-  border: 1px solid rgba(55, 50, 42, 0.75);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px 12px;
+  background: rgba(8, 8, 7, 0.62);
+  border: 1px solid rgba(55, 50, 42, 0.8);
   box-shadow: inset 0 1px 10px rgba(0, 0, 0, 0.55);
 }
 
@@ -409,8 +392,11 @@
 
 .uw-glass-well {
   position: relative;
-  min-height: 1.9em;
-  padding: 12px 14px;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  min-height: 2.4em;
+  padding: 14px 16px;
   overflow: hidden;
   background: rgba(4, 4, 3, 0.88);
   border: 1px solid #000;
@@ -444,7 +430,7 @@
   display: block;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(24px, calc(var(--uw-bar-h) * 0.26), 38px);
+  font-size: clamp(26px, calc(var(--uw-bar-h) * 0.3), 42px);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #efe6d0;

@@ -18,13 +18,6 @@ function displayName(raw: string | undefined): string {
   return t;
 }
 
-function setFace(root: HTMLElement | null, text: string): void {
-  if (!root) return;
-  const face = root.querySelector<HTMLElement>(".uw-text-face");
-  if (face) face.textContent = text;
-  else root.textContent = text;
-}
-
 function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
   const apply = () => {
     const sx = window.innerWidth / width;
@@ -43,7 +36,7 @@ let lastFollower = "";
 let lastSubscriber = "";
 let bootstrappedSocial = false;
 
-const TEXT_PREVIEW = new Set<AtmPreviewKind>(["text-dip", "text-sweep", "text-op", "text-hold"]);
+const TEXT_PREVIEW = new Set<AtmPreviewKind>(["text-dip", "text-sweep", "text-op"]);
 
 const DEMO_FOLLOW = "ZONE_SCOUT";
 const DEMO_SUB = "RAID_READY";
@@ -75,7 +68,6 @@ function applyUltrawide(settings: OverlaySettings): void {
   const bottom = qs<HTMLElement>("#uw-bottom");
   const topPlate = qs<HTMLElement>("#uw-top-text");
   const opSuffix = qs<HTMLElement>("#uw-operator-suffix");
-  const bottomText = qs<HTMLElement>("#uw-bottom-text");
   const bottomStatus = qs<HTMLElement>("#uw-bottom-status");
 
   if (top) {
@@ -123,7 +115,6 @@ function applyUltrawide(settings: OverlaySettings): void {
     }
   }
 
-  setFace(bottomText, uw.bottomText || "HOLD THE LINE");
   if (bottomStatus) {
     const face = bottomStatus.querySelector<HTMLElement>(".uw-text-face");
     if (face) face.textContent = uw.statusText || "ZONE THREAT // RAID READY";
