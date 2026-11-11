@@ -105,12 +105,12 @@ const meta = await page.evaluate(() => {
     killaY: killa?.getAttribute("y"),
     killaSize: killa?.getAttribute("font-size"),
     killaTextLength: killa?.getAttribute("textLength"),
-    // Small fabric chest patch (not giant stencil across the plate)
+    // Fabric chest patch readable at overlay size, not giant stencil / not covered by pouches
     killaWide: (() => {
       const size = Number(killa?.getAttribute("font-size") || 0);
       const patch = killaGroup?.querySelector("rect");
       const pw = Number(patch?.getAttribute("width") || 0);
-      return size > 0 && size <= 10 && pw > 0 && pw <= 64;
+      return size >= 8 && size <= 13 && pw >= 40 && pw <= 72;
     })(),
     hasPaddedCollar: !!document.querySelector("#padded-collar"),
     oliveVest: (() => {
