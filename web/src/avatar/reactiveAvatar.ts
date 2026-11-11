@@ -727,10 +727,12 @@ export class ReactiveAvatar {
       // Tip after rotate-only around vest root
       const tipX = shoulder.x + hx * Math.cos(rad) - hy * Math.sin(rad);
       const tipY = shoulder.y + hx * Math.sin(rad) + hy * Math.cos(rad);
-      const dx = targetCx - tipX;
-      const dy = targetCy - tipY;
-      // SVG: rotate first, then translate residual (right-to-left attr order)
-      next = `translate(${dx.toFixed(1)} ${dy.toFixed(1)}) rotate(${rotDeg.toFixed(2)})`;
+      // Clamp residual so the sleeve root never slides off the vest shoulder
+      const dx = Math.max(-3, Math.min(3, targetCx - tipX));
+      const dy = Math.max(-3, Math.min(3, targetCy - tipY));
+      const rotClamped = Math.max(-8, Math.min(8, rotDeg));
+      // SVG: rotate first, then tiny residual (right-to-left attr order)
+      next = `translate(${dx.toFixed(1)} ${dy.toFixed(1)}) rotate(${rotClamped.toFixed(2)})`;
       this.root.dataset.keySlot = String(this.activeSlot);
     } else {
       next = "";

@@ -115,38 +115,7 @@ export const scavengerSvg = `
         C270 188 268 210 260 228
         L140 228
         C132 210 130 188 136 168 Z" fill="url(#suitDark)" stroke="#05070a" stroke-width="1.2"/>
-      <!-- Upper arms under vest — connect to sleeve roots (no floating forearms) -->
-      <path id="suit-upper-arm-l" d="M134 158
-        C122 166 116 182 118 200
-        C120 212 124 218 130 220
-        L142 218
-        C140 200 138 178 144 164
-        Z" fill="#0c0e12" stroke="#05070a" stroke-width="0.7"/>
-      <path id="suit-upper-arm-r" d="M266 158
-        C278 166 284 182 282 200
-        C280 212 276 218 270 220
-        L258 218
-        C260 200 262 178 256 164
-        Z" fill="#0c0e12" stroke="#05070a" stroke-width="0.7"/>
-      <!-- Compact olive vest -->
-      <path id="plate-carrier" d="M140 164
-        C132 152 138 140 152 132
-        C170 124 188 120 200 120
-        C212 120 230 124 248 132
-        C262 140 268 152 260 164
-        C268 184 266 208 258 226
-        Q200 236 142 226
-        C134 208 132 184 140 164 Z" fill="url(#armorOlive)" stroke="#2a281c" stroke-width="1.15"/>
-      <!-- Vest panel seams -->
-      <g id="vest-seams" fill="none" stroke="#2a281c" stroke-width="0.7" opacity="0.45">
-        <path d="M156 140 C170 136 186 134 200 134 C214 134 230 136 244 140"/>
-        <path d="M150 170 C168 164 186 162 200 162 C214 162 232 164 250 170"/>
-        <path d="M200 134 V162"/>
-      </g>
-      <!-- Soft shoulder slope shade (not winged ellipses) -->
-      <path d="M140 150 C148 138 168 132 186 130 L180 148 C166 150 152 154 142 162 Z" fill="#000" opacity="0.16"/>
-      <path d="M260 150 C252 138 232 132 214 130 L220 148 C234 150 248 154 258 162 Z" fill="#000" opacity="0.14"/>
-      <!-- Raised fabric collar — helm sits low inside -->
+      <!-- Raised fabric collar — helm sits low inside (vest plate paints AFTER sleeves) -->
       <path id="padded-collar" d="M162 112
         Q200 98 238 112
         C248 124 246 146 234 156
@@ -158,68 +127,6 @@ export const scavengerSvg = `
         <path d="M168 142 Q200 134 232 142"/>
       </g>
       <path d="M198 112 V154" fill="none" stroke="#2a281c" stroke-width="0.8" opacity="0.35"/>
-      <g id="shoulder-straps">
-        <path d="M168 126 C160 144 156 164 158 178 L172 176 C170 160 172 142 176 130 Z" fill="#14161c" stroke="#05070a" stroke-width="0.8"/>
-        <path d="M232 126 C240 144 244 164 242 178 L228 176 C230 160 228 142 224 130 Z" fill="#14161c" stroke="#05070a" stroke-width="0.8"/>
-        <path d="M170 132 L162 170" fill="none" stroke="#3a3e46" stroke-width="0.55" opacity="0.45"/>
-        <path d="M230 132 L238 170" fill="none" stroke="#3a3e46" stroke-width="0.55" opacity="0.45"/>
-        <rect x="158" y="150" width="13" height="8" rx="1.6" fill="#0e1014" stroke="#3a3e46" stroke-width="0.7"/>
-        <rect x="229" y="150" width="13" height="8" rx="1.6" fill="#0e1014" stroke="#3a3e46" stroke-width="0.7"/>
-      </g>
-      <g id="vest-wear" fill="none" stroke-linecap="round">
-        <path d="M146 158 L160 164" stroke="#a8a488" stroke-width="0.5" opacity="0.35"/>
-        <path d="M240 160 L254 166" stroke="#b0ac90" stroke-width="0.45" opacity="0.3"/>
-        <path d="M144 196 Q152 204 148 216" stroke="#4a4836" stroke-width="0.6" opacity="0.35"/>
-        <path d="M256 196 Q248 204 252 216" stroke="#5a5844" stroke-width="0.55" opacity="0.32"/>
-        <!-- light abrasion / dirt (asymmetrical) -->
-        <path d="M152 178 Q158 182 154 188" stroke="#5a5844" stroke-width="1.1" opacity="0.28"/>
-        <path d="M248 184 Q254 190 250 196" stroke="#4a4836" stroke-width="0.9" opacity="0.22"/>
-        <circle cx="160" cy="210" r="2.2" fill="#3a3828" opacity="0.2"/>
-      </g>
-      <!-- Fabric chest patch — readable at overlay size, clear of pouches -->
-      <g id="chest-killa">
-        <rect x="172" y="160" width="56" height="16" rx="1.6" fill="#3a3828" stroke="#1a1810" stroke-width="0.75" opacity="0.95"/>
-        <rect x="173.5" y="161.4" width="53" height="13" rx="1.1" fill="#2a281c" opacity="0.55"/>
-        <text id="chest-killa-main" x="200" y="172.6" fill="#f2ece0" font-family="Arial Black, Impact, 'Arial Narrow', sans-serif" font-weight="800" font-size="11" text-anchor="middle" letter-spacing="1.4" opacity="0.98">KILLA</text>
-      </g>
-      <!-- Compact shaded pouches (below patch) -->
-      <g id="chest-rig">
-        <path id="molle-plate" d="M148 184
-          C160 178 178 176 200 176
-          C222 176 240 178 252 184
-          L248 224
-          C232 230 216 232 200 232
-          C184 232 168 230 152 224
-          Z" fill="#12151a" stroke="#05070a" stroke-width="0.95" opacity="0.95"/>
-        <g id="molle-stitch" fill="none" stroke="#2a2e36" stroke-width="0.45" opacity="0.6">
-          <path d="M156 192 H244 M156 202 H244 M156 212 H244 M156 220 H244"/>
-        </g>
-        <g id="stanag-0" class="stanag-pouch" transform="translate(152 188)">
-          <rect x="0" y="5" width="22" height="28" rx="2" fill="url(#pouchGrad)" stroke="#0a0c10" stroke-width="0.9"/>
-          <path d="M1 5 H21 L19 1 H3 Z" fill="#1a1e24" stroke="#05070a" stroke-width="0.7"/>
-          <path d="M2 12 H20" stroke="#000" stroke-width="0.6" opacity="0.35"/>
-          <path d="M3 22 H19" stroke="#000" stroke-width="0.5" opacity="0.25"/>
-        </g>
-        <g id="stanag-1" class="stanag-pouch" transform="translate(176 188)">
-          <rect x="0" y="5" width="22" height="28" rx="2" fill="url(#pouchGrad)" stroke="#0a0c10" stroke-width="0.9"/>
-          <path d="M1 5 H21 L19 1 H3 Z" fill="#1a1e24" stroke="#05070a" stroke-width="0.7"/>
-          <path d="M2 12 H20" stroke="#000" stroke-width="0.6" opacity="0.35"/>
-          <path d="M3 22 H19" stroke="#000" stroke-width="0.5" opacity="0.25"/>
-        </g>
-        <g id="stanag-2" class="stanag-pouch" transform="translate(200 188)">
-          <rect x="0" y="5" width="22" height="28" rx="2" fill="url(#pouchGrad)" stroke="#0a0c10" stroke-width="0.9"/>
-          <path d="M1 5 H21 L19 1 H3 Z" fill="#1a1e24" stroke="#05070a" stroke-width="0.7"/>
-          <path d="M2 12 H20" stroke="#000" stroke-width="0.6" opacity="0.35"/>
-          <path d="M3 22 H19" stroke="#000" stroke-width="0.5" opacity="0.25"/>
-        </g>
-        <g id="stanag-3" class="stanag-pouch" transform="translate(224 188)">
-          <rect x="0" y="5" width="22" height="28" rx="2" fill="url(#pouchGrad)" stroke="#0a0c10" stroke-width="0.9"/>
-          <path d="M1 5 H21 L19 1 H3 Z" fill="#1a1e24" stroke="#05070a" stroke-width="0.7"/>
-          <path d="M2 12 H20" stroke="#000" stroke-width="0.6" opacity="0.35"/>
-          <path d="M3 22 H19" stroke="#000" stroke-width="0.5" opacity="0.25"/>
-        </g>
-      </g>
-      <path d="M150 228 Q200 234 250 228" fill="none" stroke="#1a1c18" stroke-width="2.2" stroke-linecap="round" opacity="0.45"/>
       </g>
       </g>
       </g>
@@ -509,46 +416,76 @@ export const scavengerSvg = `
     </g>
 
     <!--
-      ONE continuous arm per side inside #hand-* so key/mouse aim moves sleeve+hand together.
-      Roots attach to vest side (world space ≈ scaled vest roots + sit). No separate shoulder pads.
-      Outer #hand-* receives JS transforms (pivot at vest root).
-    -->
-    <!--
-      Short relaxed sleeves rooted at mid-vest sides (world ≈ scaled vest + sit),
-      NOT helm. Pivot at vest root; #hand-*-aim gets key/mouse transforms.
+      ONE continuous stroke per arm (no separate shoulder bulbs — those read as a gap).
+      Deep under-vest roots tuck under #vest-front; same weights/stripes/elbow language.
+      #hand-*-aim owns key/mouse motion (rotate about shoulder — no whole-arm slide).
     -->
     <g id="hand-left">
       <g id="hand-left-pivot" transform="translate(128 220)">
         <g id="hand-left-aim">
-          <!-- Anchor CSS transform-origin at vest root (0,0 in aim space) -->
           <circle cx="0" cy="0" r="0.5" fill="none" opacity="0"/>
           <g id="hand-left-sit" transform="translate(-128 -220)">
             <g id="arm-left" class="arm-continuous">
-              <!-- Black Adidas sleeve: baggy thickness + round joins; same path for aim -->
-              <path d="M128 220 L116 236 L110 250 L114 260 L118 268" fill="none" stroke="#050507" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-              <path id="sleeve-left-fill" d="M128 220 L116 236 L110 250 L114 260 L118 268" fill="none" stroke="#0e0e0e" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M128 220 L116 236 L110 250 L114 260 L118 268" fill="none" stroke="#181a1e" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-              <!-- 3 off-white stripes outside sleeve following bend -->
+              <!--
+                Filled sleeve (not round-cap stroke): root under olive so the vest
+                truncates the shoulder; body bulges outboard then lands on the KB cuff.
+              -->
+              <path id="sleeve-left-bridge" d="M178 186
+                C166 182 152 184 140 192
+                C128 200 118 214 112 230
+                C108 244 108 256 112 264
+                L128 262
+                C126 250 128 236 134 224
+                C142 208 154 196 166 190
+                C170 188 176 186 178 186 Z"
+                fill="#0e0e0e" opacity="0"/>
+              <path d="M186 182
+                C170 180 152 186 138 198
+                C124 212 112 228 106 244
+                C104 254 106 262 112 268
+                L126 266
+                C120 256 118 246 122 232
+                C128 216 142 200 160 190
+                C170 184 180 182 186 182 Z"
+                fill="#050507" opacity="0.55"/>
+              <path id="sleeve-left-fill" d="M184 184
+                C168 182 152 188 138 200
+                C124 214 114 230 108 244
+                C106 254 108 262 114 268
+                L126 266
+                C120 256 120 246 124 234
+                C130 218 144 202 162 192
+                C170 186 180 184 184 184 Z"
+                fill="#0e0e0e" stroke="#050507" stroke-width="0.85" stroke-linejoin="round"/>
+              <path d="M176 190
+                C162 188 148 194 136 206
+                C124 220 116 234 112 248
+                C110 256 112 262 116 266
+                L124 264
+                C120 256 120 248 124 238
+                C128 226 140 212 154 200
+                C162 194 170 190 176 190 Z"
+                fill="#181a1e" opacity="0.45"/>
               <g id="sleeve-stripes-left" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.15">
-                <path d="M128 220 L116 236 L110 250 L114 260 L118 268" transform="translate(-4.2 0)"/>
-                <path d="M128 220 L116 236 L110 250 L114 260 L118 268"/>
-                <path d="M128 220 L116 236 L110 250 L114 260 L118 268" transform="translate(4.2 0)"/>
+                <path d="M168 190 C154 196 140 208 128 222 L116 240 L112 254 L118 266" transform="translate(-4.2 0)"/>
+                <path d="M168 190 C154 196 140 208 128 222 L116 240 L112 254 L118 266"/>
+                <path d="M168 190 C154 196 140 208 128 222 L116 240 L112 254 L118 266" transform="translate(4.2 0)"/>
               </g>
-              <!-- Elbow folds + cuff -->
               <g id="sleeve-folds-left" fill="none" stroke-linecap="round">
-                <path d="M104 246 Q110 250 116 248" stroke="#2a2c30" stroke-width="1.1" opacity="0.55"/>
-                <path d="M106 252 Q112 256 118 254" stroke="#000" stroke-width="0.9" opacity="0.4"/>
-                <path d="M112 258 Q116 262 120 260" stroke="#2a2c30" stroke-width="0.8" opacity="0.35"/>
+                <path d="M130 228 Q124 234 120 232" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
+                <path d="M120 242 Q114 248 112 246" stroke="#000" stroke-width="0.85" opacity="0.38"/>
+                <path d="M114 254 Q110 260 114 258" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
               </g>
               <g id="sleeve-wear-left" fill="none" stroke-linecap="round">
-                <path d="M118 232 L110 238" stroke="#c8c2b0" stroke-width="0.55" opacity="0.28"/>
-                <path d="M114 246 L108 252" stroke="#5a5040" stroke-width="0.7" opacity="0.35"/>
-                <path d="M108 248 Q112 252 110 256" stroke="#3a3428" stroke-width="1.2" opacity="0.25"/>
+                <path d="M154 200 L144 210" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
+                <path d="M132 226 L124 236" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
+                <path d="M118 246 Q114 252 116 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
               </g>
-              <ellipse cx="118" cy="268" rx="8.2" ry="4.4" fill="#121418" stroke="#050505" stroke-width="0.75"/>
-              <ellipse cx="118" cy="267.2" rx="6.6" ry="2.6" fill="none" stroke="#2a2e34" stroke-width="0.7" opacity="0.55"/>
-              <path d="M110 266 H126" stroke="#000" stroke-width="0.6" opacity="0.35"/>
+              <ellipse cx="118" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
+              <ellipse cx="118" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
+              <path d="M111 266 H125" stroke="#000" stroke-width="0.55" opacity="0.32"/>
             </g>
+            <!-- Hands stay at approved KB rest pose -->
             <path d="M100 264 L138 262 L140 274 L103 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
             <rect x="106" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
             <rect x="115" y="271" width="4.4" height="11" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
@@ -561,39 +498,159 @@ export const scavengerSvg = `
 
     <g id="hand-right">
       <g id="hand-right-pivot" transform="translate(272 220)">
-        <!-- Mouse-follow deltas only — click animations stay on #hand-right-aim -->
         <g id="hand-right-follow">
-        <g id="hand-right-aim">
-          <g id="hand-right-sit" transform="translate(-272 -220)">
-            <g id="arm-right" class="arm-continuous">
-              <!-- Match left sleeve construction: same stroke weights + stripe treatment -->
-              <path d="M272 220 L286 236 L298 250 L306 260 L314 268" fill="none" stroke="#050507" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-              <path id="sleeve-right-fill" d="M272 220 L286 236 L298 250 L306 260 L314 268" fill="none" stroke="#0e0e0e" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M272 220 L286 236 L298 250 L306 260 L314 268" fill="none" stroke="#181a1e" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-              <g id="sleeve-stripes-right" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.15">
-                <path d="M272 220 L286 236 L298 250 L306 260 L314 268" transform="translate(-4.2 0)"/>
-                <path d="M272 220 L286 236 L298 250 L306 260 L314 268"/>
-                <path d="M272 220 L286 236 L298 250 L306 260 L314 268" transform="translate(4.2 0)"/>
+          <g id="hand-right-aim">
+            <circle cx="0" cy="0" r="0.5" fill="none" opacity="0"/>
+            <g id="hand-right-sit" transform="translate(-272 -220)">
+              <g id="arm-right" class="arm-continuous">
+                <!-- Mirror filled sleeve: root under olive, outboard bulge, mouse cuff -->
+                <path id="sleeve-right-bridge" d="M222 186
+                  C234 182 248 184 260 192
+                  C272 200 282 214 288 230
+                  C292 244 292 256 288 264
+                  L272 262
+                  C274 250 272 236 266 224
+                  C258 208 246 196 234 190
+                  C230 188 224 186 222 186 Z"
+                  fill="#0e0e0e" opacity="0"/>
+                <path d="M224 188
+                  C240 186 256 194 270 208
+                  C282 220 294 236 302 250
+                  C306 258 310 264 314 268
+                  L300 266
+                  C296 258 290 248 282 236
+                  C272 220 256 204 240 194
+                  C232 190 226 188 224 188 Z"
+                  fill="#050507" opacity="0.55"/>
+                <path id="sleeve-right-fill" d="M226 190
+                  C242 188 258 196 272 210
+                  C284 222 296 238 304 252
+                  C308 260 312 266 314 268
+                  L302 266
+                  C298 258 292 248 284 236
+                  C274 220 258 204 242 196
+                  C234 192 228 190 226 190 Z"
+                  fill="#0e0e0e" stroke="#050507" stroke-width="0.85" stroke-linejoin="round"/>
+                <path d="M232 196
+                  C246 194 260 202 272 214
+                  C284 226 294 240 300 252
+                  C304 258 308 264 310 266
+                  L302 264
+                  C298 256 292 248 284 238
+                  C276 226 262 212 248 202
+                  C240 198 234 196 232 196 Z"
+                  fill="#181a1e" opacity="0.45"/>
+                <g id="sleeve-stripes-right" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.15">
+                  <path d="M240 194 C254 202 268 214 280 228 L292 244 L304 258 L314 266" transform="translate(-4.2 0)"/>
+                  <path d="M240 194 C254 202 268 214 280 228 L292 244 L304 258 L314 266"/>
+                  <path d="M240 194 C254 202 268 214 280 228 L292 244 L304 258 L314 266" transform="translate(4.2 0)"/>
+                </g>
+                <g id="sleeve-folds-right" fill="none" stroke-linecap="round">
+                  <path d="M270 228 Q276 234 280 232" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
+                  <path d="M280 242 Q286 248 288 246" stroke="#000" stroke-width="0.85" opacity="0.38"/>
+                  <path d="M286 254 Q290 260 286 258" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
+                </g>
+                <g id="sleeve-wear-right" fill="none" stroke-linecap="round">
+                  <path d="M246 200 L256 210" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
+                  <path d="M268 226 L276 236" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
+                  <path d="M282 246 Q286 252 284 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
+                </g>
+                <ellipse cx="314" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
+                <ellipse cx="314" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
+                <path d="M307 266 H321" stroke="#000" stroke-width="0.55" opacity="0.32"/>
               </g>
-              <g id="sleeve-folds-right" fill="none" stroke-linecap="round">
-                <path d="M292 246 Q298 250 304 248" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
-                <path d="M294 252 Q300 256 306 254" stroke="#000" stroke-width="0.85" opacity="0.38"/>
-                <path d="M300 258 Q306 262 310 260" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
-              </g>
-              <g id="sleeve-wear-right" fill="none" stroke-linecap="round">
-                <path d="M282 232 L290 238" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
-                <path d="M294 246 L300 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
-                <path d="M298 248 Q302 252 300 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
-              </g>
-              <ellipse cx="314" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
-              <ellipse cx="314" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
-              <path d="M307 266 H321" stroke="#000" stroke-width="0.55" opacity="0.32"/>
+              <path d="M302 264 L324 266 L322 278 L304 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1" opacity="0.96"/>
+              <rect id="finger-lmb" x="304.5" y="268.8" width="4.6" height="9.2" rx="1.4" fill="#b89068" stroke="#6a4a32" stroke-width="0.45"/>
+              <rect id="finger-rmb" x="315.2" y="269.5" width="4.6" height="9" rx="1.4" fill="#b89068" stroke="#6a4a32" stroke-width="0.45"/>
             </g>
-            <path d="M302 264 L324 266 L322 278 L304 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1" opacity="0.96"/>
-            <rect id="finger-lmb" x="304.5" y="268.8" width="4.6" height="9.2" rx="1.4" fill="#b89068" stroke="#6a4a32" stroke-width="0.45"/>
-            <rect id="finger-rmb" x="315.2" y="269.5" width="4.6" height="9" rx="1.4" fill="#b89068" stroke="#6a4a32" stroke-width="0.45"/>
           </g>
         </g>
+      </g>
+    </g>
+
+    <!--
+      Vest FRONT after sleeves/uppers so olive covers upper-sleeve roots.
+      Same sit/scale/breath as #sleeve-uppers and #layer-torso suit.
+    -->
+    <g id="vest-front">
+      <g id="vest-front-sit" transform="translate(0 40)">
+        <g id="vest-front-scale" transform="translate(200 150) scale(0.90) translate(-200 -150)">
+          <g id="vest-front-breath">
+            <path id="plate-carrier" d="M140 164
+              C132 152 138 140 152 132
+              C170 124 188 120 200 120
+              C212 120 230 124 248 132
+              C262 140 268 152 260 164
+              C268 184 266 208 258 226
+              Q200 236 142 226
+              C134 208 132 184 140 164 Z" fill="url(#armorOlive)" stroke="#2a281c" stroke-width="1.15"/>
+            <g id="vest-seams" fill="none" stroke="#2a281c" stroke-width="0.7" opacity="0.45">
+              <path d="M156 140 C170 136 186 134 200 134 C214 134 230 136 244 140"/>
+              <path d="M150 170 C168 164 186 162 200 162 C214 162 232 164 250 170"/>
+              <path d="M200 134 V162"/>
+            </g>
+            <path d="M140 150 C148 138 168 132 186 130 L180 148 C166 150 152 154 142 162 Z" fill="#000" opacity="0.16"/>
+            <path d="M260 150 C252 138 232 132 214 130 L220 148 C234 150 248 154 258 162 Z" fill="#000" opacity="0.14"/>
+            <g id="shoulder-straps">
+              <path d="M168 126 C160 144 156 164 158 178 L172 176 C170 160 172 142 176 130 Z" fill="#14161c" stroke="#05070a" stroke-width="0.8"/>
+              <path d="M232 126 C240 144 244 164 242 178 L228 176 C230 160 228 142 224 130 Z" fill="#14161c" stroke="#05070a" stroke-width="0.8"/>
+              <path d="M170 132 L162 170" fill="none" stroke="#3a3e46" stroke-width="0.55" opacity="0.45"/>
+              <path d="M230 132 L238 170" fill="none" stroke="#3a3e46" stroke-width="0.55" opacity="0.45"/>
+              <rect x="158" y="150" width="13" height="8" rx="1.6" fill="#0e1014" stroke="#3a3e46" stroke-width="0.7"/>
+              <rect x="229" y="150" width="13" height="8" rx="1.6" fill="#0e1014" stroke="#3a3e46" stroke-width="0.7"/>
+            </g>
+            <g id="vest-wear" fill="none" stroke-linecap="round">
+              <path d="M146 158 L160 164" stroke="#a8a488" stroke-width="0.5" opacity="0.35"/>
+              <path d="M240 160 L254 166" stroke="#b0ac90" stroke-width="0.45" opacity="0.3"/>
+              <path d="M144 196 Q152 204 148 216" stroke="#4a4836" stroke-width="0.6" opacity="0.35"/>
+              <path d="M256 196 Q248 204 252 216" stroke="#5a5844" stroke-width="0.55" opacity="0.32"/>
+              <path d="M152 178 Q158 182 154 188" stroke="#5a5844" stroke-width="1.1" opacity="0.28"/>
+              <path d="M248 184 Q254 190 250 196" stroke="#4a4836" stroke-width="0.9" opacity="0.22"/>
+              <circle cx="160" cy="210" r="2.2" fill="#3a3828" opacity="0.2"/>
+            </g>
+            <g id="chest-killa">
+              <rect x="172" y="160" width="56" height="16" rx="1.6" fill="#3a3828" stroke="#1a1810" stroke-width="0.75" opacity="0.95"/>
+              <rect x="173.5" y="161.4" width="53" height="13" rx="1.1" fill="#2a281c" opacity="0.55"/>
+              <text id="chest-killa-main" x="200" y="172.6" fill="#f2ece0" font-family="Arial Black, Impact, 'Arial Narrow', sans-serif" font-weight="800" font-size="11" text-anchor="middle" letter-spacing="1.4" opacity="0.98">KILLA</text>
+            </g>
+            <g id="chest-rig">
+              <path id="molle-plate" d="M148 184
+                C160 178 178 176 200 176
+                C222 176 240 178 252 184
+                L248 224
+                C232 230 216 232 200 232
+                C184 232 168 230 152 224
+                Z" fill="#12151a" stroke="#05070a" stroke-width="0.95" opacity="0.95"/>
+              <g id="molle-stitch" fill="none" stroke="#2a2e36" stroke-width="0.45" opacity="0.6">
+                <path d="M156 192 H244 M156 202 H244 M156 212 H244 M156 220 H244"/>
+              </g>
+              <g id="stanag-0" class="stanag-pouch" transform="translate(152 188)">
+                <rect x="0" y="5" width="22" height="28" rx="2" fill="url(#pouchGrad)" stroke="#0a0c10" stroke-width="0.9"/>
+                <path d="M1 5 H21 L19 1 H3 Z" fill="#1a1e24" stroke="#05070a" stroke-width="0.7"/>
+                <path d="M2 12 H20" stroke="#000" stroke-width="0.6" opacity="0.35"/>
+                <path d="M3 22 H19" stroke="#000" stroke-width="0.5" opacity="0.25"/>
+              </g>
+              <g id="stanag-1" class="stanag-pouch" transform="translate(176 188)">
+                <rect x="0" y="5" width="22" height="28" rx="2" fill="url(#pouchGrad)" stroke="#0a0c10" stroke-width="0.9"/>
+                <path d="M1 5 H21 L19 1 H3 Z" fill="#1a1e24" stroke="#05070a" stroke-width="0.7"/>
+                <path d="M2 12 H20" stroke="#000" stroke-width="0.6" opacity="0.35"/>
+                <path d="M3 22 H19" stroke="#000" stroke-width="0.5" opacity="0.25"/>
+              </g>
+              <g id="stanag-2" class="stanag-pouch" transform="translate(200 188)">
+                <rect x="0" y="5" width="22" height="28" rx="2" fill="url(#pouchGrad)" stroke="#0a0c10" stroke-width="0.9"/>
+                <path d="M1 5 H21 L19 1 H3 Z" fill="#1a1e24" stroke="#05070a" stroke-width="0.7"/>
+                <path d="M2 12 H20" stroke="#000" stroke-width="0.6" opacity="0.35"/>
+                <path d="M3 22 H19" stroke="#000" stroke-width="0.5" opacity="0.25"/>
+              </g>
+              <g id="stanag-3" class="stanag-pouch" transform="translate(224 188)">
+                <rect x="0" y="5" width="22" height="28" rx="2" fill="url(#pouchGrad)" stroke="#0a0c10" stroke-width="0.9"/>
+                <path d="M1 5 H21 L19 1 H3 Z" fill="#1a1e24" stroke="#05070a" stroke-width="0.7"/>
+                <path d="M2 12 H20" stroke="#000" stroke-width="0.6" opacity="0.35"/>
+                <path d="M3 22 H19" stroke="#000" stroke-width="0.5" opacity="0.25"/>
+              </g>
+            </g>
+            <path d="M150 228 Q200 234 250 228" fill="none" stroke="#1a1c18" stroke-width="2.2" stroke-linecap="round" opacity="0.45"/>
+          </g>
         </g>
       </g>
     </g>

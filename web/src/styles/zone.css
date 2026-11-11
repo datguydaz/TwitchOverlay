@@ -429,7 +429,8 @@ body.scene-opaque {
 }
 
 /* Chest breath only (translate — no scale stretch of armour). Arms/hands are outside this node. */
-#idle-breath {
+#idle-breath,
+#vest-front-breath {
   transform-box: fill-box;
   transform-origin: 50% 35%;
   animation: breath 6s ease-in-out infinite;
@@ -444,21 +445,24 @@ body.scene-opaque {
 
 #arm-left,
 #arm-right {
-  transform-box: fill-box;
-  transform-origin: center;
+  /* Artwork only — never independently translate (keeps sleeve on shoulder) */
+  transform: none;
 }
 
-/* Left key aim: SVG transform attribute only — do NOT set CSS transform (overrides SVG). */
+/*
+  Shared arm-aim owners: both rotate about vest pivot (0,0 after #hand-*-pivot).
+  KB: JS writes SVG transform on #hand-left-aim; CSS must not override it.
+  Mouse: CSS writes transform on #hand-right-aim.
+*/
+#hand-left-aim,
 #hand-right-aim {
   transform-box: fill-box;
   transform-origin: 0px 0px;
-  transition: transform 140ms cubic-bezier(0.22, 0.61, 0.36, 1);
-  will-change: transform;
+  transition: transform 100ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 #hand-left,
 #hand-right {
-  /* Outer wrappers stay identity — SVG pivot handles attach */
   transform: none;
 }
 
@@ -591,11 +595,20 @@ body.scene-opaque {
   font-weight: 500;
 }
 
-/* Hand XY comes from JS (slot aim). Keycaps depress via data-pressed. */
+/* KB aim lives on #hand-left-aim (SVG attr from JS). Never move outer #hand-left. */
 .avatar-root[data-key="1"] #hand-left {
+  transform: none;
   animation: none;
-  /* Keep transition alive across keyTap/pulse attribute flips */
-  transition: transform 110ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.avatar-root[data-key="1"] #hand-left-aim {
+  /* Match mouse press intensity when JS has cleared to rest between slots */
+  transition: transform 100ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.avatar-root[data-key="1"][data-key-pulse="1"] #hand-left-aim {
+  /* Same visual tap language as mouse click-l (restrained) */
+  animation: arm-tap-l 110ms ease-out 1;
 }
 
 .kb-key {
@@ -728,12 +741,13 @@ body.scene-opaque {
   animation: cough-torso 560ms cubic-bezier(0.33, 0, 0.2, 1) 1;
 }
 
-.avatar-root[data-roll="1"] #arm-left {
-  animation: shoulder-roll-l 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
+/* Flavor roll on aim nodes (shoulder pivot) — not #arm-* artwork */
+.avatar-root[data-roll="1"] #hand-left-aim {
+  animation: arm-tap-l 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
 }
 
-.avatar-root[data-roll="1"] #arm-right {
-  animation: shoulder-roll-r 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
+.avatar-root[data-roll="1"] #hand-right-aim {
+  animation: arm-tap-r 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
 }
 
 .avatar-root[data-roll="1"] #layer-torso {
@@ -998,26 +1012,24 @@ body.scene-opaque {
   }
 }
 
-@keyframes shoulder-roll-l {
+/* Shared restrained tap — same amplitude/easing family as click-l/r; pivot only */
+@keyframes arm-tap-l {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: rotate(0deg) translate(0px, 0px);
   }
   40% {
-    transform: translate3d(-4px, -8px, 0) rotate(-6deg);
-  }
-  70% {
-    transform: translate3d(-1px, -3px, 0) rotate(-2deg);
+    transform: rotate(-2deg) translate(-1px, 3px);
   }
 }
 
-@keyframes shoulder-roll-r {
+@keyframes arm-tap-r {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: rotate(0deg) translate(0px, 0px);
   }
-  45% {
-    transform: translate3d(3px, 4px, 0) rotate(3deg);
+  40% {
+    transform: rotate(2deg) translate(1px, 3px);
   }
 }
 
@@ -1140,18 +1152,6 @@ body.scene-opaque {
   }
 }
 
-@keyframes tap-left {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(12px) rotate(2deg);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
 @keyframes click-l {
   0% {
     transform: rotate(1.4deg) translate(-1px, 2px);
@@ -1176,8 +1176,11 @@ body.scene-opaque {
   }
 }
 
+/* Alias: same amplitude family as click-l / arm-tap-l for KB pulse */
+
 @media (prefers-reduced-motion: reduce) {
   #idle-breath,
+  #vest-front-breath,
   #idle-head,
   #eye-look,
   .eyelid,
@@ -1187,13 +1190,13 @@ body.scene-opaque {
   .desk-led-glow,
   .desk-led-glow-b,
   .avatar-root[data-key="1"] #hand-left,
-  .avatar-root[data-key="1"][data-key-pulse="1"] #hand-left,
+  .avatar-root[data-key="1"][data-key-pulse="1"] #hand-left-aim,
   .avatar-root[data-mouse-l="1"] #hand-right-aim,
   .avatar-root[data-mouse-r="1"] #hand-right-aim,
   .avatar-root[data-cough="1"] #layer-head,
   .avatar-root[data-cough="1"] #layer-torso,
-  .avatar-root[data-roll="1"] #arm-left,
-  .avatar-root[data-roll="1"] #arm-right,
+  .avatar-root[data-roll="1"] #hand-left-aim,
+  .avatar-root[data-roll="1"] #hand-right-aim,
   .avatar-root[data-roll="1"] #layer-torso,
   .avatar-root[data-blink="1"] .eq-blink,
   .avatar-root[data-blink="1"] .eq-light,
