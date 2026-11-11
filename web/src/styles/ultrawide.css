@@ -481,6 +481,119 @@
   width: 8%;
 }
 
+/* —— Bottom-right wear: scratched to hell + dried blood (surface only) —— */
+.uw-footer-wear {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: min(42%, 720px);
+  height: 100%;
+  z-index: 2; /* above grime/haze, below ember rail (z6) + bar body text */
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: normal;
+}
+.uw-wear-blood {
+  position: absolute;
+  border-radius: 40% 60% 55% 45% / 50% 40% 60% 50%;
+  pointer-events: none;
+  filter: blur(0.6px);
+}
+.uw-wear-blood.b1 {
+  right: 4%;
+  bottom: 8%;
+  width: 38%;
+  height: 52%;
+  background:
+    radial-gradient(ellipse 70% 60% at 60% 55%, rgba(72, 18, 16, 0.72), transparent 70%),
+    radial-gradient(ellipse 45% 40% at 30% 70%, rgba(58, 14, 12, 0.55), transparent 72%);
+  opacity: 0.85;
+  transform: rotate(-8deg);
+}
+.uw-wear-blood.b2 {
+  right: 18%;
+  bottom: 22%;
+  width: 22%;
+  height: 36%;
+  background: radial-gradient(ellipse at 40% 50%, rgba(90, 22, 18, 0.65), transparent 68%);
+  opacity: 0.75;
+  transform: rotate(12deg);
+}
+.uw-wear-blood.b3 {
+  right: 2%;
+  top: 28%;
+  width: 16%;
+  height: 28%;
+  background: radial-gradient(ellipse at 50% 40%, rgba(48, 12, 10, 0.7), transparent 70%);
+  opacity: 0.7;
+  transform: rotate(-18deg);
+}
+.uw-wear-blood.b4 {
+  right: 28%;
+  bottom: 6%;
+  width: 28%;
+  height: 18%;
+  background: linear-gradient(105deg, transparent 10%, rgba(64, 16, 14, 0.5) 35%, rgba(40, 10, 8, 0.35) 70%, transparent 92%);
+  opacity: 0.8;
+  border-radius: 2px;
+  filter: blur(0.8px);
+  transform: rotate(-3deg);
+}
+.uw-wear-scratch {
+  position: absolute;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(28, 8, 7, 0.55) 12%,
+    rgba(120, 70, 55, 0.35) 45%,
+    rgba(22, 6, 5, 0.7) 70%,
+    transparent
+  );
+  box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.45);
+  opacity: 0.9;
+  transform-origin: left center;
+}
+.uw-wear-scratch.s1 { right: 6%; bottom: 18%; width: 34%; transform: rotate(-14deg); }
+.uw-wear-scratch.s2 { right: 10%; bottom: 32%; width: 28%; height: 1px; transform: rotate(-22deg); opacity: 0.75; }
+.uw-wear-scratch.s3 { right: 4%; bottom: 44%; width: 40%; transform: rotate(8deg); background: linear-gradient(90deg, transparent, rgba(90, 24, 18, 0.75) 30%, rgba(30, 8, 6, 0.6) 65%, transparent); }
+.uw-wear-scratch.s4 { right: 14%; bottom: 55%; width: 22%; transform: rotate(-31deg); height: 1px; opacity: 0.7; }
+.uw-wear-scratch.s5 { right: 2%; bottom: 62%; width: 30%; transform: rotate(16deg); }
+.uw-wear-scratch.s6 { right: 20%; bottom: 24%; width: 18%; transform: rotate(38deg); height: 1px; opacity: 0.65; }
+.uw-wear-scratch.s7 { right: 8%; bottom: 12%; width: 26%; transform: rotate(-6deg); background: linear-gradient(90deg, transparent, rgba(70, 18, 14, 0.8) 40%, transparent); }
+.uw-wear-scratch.s8 { right: 26%; bottom: 40%; width: 20%; transform: rotate(-48deg); height: 1px; opacity: 0.8; }
+.uw-wear-scratch.s9 { right: 12%; bottom: 70%; width: 24%; transform: rotate(4deg); opacity: 0.55; }
+.uw-wear-scratch.s10 { right: 3%; bottom: 28%; width: 16%; transform: rotate(52deg); height: 2px; opacity: 0.85; }
+.uw-wear-scratch.s11 { right: 18%; bottom: 48%; width: 32%; transform: rotate(-11deg); height: 1px; }
+.uw-wear-scratch.s12 { right: 7%; bottom: 76%; width: 14%; transform: rotate(-27deg); opacity: 0.5; }
+.uw-wear-scratch.s13 { right: 22%; bottom: 16%; width: 12%; transform: rotate(24deg); height: 1px; background: linear-gradient(90deg, transparent, rgba(110, 40, 30, 0.7), transparent); }
+.uw-wear-scratch.s14 { right: 5%; bottom: 50%; width: 36%; transform: rotate(-3deg); height: 1px; opacity: 0.6; }
+/* Clustered gouge marks — looks clawed / scraped raw */
+.uw-wear-gouges {
+  position: absolute;
+  right: 3%;
+  bottom: 10%;
+  width: 36%;
+  height: 58%;
+  background:
+    repeating-linear-gradient(
+      -18deg,
+      transparent 0 5px,
+      rgba(20, 6, 5, 0.22) 5px 6px,
+      transparent 6px 11px
+    ),
+    repeating-linear-gradient(
+      12deg,
+      transparent 0 7px,
+      rgba(58, 14, 12, 0.18) 7px 8px,
+      transparent 8px 15px
+    ),
+    radial-gradient(ellipse 80% 70% at 70% 60%, rgba(40, 10, 8, 0.35), transparent 72%);
+  opacity: 0.7;
+  mask-image: radial-gradient(ellipse 85% 80% at 75% 55%, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 80% at 75% 55%, #000 20%, transparent 75%);
+}
+
 .uw-bar[data-hidden="true"] {
   display: none !important;
 }
