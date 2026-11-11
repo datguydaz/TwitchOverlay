@@ -7,9 +7,9 @@ const INTENSITY: Record<
   AtmosphereIntensity,
   { dipMin: number; dipSpan: number; sweepMin: number; sweepSpan: number; opMin: number; opSpan: number }
 > = {
-  low: { dipMin: 4500, dipSpan: 5000, sweepMin: 5000, sweepSpan: 6000, opMin: 1800, opSpan: 2400 },
-  medium: { dipMin: 2800, dipSpan: 3200, sweepMin: 3200, sweepSpan: 3800, opMin: 1100, opSpan: 1600 },
-  high: { dipMin: 1800, dipSpan: 2200, sweepMin: 2200, sweepSpan: 2800, opMin: 700, opSpan: 1100 },
+  low: { dipMin: 3200, dipSpan: 3800, sweepMin: 3600, sweepSpan: 4200, opMin: 1400, opSpan: 1800 },
+  medium: { dipMin: 2000, dipSpan: 2400, sweepMin: 2200, sweepSpan: 2800, opMin: 800, opSpan: 1200 },
+  high: { dipMin: 1200, dipSpan: 1600, sweepMin: 1400, sweepSpan: 1800, opMin: 500, opSpan: 800 },
 };
 
 const SIGN: Target[] = ["id", "op", "status"];

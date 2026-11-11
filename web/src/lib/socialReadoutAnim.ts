@@ -110,8 +110,8 @@ export class SocialReadoutAnim {
         }, delay),
       );
     };
-    arm("follow", 7000, 9000);
-    arm("sub", 9000, 11000);
+    arm("follow", 4500, 6500);
+    arm("sub", 5500, 7500);
   }
 
   private async kick(): Promise<void> {
