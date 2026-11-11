@@ -363,13 +363,11 @@ body.scene-opaque {
   color: var(--beige-dim);
 }
 
-/* Avatar — large CSS pixel base so OBS Browser Source scale stays crisp.
-   Height matches SVG viewBox (1120) with top pad so helm isn't cropped. */
+/* Avatar — large CSS pixel base so OBS Browser Source scale stays crisp */
 .avatar-root {
   width: 1200px;
-  height: 1120px;
+  height: 1020px;
   position: relative;
-  overflow: visible;
 }
 
 .avatar-root svg {
@@ -431,8 +429,7 @@ body.scene-opaque {
 }
 
 /* Chest breath only (translate — no scale stretch of armour). Arms/hands are outside this node. */
-#idle-breath,
-#vest-front-breath {
+#idle-breath {
   transform-box: fill-box;
   transform-origin: 50% 35%;
   animation: breath 6s ease-in-out infinite;
@@ -447,24 +444,21 @@ body.scene-opaque {
 
 #arm-left,
 #arm-right {
-  /* Artwork only — never independently translate (keeps sleeve on shoulder) */
-  transform: none;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
-/*
-  Shared arm-aim owners: both rotate about vest pivot (0,0 after #hand-*-pivot).
-  KB: JS writes SVG transform on #hand-left-aim; CSS must not override it.
-  Mouse: CSS writes transform on #hand-right-aim.
-*/
-#hand-left-aim,
+/* Left key aim: SVG transform attribute only — do NOT set CSS transform (overrides SVG). */
 #hand-right-aim {
   transform-box: fill-box;
   transform-origin: 0px 0px;
-  transition: transform 100ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: transform 140ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
 }
 
 #hand-left,
 #hand-right {
+  /* Outer wrappers stay identity — SVG pivot handles attach */
   transform: none;
 }
 
@@ -597,20 +591,11 @@ body.scene-opaque {
   font-weight: 500;
 }
 
-/* KB aim lives on #hand-left-aim (SVG attr from JS). Never move outer #hand-left. */
+/* Hand XY comes from JS (slot aim). Keycaps depress via data-pressed. */
 .avatar-root[data-key="1"] #hand-left {
-  transform: none;
   animation: none;
-}
-
-.avatar-root[data-key="1"] #hand-left-aim {
-  /* Match mouse press intensity when JS has cleared to rest between slots */
-  transition: transform 100ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.avatar-root[data-key="1"][data-key-pulse="1"] #hand-left-aim {
-  /* Same visual tap language as mouse click-l (restrained) */
-  animation: arm-tap-l 110ms ease-out 1;
+  /* Keep transition alive across keyTap/pulse attribute flips */
+  transition: transform 110ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .kb-key {
@@ -676,33 +661,33 @@ body.scene-opaque {
   Mouse press pivots #hand-right-aim at vest root (0,0 after pivot translate).
   Keeps continuous sleeve attached — never translate the outer #hand-right wrapper.
 */
-/* Restrained mouse press — small aim rotate about vest pivot; release returns to identity */
+/* LMB: press into left pad (keep finger over LMB — was under-visible vs RMB) */
 .avatar-root[data-mouse-l="1"] #hand-right-aim {
   animation: none;
-  transform: rotate(1.4deg) translate(-1px, 2px);
-  transition: transform 100ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform: rotate(3deg) translate(-2px, 5px);
+  transition: transform 90ms ease-out;
 }
 
 .avatar-root[data-mouse-l="1"][data-mouse-l-pulse="1"] #hand-right-aim {
-  animation: click-l 110ms ease-out 1;
+  animation: click-l 120ms ease-out 1;
 }
 
 .avatar-root[data-mouse-r="1"] #hand-right-aim {
   animation: none;
-  transform: rotate(-1.6deg) translate(0.5px, 2px);
-  transition: transform 100ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform: rotate(-4deg) translate(1px, 5px);
+  transition: transform 90ms ease-out;
 }
 
 .avatar-root[data-mouse-r="1"][data-mouse-r-pulse="1"] #hand-right-aim {
-  animation: click-r 110ms ease-out 1;
+  animation: click-r 130ms ease-out 1;
 }
 
 /* Scroll wheel — soft press at vest pivot (no detach) */
 .avatar-root[data-wheel="up"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right-aim,
 .avatar-root[data-wheel="down"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right-aim {
   animation: none;
-  transform: rotate(-0.7deg) translate(0px, 1.5px);
-  transition: transform 80ms ease-out;
+  transform: rotate(-1deg) translate(0px, 3px);
+  transition: transform 70ms ease-out;
 }
 
 #mouse-wheel {
@@ -743,13 +728,12 @@ body.scene-opaque {
   animation: cough-torso 560ms cubic-bezier(0.33, 0, 0.2, 1) 1;
 }
 
-/* Flavor roll on aim nodes (shoulder pivot) — not #arm-* artwork */
-.avatar-root[data-roll="1"] #hand-left-aim {
-  animation: arm-tap-l 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
+.avatar-root[data-roll="1"] #arm-left {
+  animation: shoulder-roll-l 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
 }
 
-.avatar-root[data-roll="1"] #hand-right-aim {
-  animation: arm-tap-r 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
+.avatar-root[data-roll="1"] #arm-right {
+  animation: shoulder-roll-r 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
 }
 
 .avatar-root[data-roll="1"] #layer-torso {
@@ -1014,24 +998,26 @@ body.scene-opaque {
   }
 }
 
-/* Shared restrained tap — same amplitude/easing family as click-l/r; pivot only */
-@keyframes arm-tap-l {
+@keyframes shoulder-roll-l {
   0%,
   100% {
-    transform: rotate(0deg) translate(0px, 0px);
+    transform: translate3d(0, 0, 0) rotate(0deg);
   }
   40% {
-    transform: rotate(-2deg) translate(-1px, 3px);
+    transform: translate3d(-4px, -8px, 0) rotate(-6deg);
+  }
+  70% {
+    transform: translate3d(-1px, -3px, 0) rotate(-2deg);
   }
 }
 
-@keyframes arm-tap-r {
+@keyframes shoulder-roll-r {
   0%,
   100% {
-    transform: rotate(0deg) translate(0px, 0px);
+    transform: translate3d(0, 0, 0) rotate(0deg);
   }
-  40% {
-    transform: rotate(2deg) translate(1px, 3px);
+  45% {
+    transform: translate3d(3px, 4px, 0) rotate(3deg);
   }
 }
 
@@ -1154,35 +1140,44 @@ body.scene-opaque {
   }
 }
 
-@keyframes click-l {
+@keyframes tap-left {
   0% {
-    transform: rotate(1.4deg) translate(-1px, 2px);
+    transform: translateY(0);
   }
-  40% {
-    transform: rotate(2deg) translate(-1px, 3px);
+  50% {
+    transform: translateY(12px) rotate(2deg);
   }
   100% {
-    transform: rotate(1.4deg) translate(-1px, 2px);
+    transform: translateY(0);
+  }
+}
+
+@keyframes click-l {
+  0% {
+    transform: rotate(3deg) translate(-2px, 5px);
+  }
+  40% {
+    transform: rotate(4deg) translate(-2px, 7px);
+  }
+  100% {
+    transform: rotate(3deg) translate(-2px, 5px);
   }
 }
 
 @keyframes click-r {
   0% {
-    transform: rotate(-1.6deg) translate(0.5px, 2px);
+    transform: rotate(-4deg) translate(1px, 5px);
   }
   35% {
-    transform: rotate(-2.2deg) translate(0.5px, 3px);
+    transform: rotate(-5deg) translate(1px, 7px);
   }
   100% {
-    transform: rotate(-1.6deg) translate(0.5px, 2px);
+    transform: rotate(-4deg) translate(1px, 5px);
   }
 }
 
-/* Alias: same amplitude family as click-l / arm-tap-l for KB pulse */
-
 @media (prefers-reduced-motion: reduce) {
   #idle-breath,
-  #vest-front-breath,
   #idle-head,
   #eye-look,
   .eyelid,
@@ -1192,13 +1187,13 @@ body.scene-opaque {
   .desk-led-glow,
   .desk-led-glow-b,
   .avatar-root[data-key="1"] #hand-left,
-  .avatar-root[data-key="1"][data-key-pulse="1"] #hand-left-aim,
+  .avatar-root[data-key="1"][data-key-pulse="1"] #hand-left,
   .avatar-root[data-mouse-l="1"] #hand-right-aim,
   .avatar-root[data-mouse-r="1"] #hand-right-aim,
   .avatar-root[data-cough="1"] #layer-head,
   .avatar-root[data-cough="1"] #layer-torso,
-  .avatar-root[data-roll="1"] #hand-left-aim,
-  .avatar-root[data-roll="1"] #hand-right-aim,
+  .avatar-root[data-roll="1"] #arm-left,
+  .avatar-root[data-roll="1"] #arm-right,
   .avatar-root[data-roll="1"] #layer-torso,
   .avatar-root[data-blink="1"] .eq-blink,
   .avatar-root[data-blink="1"] .eq-light,
