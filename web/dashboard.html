@@ -91,12 +91,13 @@
 
       <section class="dash-panel">
         <h2>Chat persona</h2>
-        <p class="hint">Large Zone Ops chat along the ultrawide bottom banner. Also mirrors on the avatar source.</p>
+        <p class="hint">COMMS bubble on the <strong>avatar</strong> source only (ultrawide AI chat removed). Default sits centered under the desk.</p>
         <label class="inline"><input id="chatEnabled" type="checkbox" /> Show chat</label>
         <label class="inline"><input id="chatDemoAuto" type="checkbox" /> Random trash-talk timer</label>
         <label>Trash-talk interval (ms) <input id="chatIntervalMs" type="number" min="6000" max="90000" step="1000" /></label>
         <label>Chat position
           <select id="chatPlacement">
+            <option value="bottom-center">Below desk (center)</option>
             <option value="bottom-left">Bottom left</option>
             <option value="bottom-right">Bottom right</option>
             <option value="top-left">Top left</option>
@@ -105,9 +106,9 @@
             <option value="mid-right">Mid right</option>
           </select>
         </label>
-        <label>Inset X % <input id="chatOffsetX" type="number" min="0" max="40" step="1" title="Distance from left/right edge" /></label>
-        <label>Inset Y % <input id="chatOffsetY" type="number" min="0" max="40" step="1" title="Distance from top/bottom edge" /></label>
-        <p class="hint">Position applies to avatar + ultrawide chat bubbles and is saved with settings.</p>
+        <label>Nudge X % <input id="chatOffsetX" type="number" min="0" max="40" step="1" title="Below desk: 20 = center. Corners: inset from edge." /></label>
+        <label>Nudge Y % <input id="chatOffsetY" type="number" min="0" max="40" step="1" title="Distance from bottom (or top) edge — raise to sit under desk lip." /></label>
+        <p class="hint">Saved with settings. You can also drag the COMMS box on the avatar while it’s visible.</p>
         <label>Games he “plays” (one per line — canned match talk only, not live game reading)
           <textarea id="chatGames" rows="5" placeholder="Tarkov&#10;DayZ&#10;Arena Breakout"></textarea>
         </label>

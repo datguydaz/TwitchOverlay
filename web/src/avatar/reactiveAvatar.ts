@@ -228,6 +228,14 @@ export class ReactiveAvatar {
   private talkBurstMs = 0;
   private lastAckAt = 0;
   private chatEl: HTMLElement | null = null;
+  private chatPlacement: Pick<ChatSettings, "placement" | "offsetXPct" | "offsetYPct"> = {
+    placement: "bottom-center",
+    offsetXPct: 20,
+    offsetYPct: 3,
+  };
+  private onChatPlacementPersist:
+    | ((chat: Pick<ChatSettings, "placement" | "offsetXPct" | "offsetYPct">) => void)
+    | null = null;
   private handLeft: SVGElement | null = null;
   private handLeftAim: SVGGElement | null = null;
   /** Last applied hand aim transform — skip redundant writes that restart transitions. */
@@ -260,6 +268,7 @@ export class ReactiveAvatar {
     this.setStreamerName(this.streamerName);
     this.applyVisualState();
     this.bindHelmPhoto();
+    this.bindChatDrag();
     document.addEventListener("visibilitychange", this.onVis);
     this.scheduleFlavor();
   }
@@ -309,7 +318,77 @@ export class ReactiveAvatar {
   setChatPlacement(
     chat: Pick<ChatSettings, "placement" | "offsetXPct" | "offsetYPct">,
   ): void {
+    this.chatPlacement = { ...chat };
     applyChatPlacement(this.chatEl, chat);
+  }
+
+  /**
+   * Optional persist hook when the user drags the COMMS bubble on the avatar.
+   * Dashboard / scene should save settings via PUT /api/settings.
+   */
+  setChatPlacementPersist(
+    fn: ((chat: Pick<ChatSettings, "placement" | "offsetXPct" | "offsetYPct">) => void) | null,
+  ): void {
+    this.onChatPlacementPersist = fn;
+  }
+
+  /** Drag COMMS bubble while visible — persists via setChatPlacementPersist. */
+  private bindChatDrag(): void {
+    const el = this.chatEl;
+    if (!el) return;
+    let dragging = false;
+    let moved = false;
+    const onMove = (ev: PointerEvent) => {
+      if (!dragging || !this.chatEl) return;
+      moved = true;
+      const rootBox = this.root.getBoundingClientRect();
+      if (rootBox.width < 1 || rootBox.height < 1) return;
+      const placement = this.chatPlacement.placement || "bottom-center";
+      const xPct = ((ev.clientX - rootBox.left) / rootBox.width) * 100;
+      const yFromBottom = ((rootBox.bottom - ev.clientY) / rootBox.height) * 100;
+      const yFromTop = ((ev.clientY - rootBox.top) / rootBox.height) * 100;
+      let ox = this.chatPlacement.offsetXPct;
+      let oy = this.chatPlacement.offsetYPct;
+      if (placement === "bottom-center") {
+        // left = 50 + (ox - 20) → ox = xPct - 30; clamp 0..40
+        ox = Math.max(0, Math.min(40, xPct - 30));
+        oy = Math.max(0, Math.min(40, yFromBottom));
+      } else if (placement === "bottom-left") {
+        ox = Math.max(0, Math.min(40, xPct));
+        oy = Math.max(0, Math.min(40, yFromBottom));
+      } else if (placement === "bottom-right") {
+        ox = Math.max(0, Math.min(40, 100 - xPct));
+        oy = Math.max(0, Math.min(40, yFromBottom));
+      } else if (placement === "top-left") {
+        ox = Math.max(0, Math.min(40, xPct));
+        oy = Math.max(0, Math.min(40, yFromTop));
+      } else if (placement === "top-right") {
+        ox = Math.max(0, Math.min(40, 100 - xPct));
+        oy = Math.max(0, Math.min(40, yFromTop));
+      } else {
+        ox = Math.max(0, Math.min(40, placement === "mid-right" ? 100 - xPct : xPct));
+        oy = Math.max(0, Math.min(40, Math.abs(42 - yFromTop) * 4));
+      }
+      this.chatPlacement = { placement, offsetXPct: ox, offsetYPct: oy };
+      applyChatPlacement(this.chatEl, this.chatPlacement);
+    };
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      el.dataset.dragging = "0";
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      if (moved) this.onChatPlacementPersist?.(this.chatPlacement);
+    };
+    el.addEventListener("pointerdown", (ev) => {
+      if (el.dataset.show !== "1") return;
+      dragging = true;
+      moved = false;
+      el.dataset.dragging = "1";
+      el.setPointerCapture?.(ev.pointerId);
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+    });
   }
 
   /** Editable dashboard game roster for canned match talk (not live reading). */

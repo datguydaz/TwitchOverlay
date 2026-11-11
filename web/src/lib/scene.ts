@@ -4,6 +4,7 @@ import {
   applyCssVars,
   applyModuleTransform,
   fetchSettings,
+  saveSettings,
   scaleStageToViewport,
 } from "./settingsClient.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
@@ -138,6 +139,12 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
     });
     avatar.setGameList(settings.chat.games ?? []);
     avatar.setChatPlacement(settings.chat);
+    avatar.setChatPlacementPersist((chat) => {
+      settings.chat.placement = chat.placement;
+      settings.chat.offsetXPct = chat.offsetXPct;
+      settings.chat.offsetYPct = chat.offsetYPct;
+      void saveSettings(settings);
+    });
     input = new InputClient({
       avatar,
       onConnection: setConnPill,

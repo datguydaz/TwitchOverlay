@@ -12,8 +12,9 @@ export type SocialPlacement =
   | "bottom-left"
   | "bottom-right";
 
-/** AI bot chat corner on avatar + ultrawide overlays (dashboard-editable). */
+/** AI bot chat corner on avatar overlay (dashboard-editable). */
 export type ChatPlacement =
+  | "bottom-center"
   | "bottom-left"
   | "bottom-right"
   | "top-left"
@@ -22,6 +23,7 @@ export type ChatPlacement =
   | "mid-right";
 
 export const CHAT_PLACEMENTS: readonly ChatPlacement[] = [
+  "bottom-center",
   "bottom-left",
   "bottom-right",
   "top-left",
@@ -177,9 +179,10 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     demoAuto: true,
     intervalMs: 14000,
     games: [...DEFAULT_CHAT_GAMES],
-    placement: "bottom-left",
-    offsetXPct: 4,
-    offsetYPct: 6,
+    // Centered under desk lip by default (ox 20 = dead center for bottom-center)
+    placement: "bottom-center",
+    offsetXPct: 20,
+    offsetYPct: 2,
   },
   social: {
     showFollower: true,
@@ -227,10 +230,10 @@ export function mergeSettings(
         .map((g) => String(g ?? "").trim())
         .filter(Boolean)
         .slice(0, 24);
-      const placementRaw = String(partial.chat?.placement ?? c.placement ?? "bottom-left");
+      const placementRaw = String(partial.chat?.placement ?? c.placement ?? "bottom-center");
       const placement = (CHAT_PLACEMENTS as readonly string[]).includes(placementRaw)
         ? (placementRaw as ChatPlacement)
-        : "bottom-left";
+        : "bottom-center";
       const clampPct = (n: unknown, fallback: number) => {
         const v = Number(n);
         if (!Number.isFinite(v)) return fallback;
@@ -240,8 +243,8 @@ export function mergeSettings(
         ...c,
         games: games.length ? games : [...DEFAULT_CHAT_GAMES],
         placement,
-        offsetXPct: clampPct(partial.chat?.offsetXPct ?? c.offsetXPct, 4),
-        offsetYPct: clampPct(partial.chat?.offsetYPct ?? c.offsetYPct, 6),
+        offsetXPct: clampPct(partial.chat?.offsetXPct ?? c.offsetXPct, 20),
+        offsetYPct: clampPct(partial.chat?.offsetYPct ?? c.offsetYPct, 3),
       };
     })(),
     social: (() => {

@@ -469,9 +469,9 @@ body.scene-opaque {
 
 .avatar-chat {
   position: absolute;
-  /* Default corner; dashboard placement overrides via inline + data-placement */
-  left: 4%;
-  bottom: 6%;
+  /* Default: centered under desk; dashboard placement overrides via inline + data-placement */
+  left: 50%;
+  bottom: 3%;
   right: auto;
   top: auto;
   max-width: min(520px, 78%);
@@ -488,16 +488,43 @@ body.scene-opaque {
   letter-spacing: 0.03em;
   line-height: 1.4;
   opacity: 0;
-  transform: translateY(8px);
+  transform: translate(-50%, 8px);
   transition: opacity 180ms ease, transform 180ms ease;
   pointer-events: none;
   z-index: 3;
   clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
 }
 
 .avatar-chat[data-show="1"] {
   opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+/* Non-centered placements: no translateX */
+.avatar-chat[data-placement="bottom-left"],
+.avatar-chat[data-placement="bottom-right"],
+.avatar-chat[data-placement="top-left"],
+.avatar-chat[data-placement="top-right"],
+.avatar-chat[data-placement="mid-left"],
+.avatar-chat[data-placement="mid-right"] {
+  transform: translateY(8px);
+}
+.avatar-chat[data-placement="bottom-left"][data-show="1"],
+.avatar-chat[data-placement="bottom-right"][data-show="1"],
+.avatar-chat[data-placement="top-left"][data-show="1"],
+.avatar-chat[data-placement="top-right"][data-show="1"],
+.avatar-chat[data-placement="mid-left"][data-show="1"],
+.avatar-chat[data-placement="mid-right"][data-show="1"] {
   transform: translateY(0);
+}
+
+.avatar-chat[data-dragging="1"] {
+  cursor: grabbing;
+  transition: none;
 }
 
 .avatar-chat .chat-tag {

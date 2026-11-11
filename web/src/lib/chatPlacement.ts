@@ -7,7 +7,7 @@ export function applyChatPlacement(
   opts?: { /** Ultrawide bottom bar — lift bottom placements above the letterbox. */ barH?: number },
 ): void {
   if (!el) return;
-  const placement = chat.placement || "bottom-left";
+  const placement = chat.placement || "bottom-center";
   const ox = Math.max(0, Math.min(40, Number(chat.offsetXPct) || 0));
   const oy = Math.max(0, Math.min(40, Number(chat.offsetYPct) || 0));
   el.dataset.placement = placement;
@@ -19,7 +19,7 @@ export function applyChatPlacement(
   el.style.right = "auto";
   el.style.top = "auto";
   el.style.bottom = "auto";
-  // Do not set transform here — show/hide animation owns it
+  // Do not set transform here — show/hide animation (+ centering) owns it via CSS
 
   const barLift =
     opts?.barH != null && Number.isFinite(opts.barH)
@@ -27,6 +27,11 @@ export function applyChatPlacement(
       : `${oy}%`;
 
   switch (placement as ChatPlacement) {
+    case "bottom-center":
+      // ox 20 = dead center; 0..40 nudges left/right from center
+      el.style.left = `calc(50% + ${ox - 20}%)`;
+      el.style.bottom = barLift;
+      break;
     case "top-left":
       el.style.left = `${ox}%`;
       el.style.top = `${oy}%`;
@@ -48,9 +53,13 @@ export function applyChatPlacement(
       el.style.top = `${Math.max(10, Math.min(70, 42 - oy * 0.25))}%`;
       break;
     case "bottom-left":
-    default:
       el.style.left = `${ox}%`;
       el.style.bottom = barLift;
+      break;
+    default:
+      el.style.left = `calc(50% + ${ox - 20}%)`;
+      el.style.bottom = barLift;
+      el.dataset.placement = "bottom-center";
       break;
   }
 }

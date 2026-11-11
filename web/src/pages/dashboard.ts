@@ -60,12 +60,12 @@ function fillForm(s: OverlaySettings): void {
     s.chat.intervalMs,
   );
   (document.getElementById("chatPlacement") as HTMLSelectElement).value =
-    s.chat.placement || "bottom-left";
+    s.chat.placement || "bottom-center";
   (document.getElementById("chatOffsetX") as HTMLInputElement).value = String(
-    s.chat.offsetXPct ?? 4,
+    s.chat.offsetXPct ?? 20,
   );
   (document.getElementById("chatOffsetY") as HTMLInputElement).value = String(
-    s.chat.offsetYPct ?? 6,
+    s.chat.offsetYPct ?? 3,
   );
   (document.getElementById("chatGames") as HTMLTextAreaElement).value = (
     s.chat.games?.length ? s.chat.games : [...DEFAULT_CHAT_GAMES]
@@ -158,7 +158,7 @@ function readForm(): OverlaySettings {
     ),
   );
   next.chat.placement = ((document.getElementById("chatPlacement") as HTMLSelectElement)
-    .value || "bottom-left") as OverlaySettings["chat"]["placement"];
+    .value || "bottom-center") as OverlaySettings["chat"]["placement"];
   next.chat.offsetXPct = Math.max(
     0,
     Math.min(40, Number((document.getElementById("chatOffsetX") as HTMLInputElement).value) || 0),
@@ -381,6 +381,13 @@ async function main(): Promise<void> {
   });
   avatar.setGameList(settings.chat.games ?? []);
   avatar.setChatPlacement(settings.chat);
+  avatar.setChatPlacementPersist((chat) => {
+    settings.chat.placement = chat.placement;
+    settings.chat.offsetXPct = chat.offsetXPct;
+    settings.chat.offsetYPct = chat.offsetYPct;
+    fillForm(settings);
+    void saveSettings(settings).then(() => toast("COMMS position saved"));
+  });
 
   document.getElementById("btn-save")?.addEventListener("click", async () => {
     settings = await saveSettings(readForm());
