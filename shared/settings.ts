@@ -173,7 +173,8 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   },
   modules: {
     identity: { visible: true, x: 48, y: 48, scale: 1 },
-    webcam: { visible: true, x: 1560, y: 48, scale: 1 },
+    /* 16:9 cam is 420px wide — keep fully on 1920 stage (was 1560+320) */
+    webcam: { visible: true, x: 1452, y: 48, scale: 1 },
     events: { visible: true, x: 48, y: 820, scale: 1 },
     /* Visual size ~420px after 1200px hi-res base (1200 * 0.35 ≈ 420) */
     avatar: { visible: true, x: 1500, y: 740, scale: 0.35 },

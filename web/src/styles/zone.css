@@ -105,10 +105,11 @@ body.scene-opaque {
 }
 
 .webcam-frame {
-  /* Letterbox cam window — wider 16:9 (was 320×240 / 4:3) */
+  /* Letterbox cam window — 16:9; must stay fully inside 1920 stage */
   width: 420px;
   height: 236px;
   aspect-ratio: 16 / 9;
+  box-sizing: border-box;
   border: 1px solid var(--line);
   background:
     repeating-linear-gradient(
@@ -119,18 +120,37 @@ body.scene-opaque {
       rgba(196, 181, 154, 0.03) 4px
     ),
     rgba(10, 12, 9, 0.35);
-  clip-path: polygon(0 12px, 12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+  /* Mild corner cuts that leave room for all four L-brackets */
+  clip-path: polygon(
+    0 10px,
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px)
+  );
   position: relative;
+  overflow: visible;
 }
 
 .webcam-frame::after {
   content: "CAM-02 // OPTICAL";
   position: absolute;
-  left: 10px;
-  bottom: 8px;
+  left: 12px;
+  bottom: 10px;
   font-size: 10px;
   letter-spacing: 0.16em;
   color: var(--olive);
+  z-index: 1;
+}
+
+.webcam-corners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .webcam-corners span {
@@ -140,26 +160,27 @@ body.scene-opaque {
   border-color: var(--amber-dim);
   border-style: solid;
   opacity: 0.7;
+  box-sizing: border-box;
 }
 
 .webcam-corners span:nth-child(1) {
-  top: 6px;
-  left: 6px;
+  top: 8px;
+  left: 8px;
   border-width: 1px 0 0 1px;
 }
 .webcam-corners span:nth-child(2) {
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   border-width: 1px 1px 0 0;
 }
 .webcam-corners span:nth-child(3) {
-  bottom: 6px;
-  left: 6px;
+  bottom: 8px;
+  left: 8px;
   border-width: 0 0 1px 1px;
 }
 .webcam-corners span:nth-child(4) {
-  bottom: 6px;
-  right: 6px;
+  bottom: 8px;
+  right: 8px;
   border-width: 0 1px 1px 0;
 }
 
