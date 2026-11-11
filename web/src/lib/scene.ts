@@ -143,6 +143,7 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
       settings.chat.placement = chat.placement;
       settings.chat.offsetXPct = chat.offsetXPct;
       settings.chat.offsetYPct = chat.offsetYPct;
+      settings.chat.scale = chat.scale ?? settings.chat.scale ?? 1;
       void saveSettings(settings);
     });
     input = new InputClient({

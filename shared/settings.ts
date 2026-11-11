@@ -76,6 +76,8 @@ export interface ChatSettings {
   offsetXPct: number;
   /** Inset from the chosen vertical edge, percent of overlay height (0–40). */
   offsetYPct: number;
+  /** COMMS bubble scale multiplier (0.6–2.0, default 1). */
+  scale: number;
 }
 
 /** Default roster for "playing his own games" chat flavor. */
@@ -183,6 +185,7 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     placement: "bottom-center",
     offsetXPct: 20,
     offsetYPct: 2,
+    scale: 1,
   },
   social: {
     showFollower: true,
@@ -239,12 +242,18 @@ export function mergeSettings(
         if (!Number.isFinite(v)) return fallback;
         return Math.max(0, Math.min(40, v));
       };
+      const clampScale = (n: unknown, fallback: number) => {
+        const v = Number(n);
+        if (!Number.isFinite(v)) return fallback;
+        return Math.max(0.6, Math.min(2, Math.round(v * 100) / 100));
+      };
       return {
         ...c,
         games: games.length ? games : [...DEFAULT_CHAT_GAMES],
         placement,
         offsetXPct: clampPct(partial.chat?.offsetXPct ?? c.offsetXPct, 20),
-        offsetYPct: clampPct(partial.chat?.offsetYPct ?? c.offsetYPct, 3),
+        offsetYPct: clampPct(partial.chat?.offsetYPct ?? c.offsetYPct, 2),
+        scale: clampScale(partial.chat?.scale ?? c.scale, 1),
       };
     })(),
     social: (() => {

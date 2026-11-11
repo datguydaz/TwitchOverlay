@@ -1,25 +1,35 @@
 import type { ChatPlacement, ChatSettings } from "../../../shared/settings.ts";
 
-/** Apply persisted AI chat corner + insets to an overlay chat element. */
+export type ChatLayout = Pick<
+  ChatSettings,
+  "placement" | "offsetXPct" | "offsetYPct" | "scale"
+>;
+
+/** Apply persisted AI chat corner + insets + scale to an overlay chat element. */
 export function applyChatPlacement(
   el: HTMLElement | null | undefined,
-  chat: Pick<ChatSettings, "placement" | "offsetXPct" | "offsetYPct">,
+  chat: ChatLayout,
   opts?: { /** Ultrawide bottom bar — lift bottom placements above the letterbox. */ barH?: number },
 ): void {
   if (!el) return;
   const placement = chat.placement || "bottom-center";
   const ox = Math.max(0, Math.min(40, Number(chat.offsetXPct) || 0));
   const oy = Math.max(0, Math.min(40, Number(chat.offsetYPct) || 0));
+  const scaleRaw = Number(chat.scale);
+  const scale = Number.isFinite(scaleRaw)
+    ? Math.max(0.6, Math.min(2, Math.round(scaleRaw * 100) / 100))
+    : 1;
   el.dataset.placement = placement;
   el.style.setProperty("--chat-ox", `${ox}%`);
   el.style.setProperty("--chat-oy", `${oy}%`);
+  el.style.setProperty("--chat-scale", String(scale));
 
   // Reset then set edges for the chosen corner/side
   el.style.left = "auto";
   el.style.right = "auto";
   el.style.top = "auto";
   el.style.bottom = "auto";
-  // Do not set transform here — show/hide animation (+ centering) owns it via CSS
+  // Do not set transform here — show/hide animation (+ centering + scale) owns it via CSS
 
   const barLift =
     opts?.barH != null && Number.isFinite(opts.barH)

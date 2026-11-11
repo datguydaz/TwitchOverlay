@@ -65,7 +65,10 @@ function fillForm(s: OverlaySettings): void {
     s.chat.offsetXPct ?? 20,
   );
   (document.getElementById("chatOffsetY") as HTMLInputElement).value = String(
-    s.chat.offsetYPct ?? 3,
+    s.chat.offsetYPct ?? 2,
+  );
+  (document.getElementById("chatScale") as HTMLInputElement).value = String(
+    s.chat.scale ?? 1,
   );
   (document.getElementById("chatGames") as HTMLTextAreaElement).value = (
     s.chat.games?.length ? s.chat.games : [...DEFAULT_CHAT_GAMES]
@@ -167,6 +170,12 @@ function readForm(): OverlaySettings {
     0,
     Math.min(40, Number((document.getElementById("chatOffsetY") as HTMLInputElement).value) || 0),
   );
+  {
+    const raw = Number((document.getElementById("chatScale") as HTMLInputElement).value);
+    next.chat.scale = Number.isFinite(raw)
+      ? Math.max(0.6, Math.min(2, Math.round(raw * 100) / 100))
+      : 1;
+  }
   next.chat.games = (document.getElementById("chatGames") as HTMLTextAreaElement).value
     .split(/[\n,;]+/)
     .map((g) => g.trim())
@@ -385,6 +394,7 @@ async function main(): Promise<void> {
     settings.chat.placement = chat.placement;
     settings.chat.offsetXPct = chat.offsetXPct;
     settings.chat.offsetYPct = chat.offsetYPct;
+    settings.chat.scale = chat.scale ?? settings.chat.scale ?? 1;
     fillForm(settings);
     void saveSettings(settings).then(() => toast("COMMS position saved"));
   });

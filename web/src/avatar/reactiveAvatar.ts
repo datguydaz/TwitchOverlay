@@ -1,8 +1,7 @@
 import { scavengerSvg } from "./scavenger.svg.ts";
 import type { InputKind, InputPhase } from "../../../shared/protocol.ts";
 import { HAND_HOME, KEY_SLOT_COUNT, slotPos } from "../../../shared/keyGrid.ts";
-import { applyChatPlacement } from "../lib/chatPlacement.ts";
-import type { ChatSettings } from "../../../shared/settings.ts";
+import { applyChatPlacement, type ChatLayout } from "../lib/chatPlacement.ts";
 
 export type AvatarInputSource = "idle" | "live" | "demo";
 
@@ -228,14 +227,13 @@ export class ReactiveAvatar {
   private talkBurstMs = 0;
   private lastAckAt = 0;
   private chatEl: HTMLElement | null = null;
-  private chatPlacement: Pick<ChatSettings, "placement" | "offsetXPct" | "offsetYPct"> = {
+  private chatPlacement: ChatLayout = {
     placement: "bottom-center",
     offsetXPct: 20,
-    offsetYPct: 3,
+    offsetYPct: 2,
+    scale: 1,
   };
-  private onChatPlacementPersist:
-    | ((chat: Pick<ChatSettings, "placement" | "offsetXPct" | "offsetYPct">) => void)
-    | null = null;
+  private onChatPlacementPersist: ((chat: ChatLayout) => void) | null = null;
   private handLeft: SVGElement | null = null;
   private handLeftAim: SVGGElement | null = null;
   /** Last applied hand aim transform — skip redundant writes that restart transitions. */
@@ -314,21 +312,22 @@ export class ReactiveAvatar {
     if (!on) this.hideChat();
   }
 
-  /** Dashboard-persisted corner + insets for the AI bot chat bubble. */
-  setChatPlacement(
-    chat: Pick<ChatSettings, "placement" | "offsetXPct" | "offsetYPct">,
-  ): void {
-    this.chatPlacement = { ...chat };
-    applyChatPlacement(this.chatEl, chat);
+  /** Dashboard-persisted corner + insets + scale for the AI bot chat bubble. */
+  setChatPlacement(chat: ChatLayout): void {
+    this.chatPlacement = {
+      placement: chat.placement,
+      offsetXPct: chat.offsetXPct,
+      offsetYPct: chat.offsetYPct,
+      scale: chat.scale ?? 1,
+    };
+    applyChatPlacement(this.chatEl, this.chatPlacement);
   }
 
   /**
    * Optional persist hook when the user drags the COMMS bubble on the avatar.
    * Dashboard / scene should save settings via PUT /api/settings.
    */
-  setChatPlacementPersist(
-    fn: ((chat: Pick<ChatSettings, "placement" | "offsetXPct" | "offsetYPct">) => void) | null,
-  ): void {
+  setChatPlacementPersist(fn: ((chat: ChatLayout) => void) | null): void {
     this.onChatPlacementPersist = fn;
   }
 
@@ -369,7 +368,12 @@ export class ReactiveAvatar {
         ox = Math.max(0, Math.min(40, placement === "mid-right" ? 100 - xPct : xPct));
         oy = Math.max(0, Math.min(40, Math.abs(42 - yFromTop) * 4));
       }
-      this.chatPlacement = { placement, offsetXPct: ox, offsetYPct: oy };
+      this.chatPlacement = {
+        placement,
+        offsetXPct: ox,
+        offsetYPct: oy,
+        scale: this.chatPlacement.scale ?? 1,
+      };
       applyChatPlacement(this.chatEl, this.chatPlacement);
     };
     const onUp = () => {
