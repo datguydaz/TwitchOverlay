@@ -236,6 +236,12 @@ export class ReactiveAvatar {
   private onChatPlacementPersist: ((chat: ChatLayout) => void) | null = null;
   private handLeft: SVGElement | null = null;
   private handLeftAim: SVGGElement | null = null;
+  private handRightFollow: SVGGElement | null = null;
+  private mouseFollowEl: SVGGElement | null = null;
+  /** Soft mouse-follow offset (SVG px), same direction as real cursor deltas. */
+  private mouseFollowX = 0;
+  private mouseFollowY = 0;
+  private mouseFollowDecayTimer: number | null = null;
   /** Last applied hand aim transform — skip redundant writes that restart transitions. */
   private lastHandTx = "";
   private disposed = false;
@@ -263,12 +269,16 @@ export class ReactiveAvatar {
     this.chatEl = this.root.querySelector("#avatar-chat");
     this.handLeft = this.root.querySelector("#hand-left");
     this.handLeftAim = this.root.querySelector("#hand-left-aim");
+    this.handRightFollow = this.root.querySelector("#hand-right-follow");
+    this.mouseFollowEl = this.root.querySelector("#prop-mouse");
     this.setStreamerName(this.streamerName);
     this.applyVisualState();
     this.bindHelmPhoto();
     this.bindChatDrag();
     document.addEventListener("visibilitychange", this.onVis);
     this.scheduleFlavor();
+    // Clear any legacy duration overrides once — never reseed idle loops after this.
+    this.clearLegacyIdleDurationOverrides();
   }
 
   /**
@@ -403,34 +413,15 @@ export class ReactiveAvatar {
   setIntensity(value: number): void {
     this.intensity = Math.max(0.2, Math.min(2, value));
     this.root.style.setProperty("--avatar-intensity", String(this.intensity));
-    if (
-      this.root.dataset.cough === "1" ||
-      this.root.dataset.roll === "1" ||
-      this.root.dataset.talk === "1"
-    ) {
-      return;
-    }
-    this.applyIdleMotionTiming();
+    // Idle breath/head use fixed CSS durations on nested layers — never reseed here.
   }
 
-  /** Quiet chest + varied head cycle length (avoids a metronome hitch feel). */
-  private applyIdleMotionTiming(): void {
-    if (
-      this.root.dataset.cough === "1" ||
-      this.root.dataset.roll === "1" ||
-      this.root.dataset.talk === "1" ||
-      this.root.dataset.talkNod === "1"
-    ) {
-      return;
-    }
-    const torso = this.root.querySelector("#layer-torso") as SVGElement | null;
-    const head = this.root.querySelector("#layer-head") as SVGElement | null;
-    if (torso) {
-      torso.style.animationDuration = `${(5.0 + Math.random() * 0.8) / this.intensity}s`;
-    }
-    if (head) {
-      // Slow varied cycle (11–15s); linear keyframes stay hitch-free.
-      head.style.animationDuration = `${(11 + Math.random() * 4) / this.intensity}s`;
+  /** Strip old inline duration hacks that restarted idle loops (pre-nested idle). */
+  private clearLegacyIdleDurationOverrides(): void {
+    for (const sel of ["#layer-torso", "#layer-head", "#idle-breath", "#idle-head"] as const) {
+      const el = this.root.querySelector(sel) as SVGElement | null;
+      if (!el) continue;
+      el.style.animationDuration = "";
     }
   }
 
@@ -479,7 +470,7 @@ export class ReactiveAvatar {
       this.talkBurstMs = 0;
       delete this.root.dataset.talk;
       delete this.root.dataset.talkNod;
-      this.setIntensity(this.intensity);
+      // Nested #idle-head / #idle-breath keep running — do not reseed.
     }, 280);
   }
 
@@ -494,7 +485,6 @@ export class ReactiveAvatar {
       this.talkClearTimer = null;
       delete this.root.dataset.talk;
       delete this.root.dataset.talkNod;
-      this.setIntensity(this.intensity);
     }, 700);
   }
 
@@ -529,6 +519,13 @@ export class ReactiveAvatar {
     this.clearPulse("mouseL");
     this.clearPulse("mouseR");
     this.clearKeycaps();
+    this.mouseFollowX = 0;
+    this.mouseFollowY = 0;
+    if (this.mouseFollowDecayTimer != null) {
+      window.clearTimeout(this.mouseFollowDecayTimer);
+      this.mouseFollowDecayTimer = null;
+    }
+    this.writeMouseFollow();
     this.applyVisualState();
     if (reason) {
       this.root.dataset.lastReset = reason;
@@ -541,8 +538,14 @@ export class ReactiveAvatar {
     held: number,
     slot?: number,
     pressId?: number,
+    dx?: number,
+    dy?: number,
   ): void {
     if (this.disposed) return;
+    if (kind === "mouseMove") {
+      this.applyMouseFollowDelta(dx ?? 0, dy ?? 0);
+      return;
+    }
     if (kind === "key") {
       const was = this.keyHeld;
       this.keyHeld = Math.max(0, held);
@@ -811,8 +814,56 @@ export class ReactiveAvatar {
       this.flavorClearTimer = null;
       if (this.disposed) return;
       delete this.root.dataset[attr];
-      this.setIntensity(this.intensity);
     }, ms);
+  }
+
+  /**
+   * Slight mouse + right-hand follow in the same direction as real cursor deltas.
+   * Clamped small; does not touch click animations on #hand-right-aim.
+   */
+  private applyMouseFollowDelta(dx: number, dy: number): void {
+    if (!Number.isFinite(dx) || !Number.isFinite(dy)) return;
+    if (dx === 0 && dy === 0) return;
+    // Scale screen px → tiny SVG nudge; same sign as cursor (right/down positive).
+    const gain = 0.045;
+    this.mouseFollowX = Math.max(-3.2, Math.min(3.2, this.mouseFollowX * 0.82 + dx * gain));
+    this.mouseFollowY = Math.max(-2.4, Math.min(2.4, this.mouseFollowY * 0.82 + dy * gain));
+    this.writeMouseFollow();
+    if (this.mouseFollowDecayTimer != null) window.clearTimeout(this.mouseFollowDecayTimer);
+    this.mouseFollowDecayTimer = window.setTimeout(() => this.decayMouseFollow(), 90);
+  }
+
+  private decayMouseFollow(): void {
+    this.mouseFollowDecayTimer = null;
+    if (this.disposed) return;
+    this.mouseFollowX *= 0.72;
+    this.mouseFollowY *= 0.72;
+    if (Math.abs(this.mouseFollowX) < 0.05 && Math.abs(this.mouseFollowY) < 0.05) {
+      this.mouseFollowX = 0;
+      this.mouseFollowY = 0;
+      this.writeMouseFollow();
+      return;
+    }
+    this.writeMouseFollow();
+    this.mouseFollowDecayTimer = window.setTimeout(() => this.decayMouseFollow(), 90);
+  }
+
+  private writeMouseFollow(): void {
+    const tx = `translate(${this.mouseFollowX.toFixed(2)} ${this.mouseFollowY.toFixed(2)})`;
+    if (this.handRightFollow) {
+      if (this.mouseFollowX === 0 && this.mouseFollowY === 0) {
+        this.handRightFollow.removeAttribute("transform");
+      } else {
+        this.handRightFollow.setAttribute("transform", tx);
+      }
+    }
+    if (this.mouseFollowEl) {
+      if (this.mouseFollowX === 0 && this.mouseFollowY === 0) {
+        this.mouseFollowEl.removeAttribute("transform");
+      } else {
+        this.mouseFollowEl.setAttribute("transform", tx);
+      }
+    }
   }
 
   private clearFlavorSchedule(): void {

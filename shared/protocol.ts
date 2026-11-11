@@ -1,7 +1,14 @@
 /** Minimal animation wire format — no characters or key names on input path. */
 
-/** wheelUp/wheelDown are momentary pulses — never scroll deltas or positions. */
-export type InputKind = "key" | "mouseL" | "mouseR" | "wheelUp" | "wheelDown";
+/** wheelUp/wheelDown are momentary pulses — never scroll deltas or positions.
+ * mouseMove carries small relative deltas only (no absolute cursor position). */
+export type InputKind =
+  | "key"
+  | "mouseL"
+  | "mouseR"
+  | "wheelUp"
+  | "wheelDown"
+  | "mouseMove";
 export type InputPhase = "down" | "up";
 
 export type ClientRole = "overlay" | "dashboard" | "companion" | "test";
@@ -25,6 +32,10 @@ export interface InputMessage {
    * Never a key name/character — companion maps keycode → grid index locally.
    */
   slot?: number;
+  /** mouseMove only — relative delta X (screen right positive). Clamped by companion. */
+  dx?: number;
+  /** mouseMove only — relative delta Y (screen down positive). Clamped by companion. */
+  dy?: number;
 }
 
 /** Mic level only — never audio samples / recordings. */

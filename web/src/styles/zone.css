@@ -393,20 +393,30 @@ body.scene-opaque {
   z-index: 2;
 }
 
-/* Layer animation hooks — origins match 3× hi-res viewBox (1200×1020) */
+/* Layer hooks — talk/cough/roll may animate these parents.
+ * Idle breath/head live on nested #idle-breath / #idle-head so they never reseed. */
 #layer-torso {
   transform-box: view-box;
   transform-origin: 600px 720px;
-  animation: breath 5.2s cubic-bezier(0.37, 0, 0.63, 1) infinite;
-  will-change: transform;
 }
 
 #layer-head {
   transform-box: view-box;
   transform-origin: 600px 390px;
-  /* slower cycle + tiny amplitude; duration jittered in JS */
-  animation: head-idle 12.5s linear infinite;
-  will-change: transform;
+}
+
+/* Chest breath only (translate — no scale stretch of armour). Arms/hands are outside this node. */
+#idle-breath {
+  transform-box: fill-box;
+  transform-origin: 50% 35%;
+  animation: breath 6s ease-in-out infinite;
+}
+
+/* Head idle: long seamless loop, pivot near helm base / collar. Single animation — do not stack. */
+#idle-head {
+  transform-box: fill-box;
+  transform-origin: 50% 88%;
+  animation: head-idle 75s linear infinite;
 }
 
 #arm-left,
@@ -833,55 +843,99 @@ body.scene-opaque {
   }
 }
 
-/* Quiet chest breath — head carries most of the idle life */
+/* Quiet chest breath — translate only (no armour/helm stretch) */
 @keyframes breath {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) scale(1, 1);
+    transform: translate3d(0, 0, 0);
   }
-  25% {
-    transform: translate3d(0, -1px, 0) scale(1.001, 1.003);
+  45% {
+    transform: translate3d(0, -1.6px, 0);
   }
-  50% {
-    transform: translate3d(0, -2.5px, 0) scale(1.002, 1.005);
-  }
-  75% {
-    transform: translate3d(0, -1px, 0) scale(1.001, 1.002);
+  70% {
+    transform: translate3d(0, -0.5px, 0);
   }
 }
 
 /*
- * Soft head life: mostly micro sway, rare mild looks.
- * linear + matched endpoints = no loop hitch. Still >> quiet chest breath.
+ * ~75s seamless head life: tiny offsets, 1–3° turns/tilts/glances,
+ * irregular pauses, matched 0%/100% — linear sampling, no snap.
+ * Tiny rise/fall pairs with breath feel without a second stacked animation.
  */
 @keyframes head-idle {
   0% {
     transform: translate3d(0, 0.2px, 0) rotate(0deg);
   }
-  12% {
-    transform: translate3d(-1.5px, 0.4px, 0) rotate(-0.55deg);
+  4% {
+    transform: translate3d(0, -0.5px, 0) rotate(0.05deg);
   }
-  22% {
-    transform: translate3d(-2.2px, 0.3px, 0) rotate(-0.75deg);
+  8% {
+    transform: translate3d(0.2px, 0.15px, 0) rotate(0deg);
   }
-  34% {
-    transform: translate3d(-0.4px, 0.5px, 0) rotate(-0.15deg);
+  /* pause */
+  14% {
+    transform: translate3d(0.15px, 0.2px, 0) rotate(0.05deg);
   }
-  48% {
-    transform: translate3d(1.2px, 0.35px, 0) rotate(0.4deg);
+  18% {
+    transform: translate3d(-1.2px, 0.25px, 0) rotate(-1.1deg);
   }
-  /* one slightly bigger look — still subtle */
-  58% {
-    transform: translate3d(3.2px, 0.6px, 0) rotate(1.05deg);
+  21% {
+    transform: translate3d(-1.6px, 0.2px, 0) rotate(-1.6deg);
+  }
+  24% {
+    transform: translate3d(-0.4px, -0.3px, 0) rotate(-0.3deg);
+  }
+  28% {
+    transform: translate3d(0, 0.15px, 0) rotate(0deg);
+  }
+  /* long pause */
+  36% {
+    transform: translate3d(0.1px, -0.4px, 0) rotate(0.1deg);
+  }
+  40% {
+    transform: translate3d(1.4px, 0.2px, 0) rotate(1.2deg);
+  }
+  43% {
+    transform: translate3d(2.2px, 0.35px, 0) rotate(2.2deg);
+  }
+  46% {
+    transform: translate3d(1.0px, 0.15px, 0) rotate(0.8deg);
+  }
+  49% {
+    transform: translate3d(0, 0.2px, 0) rotate(0deg);
+  }
+  55% {
+    transform: translate3d(-0.2px, -0.35px, 0) rotate(-0.15deg);
+  }
+  /* soft glance down-left */
+  60% {
+    transform: translate3d(-1.0px, 0.55px, 0) rotate(-0.9deg);
+  }
+  63% {
+    transform: translate3d(-0.3px, 0.2px, 0) rotate(-0.2deg);
   }
   68% {
-    transform: translate3d(1.4px, 0.3px, 0) rotate(0.45deg);
+    transform: translate3d(0.15px, -0.45px, 0) rotate(0.15deg);
   }
-  80% {
-    transform: translate3d(-0.8px, 0.25px, 0) rotate(-0.25deg);
+  /* mild tilt right */
+  74% {
+    transform: translate3d(1.8px, 0.25px, 0) rotate(1.8deg);
   }
-  90% {
-    transform: translate3d(-1.8px, 0.4px, 0) rotate(-0.6deg);
+  77% {
+    transform: translate3d(0.5px, 0.15px, 0) rotate(0.4deg);
+  }
+  82% {
+    transform: translate3d(0, 0.2px, 0) rotate(0deg);
+  }
+  /* pause + micro breath rise */
+  88% {
+    transform: translate3d(-0.1px, -0.5px, 0) rotate(-0.1deg);
+  }
+  93% {
+    transform: translate3d(-1.3px, 0.3px, 0) rotate(-1.3deg);
+  }
+  96% {
+    transform: translate3d(-0.4px, 0.15px, 0) rotate(-0.35deg);
   }
   100% {
     transform: translate3d(0, 0.2px, 0) rotate(0deg);
@@ -1100,8 +1154,8 @@ body.scene-opaque {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #layer-torso,
-  #layer-head,
+  #idle-breath,
+  #idle-head,
   #eye-look,
   .eyelid,
   .signal-noise,

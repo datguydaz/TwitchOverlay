@@ -104,6 +104,8 @@ export const scavengerSvg = `
       <g id="torso-sit" transform="translate(0 40)">
       <g id="torso-scale" transform="translate(200 150) scale(0.90) translate(-200 -150)">
       <g id="torso-core" clip-path="url(#torso-above-desk)">
+      <!-- Idle breath only — nested so talk/cough on #layer-torso never restarts it; arms/hands stay outside. -->
+      <g id="idle-breath">
       <!-- Black Adidas tracksuit under-layer — sloping shoulders -->
       <path d="M136 168
         C128 156 134 142 148 134
@@ -221,6 +223,7 @@ export const scavengerSvg = `
       </g>
       </g>
       </g>
+      </g>
     </g>
 
     <!--
@@ -231,6 +234,8 @@ export const scavengerSvg = `
     <g id="layer-head">
       <g id="head-sit" transform="translate(0 22)">
       <g id="head-scale" transform="translate(200 140) scale(0.84) translate(-200 -140)">
+      <!-- Idle head life — nested; talk/cough on #layer-head does not restart this loop. -->
+      <g id="idle-head">
       <!-- Painted asset (preferred). Vector below is silhouette fallback. -->
       <image id="helm-photo" href="/avatar/killa-maska-head.webp" x="152" y="70" width="96" height="120" opacity="0" preserveAspectRatio="xMidYMin meet" pointer-events="none"/>
       <g id="helm-drawn">
@@ -327,6 +332,7 @@ export const scavengerSvg = `
         </g>
         <!-- anim hook kept; no visible mouth -->
         <g id="mouth-vent" opacity="0" aria-hidden="true"></g>
+      </g>
       </g>
       </g>
       </g>
@@ -555,6 +561,8 @@ export const scavengerSvg = `
 
     <g id="hand-right">
       <g id="hand-right-pivot" transform="translate(272 220)">
+        <!-- Mouse-follow deltas only — click animations stay on #hand-right-aim -->
+        <g id="hand-right-follow">
         <g id="hand-right-aim">
           <g id="hand-right-sit" transform="translate(-272 -220)">
             <g id="arm-right" class="arm-continuous">
@@ -584,6 +592,7 @@ export const scavengerSvg = `
             <rect id="finger-lmb" x="304.5" y="268.8" width="4.6" height="9.2" rx="1.4" fill="#b89068" stroke="#6a4a32" stroke-width="0.45"/>
             <rect id="finger-rmb" x="315.2" y="269.5" width="4.6" height="9" rx="1.4" fill="#b89068" stroke="#6a4a32" stroke-width="0.45"/>
           </g>
+        </g>
         </g>
       </g>
     </g>

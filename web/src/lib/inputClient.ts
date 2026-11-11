@@ -152,9 +152,20 @@ export class InputClient {
         break;
       case "input":
         if (this.demoActive) return; // demo preview supersedes live visuals when toggled
-        this.lastInputAt = Date.now();
-        this.avatar.setSource("live");
-        this.avatar.handleInput(msg.kind, msg.phase, msg.held, msg.slot, msg.pressId);
+        // mouseMove is continuous presence — don't thrash source / idle resets
+        if (msg.kind !== "mouseMove") {
+          this.lastInputAt = Date.now();
+          this.avatar.setSource("live");
+        }
+        this.avatar.handleInput(
+          msg.kind,
+          msg.phase,
+          msg.held,
+          msg.slot,
+          msg.pressId,
+          msg.dx,
+          msg.dy,
+        );
         break;
       case "mic":
         this.avatar.setMicLevel(msg.level, msg.talking);

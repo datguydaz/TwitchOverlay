@@ -57,9 +57,10 @@ function send(obj) {
   }
 }
 
-function emitInput(kind, phase, pressId, held, slot) {
+function emitInput(kind, phase, pressId, held, slot, extra) {
   const msg = { type: "input", kind, phase, pressId, held };
   if (typeof slot === "number") msg.slot = slot;
+  if (extra && typeof extra === "object") Object.assign(msg, extra);
   send(msg);
 }
 
@@ -120,6 +121,53 @@ function attachHooks(uiohook) {
     } else if (e.button === 2) {
       mouseRHeld = 0;
       emitInput("mouseR", "up", mouseRPressId || nextPressId++, 0);
+    }
+  });
+
+  // Mouse move: relative deltas only (derive from x/y; never send absolute coords).
+  let moveAccX = 0;
+  let moveAccY = 0;
+  let lastMoveX = null;
+  let lastMoveY = null;
+  let lastMoveEmitAt = 0;
+  let moveFlushTimer = null;
+  const flushMouseMove = () => {
+    moveFlushTimer = null;
+    if (capturePaused) {
+      moveAccX = 0;
+      moveAccY = 0;
+      return;
+    }
+    const dx = Math.max(-24, Math.min(24, Math.round(moveAccX)));
+    const dy = Math.max(-24, Math.min(24, Math.round(moveAccY)));
+    moveAccX = 0;
+    moveAccY = 0;
+    if (dx === 0 && dy === 0) return;
+    emitInput("mouseMove", "down", nextPressId++, 0, undefined, { dx, dy });
+  };
+  uIOhook.on("mousemove", (e) => {
+    if (capturePaused) return;
+    const x = typeof e.x === "number" ? e.x : null;
+    const y = typeof e.y === "number" ? e.y : null;
+    if (x == null || y == null) return;
+    if (lastMoveX == null || lastMoveY == null) {
+      lastMoveX = x;
+      lastMoveY = y;
+      return;
+    }
+    const dx = x - lastMoveX;
+    const dy = y - lastMoveY;
+    lastMoveX = x;
+    lastMoveY = y;
+    if (dx === 0 && dy === 0) return;
+    moveAccX += dx;
+    moveAccY += dy;
+    const now = Date.now();
+    if (now - lastMoveEmitAt >= 40) {
+      lastMoveEmitAt = now;
+      flushMouseMove();
+    } else if (moveFlushTimer == null) {
+      moveFlushTimer = setTimeout(flushMouseMove, 40);
     }
   });
 

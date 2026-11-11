@@ -290,6 +290,12 @@ wss.on("connection", (ws, req) => {
         if (typeof msg.slot === "number" && Number.isFinite(msg.slot)) {
           forward.slot = Math.max(0, Math.min(63, Math.floor(msg.slot)));
         }
+        if (msg.kind === "mouseMove") {
+          const dx = Number(msg.dx);
+          const dy = Number(msg.dy);
+          if (Number.isFinite(dx)) forward.dx = Math.max(-24, Math.min(24, dx));
+          if (Number.isFinite(dy)) forward.dy = Math.max(-24, Math.min(24, dy));
+        }
         broadcast(forward, (c) => {
           const r = meta.get(c)?.role;
           return r === "overlay" || r === "dashboard";
