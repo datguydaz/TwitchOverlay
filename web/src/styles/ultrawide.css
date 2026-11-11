@@ -592,7 +592,7 @@
   text-shadow: 0 0 12px rgba(200, 136, 58, 0.32);
 }
 
-/* —— Follow/sub: status-plate language; hard-flush edges; compact wells, big names —— */
+/* —— Follow/sub: status-plate language; hard-flush outer edges; shorter toward center —— */
 .uw-readout {
   position: relative;
   z-index: 4;
@@ -608,6 +608,11 @@
   background: transparent;
   border: none;
   box-shadow: none;
+}
+/* ~25% shorter from the center-facing side; outer edges stay flush via side justify */
+.uw-wall-header .uw-readout {
+  width: 75%;
+  max-width: 75%;
 }
 
 .uw-glass-label {
