@@ -2,8 +2,6 @@ import {
   applyCssVars,
   fetchSettings,
 } from "../lib/settingsClient.ts";
-import { applyChatPlacement } from "../lib/chatPlacement.ts";
-import { pickDemoTalkLine } from "../avatar/reactiveAvatar.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 
 function qs<T extends HTMLElement>(sel: string): T | null {
@@ -31,20 +29,6 @@ function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
 function setVfxEnabled(on: boolean): void {
   const stage = qs<HTMLElement>("#uw-stage");
   if (stage) stage.dataset.vfx = on ? "on" : "off";
-}
-
-function showChatLine(text: string, tag: string): void {
-  const box = qs<HTMLElement>("#uw-chat");
-  const body = qs<HTMLElement>("#uw-chat-body");
-  const tagEl = qs<HTMLElement>("#uw-chat-tag");
-  if (!box || !body) return;
-  if (tagEl) tagEl.textContent = tag;
-  body.textContent = text.slice(0, 220);
-  box.dataset.show = "1";
-  window.clearTimeout((showChatLine as { _t?: number })._t);
-  (showChatLine as { _t?: number })._t = window.setTimeout(() => {
-    box.dataset.show = "0";
-  }, 5600);
 }
 
 function applyUltrawide(settings: OverlaySettings): void {
@@ -119,24 +103,6 @@ function applyUltrawide(settings: OverlaySettings): void {
   }
   if (follower) follower.hidden = !social.showFollower;
   if (subscriber) subscriber.hidden = !social.showSubscriber;
-
-  const chat = qs<HTMLElement>("#uw-chat");
-  if (chat) {
-    chat.style.display = settings.chat.enabled ? "" : "none";
-    if (mode === "bottom") {
-      // Standalone bottom bar source — keep bubble inside the thin page (top edge)
-      const side = String(settings.chat.placement).includes("right") ? "top-right" : "top-left";
-      applyChatPlacement(chat, {
-        placement: side,
-        offsetXPct: settings.chat.offsetXPct,
-        offsetYPct: Math.min(12, settings.chat.offsetYPct || 6),
-      });
-    } else {
-      applyChatPlacement(chat, settings.chat, {
-        barH: mode === "top" ? undefined : barH,
-      });
-    }
-  }
 }
 
 /** Rare signal glitch — low duty cycle, paused when tab hidden. */
@@ -190,41 +156,11 @@ function startGlitchLoop(): void {
   schedule();
 }
 
-function startTrashTalk(getSettings: () => OverlaySettings): void {
-  let timer: number | null = null;
-
-  const tick = () => {
-    if (timer != null) window.clearTimeout(timer);
-    const s = getSettings();
-    const interval = Math.max(6000, Math.min(90000, s.chat.intervalMs || 14000));
-    timer = window.setTimeout(() => {
-      timer = null;
-      const cur = getSettings();
-      if (
-        !document.hidden &&
-        cur.chat.enabled &&
-        cur.chat.demoAuto &&
-        qs("#uw-chat")
-      ) {
-        const line = pickDemoTalkLine(cur.chat.games ?? []);
-        showChatLine(line, `${cur.streamerName.toUpperCase()} // COMMS`);
-      }
-      tick();
-    }, interval + Math.random() * 4000);
-  };
-
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) tick();
-  });
-  tick();
-}
-
 async function main(): Promise<void> {
   let settings = await fetchSettings();
   applyCssVars(settings);
   applyUltrawide(settings);
   startGlitchLoop();
-  startTrashTalk(() => settings);
 
   const refresh = async () => {
     settings = await fetchSettings();
@@ -246,18 +182,9 @@ async function main(): Promise<void> {
     });
     ws.addEventListener("message", (ev) => {
       try {
-        const msg = JSON.parse(String(ev.data)) as {
-          type?: string;
-          text?: string;
-          from?: string;
-        };
+        const msg = JSON.parse(String(ev.data)) as { type?: string };
         if (msg.type === "settings-updated") void refresh();
-        if (msg.type === "chat-line" && typeof msg.text === "string" && settings.chat.enabled) {
-          showChatLine(
-            msg.text,
-            `${settings.streamerName.toUpperCase()} // COMMS`,
-          );
-        }
+        // AI / chat-line bubbles intentionally not shown on ultrawide bars
       } catch {
         /* ignore */
       }
