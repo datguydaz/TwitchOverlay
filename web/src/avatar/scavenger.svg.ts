@@ -559,40 +559,62 @@ export const scavengerSvg = `
       </g>
     </g>
 
+    <!--
+      Mouse arm ONLY: one continuous sleeve+hand under a single shoulder pivot.
+      Elbow bend is drawn into the stroke path — no independent forearm transform.
+      #hand-right-breath mirrors torso #idle-breath so the root stays under the vest.
+    -->
     <g id="hand-right">
-      <g id="hand-right-pivot" transform="translate(272 220)">
-        <!-- Mouse-follow deltas only — click animations stay on #hand-right-aim -->
-        <g id="hand-right-follow">
-        <g id="hand-right-aim">
-          <g id="hand-right-sit" transform="translate(-272 -220)">
-            <g id="arm-right" class="arm-continuous">
-              <path d="M272 220 L286 236 L298 250 L306 260 L314 268" fill="none" stroke="#050507" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-              <path id="sleeve-right-fill" d="M272 220 L286 236 L298 250 L306 260 L314 268" fill="none" stroke="#0e0e0e" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M272 220 L286 236 L298 250 L306 260 L314 268" fill="none" stroke="#181a1e" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-              <g id="sleeve-stripes-right" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.1">
-                <path d="M272 220 L286 236 L298 250 L306 260 L314 268" transform="translate(-4.0 0)"/>
-                <path d="M272 220 L286 236 L298 250 L306 260 L314 268"/>
-                <path d="M272 220 L286 236 L298 250 L306 260 L314 268" transform="translate(4.0 0)"/>
+      <g id="hand-right-breath">
+        <g id="hand-right-pivot" transform="translate(272 220)">
+          <!-- Mouse-follow deltas (JS SVG attr) — does not split sleeve/hand -->
+          <g id="hand-right-follow">
+            <!-- Subtle click rotate about shoulder (0,0 in pivot space) -->
+            <g id="hand-right-aim">
+              <circle cx="0" cy="0" r="0.5" fill="none" opacity="0"/>
+              <g id="hand-right-sit" transform="translate(-272 -220)">
+                <!-- Unity group: sleeve + stripes + cuff + palm + fingers (no nested anim targets) -->
+                <g id="arm-right" class="arm-continuous">
+                  <!-- Root tucked under vest (starts above pivot) for overlap during breath -->
+                  <path d="M266 208
+                    C268 214 270 218 272 220
+                    L286 236 L296 248 L304 258 L310 264 L314 268"
+                    fill="none" stroke="#050507" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+                  <path id="sleeve-right-fill" d="M266 208
+                    C268 214 270 218 272 220
+                    L286 236 L296 248 L304 258 L310 264 L314 268"
+                    fill="none" stroke="#0e0e0e" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M266 208
+                    C268 214 270 218 272 220
+                    L286 236 L296 248 L304 258 L310 264 L314 268"
+                    fill="none" stroke="#181a1e" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+                  <g id="sleeve-stripes-right" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.1">
+                    <path d="M268 212 C270 216 272 220 272 220 L286 236 L296 248 L304 258 L310 264 L314 268" transform="translate(-4.0 0)"/>
+                    <path d="M268 212 C270 216 272 220 272 220 L286 236 L296 248 L304 258 L310 264 L314 268"/>
+                    <path d="M268 212 C270 216 272 220 272 220 L286 236 L296 248 L304 258 L310 264 L314 268" transform="translate(4.0 0)"/>
+                  </g>
+                  <!-- Drawn elbow creases only — not a second pivot -->
+                  <g id="sleeve-folds-right" fill="none" stroke-linecap="round">
+                    <path d="M292 246 Q298 250 304 248" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
+                    <path d="M294 252 Q300 256 306 254" stroke="#000" stroke-width="0.85" opacity="0.38"/>
+                    <path d="M300 258 Q306 262 310 260" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
+                  </g>
+                  <g id="sleeve-wear-right" fill="none" stroke-linecap="round">
+                    <path d="M282 232 L290 238" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
+                    <path d="M294 246 L300 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
+                    <path d="M298 248 Q302 252 300 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
+                  </g>
+                  <ellipse cx="314" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
+                  <ellipse cx="314" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
+                  <path d="M307 266 H321" stroke="#000" stroke-width="0.55" opacity="0.32"/>
+                  <!-- Palm + fingers stay inside unity group -->
+                  <path d="M302 264 L324 266 L322 278 L304 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1" opacity="0.96"/>
+                  <rect id="finger-lmb" x="304.5" y="268.8" width="4.6" height="9.2" rx="1.4" fill="#b89068" stroke="#6a4a32" stroke-width="0.45"/>
+                  <rect id="finger-rmb" x="315.2" y="269.5" width="4.6" height="9" rx="1.4" fill="#b89068" stroke="#6a4a32" stroke-width="0.45"/>
+                </g>
               </g>
-              <g id="sleeve-folds-right" fill="none" stroke-linecap="round">
-                <path d="M292 246 Q298 250 304 248" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
-                <path d="M294 252 Q300 256 306 254" stroke="#000" stroke-width="0.85" opacity="0.38"/>
-                <path d="M300 258 Q306 262 310 260" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
-              </g>
-              <g id="sleeve-wear-right" fill="none" stroke-linecap="round">
-                <path d="M282 232 L290 238" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
-                <path d="M294 246 L300 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
-                <path d="M298 248 Q302 252 300 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
-              </g>
-              <ellipse cx="314" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
-              <ellipse cx="314" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
-              <path d="M307 266 H321" stroke="#000" stroke-width="0.55" opacity="0.32"/>
             </g>
-            <path d="M302 264 L324 266 L322 278 L304 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1" opacity="0.96"/>
-            <rect id="finger-lmb" x="304.5" y="268.8" width="4.6" height="9.2" rx="1.4" fill="#b89068" stroke="#6a4a32" stroke-width="0.45"/>
-            <rect id="finger-rmb" x="315.2" y="269.5" width="4.6" height="9" rx="1.4" fill="#b89068" stroke="#6a4a32" stroke-width="0.45"/>
           </g>
-        </g>
         </g>
       </g>
     </g>
