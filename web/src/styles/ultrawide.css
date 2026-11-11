@@ -38,7 +38,9 @@
     linear-gradient(180deg, rgba(17, 17, 16, 0.55) 0%, transparent 28%, rgba(17, 17, 16, 0.65) 100%),
     var(--tex-metal),
     linear-gradient(180deg, #1a1917 0%, var(--uw-charcoal) 45%, #1c1b19 100%);
-  background-size: auto, 480px 240px, auto;
+  /* Stretch metal — avoid tile seams that read as grey rectangles */
+  background-size: auto, 100% 100%, auto;
+  background-repeat: no-repeat;
   background-blend-mode: normal, soft-light, normal;
   box-shadow:
     inset 0 -10px 20px rgba(0, 0, 0, 0.55);
@@ -53,9 +55,10 @@
   background:
     var(--tex-soot),
     var(--tex-streak);
-  background-size: 640px 320px, 180px 100%;
+  background-size: 100% 100%, 140px 100%;
+  background-repeat: no-repeat, no-repeat;
   background-position: 0 0, 12% 0;
-  opacity: 0.55;
+  opacity: 0.45;
   mix-blend-mode: multiply;
 }
 
@@ -66,13 +69,9 @@
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0 0.8%, transparent 1.2%),
-    linear-gradient(90deg, transparent 27.8%, rgba(0, 0, 0, 0.7) 28% 28.25%, transparent 28.5%),
-    linear-gradient(90deg, transparent 61.7%, rgba(86, 52, 38, 0.35) 62% 62.35%, transparent 62.6%),
-    linear-gradient(90deg, transparent 84.8%, rgba(0, 0, 0, 0.65) 85% 85.3%, transparent 85.6%),
-    radial-gradient(ellipse at 3% 80%, rgba(86, 52, 38, 0.4), transparent 18%),
-    radial-gradient(ellipse at 97% 15%, rgba(86, 52, 38, 0.28), transparent 16%);
-  opacity: 0.95;
+    radial-gradient(ellipse at 3% 80%, rgba(86, 52, 38, 0.35), transparent 18%),
+    radial-gradient(ellipse at 97% 15%, rgba(86, 52, 38, 0.22), transparent 16%);
+  opacity: 0.9;
 }
 
 .uw-bar[data-hidden="true"] {
@@ -89,8 +88,8 @@
     linear-gradient(180deg, rgba(17, 17, 16, 0.7) 0%, transparent 30%, rgba(17, 17, 16, 0.5) 100%),
     var(--tex-metal),
     linear-gradient(180deg, #161514 0%, #2a2825 40%, var(--uw-charcoal) 70%, #1a1917 100%);
-  background-size: auto, 520px 260px, auto;
-  background-position: 0 0, 40px -20px, 0 0;
+  background-size: auto, 100% 100%, auto;
+  background-repeat: no-repeat;
   background-blend-mode: normal, soft-light, normal;
 }
 
@@ -362,12 +361,12 @@
   background:
     linear-gradient(180deg, #1c1b19, var(--uw-soot)),
     var(--tex-metal);
-  background-size: auto, 80px 80px;
+  background-size: auto, cover;
+  background-repeat: no-repeat;
   border: 1px solid #0a0a09;
   box-shadow:
     inset 0 1px 0 rgba(85, 81, 73, 0.2),
     0 2px 0 rgba(0, 0, 0, 0.55);
-  clip-path: polygon(0 5%, 100% 0, 100% 100%, 0 95%);
 }
 
 .uw-conduit span {
@@ -405,18 +404,16 @@
     linear-gradient(145deg, rgba(85, 81, 73, 0.18) 0 10%, transparent 22%),
     var(--tex-soot),
     linear-gradient(180deg, #2e2c29 0%, var(--uw-charcoal) 40%, #1a1917 100%);
-  background-size: auto, 360px 220px, auto;
+  background-size: auto, cover, auto;
+  background-repeat: no-repeat;
   background-blend-mode: soft-light, multiply, normal;
-  border: 2px solid #0a0a09;
-  border-radius: 2px 3px 2px 4px;
+  border: 1px solid #0a0a09;
+  border-radius: 2px;
   box-shadow:
-    inset 0 3px 0 rgba(200, 191, 168, 0.12),
-    inset 0 -4px 0 rgba(0, 0, 0, 0.65),
-    inset 3px 0 0 rgba(0, 0, 0, 0.35),
-    0 0 0 1px rgba(36, 35, 33, 0.9),
-    0 6px 0 rgba(0, 0, 0, 0.55),
-    0 8px 16px rgba(0, 0, 0, 0.4);
-  clip-path: polygon(0 6%, 1.2% 0, 97.5% 0, 100% 7%, 100% 93%, 98.2% 100%, 1.8% 100%, 0 92%);
+    inset 0 2px 0 rgba(85, 81, 73, 0.1),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.55),
+    inset 2px 0 0 rgba(0, 0, 0, 0.3),
+    0 4px 0 rgba(0, 0, 0, 0.45);
 }
 
 .uw-housing::before {
@@ -604,7 +601,8 @@
   background:
     var(--tex-metal),
     linear-gradient(180deg, #2a2825 0%, #1a1917 50%, var(--uw-soot) 100%);
-  background-size: 220px 140px, auto;
+  background-size: cover, auto;
+  background-repeat: no-repeat;
   background-blend-mode: soft-light, normal;
   border: 1px solid #0a0a09;
   box-shadow:
