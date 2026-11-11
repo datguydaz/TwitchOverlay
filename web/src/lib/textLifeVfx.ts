@@ -1,19 +1,18 @@
 import type { AtmosphereIntensity, TextEffectsSettings } from "../../../shared/settings.ts";
 import type { AtmPreviewKind } from "../../../shared/protocol.ts";
 
-type Target = "id" | "op" | "hold" | "status";
+type Target = "id" | "op" | "status";
 
 const INTENSITY: Record<
   AtmosphereIntensity,
-  { dipMin: number; dipSpan: number; sweepMin: number; sweepSpan: number; opMin: number; opSpan: number; holdMin: number; holdSpan: number }
+  { dipMin: number; dipSpan: number; sweepMin: number; sweepSpan: number; opMin: number; opSpan: number }
 > = {
-  /* Noticeable within ~10s at medium — staggered, no strobe */
-  low: { dipMin: 4500, dipSpan: 5000, sweepMin: 5000, sweepSpan: 6000, opMin: 1800, opSpan: 2400, holdMin: 5500, holdSpan: 5000 },
-  medium: { dipMin: 2800, dipSpan: 3200, sweepMin: 3200, sweepSpan: 3800, opMin: 1100, opSpan: 1600, holdMin: 3800, holdSpan: 3500 },
-  high: { dipMin: 1800, dipSpan: 2200, sweepMin: 2200, sweepSpan: 2800, opMin: 700, opSpan: 1100, holdMin: 2600, holdSpan: 2400 },
+  low: { dipMin: 4500, dipSpan: 5000, sweepMin: 5000, sweepSpan: 6000, opMin: 1800, opSpan: 2400 },
+  medium: { dipMin: 2800, dipSpan: 3200, sweepMin: 3200, sweepSpan: 3800, opMin: 1100, opSpan: 1600 },
+  high: { dipMin: 1800, dipSpan: 2200, sweepMin: 2200, sweepSpan: 2800, opMin: 700, opSpan: 1100 },
 };
 
-const SIGN: Target[] = ["id", "op", "hold", "status"];
+const SIGN: Target[] = ["id", "op", "status"];
 
 /**
  * Worn electrical-sign text life — opacity/transform only; glow layer separate.
@@ -46,7 +45,6 @@ export class TextLifeVfx {
     this.scheduleDip();
     this.scheduleSweep();
     this.scheduleOp();
-    this.scheduleHold();
     this.scheduleGhost();
   }
 
@@ -56,11 +54,10 @@ export class TextLifeVfx {
   }
 
   preview(kind: AtmPreviewKind): void {
-    if (kind === "follow" || kind === "sub") return;
+    if (kind === "follow" || kind === "sub" || kind === "text-hold") return;
     if (kind === "text-dip") this.triggerDip();
     else if (kind === "text-sweep") this.triggerSweep();
     else if (kind === "text-op") this.triggerOp(true);
-    else if (kind === "text-hold") this.triggerHold();
   }
 
   dispose(): void {
@@ -126,18 +123,6 @@ export class TextLifeVfx {
     );
   }
 
-  private scheduleHold(): void {
-    const spec = INTENSITY[this.cfg.intensity];
-    const delay = spec.holdMin + Math.random() * spec.holdSpan;
-    this.timers.push(
-      window.setTimeout(() => {
-        if (this.disposed || this.stage.dataset.textFx !== "on") return;
-        this.triggerHold();
-        this.scheduleHold();
-      }, delay),
-    );
-  }
-
   private scheduleGhost(): void {
     const delay = 3500 + Math.random() * 4500;
     this.timers.push(
@@ -172,16 +157,6 @@ export class TextLifeVfx {
   private triggerOp(force: boolean): void {
     const mode = force || Math.random() < 0.55 ? "flutter" : "pulse";
     this.pulse("op", mode, mode === "flutter" ? 520 : 900);
-  }
-
-  private triggerHold(): void {
-    // Painted plate lit by faulty nearby light — illumination only
-    this.pulse("hold", "lit-dip", 220 + Math.random() * 280);
-    this.timers.push(
-      window.setTimeout(() => {
-        this.pulse("hold", "lit-recover", 800 + Math.random() * 500);
-      }, 240),
-    );
   }
 
   private clearTransient(): void {

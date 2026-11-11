@@ -1,6 +1,17 @@
 import type { AtmosphereSettings, AtmosphereIntensity } from "../../../shared/settings.ts";
 
-type Dust = { x: number; y: number; vx: number; vy: number; r: number; a: number; life: number };
+type Dust = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  r: number;
+  a: number;
+  life: number;
+  /** Rare amber ember vs ash/dust */
+  ember: boolean;
+  band: "top" | "bot";
+};
 
 const INTENSITY: Record<
   AtmosphereIntensity,
@@ -14,10 +25,10 @@ const INTENSITY: Record<
     lampSpan: number;
   }
 > = {
-  /* Quiet dark: sparse dust in light, rare sparks, lamp flutter — no strobe */
-  low: { dust: 5, smokeMin: 40000, smokeSpan: 40000, sparkMin: 28000, sparkSpan: 32000, lampMin: 7000, lampSpan: 10000 },
-  medium: { dust: 9, smokeMin: 28000, smokeSpan: 28000, sparkMin: 18000, sparkSpan: 22000, lampMin: 4500, lampSpan: 7000 },
-  high: { dust: 14, smokeMin: 18000, smokeSpan: 20000, sparkMin: 11000, sparkSpan: 14000, lampMin: 3000, lampSpan: 4500 },
+  /* Contained bar atmosphere — sparse ash/dust + rare embers; footer-weighted */
+  low: { dust: 8, smokeMin: 22000, smokeSpan: 24000, sparkMin: 22000, sparkSpan: 26000, lampMin: 7000, lampSpan: 10000 },
+  medium: { dust: 14, smokeMin: 14000, smokeSpan: 16000, sparkMin: 14000, sparkSpan: 18000, lampMin: 4500, lampSpan: 7000 },
+  high: { dust: 20, smokeMin: 9000, smokeSpan: 11000, sparkMin: 9000, sparkSpan: 12000, lampMin: 3000, lampSpan: 4500 },
 };
 
 /**
@@ -125,32 +136,49 @@ export class AtmosphereVfx {
     for (let i = 0; i < n; i++) this.dust.push(this.spawnDust(true));
   }
 
-  private spawnDust(randomLife = false): Dust {
+  private barBands(): { topH: number; botH: number; w: number; h: number } {
     const w = this.canvas?.width || 800;
     const h = this.canvas?.height || 400;
-    // Prefer near lamp glow in top bar (center-right of top band) + footer vent left
-    const zone = Math.random();
+    const stage = this.stage.getBoundingClientRect();
+    const top = this.stage.querySelector<HTMLElement>("#uw-top");
+    const bot = this.stage.querySelector<HTMLElement>("#uw-bottom");
+    const topH =
+      top && top.dataset.hidden !== "true"
+        ? Math.max(8, Math.round(top.getBoundingClientRect().height))
+        : Math.round(h * 0.12);
+    const botH =
+      bot && bot.dataset.hidden !== "true"
+        ? Math.max(8, Math.round(bot.getBoundingClientRect().height))
+        : Math.round(h * 0.12);
+    void stage;
+    return { topH: Math.min(topH, h * 0.22), botH: Math.min(botH, h * 0.22), w, h };
+  }
+
+  private spawnDust(randomLife = false): Dust {
+    const { topH, botH, w, h } = this.barBands();
+    // Footer slightly more atmospheric (~60% bottom / 40% top)
+    const band: "top" | "bot" = Math.random() < 0.4 ? "top" : "bot";
+    const ember = Math.random() < 0.12;
     let x: number;
     let y: number;
-    if (zone < 0.55) {
-      // top lamp area (~55–70% across top band)
-      x = w * (0.52 + Math.random() * 0.16);
-      y = Math.random() * Math.max(10, h * 0.12);
-    } else if (zone < 0.8) {
-      x = Math.random() * w;
-      y = Math.random() * Math.max(8, h * 0.1);
+    if (band === "top") {
+      // Bias near lamp / center-right lights
+      x = Math.random() < 0.55 ? w * (0.5 + Math.random() * 0.2) : Math.random() * w;
+      y = Math.random() * Math.max(6, topH - 2);
     } else {
-      x = w * (0.04 + Math.random() * 0.12);
-      y = h - Math.random() * Math.max(8, h * 0.12);
+      x = Math.random() < 0.35 ? w * (0.02 + Math.random() * 0.18) : Math.random() * w;
+      y = h - Math.random() * Math.max(6, botH - 2);
     }
     return {
       x,
       y,
-      vx: (Math.random() - 0.5) * 0.1,
-      vy: (Math.random() - 0.5) * 0.04,
-      r: 0.5 + Math.random() * 1.2,
-      a: 0.1 + Math.random() * 0.22,
+      vx: (Math.random() - 0.5) * (ember ? 0.06 : 0.09),
+      vy: (Math.random() - 0.5) * (ember ? 0.03 : 0.035) - (ember ? 0.01 : 0),
+      r: ember ? 0.7 + Math.random() * 1.4 : 0.4 + Math.random() * 1.1,
+      a: ember ? 0.22 + Math.random() * 0.35 : 0.08 + Math.random() * 0.18,
       life: randomLife ? Math.random() : 0,
+      ember,
+      band,
     };
   }
 
@@ -196,26 +224,32 @@ export class AtmosphereVfx {
   private stepDust(dt: number): void {
     if (!this.ctx || !this.canvas || !this.cfg.dust) return;
     const ctx = this.ctx;
-    const w = this.canvas.width;
-    const h = this.canvas.height;
+    const { topH, botH, w, h } = this.barBands();
     ctx.clearRect(0, 0, w, h);
-    const topBand = h * 0.14;
-    const botBand = h * 0.14;
+    // Hard clip — never draw into gameplay hole
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, w, topH);
+    ctx.rect(0, h - botH, w, botH);
+    ctx.clip();
     for (const p of this.dust) {
       p.x += p.vx * dt;
       p.y += p.vy * dt;
       p.life += dt * 0.00008;
       if (p.x < -4) p.x = w + 4;
       if (p.x > w + 4) p.x = -4;
-      if (p.y > topBand && p.y < h - botBand) {
-        Object.assign(p, this.spawnDust(true));
-      }
+      const inTop = p.y >= 0 && p.y <= topH;
+      const inBot = p.y >= h - botH && p.y <= h;
+      if (!inTop && !inBot) Object.assign(p, this.spawnDust(true));
       const fade = 0.55 + 0.45 * Math.sin(p.life * Math.PI * 2);
       ctx.beginPath();
-      ctx.fillStyle = `rgba(200,170,120,${p.a * fade * 0.85})`;
+      ctx.fillStyle = p.ember
+        ? `rgba(200,136,58,${p.a * fade})`
+        : `rgba(170,160,140,${p.a * fade * 0.75})`;
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fill();
     }
+    ctx.restore();
   }
 
   private scheduleLamp(): void {
@@ -273,11 +307,16 @@ export class AtmosphereVfx {
   }
 
   private triggerSmoke(): void {
+    // Prefer footer (more atmospheric); occasionally top near lamp
     const bottom = this.stage.querySelector<HTMLElement>("#uw-bottom");
+    const top = this.stage.querySelector<HTMLElement>("#uw-top");
+    const preferFooter = Math.random() < 0.7;
     const bar =
-      bottom && bottom.dataset.hidden !== "true"
+      preferFooter && bottom && bottom.dataset.hidden !== "true"
         ? bottom
-        : this.stage.querySelector<HTMLElement>(".uw-bar:not([data-hidden='true'])");
+        : top && top.dataset.hidden !== "true"
+          ? top
+          : this.stage.querySelector<HTMLElement>(".uw-bar:not([data-hidden='true'])");
     if (!bar) return;
     bar.dataset.smoke = "1";
     this.timers.push(
@@ -288,12 +327,20 @@ export class AtmosphereVfx {
   }
 
   private triggerSparks(): void {
-    const bars = [...this.stage.querySelectorAll<HTMLElement>(".uw-bar")].filter(
-      (b) => b.dataset.hidden !== "true",
-    );
-    const bar = bars[Math.floor(Math.random() * Math.max(1, bars.length))];
+    // Rare local sparks near lights — prefer top lamp / footer vent side
+    const top = this.stage.querySelector<HTMLElement>("#uw-top");
+    const bottom = this.stage.querySelector<HTMLElement>("#uw-bottom");
+    const pickTop = Math.random() < 0.55;
+    const bar =
+      pickTop && top && top.dataset.hidden !== "true"
+        ? top
+        : bottom && bottom.dataset.hidden !== "true"
+          ? bottom
+          : [...this.stage.querySelectorAll<HTMLElement>(".uw-bar")].find(
+              (b) => b.dataset.hidden !== "true",
+            );
     if (!bar) return;
-    bar.dataset.sparks = Math.random() < 0.5 ? "l" : "r";
+    bar.dataset.sparks = pickTop ? "r" : "l";
     this.timers.push(
       window.setTimeout(() => {
         delete bar.dataset.sparks;
