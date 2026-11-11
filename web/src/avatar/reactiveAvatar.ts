@@ -824,28 +824,28 @@ export class ReactiveAvatar {
   private applyMouseFollowDelta(dx: number, dy: number): void {
     if (!Number.isFinite(dx) || !Number.isFinite(dy)) return;
     if (dx === 0 && dy === 0) return;
-    // Scale screen px → tiny SVG nudge; same sign as cursor (right/down positive).
-    const gain = 0.045;
-    this.mouseFollowX = Math.max(-3.2, Math.min(3.2, this.mouseFollowX * 0.82 + dx * gain));
-    this.mouseFollowY = Math.max(-2.4, Math.min(2.4, this.mouseFollowY * 0.82 + dy * gain));
+    // Screen px → visible SVG nudge; same sign as cursor (right/down positive).
+    const gain = 0.18;
+    this.mouseFollowX = Math.max(-7, Math.min(7, this.mouseFollowX * 0.78 + dx * gain));
+    this.mouseFollowY = Math.max(-5.5, Math.min(5.5, this.mouseFollowY * 0.78 + dy * gain));
     this.writeMouseFollow();
     if (this.mouseFollowDecayTimer != null) window.clearTimeout(this.mouseFollowDecayTimer);
-    this.mouseFollowDecayTimer = window.setTimeout(() => this.decayMouseFollow(), 90);
+    this.mouseFollowDecayTimer = window.setTimeout(() => this.decayMouseFollow(), 120);
   }
 
   private decayMouseFollow(): void {
     this.mouseFollowDecayTimer = null;
     if (this.disposed) return;
-    this.mouseFollowX *= 0.72;
-    this.mouseFollowY *= 0.72;
-    if (Math.abs(this.mouseFollowX) < 0.05 && Math.abs(this.mouseFollowY) < 0.05) {
+    this.mouseFollowX *= 0.78;
+    this.mouseFollowY *= 0.78;
+    if (Math.abs(this.mouseFollowX) < 0.08 && Math.abs(this.mouseFollowY) < 0.08) {
       this.mouseFollowX = 0;
       this.mouseFollowY = 0;
       this.writeMouseFollow();
       return;
     }
     this.writeMouseFollow();
-    this.mouseFollowDecayTimer = window.setTimeout(() => this.decayMouseFollow(), 90);
+    this.mouseFollowDecayTimer = window.setTimeout(() => this.decayMouseFollow(), 120);
   }
 
   private writeMouseFollow(): void {

@@ -138,12 +138,19 @@ function attachHooks(uiohook) {
       moveAccY = 0;
       return;
     }
-    const dx = Math.max(-24, Math.min(24, Math.round(moveAccX)));
-    const dy = Math.max(-24, Math.min(24, Math.round(moveAccY)));
-    moveAccX = 0;
-    moveAccY = 0;
+    // Keep fractional remainder so slow moves accumulate instead of rounding to 0 forever.
+    let dx = Math.trunc(moveAccX);
+    let dy = Math.trunc(moveAccY);
+    dx = Math.max(-24, Math.min(24, dx));
+    dy = Math.max(-24, Math.min(24, dy));
     if (dx === 0 && dy === 0) return;
+    moveAccX -= dx;
+    moveAccY -= dy;
     emitInput("mouseMove", "down", nextPressId++, 0, undefined, { dx, dy });
+    if (!globalThis.__pzMouseMoveLogged) {
+      globalThis.__pzMouseMoveLogged = true;
+      console.log("mouseMove emit live (dx/dy deltas). First packet OK.");
+    }
   };
   uIOhook.on("mousemove", (e) => {
     if (capturePaused) return;
@@ -160,14 +167,16 @@ function attachHooks(uiohook) {
     lastMoveX = x;
     lastMoveY = y;
     if (dx === 0 && dy === 0) return;
+    // Ignore teleport jumps (monitor switch / unplug) — don't spray huge deltas.
+    if (Math.abs(dx) > 200 || Math.abs(dy) > 200) return;
     moveAccX += dx;
     moveAccY += dy;
     const now = Date.now();
-    if (now - lastMoveEmitAt >= 40) {
+    if (now - lastMoveEmitAt >= 32) {
       lastMoveEmitAt = now;
       flushMouseMove();
     } else if (moveFlushTimer == null) {
-      moveFlushTimer = setTimeout(flushMouseMove, 40);
+      moveFlushTimer = setTimeout(flushMouseMove, 32);
     }
   });
 

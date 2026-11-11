@@ -90,6 +90,24 @@ async function main(): Promise<void> {
   await onceMessage(overlay, (m) => m.type === "input" && m.kind === "mouseR");
   console.log("mouse L/R ok");
 
+  const movePromise = onceMessage(
+    overlay,
+    (m) => m.type === "input" && m.kind === "mouseMove" && m.dx === 12 && m.dy === -5,
+  );
+  companion.send(
+    JSON.stringify({
+      type: "input",
+      kind: "mouseMove",
+      phase: "down",
+      pressId: 4,
+      held: 0,
+      dx: 12,
+      dy: -5,
+    }),
+  );
+  await movePromise;
+  console.log("mouseMove dx/dy fan-out ok");
+
   // Pause suppresses input
   companion.send(JSON.stringify({ type: "pause" }));
   const resetOnPause = onceMessage(overlay, (m) => m.type === "reset-idle" && m.reason === "pause");

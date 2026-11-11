@@ -317,31 +317,36 @@ async function connectDashWs(): Promise<void> {
     try {
       const msg = JSON.parse(String(ev.data)) as {
         type: string;
-        kind?: "key" | "mouseL" | "mouseR" | "wheelUp" | "wheelDown";
+        kind?: "key" | "mouseL" | "mouseR" | "wheelUp" | "wheelDown" | "mouseMove";
         phase?: "down" | "up";
         held?: number;
+        slot?: number;
+        pressId?: number;
+        dx?: number;
+        dy?: number;
         companionConnected?: boolean;
         capturePaused?: boolean;
         overlayClients?: number;
         demoModeHint?: string;
+        text?: string;
       };
       if (msg.type === "status") {
         updateStatus(msg as StatusMessage);
       } else if (msg.type === "input" && !demoOn && msg.kind && msg.phase != null && msg.held != null) {
-        lastInputAt = Date.now();
-        const li = document.getElementById("last-input");
-        if (li) li.textContent = `Last input: just now (${msg.kind})`;
-        avatar.setSource("live");
+        if (msg.kind !== "mouseMove") {
+          lastInputAt = Date.now();
+          const li = document.getElementById("last-input");
+          if (li) li.textContent = `Last input: just now (${msg.kind})`;
+          avatar.setSource("live");
+        }
         avatar.handleInput(
           msg.kind,
           msg.phase,
           msg.held,
-          typeof (msg as { slot?: number }).slot === "number"
-            ? (msg as { slot?: number }).slot
-            : undefined,
-          typeof (msg as { pressId?: number }).pressId === "number"
-            ? (msg as { pressId?: number }).pressId
-            : undefined,
+          typeof msg.slot === "number" ? msg.slot : undefined,
+          typeof msg.pressId === "number" ? msg.pressId : undefined,
+          typeof msg.dx === "number" ? msg.dx : undefined,
+          typeof msg.dy === "number" ? msg.dy : undefined,
         );
       } else if (msg.type === "mic") {
         /* dashboard is the publisher; ignore echo */
