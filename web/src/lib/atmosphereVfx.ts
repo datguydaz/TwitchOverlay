@@ -10,6 +10,8 @@ type Dust = {
   life: number;
   /** Rare amber ember vs ash/dust */
   ember: boolean;
+  /** Thin rain streak in bar band */
+  rain: boolean;
   band: "top" | "bot";
 };
 
@@ -25,10 +27,10 @@ const INTENSITY: Record<
     lampSpan: number;
   }
 > = {
-  /* Amped but clipped to bars — dust/ash/embers/sparks/lamp; no gameplay fog */
-  low: { dust: 16, smokeMin: 9000, smokeSpan: 11000, sparkMin: 9000, sparkSpan: 12000, lampMin: 3500, lampSpan: 5000 },
-  medium: { dust: 28, smokeMin: 5000, smokeSpan: 7000, sparkMin: 5500, sparkSpan: 8000, lampMin: 2200, lampSpan: 3400 },
-  high: { dust: 40, smokeMin: 3200, smokeSpan: 4500, sparkMin: 3500, sparkSpan: 5000, lampMin: 1400, lampSpan: 2200 },
+  /* Richer bar life — dust/ash/embers/rain/sparks; clipped to letterbox only */
+  low: { dust: 36, smokeMin: 7000, smokeSpan: 9000, sparkMin: 7000, sparkSpan: 10000, lampMin: 3200, lampSpan: 4500 },
+  medium: { dust: 64, smokeMin: 3800, smokeSpan: 5200, sparkMin: 4000, sparkSpan: 6000, lampMin: 1800, lampSpan: 2800 },
+  high: { dust: 96, smokeMin: 2400, smokeSpan: 3400, sparkMin: 2400, sparkSpan: 3800, lampMin: 1100, lampSpan: 1800 },
 };
 
 /**
@@ -78,6 +80,7 @@ export class AtmosphereVfx {
     if (this.cfg.flicker) this.scheduleLamp();
     if (this.cfg.smoke) this.scheduleSmoke();
     if (this.cfg.sparks) this.scheduleSparks();
+    this.scheduleJitter();
   }
 
   pulseSocial(kind: "follow" | "sub"): void {
@@ -158,26 +161,29 @@ export class AtmosphereVfx {
     const { topH, botH, w, h } = this.barBands();
     // Footer slightly more atmospheric (~60% bottom / 40% top)
     const band: "top" | "bot" = Math.random() < 0.4 ? "top" : "bot";
-    const ember = Math.random() < 0.22;
+    const rain = Math.random() < 0.28;
+    const ember = !rain && Math.random() < 0.28;
     let x: number;
     let y: number;
     if (band === "top") {
-      // Bias near lamp / center-right lights
-      x = Math.random() < 0.55 ? w * (0.5 + Math.random() * 0.2) : Math.random() * w;
+      x = Math.random() < 0.5 ? w * (0.45 + Math.random() * 0.25) : Math.random() * w;
       y = Math.random() * Math.max(6, topH - 2);
     } else {
-      x = Math.random() < 0.35 ? w * (0.02 + Math.random() * 0.18) : Math.random() * w;
+      x = Math.random() * w;
       y = h - Math.random() * Math.max(6, botH - 2);
     }
     return {
       x,
       y,
-      vx: (Math.random() - 0.5) * (ember ? 0.06 : 0.09),
-      vy: (Math.random() - 0.5) * (ember ? 0.03 : 0.035) - (ember ? 0.01 : 0),
-      r: ember ? 1 + Math.random() * 1.7 : 0.6 + Math.random() * 1.4,
-      a: ember ? 0.35 + Math.random() * 0.42 : 0.16 + Math.random() * 0.28,
+      vx: rain ? (Math.random() - 0.5) * 0.04 : (Math.random() - 0.5) * (ember ? 0.07 : 0.11),
+      vy: rain
+        ? 0.12 + Math.random() * 0.18
+        : (Math.random() - 0.5) * (ember ? 0.035 : 0.04) - (ember ? 0.015 : 0),
+      r: rain ? 0.4 + Math.random() * 0.5 : ember ? 1.1 + Math.random() * 1.9 : 0.7 + Math.random() * 1.6,
+      a: rain ? 0.12 + Math.random() * 0.18 : ember ? 0.4 + Math.random() * 0.45 : 0.18 + Math.random() * 0.32,
       life: randomLife ? Math.random() : 0,
       ember,
+      rain,
       band,
     };
   }
@@ -242,14 +248,49 @@ export class AtmosphereVfx {
       const inBot = p.y >= h - botH && p.y <= h;
       if (!inTop && !inBot) Object.assign(p, this.spawnDust(true));
       const fade = 0.55 + 0.45 * Math.sin(p.life * Math.PI * 2);
-      ctx.beginPath();
-      ctx.fillStyle = p.ember
-        ? `rgba(200,136,58,${p.a * fade})`
-        : `rgba(170,160,140,${p.a * fade * 0.75})`;
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
+      if (p.rain) {
+        const len = 6 + p.r * 8;
+        ctx.strokeStyle = `rgba(190,180,160,${p.a * fade})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x + p.vx * 40, p.y + len);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.fillStyle = p.ember
+          ? `rgba(200,136,58,${p.a * fade})`
+          : `rgba(170,160,140,${p.a * fade * 0.8})`;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
     ctx.restore();
+  }
+
+  private scheduleJitter(): void {
+    const delay = 4200 + Math.random() * 7000;
+    this.timers.push(
+      window.setTimeout(() => {
+        if (this.disposed || this.stage.dataset.atm !== "on") return;
+        this.triggerJitter();
+        this.scheduleJitter();
+      }, delay),
+    );
+  }
+
+  private triggerJitter(): void {
+    const bars = [...this.stage.querySelectorAll<HTMLElement>(".uw-bar")].filter(
+      (b) => b.dataset.hidden !== "true",
+    );
+    if (!bars.length) return;
+    const bar = bars[(Math.random() * bars.length) | 0];
+    bar.dataset.jitter = "1";
+    this.timers.push(
+      window.setTimeout(() => {
+        delete bar.dataset.jitter;
+      }, 140 + Math.random() * 180),
+    );
   }
 
   private scheduleLamp(): void {
@@ -354,6 +395,7 @@ export class AtmosphereVfx {
       delete b.dataset.smoke;
       delete b.dataset.sparks;
       delete b.dataset.flicker;
+      delete b.dataset.jitter;
     });
   }
 

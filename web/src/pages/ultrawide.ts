@@ -68,7 +68,6 @@ function applyUltrawide(settings: OverlaySettings): void {
   const bottom = qs<HTMLElement>("#uw-bottom");
   const topPlate = qs<HTMLElement>("#uw-top-text");
   const opSuffix = qs<HTMLElement>("#uw-operator-suffix");
-  const bottomStatus = qs<HTMLElement>("#uw-bottom-status");
 
   if (top) {
     top.style.height = `${barH}px`;
@@ -113,12 +112,6 @@ function applyUltrawide(settings: OverlaySettings): void {
       legacy.hidden = false;
       legacy.textContent = uw.topText || "ZONE OPS // TRANSMISSION";
     }
-  }
-
-  if (bottomStatus) {
-    const face = bottomStatus.querySelector<HTMLElement>(".uw-text-face");
-    if (face) face.textContent = uw.statusText || "ZONE THREAT // RAID READY";
-    else bottomStatus.textContent = uw.statusText || "ZONE THREAT // RAID READY";
   }
 
   const social = settings.social;
