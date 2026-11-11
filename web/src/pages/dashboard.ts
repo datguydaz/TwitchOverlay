@@ -111,6 +111,7 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("uwOperatorLine") as HTMLInputElement).value =
     s.ultrawide.operatorLine;
   (document.getElementById("uwTopText") as HTMLInputElement).value = s.ultrawide.topText;
+  (document.getElementById("uwBottomText") as HTMLInputElement).value = s.ultrawide.bottomText;
   (document.getElementById("uwStatusText") as HTMLInputElement).value = s.ultrawide.statusText;
 
   (document.getElementById("atmEnabled") as HTMLInputElement).checked = s.atmosphere.enabled;
@@ -251,6 +252,9 @@ function readForm(): OverlaySettings {
     (document.getElementById("uwOperatorLine") as HTMLInputElement).value.trim() ||
     "OPERATOR ONLINE";
   next.ultrawide.topText = (document.getElementById("uwTopText") as HTMLInputElement).value;
+  next.ultrawide.bottomText = (
+    document.getElementById("uwBottomText") as HTMLInputElement
+  ).value;
   next.ultrawide.statusText = (
     document.getElementById("uwStatusText") as HTMLInputElement
   ).value;

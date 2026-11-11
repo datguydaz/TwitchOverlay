@@ -1,6 +1,6 @@
 /**
  * Queued LATEST FOLLOW / LATEST SUB smoked-glass events.
- * Idle: backlight + occasional sweep. Event: indicator → sweep → clean reveal → ~2s settle.
+ * Sequence: indicator → sweep → clean name reveal → ~2s brighter settle.
  * No scramble/retype. Demo previews never overwrite stored names.
  */
 
@@ -21,7 +21,6 @@ export class SocialReadoutAnim {
   private osReduce =
     typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
   private timers: number[] = [];
-  private idleTimers: number[] = [];
 
   constructor(stage: HTMLElement, reducedMotion = false) {
     this.stage = stage;
@@ -31,8 +30,6 @@ export class SocialReadoutAnim {
 
   setReducedMotion(on: boolean): void {
     this.reduced = on || this.osReduce;
-    this.clearIdle();
-    if (!this.reduced) this.scheduleIdleSweeps();
   }
 
   /** Real stored-name change — queues event animation. */
@@ -60,14 +57,11 @@ export class SocialReadoutAnim {
     document.removeEventListener("visibilitychange", this.onVis);
     for (const t of this.timers) window.clearTimeout(t);
     this.timers = [];
-    this.clearIdle();
     this.queue = [];
   }
 
   private onVis = (): void => {
     if (document.hidden) return;
-    this.clearIdle();
-    if (!this.reduced) this.scheduleIdleSweeps();
   };
 
   private root(kind: SocialKind): HTMLElement | null {
@@ -80,38 +74,6 @@ export class SocialReadoutAnim {
     return this.stage.querySelector<HTMLElement>(
       kind === "follow" ? "#uw-follower-name" : "#uw-subscriber-name",
     );
-  }
-
-  private clearIdle(): void {
-    for (const t of this.idleTimers) window.clearTimeout(t);
-    this.idleTimers = [];
-  }
-
-  /** Occasional idle amber sweep without changing the name. */
-  private scheduleIdleSweeps(): void {
-    const arm = (kind: SocialKind, base: number, span: number) => {
-      const delay = base + Math.random() * span;
-      this.idleTimers.push(
-        window.setTimeout(() => {
-          if (this.reduced || document.hidden || this.busy) {
-            arm(kind, base, span);
-            return;
-          }
-          const el = this.root(kind);
-          if (el && !el.hidden && !el.dataset.socialFx) {
-            el.dataset.socialFx = "sweep";
-            this.idleTimers.push(
-              window.setTimeout(() => {
-                if (el.dataset.socialFx === "sweep") delete el.dataset.socialFx;
-              }, 420),
-            );
-          }
-          arm(kind, base, span);
-        }, delay),
-      );
-    };
-    arm("follow", 4500, 6500);
-    arm("sub", 5500, 7500);
   }
 
   private async kick(): Promise<void> {
@@ -167,7 +129,7 @@ export class SocialReadoutAnim {
         }, 780),
       );
 
-      // ~2s settle hold
+      // ~2.6s activation settle window (total event ~3.4s)
       this.timers.push(
         window.setTimeout(() => {
           delete el.dataset.socialFx;
@@ -175,7 +137,7 @@ export class SocialReadoutAnim {
             nameEl.textContent = job.restoreTo;
           }
           resolve();
-        }, 780 + 2000),
+        }, 780 + 2600),
       );
     });
   }

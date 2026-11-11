@@ -25,10 +25,10 @@ const INTENSITY: Record<
     lampSpan: number;
   }
 > = {
-  /* More visible bar life — still clipped; no strobe / no gameplay fog */
-  low: { dust: 14, smokeMin: 10000, smokeSpan: 12000, sparkMin: 10000, sparkSpan: 14000, lampMin: 4000, lampSpan: 5500 },
-  medium: { dust: 24, smokeMin: 6000, smokeSpan: 8000, sparkMin: 6500, sparkSpan: 9000, lampMin: 2500, lampSpan: 3800 },
-  high: { dust: 34, smokeMin: 4000, smokeSpan: 5500, sparkMin: 4000, sparkSpan: 6000, lampMin: 1600, lampSpan: 2600 },
+  /* Amped but clipped to bars — dust/ash/embers/sparks/lamp; no gameplay fog */
+  low: { dust: 16, smokeMin: 9000, smokeSpan: 11000, sparkMin: 9000, sparkSpan: 12000, lampMin: 3500, lampSpan: 5000 },
+  medium: { dust: 28, smokeMin: 5000, smokeSpan: 7000, sparkMin: 5500, sparkSpan: 8000, lampMin: 2200, lampSpan: 3400 },
+  high: { dust: 40, smokeMin: 3200, smokeSpan: 4500, sparkMin: 3500, sparkSpan: 5000, lampMin: 1400, lampSpan: 2200 },
 };
 
 /**
@@ -158,7 +158,7 @@ export class AtmosphereVfx {
     const { topH, botH, w, h } = this.barBands();
     // Footer slightly more atmospheric (~60% bottom / 40% top)
     const band: "top" | "bot" = Math.random() < 0.4 ? "top" : "bot";
-    const ember = Math.random() < 0.2;
+    const ember = Math.random() < 0.22;
     let x: number;
     let y: number;
     if (band === "top") {
@@ -174,8 +174,8 @@ export class AtmosphereVfx {
       y,
       vx: (Math.random() - 0.5) * (ember ? 0.06 : 0.09),
       vy: (Math.random() - 0.5) * (ember ? 0.03 : 0.035) - (ember ? 0.01 : 0),
-      r: ember ? 0.9 + Math.random() * 1.6 : 0.55 + Math.random() * 1.35,
-      a: ember ? 0.32 + Math.random() * 0.4 : 0.14 + Math.random() * 0.26,
+      r: ember ? 1 + Math.random() * 1.7 : 0.6 + Math.random() * 1.4,
+      a: ember ? 0.35 + Math.random() * 0.42 : 0.16 + Math.random() * 0.28,
       life: randomLife ? Math.random() : 0,
       ember,
       band,
