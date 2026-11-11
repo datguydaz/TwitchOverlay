@@ -182,7 +182,7 @@
   grid-template-columns: minmax(320px, 1.1fr) minmax(480px, 1.2fr) minmax(320px, 1.1fr);
   align-items: center;
   gap: clamp(16px, 1.4vw, 36px);
-  padding: 0 clamp(18px, 1.6vw, 40px);
+  padding: 0 clamp(8px, 0.8vw, 20px);
   min-height: 0;
   z-index: 3;
   order: 1;
@@ -361,8 +361,8 @@
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-  min-height: calc(var(--uw-bar-h) * 0.52);
-  padding: 26px 28px 26px 52px;
+  min-height: calc(var(--uw-bar-h) * 0.62);
+  padding: 30px 28px 30px 52px;
   overflow: hidden;
   background: rgba(6, 6, 5, 0.78);
   border: 1px solid rgba(55, 50, 42, 0.8);
@@ -370,7 +370,7 @@
 }
 
 .uw-side-right .uw-glass-well {
-  padding: 26px 52px 26px 28px;
+  padding: 30px 52px 30px 28px;
   justify-content: flex-end;
 }
 
