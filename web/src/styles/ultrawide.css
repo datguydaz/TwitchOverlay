@@ -710,10 +710,10 @@
   border: none;
   box-shadow: none;
 }
-/* ~25% shorter from the center-facing side; outer edges stay flush via side justify */
+/* Trim from center-facing side to red mark (~66% of side slot); outer edges stay flush */
 .uw-wall-header .uw-readout {
-  width: 75%;
-  max-width: 75%;
+  width: 66%;
+  max-width: 66%;
 }
 
 .uw-glass-label {
