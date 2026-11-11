@@ -8,10 +8,10 @@ type Dust = {
   r: number;
   a: number;
   life: number;
-  /** Rare amber ember vs ash/dust */
+  /** Amber ember vs ash/dust — rain removed entirely */
   ember: boolean;
-  /** Thin rain streak in bar band */
-  rain: boolean;
+  /** Hot spark pop along the footer ember rail */
+  hot: boolean;
   band: "top" | "bot";
 };
 
@@ -27,10 +27,10 @@ const INTENSITY: Record<
     lampSpan: number;
   }
 > = {
-  /* Richer bar life — dust/ash/embers/rain/sparks; clipped to letterbox only */
-  low: { dust: 36, smokeMin: 7000, smokeSpan: 9000, sparkMin: 7000, sparkSpan: 10000, lampMin: 3200, lampSpan: 4500 },
-  medium: { dust: 64, smokeMin: 3800, smokeSpan: 5200, sparkMin: 4000, sparkSpan: 6000, lampMin: 1800, lampSpan: 2800 },
-  high: { dust: 96, smokeMin: 2400, smokeSpan: 3400, sparkMin: 2400, sparkSpan: 3800, lampMin: 1100, lampSpan: 1800 },
+  /* Richer bar life — dust/ash/embers/sparks (no rain); clipped to letterbox only */
+  low: { dust: 40, smokeMin: 7000, smokeSpan: 9000, sparkMin: 7000, sparkSpan: 10000, lampMin: 3200, lampSpan: 4500 },
+  medium: { dust: 72, smokeMin: 3800, smokeSpan: 5200, sparkMin: 4000, sparkSpan: 6000, lampMin: 1800, lampSpan: 2800 },
+  high: { dust: 108, smokeMin: 2400, smokeSpan: 3400, sparkMin: 2400, sparkSpan: 3800, lampMin: 1100, lampSpan: 1800 },
 };
 
 /**
@@ -161,10 +161,10 @@ export class AtmosphereVfx {
 
   private spawnDust(randomLife = false): Dust {
     const { topH, botH, w, h } = this.barBands();
-    // Footer still carries more life; top gets ember beat (no rain — keeps stripe fix)
-    const band: "top" | "bot" = Math.random() < 0.42 ? "top" : "bot";
-    const rain = band === "bot" && Math.random() < 0.12;
-    const ember = !rain && (band === "bot" ? Math.random() < 0.42 : Math.random() < 0.38);
+    // Prefer footer ember-rail life; top keeps side-corridor beat (no rain anywhere)
+    const band: "top" | "bot" = Math.random() < 0.34 ? "top" : "bot";
+    const hot = band === "bot" && Math.random() < 0.14;
+    const ember = hot || (band === "bot" ? Math.random() < 0.62 : Math.random() < 0.38);
     let x: number;
     let y: number;
     if (band === "top") {
@@ -176,21 +176,26 @@ export class AtmosphereVfx {
       y = Math.random() * Math.max(6, topH - 2);
     } else {
       x = Math.random() * w;
-      y = h - Math.random() * Math.max(6, botH - 2);
+      // Cluster near the amber rail (top seam of footer)
+      const railBias = hot || Math.random() < 0.7;
+      y = railBias
+        ? h - botH + 2 + Math.random() * Math.max(4, botH * 0.28)
+        : h - Math.random() * Math.max(6, botH - 2);
     }
     return {
       x,
       y,
-      // Strong diagonal wind so drops read as weather, not vertical hairlines
-      vx: rain ? -0.1 - Math.random() * 0.08 : (Math.random() - 0.5) * (ember ? 0.08 : 0.11),
-      vy: rain
-        ? 0.1 + Math.random() * 0.12
-        : (Math.random() - 0.5) * (ember ? 0.04 : 0.045) - (ember ? 0.02 : 0),
-      r: rain ? 2.2 + Math.random() * 2.4 : ember ? 1.2 + Math.random() * 2.1 : 0.7 + Math.random() * 1.6,
-      a: rain ? 0.38 + Math.random() * 0.35 : ember ? 0.42 + Math.random() * 0.48 : 0.18 + Math.random() * 0.32,
+      vx: hot
+        ? (Math.random() - 0.5) * 0.18
+        : (Math.random() - 0.5) * (ember ? 0.07 : 0.1),
+      vy: hot
+        ? -0.04 - Math.random() * 0.06
+        : (Math.random() - 0.5) * (ember ? 0.035 : 0.04) - (ember ? 0.018 : 0),
+      r: hot ? 1.6 + Math.random() * 2.2 : ember ? 1.15 + Math.random() * 2.0 : 0.65 + Math.random() * 1.4,
+      a: hot ? 0.7 + Math.random() * 0.3 : ember ? 0.45 + Math.random() * 0.45 : 0.16 + Math.random() * 0.28,
       life: randomLife ? Math.random() : 0,
       ember,
-      rain,
+      hot,
       band,
     };
   }
@@ -255,22 +260,18 @@ export class AtmosphereVfx {
       const inBot = p.y >= h - botH && p.y <= h;
       if (!inTop && !inBot) Object.assign(p, this.spawnDust(true));
       const fade = 0.55 + 0.45 * Math.sin(p.life * Math.PI * 2);
-      if (p.rain) {
-        // Fat short diagonals (~35°) — sparse weather drops, never vertical stripe fields
-        const len = 22 + p.r * 8;
-        const dx = -len * 0.7;
-        const dy = len * 0.75;
-        ctx.strokeStyle = `rgba(220,205,175,${Math.min(0.85, p.a * fade)})`;
-        ctx.lineWidth = 2.4 + p.r * 0.45;
-        ctx.lineCap = "round";
+      if (p.hot) {
+        // Occasional hot pop along the ember rail
+        const a = Math.min(1, p.a * fade * 1.15);
         ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x + dx, p.y + dy);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(235,215,175,${p.a * fade * 0.7})`;
-        ctx.arc(p.x + dx * 0.2, p.y + dy * 0.2, 1.6, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,200,110,${a})`;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255,230,160,${a * 0.45})`;
+        ctx.arc(p.x, p.y, p.r * 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        if (p.life > 0.55) Object.assign(p, this.spawnDust(true));
       } else {
         ctx.beginPath();
         ctx.fillStyle = p.ember
@@ -419,9 +420,18 @@ export class AtmosphereVfx {
     const bottom = this.stage.querySelector<HTMLElement>("#uw-bottom");
     if (!bottom || bottom.dataset.hidden === "true") return;
     bottom.dataset.footerPulse = "1";
-    // Often couple with a left-side spark pop near vent
-    if (Math.random() < 0.55) {
-      bottom.dataset.sparks = "l";
+    // Soft scan stutter + rail hot pop along the ember line
+    bottom.dataset.scanStutter = "1";
+    if (Math.random() < 0.7) {
+      bottom.dataset.railPop = String(1 + ((Math.random() * 5) | 0));
+      this.timers.push(
+        window.setTimeout(() => {
+          delete bottom.dataset.railPop;
+        }, 320),
+      );
+    }
+    if (Math.random() < 0.5) {
+      bottom.dataset.sparks = Math.random() < 0.55 ? "l" : "r";
       this.timers.push(
         window.setTimeout(() => {
           delete bottom.dataset.sparks;
@@ -431,6 +441,7 @@ export class AtmosphereVfx {
     this.timers.push(
       window.setTimeout(() => {
         delete bottom.dataset.footerPulse;
+        delete bottom.dataset.scanStutter;
       }, 420 + Math.random() * 280),
     );
   }
@@ -475,6 +486,8 @@ export class AtmosphereVfx {
       delete b.dataset.jitter;
       delete b.dataset.footerPulse;
       delete b.dataset.headerPulse;
+      delete b.dataset.scanStutter;
+      delete b.dataset.railPop;
     });
   }
 

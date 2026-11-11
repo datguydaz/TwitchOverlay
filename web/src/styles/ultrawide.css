@@ -125,7 +125,7 @@
   animation: uw-footer-smoke 8.5s ease-in-out 3.5s infinite;
 }
 
-/* CSS stripe-rain removed — rain is sparse canvas diagonals only (no moiré bands) */
+/* Rain removed entirely — atmosphere is dust/embers/sparks only */
 
 .uw-bar[data-jitter="1"] {
   animation: uw-bar-jitter 160ms steps(2, end) 1;
@@ -260,7 +260,7 @@
   animation: uw-header-smoke 8.6s ease-in-out 2s infinite;
 }
 
-/* —— Bottom bar cinematic: amber ember rail (no status wording) —— */
+/* —— Bottom bar cinematic: denser ember rail + L→R ticker (no rain / no status text) —— */
 .uw-footer-rail {
   position: absolute;
   left: 0;
@@ -276,49 +276,105 @@
   left: 0;
   right: 0;
   top: 0;
-  height: 5px;
+  height: 6px;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(200, 136, 58, 0.22) 12%,
-    rgba(200, 136, 58, 0.7) 50%,
-    rgba(200, 136, 58, 0.25) 84%,
+    rgba(200, 136, 58, 0.28) 8%,
+    rgba(220, 150, 70, 0.82) 42%,
+    rgba(200, 136, 58, 0.78) 58%,
+    rgba(200, 136, 58, 0.28) 90%,
     transparent 100%
   );
   box-shadow:
-    0 0 22px rgba(200, 136, 58, 0.45),
-    0 8px 36px rgba(200, 136, 58, 0.18);
-  opacity: 0.72;
+    0 0 26px rgba(200, 136, 58, 0.55),
+    0 10px 40px rgba(200, 136, 58, 0.22),
+    0 2px 12px rgba(255, 200, 120, 0.18);
+  opacity: 0.82;
 }
 #uw-stage[data-atm="on"] .uw-footer-rail-glow {
-  animation: uw-footer-rail-pulse 4.8s ease-in-out infinite;
+  animation: uw-footer-rail-pulse 4.2s ease-in-out infinite;
 }
+
+/* Continuous faint L→R amber scan ticker along the rail band */
+.uw-footer-ticker {
+  position: absolute;
+  left: -18%;
+  top: 0;
+  width: 22%;
+  height: 18px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 210, 140, 0.0) 20%,
+    rgba(232, 190, 110, 0.14) 50%,
+    rgba(255, 210, 140, 0.0) 80%,
+    transparent 100%
+  );
+  opacity: 0;
+  mix-blend-mode: screen;
+  filter: blur(0.4px);
+}
+#uw-stage[data-atm="on"] .uw-footer-ticker {
+  animation: uw-footer-ticker 7.5s linear infinite;
+}
+
 .uw-footer-scan {
   position: absolute;
   left: -20%;
   top: 0;
-  width: 28%;
+  width: 26%;
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(232, 210, 160, 0.07),
+    rgba(232, 210, 160, 0.06),
     transparent
   );
   opacity: 0;
   mix-blend-mode: screen;
 }
 #uw-stage[data-atm="on"] .uw-footer-scan {
-  animation: uw-footer-scan 11s ease-in-out infinite;
+  animation: uw-footer-scan 13s ease-in-out infinite;
 }
 .uw-bar-bottom[data-footer-pulse="1"] .uw-footer-rail-glow {
   opacity: 1;
-  filter: brightness(1.35);
+  filter: brightness(1.4);
   transition: opacity 80ms linear;
+}
+.uw-bar-bottom[data-scan-stutter="1"] .uw-footer-ticker {
+  animation: uw-footer-ticker-stutter 480ms steps(3, end) 1;
+  opacity: 0.75;
 }
 .uw-bar-bottom[data-footer-pulse="1"] .uw-footer-scan {
   animation: uw-footer-scan-hit 420ms ease-out 1;
-  opacity: 0.85;
+  opacity: 0.8;
+}
+
+/* Hot pops along the ember rail line */
+.uw-footer-rail-pop {
+  position: absolute;
+  top: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 230, 160, 1), rgba(255, 160, 60, 0.35) 50%, transparent 72%);
+  box-shadow: 0 0 14px rgba(255, 190, 90, 0.85);
+  opacity: 0;
+  transform: translateY(-1px) scale(0.4);
+  pointer-events: none;
+}
+.uw-footer-rail-pop.p1 { left: 12%; }
+.uw-footer-rail-pop.p2 { left: 28%; }
+.uw-footer-rail-pop.p3 { left: 48%; }
+.uw-footer-rail-pop.p4 { left: 68%; }
+.uw-footer-rail-pop.p5 { left: 86%; }
+.uw-bar-bottom[data-rail-pop="1"] .uw-footer-rail-pop.p1,
+.uw-bar-bottom[data-rail-pop="2"] .uw-footer-rail-pop.p2,
+.uw-bar-bottom[data-rail-pop="3"] .uw-footer-rail-pop.p3,
+.uw-bar-bottom[data-rail-pop="4"] .uw-footer-rail-pop.p4,
+.uw-bar-bottom[data-rail-pop="5"] .uw-footer-rail-pop.p5 {
+  animation: uw-footer-rail-hot-pop 320ms ease-out 1;
 }
 
 .uw-footer-ember {
@@ -332,26 +388,30 @@
   pointer-events: none;
   z-index: 3;
 }
-.uw-footer-ember.e1 {
-  left: 22%;
-  bottom: 28%;
-}
-.uw-footer-ember.e2 {
-  left: 58%;
-  bottom: 42%;
-}
-.uw-footer-ember.e3 {
-  left: 78%;
-  bottom: 22%;
-}
+/* Dense drift along / just under the rail */
+.uw-footer-ember.e1 { left: 10%; top: 10%; }
+.uw-footer-ember.e2 { left: 24%; top: 18%; }
+.uw-footer-ember.e3 { left: 40%; top: 8%; }
+.uw-footer-ember.e4 { left: 56%; top: 16%; }
+.uw-footer-ember.e5 { left: 72%; top: 10%; }
+.uw-footer-ember.e6 { left: 88%; top: 20%; }
 #uw-stage[data-atm="on"] .uw-footer-ember.e1 {
-  animation: uw-footer-ember-drift 9s ease-in-out infinite;
+  animation: uw-footer-ember-drift 7.5s ease-in-out infinite;
 }
 #uw-stage[data-atm="on"] .uw-footer-ember.e2 {
-  animation: uw-footer-ember-drift 11s ease-in-out 2.2s infinite;
+  animation: uw-footer-ember-drift 9s ease-in-out 1.1s infinite;
 }
 #uw-stage[data-atm="on"] .uw-footer-ember.e3 {
-  animation: uw-footer-ember-drift 8s ease-in-out 4s infinite;
+  animation: uw-footer-ember-drift 8s ease-in-out 2.4s infinite;
+}
+#uw-stage[data-atm="on"] .uw-footer-ember.e4 {
+  animation: uw-footer-ember-drift 10s ease-in-out 3.6s infinite;
+}
+#uw-stage[data-atm="on"] .uw-footer-ember.e5 {
+  animation: uw-footer-ember-drift 8.5s ease-in-out 4.8s infinite;
+}
+#uw-stage[data-atm="on"] .uw-footer-ember.e6 {
+  animation: uw-footer-ember-drift 11s ease-in-out 0.6s infinite;
 }
 
 /* Sparse soft hairline scratches — no hard geometric debris */
@@ -1484,30 +1544,65 @@
 @keyframes uw-footer-rail-pulse {
   0%,
   100% {
-    opacity: 0.4;
-    filter: brightness(0.95);
+    opacity: 0.55;
+    filter: brightness(0.98);
   }
   50% {
-    opacity: 0.78;
-    filter: brightness(1.12);
+    opacity: 0.92;
+    filter: brightness(1.18);
+  }
+}
+@keyframes uw-footer-ticker {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+  4% {
+    opacity: 0.55;
+  }
+  88% {
+    opacity: 0.35;
+    transform: translate3d(520%, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(560%, 0, 0);
+  }
+}
+@keyframes uw-footer-ticker-stutter {
+  0% {
+    opacity: 0.2;
+    transform: translate3d(30%, 0, 0);
+  }
+  30% {
+    opacity: 0.85;
+    transform: translate3d(38%, 0.5px, 0);
+  }
+  55% {
+    opacity: 0.45;
+    transform: translate3d(52%, -0.5px, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(95%, 0, 0);
   }
 }
 @keyframes uw-footer-scan {
   0%,
-  70%,
+  72%,
   100% {
     opacity: 0;
     transform: translate3d(0, 0, 0);
   }
-  72% {
-    opacity: 0.55;
-    transform: translate3d(10%, 0, 0);
+  74% {
+    opacity: 0.4;
+    transform: translate3d(8%, 0, 0);
   }
-  78% {
-    opacity: 0.25;
-    transform: translate3d(120%, 0, 0);
+  82% {
+    opacity: 0.18;
+    transform: translate3d(130%, 0, 0);
   }
-  80% {
+  84% {
     opacity: 0;
     transform: translate3d(160%, 0, 0);
   }
@@ -1518,7 +1613,7 @@
     transform: translate3d(-10%, 0, 0);
   }
   35% {
-    opacity: 0.9;
+    opacity: 0.85;
     transform: translate3d(40%, 0, 0);
   }
   100% {
@@ -1526,21 +1621,35 @@
     transform: translate3d(160%, 0, 0);
   }
 }
-@keyframes uw-footer-ember-drift {
+@keyframes uw-footer-rail-hot-pop {
   0% {
     opacity: 0;
-    transform: translate3d(0, 8px, 0) scale(0.6);
+    transform: translateY(-1px) scale(0.35);
   }
-  15% {
-    opacity: 0.85;
-  }
-  55% {
-    opacity: 0.55;
-    transform: translate3d(28px, -18px, 0) scale(1);
+  35% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.25);
   }
   100% {
     opacity: 0;
-    transform: translate3d(50px, -36px, 0) scale(0.4);
+    transform: translateY(-8px) scale(0.5);
+  }
+}
+@keyframes uw-footer-ember-drift {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0) scale(0.55);
+  }
+  12% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.6;
+    transform: translate3d(32px, -10px, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(58px, -22px, 0) scale(0.4);
   }
 }
 @keyframes uw-bar-jitter {
@@ -1575,8 +1684,10 @@
   .uw-header-ember,
   .uw-header-drift,
   .uw-footer-rail-glow,
+  .uw-footer-ticker,
   .uw-footer-scan,
   .uw-footer-ember,
+  .uw-footer-rail-pop,
   [data-text-fx] .uw-text-face,
   [data-text-fx] .uw-text-glow,
   [data-text-fx] .uw-plate-lit,
@@ -1589,7 +1700,8 @@
   }
   .uw-name-crt,
   .uw-header-scan,
-  .uw-footer-scan {
+  .uw-footer-scan,
+  .uw-footer-ticker {
     opacity: 0 !important;
   }
   .uw-atm-dust-shared {
