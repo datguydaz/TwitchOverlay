@@ -364,10 +364,10 @@ body.scene-opaque {
 }
 
 /* Avatar — large CSS pixel base so OBS Browser Source scale stays crisp.
-   Height matches SVG viewBox (1080) with top pad so helm isn't cropped. */
+   Height matches SVG viewBox (1120) with top pad so helm isn't cropped. */
 .avatar-root {
   width: 1200px;
-  height: 1080px;
+  height: 1120px;
   position: relative;
   overflow: visible;
 }

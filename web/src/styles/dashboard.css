@@ -154,7 +154,7 @@
   margin-top: 12px;
   width: 380px;
   max-width: 100%;
-  height: calc(380px * 1080 / 1200);
+  height: calc(380px * 1120 / 1200);
   overflow: hidden;
   background: rgba(0, 0, 0, 0.25);
   border: 1px dashed var(--olive-dim);
