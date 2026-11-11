@@ -166,15 +166,26 @@ export const scavengerSvg = `
         <rect x="158" y="150" width="13" height="8" rx="1.6" fill="#0e1014" stroke="#3a3e46" stroke-width="0.7"/>
         <rect x="229" y="150" width="13" height="8" rx="1.6" fill="#0e1014" stroke="#3a3e46" stroke-width="0.7"/>
       </g>
-      <g id="vest-wear" fill="none" stroke-linecap="round">
+      <g id="vest-wear" fill="none" stroke-linecap="round" pointer-events="none">
         <path d="M146 158 L160 164" stroke="#a8a488" stroke-width="0.5" opacity="0.35"/>
         <path d="M240 160 L254 166" stroke="#b0ac90" stroke-width="0.45" opacity="0.3"/>
         <path d="M144 196 Q152 204 148 216" stroke="#4a4836" stroke-width="0.6" opacity="0.35"/>
         <path d="M256 196 Q248 204 252 216" stroke="#5a5844" stroke-width="0.55" opacity="0.32"/>
-        <!-- light abrasion / dirt (asymmetrical) -->
         <path d="M152 178 Q158 182 154 188" stroke="#5a5844" stroke-width="1.1" opacity="0.28"/>
         <path d="M248 184 Q254 190 250 196" stroke="#4a4836" stroke-width="0.9" opacity="0.22"/>
         <circle cx="160" cy="210" r="2.2" fill="#3a3828" opacity="0.2"/>
+        <!-- restrained fabric dirt / edge scuffs (surface only) -->
+        <path d="M150 170 Q154 176 152 182" stroke="#2a2818" stroke-width="1.4" opacity="0.18"/>
+        <path d="M248 172 Q252 178 250 186" stroke="#1a1810" stroke-width="1.2" opacity="0.16"/>
+        <path d="M168 148 L174 152" stroke="#c8c4a8" stroke-width="0.4" opacity="0.28"/>
+        <path d="M230 150 L236 154" stroke="#b8b498" stroke-width="0.35" opacity="0.24"/>
+        <path d="M158 200 L166 206" stroke="#0a0c08" stroke-width="0.55" opacity="0.22"/>
+        <path d="M234 204 L242 210" stroke="#121410" stroke-width="0.5" opacity="0.2"/>
+        <circle cx="242" cy="198" r="2.8" fill="#2a281c" opacity="0.16"/>
+        <circle cx="170" cy="214" r="1.8" fill="#1a1810" opacity="0.14"/>
+        <!-- sparse dried blood fleck near left strap (not gore) -->
+        <path d="M156 154 Q158 158 157 162" stroke="#3a1212" stroke-width="0.9" opacity="0.28"/>
+        <circle cx="155" cy="160" r="0.65" fill="#2e1010" opacity="0.32"/>
       </g>
       <!-- Fabric chest patch — readable at overlay size, clear of pouches -->
       <g id="chest-killa">
@@ -298,6 +309,10 @@ export const scavengerSvg = `
             <path d="M196 100 L200 104 L197 106 Z"/>
             <path d="M184 128 L188 132 L182 133 Z"/>
             <path d="M214 142 L218 146 L212 147 Z"/>
+            <!-- extra stripe wear — keep stripes readable, clear of slit -->
+            <path d="M198 118 L201 121 L199 122 Z" opacity="0.7"/>
+            <path d="M186 146 L189 149 L185 150 Z" opacity="0.55"/>
+            <path d="M212 112 L216 115 L213 116 Z" opacity="0.6"/>
           </g>
         </g>
         <!-- Narrow dark slit only — no cartoon eyes/mouth/nose -->
@@ -313,9 +328,18 @@ export const scavengerSvg = `
           <rect x="196" y="133" width="1.6" height="4.5" rx="0.2"/>
           <rect x="202" y="133" width="1.3" height="3.2" rx="0.2"/>
         </g>
-        <g id="helm-wear" fill="none" stroke-linecap="round">
+        <g id="helm-wear" fill="none" stroke-linecap="round" pointer-events="none">
           <path d="M178 104 L186 112" stroke="#7a7c7e" stroke-width="0.28" opacity="0.22"/>
           <path d="M216 106 Q224 112 228 110" stroke="#5a5c5e" stroke-width="0.28" opacity="0.2"/>
+          <!-- surface scratches / scuffs — clear of eye slit -->
+          <path d="M172 100 L180 106" stroke="#8a8c8e" stroke-width="0.32" opacity="0.28"/>
+          <path d="M174 148 L182 154" stroke="#6a6c6e" stroke-width="0.3" opacity="0.24"/>
+          <path d="M220 102 L228 108" stroke="#7a7c7e" stroke-width="0.28" opacity="0.26"/>
+          <path d="M218 150 L226 156" stroke="#5a5c5e" stroke-width="0.26" opacity="0.22"/>
+          <path d="M188 94 Q192 98 190 102" stroke="#9a9c9e" stroke-width="0.25" opacity="0.2"/>
+          <path d="M210 96 L218 100" stroke="#6a6c70" stroke-width="0.22" opacity="0.18"/>
+          <path d="M170 118 L176 122" stroke="#4a4c4e" stroke-width="0.35" opacity="0.3"/>
+          <path d="M226 120 L232 124" stroke="#3a3c3e" stroke-width="0.32" opacity="0.26"/>
         </g>
         <!-- Restrained asymmetrical battle damage — does NOT alter silhouette or cover stripes/slit -->
         <g id="helm-battle" pointer-events="none">
@@ -323,12 +347,18 @@ export const scavengerSvg = `
           <ellipse cx="228" cy="90" rx="5" ry="3.6" fill="#050607" opacity="0.55"/>
           <ellipse cx="227.2" cy="89.2" rx="2.6" ry="1.8" fill="#3a3c40" opacity="0.4"/>
           <path d="M223 88 Q228 86 232 90" fill="none" stroke="#6a6c70" stroke-width="0.35" opacity="0.35"/>
-          <!-- dried blood smear + flecks on left faceplate edge -->
+          <!-- second subtle impact nick lower-right cheek (not on slit) -->
+          <ellipse cx="234" cy="148" rx="2.4" ry="1.6" fill="#050607" opacity="0.4"/>
+          <path d="M232 146 L236 150" fill="none" stroke="#5a5c60" stroke-width="0.3" opacity="0.35"/>
+          <!-- dried blood smear + flecks on left faceplate / cheek edge -->
           <path d="M164 138 C168 146 170 156 166 162 C162 156 160 146 164 138 Z" fill="#4a1a1a" opacity="0.48"/>
           <path d="M166 144 C169 150 170 156 168 160" fill="none" stroke="#3a1212" stroke-width="1.1" opacity="0.4"/>
           <circle cx="162" cy="150" r="1.05" fill="#3a1212" opacity="0.45"/>
           <circle cx="170" cy="158" r="0.7" fill="#2e1010" opacity="0.4"/>
           <circle cx="165" cy="164" r="0.55" fill="#3a1212" opacity="0.35"/>
+          <!-- tiny dried flecks near left visor edge (not covering slit) -->
+          <circle cx="168" cy="122" r="0.55" fill="#3a1212" opacity="0.38"/>
+          <circle cx="166" cy="136" r="0.4" fill="#2e1010" opacity="0.32"/>
         </g>
         <!-- anim hook kept; no visible mouth -->
         <g id="mouth-vent" opacity="0" aria-hidden="true"></g>
@@ -538,10 +568,17 @@ export const scavengerSvg = `
                 <path d="M102 252 Q108 256 114 254" stroke="#000" stroke-width="0.85" opacity="0.38"/>
                 <path d="M108 258 Q114 262 118 260" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
               </g>
-              <g id="sleeve-wear-left" fill="none" stroke-linecap="round">
+              <g id="sleeve-wear-left" fill="none" stroke-linecap="round" pointer-events="none">
                 <path d="M116 232 L108 238" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
                 <path d="M110 246 L104 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
                 <path d="M106 248 Q110 252 108 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
+                <!-- fabric scuffs along sleeve (stripes stay readable) -->
+                <path d="M120 228 L112 234" stroke="#3a3c40" stroke-width="0.45" opacity="0.3"/>
+                <path d="M112 242 L106 248" stroke="#1a1c20" stroke-width="0.55" opacity="0.28"/>
+                <path d="M108 258 L114 262" stroke="#4a4c50" stroke-width="0.4" opacity="0.22"/>
+                <!-- stripe chips (dark nicks on cream stripes) -->
+                <path d="M116 240 L118 242 L116 243 Z" fill="#0e0e0e" stroke="none" opacity="0.45"/>
+                <path d="M112 254 L114 256 L111 257 Z" fill="#0e0e0e" stroke="none" opacity="0.4"/>
               </g>
               <ellipse cx="118" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
               <ellipse cx="118" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
@@ -577,10 +614,15 @@ export const scavengerSvg = `
                 <path d="M294 252 Q300 256 306 254" stroke="#000" stroke-width="0.85" opacity="0.38"/>
                 <path d="M300 258 Q306 262 310 260" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
               </g>
-              <g id="sleeve-wear-right" fill="none" stroke-linecap="round">
+              <g id="sleeve-wear-right" fill="none" stroke-linecap="round" pointer-events="none">
                 <path d="M282 232 L290 238" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
                 <path d="M294 246 L300 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
                 <path d="M298 248 Q302 252 300 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
+                <path d="M280 228 L288 234" stroke="#3a3c40" stroke-width="0.45" opacity="0.28"/>
+                <path d="M292 242 L298 248" stroke="#1a1c20" stroke-width="0.55" opacity="0.26"/>
+                <path d="M300 258 L306 262" stroke="#4a4c50" stroke-width="0.4" opacity="0.2"/>
+                <path d="M290 240 L292 242 L290 243 Z" fill="#0e0e0e" stroke="none" opacity="0.42"/>
+                <path d="M300 254 L302 256 L299 257 Z" fill="#0e0e0e" stroke="none" opacity="0.38"/>
               </g>
               <ellipse cx="314" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
               <ellipse cx="314" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
