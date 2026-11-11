@@ -124,7 +124,11 @@ function applyUltrawide(settings: OverlaySettings): void {
   }
 
   setFace(bottomText, uw.bottomText || "HOLD THE LINE");
-  setFace(bottomStatus, uw.statusText || "ZONE THREAT // RAID READY");
+  if (bottomStatus) {
+    const face = bottomStatus.querySelector<HTMLElement>(".uw-text-face");
+    if (face) face.textContent = uw.statusText || "ZONE THREAT // RAID READY";
+    else bottomStatus.textContent = uw.statusText || "ZONE THREAT // RAID READY";
+  }
 
   const social = settings.social;
   const follower = qs<HTMLElement>("#uw-follower");

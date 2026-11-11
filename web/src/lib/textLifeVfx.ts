@@ -7,9 +7,10 @@ const INTENSITY: Record<
   AtmosphereIntensity,
   { dipMin: number; dipSpan: number; sweepMin: number; sweepSpan: number; opMin: number; opSpan: number; holdMin: number; holdSpan: number }
 > = {
-  low: { dipMin: 7000, dipSpan: 10000, sweepMin: 12000, sweepSpan: 14000, opMin: 2200, opSpan: 3200, holdMin: 9000, holdSpan: 12000 },
-  medium: { dipMin: 4500, dipSpan: 7000, sweepMin: 9000, sweepSpan: 11000, opMin: 1400, opSpan: 2400, holdMin: 6000, holdSpan: 9000 },
-  high: { dipMin: 2800, dipSpan: 4500, sweepMin: 5500, sweepSpan: 8000, opMin: 900, opSpan: 1600, holdMin: 4000, holdSpan: 6500 },
+  /* Noticeable within ~10s at medium — staggered, no strobe */
+  low: { dipMin: 4500, dipSpan: 5000, sweepMin: 5000, sweepSpan: 6000, opMin: 1800, opSpan: 2400, holdMin: 5500, holdSpan: 5000 },
+  medium: { dipMin: 2800, dipSpan: 3200, sweepMin: 3200, sweepSpan: 3800, opMin: 1100, opSpan: 1600, holdMin: 3800, holdSpan: 3500 },
+  high: { dipMin: 1800, dipSpan: 2200, sweepMin: 2200, sweepSpan: 2800, opMin: 700, opSpan: 1100, holdMin: 2600, holdSpan: 2400 },
 };
 
 const SIGN: Target[] = ["id", "op", "hold", "status"];
@@ -138,11 +139,11 @@ export class TextLifeVfx {
   }
 
   private scheduleGhost(): void {
-    const delay = 14000 + Math.random() * 18000;
+    const delay = 3500 + Math.random() * 4500;
     this.timers.push(
       window.setTimeout(() => {
         if (this.disposed || this.stage.dataset.textFx !== "on") return;
-        this.pulse("status", "ghost", 700);
+        this.pulse("status", "ghost", 900);
         this.scheduleGhost();
       }, delay),
     );

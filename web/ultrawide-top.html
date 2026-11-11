@@ -6,7 +6,7 @@
     <title>Ultrawide Top Bar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/fonts.css" />
     <link rel="stylesheet" href="/src/styles/zone.css" />
     <link rel="stylesheet" href="/src/styles/ultrawide.css" />
@@ -14,19 +14,17 @@
   <body class="uw-bar-only" data-uw-mode="top">
     <div id="uw-stage" data-atm="on" data-vfx="on" data-text-fx="on">
       <div class="uw-bar uw-bar-top" id="uw-top" data-edge="top">
-        <div class="uw-wall-wear" aria-hidden="true">
-          <i class="uw-wear-patch flake-a"></i>
-          <i class="uw-wear-patch flake-b"></i>
-          <i class="uw-wear-patch corr-a"></i>
-          <i class="uw-wear-patch streak-a"></i>
-          <i class="uw-wear-patch soot-a"></i>
-          <i class="uw-stain a"></i><i class="uw-stain b"></i>
-          <i class="uw-blood"></i>
+        <div class="uw-smoke-depth" aria-hidden="true"></div>
+        <div class="uw-grime" aria-hidden="true">
+          <i class="uw-scratch a"></i>
+          <i class="uw-scratch b"></i>
+          <i class="uw-blood a"></i>
+          <i class="uw-blood b"></i>
         </div>
         <div class="uw-bar-body uw-wall-header">
           <div class="uw-side" id="uw-follower-slot">
-            <aside class="uw-glass uw-social-inbar" id="uw-follower" data-social="follow">
-              <span class="uw-glass-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
+            <aside class="uw-readout uw-social-inbar" id="uw-follower" data-social="follow">
+              <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
               <div class="uw-glass-label">LATEST FOLLOW</div>
               <div class="uw-glass-well">
                 <span class="uw-glass-scan" aria-hidden="true"></span>
@@ -37,7 +35,7 @@
           </div>
 
           <div class="uw-center">
-            <div class="uw-steel-sign" id="uw-top-text">
+            <div class="uw-id-block" id="uw-top-text">
               <div class="uw-stencil" data-text-fx="id">
                 <span class="uw-text-glow" aria-hidden="true"></span>
                 <span class="uw-text-face" data-streamer-name>datguydaz</span>
@@ -56,8 +54,8 @@
           </div>
 
           <div class="uw-side uw-side-right" id="uw-subscriber-slot">
-            <aside class="uw-glass uw-social-inbar" id="uw-subscriber" data-social="sub">
-              <span class="uw-glass-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
+            <aside class="uw-readout uw-social-inbar" id="uw-subscriber" data-social="sub">
+              <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
               <div class="uw-glass-label">LATEST SUB</div>
               <div class="uw-glass-well">
                 <span class="uw-glass-scan" aria-hidden="true"></span>

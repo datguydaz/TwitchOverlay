@@ -129,6 +129,7 @@ export class SocialReadoutAnim {
         }, 780),
       );
 
+      // ~2.6s activation settle window (total event ~3.4s)
       this.timers.push(
         window.setTimeout(() => {
           delete el.dataset.socialFx;
@@ -136,7 +137,7 @@ export class SocialReadoutAnim {
             nameEl.textContent = job.restoreTo;
           }
           resolve();
-        }, 780 + 2000),
+        }, 780 + 2600),
       );
     });
   }

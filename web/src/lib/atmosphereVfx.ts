@@ -14,10 +14,10 @@ const INTENSITY: Record<
     lampSpan: number;
   }
 > = {
-  /* Barely-powered bunker: slower lamps, rarer sparks, thin dust in glow only */
-  low: { dust: 6, smokeMin: 55000, smokeSpan: 45000, sparkMin: 42000, sparkSpan: 38000, lampMin: 14000, lampSpan: 20000 },
-  medium: { dust: 10, smokeMin: 35000, smokeSpan: 32000, sparkMin: 34000, sparkSpan: 28000, lampMin: 10000, lampSpan: 16000 },
-  high: { dust: 16, smokeMin: 22000, smokeSpan: 24000, sparkMin: 26000, sparkSpan: 22000, lampMin: 7000, lampSpan: 11000 },
+  /* Quiet dark: sparse dust in light, rare sparks, lamp flutter — no strobe */
+  low: { dust: 5, smokeMin: 40000, smokeSpan: 40000, sparkMin: 28000, sparkSpan: 32000, lampMin: 7000, lampSpan: 10000 },
+  medium: { dust: 9, smokeMin: 28000, smokeSpan: 28000, sparkMin: 18000, sparkSpan: 22000, lampMin: 4500, lampSpan: 7000 },
+  high: { dust: 14, smokeMin: 18000, smokeSpan: 20000, sparkMin: 11000, sparkSpan: 14000, lampMin: 3000, lampSpan: 4500 },
 };
 
 /**
@@ -148,8 +148,8 @@ export class AtmosphereVfx {
       y,
       vx: (Math.random() - 0.5) * 0.1,
       vy: (Math.random() - 0.5) * 0.04,
-      r: 0.5 + Math.random() * 1.3,
-      a: 0.1 + Math.random() * 0.2,
+      r: 0.5 + Math.random() * 1.2,
+      a: 0.1 + Math.random() * 0.22,
       life: randomLife ? Math.random() : 0,
     };
   }
@@ -212,7 +212,7 @@ export class AtmosphereVfx {
       }
       const fade = 0.55 + 0.45 * Math.sin(p.life * Math.PI * 2);
       ctx.beginPath();
-      ctx.fillStyle = `rgba(183,122,50,${p.a * fade * 0.85})`;
+      ctx.fillStyle = `rgba(200,170,120,${p.a * fade * 0.85})`;
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fill();
     }
