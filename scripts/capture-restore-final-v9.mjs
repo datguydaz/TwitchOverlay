@@ -43,33 +43,16 @@ const metrics = await page.evaluate(() => {
   });
 
   const fol = document.getElementById("uw-follower-name");
-  const sub = document.getElementById("uw-subscriber-name");
+  const label = document.querySelector("#uw-follower .uw-glass-label");
+  const subLabel = document.querySelector("#uw-subscriber .uw-glass-label");
   const well = document.querySelector("#uw-follower .uw-glass-well");
-  const folCs = getComputedStyle(fol);
-  const subCs = getComputedStyle(sub);
-  const wellCs = getComputedStyle(well);
-  const barH = getComputedStyle(s).getPropertyValue("--uw-bar-h").trim();
-  let rule = null;
-  for (const sheet of document.styleSheets) {
-    let rules;
-    try {
-      rules = [...sheet.cssRules];
-    } catch {
-      continue;
-    }
-    for (const r of rules) {
-      if (r.selectorText?.includes("#uw-follower-name") && r.style?.fontSize) {
-        rule = { sel: r.selectorText, fontSize: r.style.fontSize };
-      }
-    }
-  }
   return {
-    beforeClaimNote: "pre-af26231 clamp max was 42px; af26231 first pass max was 52px",
-    folFont: folCs.fontSize,
-    subFont: subCs.fontSize,
-    wellH: wellCs.height,
-    barH,
-    idRule: rule,
+    labelFont: getComputedStyle(label).fontSize,
+    subLabelFont: getComputedStyle(subLabel).fontSize,
+    nameFont: getComputedStyle(fol).fontSize,
+    wellH: getComputedStyle(well).height,
+    barH: getComputedStyle(s).getPropertyValue("--uw-bar-h").trim(),
+    labelText: label?.textContent,
     cssHref: [...document.styleSheets].map((x) => x.href).filter((h) => h && /ultrawide/.test(h)),
   };
 });

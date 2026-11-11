@@ -612,15 +612,23 @@
 
 .uw-glass-label {
   font-family: var(--font-op);
-  font-weight: 600;
-  font-size: clamp(10px, calc(var(--uw-bar-h) * 0.075), 13px);
-  letter-spacing: 0.18em;
+  font-weight: 700;
+  /* ABOVE-box labels — was ~13px; make clearly readable */
+  font-size: clamp(18px, calc(var(--uw-bar-h) * 0.14), 26px);
+  letter-spacing: 0.16em;
+  line-height: 1.1;
   text-transform: uppercase;
-  color: #c8bea6;
-  margin: 0 0 3px;
+  color: #e8dfc8;
+  margin: 0 0 5px;
   padding: 0 4px;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.85);
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(200, 136, 58, 0.18);
   flex: 0 0 auto;
+}
+#uw-follower .uw-glass-label,
+#uw-subscriber .uw-glass-label {
+  font-size: clamp(18px, calc(var(--uw-bar-h) * 0.14), 26px) !important;
 }
 
 .uw-side-right .uw-glass-label {
