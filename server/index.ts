@@ -364,6 +364,10 @@ wss.on("connection", (ws, req) => {
           "text-sweep",
           "text-op",
           "text-hold",
+          "goal-follow-inc",
+          "goal-sub-inc",
+          "goal-follow-complete",
+          "goal-sub-complete",
         ]);
         if (!allowed.has(kind)) break;
         broadcast(

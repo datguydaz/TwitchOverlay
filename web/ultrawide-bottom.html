@@ -26,9 +26,20 @@
         </div>
         <div class="uw-bar-body uw-console-footer">
           <div class="uw-side">
-            <div class="uw-footer-vent" aria-hidden="true">
-              <div class="uw-vent-face"><i></i><i></i><i></i><i></i><i></i></div>
-              <span class="uw-vent-wisp"></span>
+            <div class="uw-goal" id="uw-goal-follow" data-goal="follow">
+              <div class="uw-goal-fixture" aria-hidden="true"><span class="uw-goal-lamp"></span></div>
+              <div class="uw-goal-title">FOLLOWER GOAL</div>
+              <div class="uw-goal-digits">
+                <span class="uw-goal-cur">0</span><span class="uw-goal-slash">/</span><span class="uw-goal-tgt">0</span>
+              </div>
+              <div class="uw-goal-meter" role="meter" aria-valuemin="0" aria-valuemax="100">
+                <div class="uw-goal-track"></div>
+                <span class="uw-goal-sweep" aria-hidden="true"></span>
+              </div>
+              <div class="uw-goal-meta">
+                <span class="uw-goal-pct">0%</span>
+                <span class="uw-goal-status">MANUAL // IN PROGRESS</span>
+              </div>
             </div>
           </div>
           <div class="uw-center">
@@ -41,13 +52,26 @@
             </div>
           </div>
           <div class="uw-side uw-side-right">
-            <div class="uw-status-module">
-              <div class="uw-status" data-text-fx="status" id="uw-bottom-status">
-                <span class="uw-text-glow" aria-hidden="true"></span>
-                <span class="uw-text-face">ZONE THREAT // RAID READY</span>
+            <div class="uw-goal" id="uw-goal-sub" data-goal="sub">
+              <div class="uw-goal-fixture" aria-hidden="true"><span class="uw-goal-lamp"></span></div>
+              <div class="uw-goal-title">SUB GOAL</div>
+              <div class="uw-goal-digits">
+                <span class="uw-goal-cur">0</span><span class="uw-goal-slash">/</span><span class="uw-goal-tgt">0</span>
+              </div>
+              <div class="uw-goal-meter" role="meter" aria-valuemin="0" aria-valuemax="100">
+                <div class="uw-goal-track"></div>
+                <span class="uw-goal-sweep" aria-hidden="true"></span>
+              </div>
+              <div class="uw-goal-meta">
+                <span class="uw-goal-pct">0%</span>
+                <span class="uw-goal-status">MANUAL // IN PROGRESS</span>
               </div>
             </div>
           </div>
+        </div>
+        <!-- status kept for bindings / legacy textEffects target -->
+        <div class="uw-status" data-text-fx="status" id="uw-bottom-status" hidden>
+          <span class="uw-text-face">ZONE THREAT // RAID READY</span>
         </div>
         <div class="uw-atm-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       </div>

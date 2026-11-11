@@ -15,9 +15,9 @@ const INTENSITY: Record<
   AtmosphereIntensity,
   { dipMin: number; dipSpan: number; sweepMin: number; sweepSpan: number; opMin: number; opSpan: number; holdMin: number; holdSpan: number }
 > = {
-  low: { dipMin: 9000, dipSpan: 14000, sweepMin: 18000, sweepSpan: 22000, opMin: 2800, opSpan: 4200, holdMin: 12000, holdSpan: 16000 },
-  medium: { dipMin: 6000, dipSpan: 10000, sweepMin: 12000, sweepSpan: 16000, opMin: 1800, opSpan: 3200, holdMin: 8000, holdSpan: 12000 },
-  high: { dipMin: 4000, dipSpan: 7000, sweepMin: 8000, sweepSpan: 11000, opMin: 1200, opSpan: 2200, holdMin: 5000, holdSpan: 8000 },
+  low: { dipMin: 7000, dipSpan: 10000, sweepMin: 12000, sweepSpan: 14000, opMin: 2200, opSpan: 3200, holdMin: 9000, holdSpan: 12000 },
+  medium: { dipMin: 4500, dipSpan: 7000, sweepMin: 9000, sweepSpan: 11000, opMin: 1400, opSpan: 2400, holdMin: 6000, holdSpan: 9000 },
+  high: { dipMin: 2800, dipSpan: 4500, sweepMin: 5500, sweepSpan: 8000, opMin: 900, opSpan: 1600, holdMin: 4000, holdSpan: 6500 },
 };
 
 const ELECTRONIC: Target[] = ["follow-label", "follow-name", "sub-label", "sub-name", "status"];

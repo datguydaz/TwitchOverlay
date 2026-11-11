@@ -4,6 +4,7 @@ import {
 } from "../lib/settingsClient.ts";
 import { AtmosphereVfx } from "../lib/atmosphereVfx.ts";
 import { TextLifeVfx } from "../lib/textLifeVfx.ts";
+import { GoalMeters } from "../lib/goalMeters.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 import type { AtmPreviewKind } from "../../../shared/protocol.ts";
 
@@ -37,11 +38,18 @@ function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
 
 let atm: AtmosphereVfx | null = null;
 let textFx: TextLifeVfx | null = null;
+let goals: GoalMeters | null = null;
 let lastFollower = "";
 let lastSubscriber = "";
 
 const TEXT_PREVIEW = new Set<AtmPreviewKind>(["text-dip", "text-sweep", "text-op", "text-hold"]);
 const ATM_PREVIEW = new Set<AtmPreviewKind>(["flicker", "smoke", "sparks"]);
+const GOAL_PREVIEW = new Set<AtmPreviewKind>([
+  "goal-follow-inc",
+  "goal-sub-inc",
+  "goal-follow-complete",
+  "goal-sub-complete",
+]);
 
 function applyUltrawide(settings: OverlaySettings): void {
   const uw = settings.ultrawide;
@@ -139,6 +147,11 @@ function applyUltrawide(settings: OverlaySettings): void {
   if (!textFx) textFx = new TextLifeVfx(stage, settings.textEffects);
   else textFx.applyConfig(settings.textEffects);
 
+  const goalsReduced =
+    settings.textEffects.reducedMotion || settings.atmosphere.reducedMotion;
+  if (!goals) goals = new GoalMeters(stage, settings.goals, goalsReduced);
+  else goals.applyConfig(settings.goals, goalsReduced);
+
   if (nextFol && nextFol !== lastFollower) {
     atm.pulseSocial("follow");
     textFx.pulseSocial("follow");
@@ -162,6 +175,7 @@ function routePreview(kind: AtmPreviewKind): void {
   }
   if (ATM_PREVIEW.has(kind)) atm?.preview(kind);
   if (TEXT_PREVIEW.has(kind)) textFx?.preview(kind);
+  if (GOAL_PREVIEW.has(kind)) goals?.preview(kind);
 }
 
 async function main(): Promise<void> {

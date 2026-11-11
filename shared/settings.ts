@@ -82,6 +82,32 @@ export interface TextEffectsSettings {
   reducedMotion: boolean;
 }
 
+export type GoalPlatform = "manual" | "twitch" | "kick";
+export type GoalMetric =
+  | "total-followers"
+  | "session-follows"
+  | "total-subscribers"
+  | "session-subs";
+
+/** One follower or sub goal meter (footer). */
+export interface GoalMeterSettings {
+  enabled: boolean;
+  title: string;
+  current: number;
+  target: number;
+  /** Live platforms stubbed — Manual supplies values until bridge exists. */
+  platform: GoalPlatform;
+  metric: GoalMetric;
+  /** Persisted — calm completed state; celebration does not replay on refresh. */
+  completed: boolean;
+  completedAt: string | null;
+}
+
+export interface GoalsSettings {
+  follower: GoalMeterSettings;
+  subscriber: GoalMeterSettings;
+}
+
 export interface ChatSettings {
   enabled: boolean;
   /** Auto Zone Ops trash-talk on a timer. */
@@ -176,6 +202,7 @@ export interface OverlaySettings {
   ultrawide: UltrawideSettings;
   atmosphere: AtmosphereSettings;
   textEffects: TextEffectsSettings;
+  goals: GoalsSettings;
   demoModeDefault: boolean;
 }
 
@@ -254,8 +281,30 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   },
   textEffects: {
     enabled: true,
-    intensity: "medium",
+    intensity: "high",
     reducedMotion: false,
+  },
+  goals: {
+    follower: {
+      enabled: true,
+      title: "FOLLOWER GOAL",
+      current: 12,
+      target: 50,
+      platform: "manual",
+      metric: "session-follows",
+      completed: false,
+      completedAt: null,
+    },
+    subscriber: {
+      enabled: true,
+      title: "SUB GOAL",
+      current: 3,
+      target: 10,
+      platform: "manual",
+      metric: "session-subs",
+      completed: false,
+      completedAt: null,
+    },
   },
   demoModeDefault: false,
 };
@@ -381,5 +430,55 @@ export function mergeSettings(
         reducedMotion: !!t.reducedMotion,
       };
     })(),
+    goals: {
+      follower: mergeGoalMeter(base.goals.follower, partial.goals?.follower),
+      subscriber: mergeGoalMeter(base.goals.subscriber, partial.goals?.subscriber),
+    },
+  };
+}
+
+function mergeGoalMeter(
+  base: GoalMeterSettings,
+  partial: Partial<GoalMeterSettings> | undefined,
+): GoalMeterSettings {
+  const g = { ...base, ...partial };
+  const clampInt = (n: unknown, min: number, max: number, fallback: number) => {
+    const v = Number(n);
+    if (!Number.isFinite(v)) return fallback;
+    return Math.max(min, Math.min(max, Math.round(v)));
+  };
+  const platformRaw = String(g.platform || "manual").toLowerCase();
+  const platform: GoalPlatform =
+    platformRaw === "twitch" || platformRaw === "kick" ? platformRaw : "manual";
+  const metricRaw = String(g.metric || base.metric);
+  const metric: GoalMetric =
+    metricRaw === "total-followers" ||
+    metricRaw === "session-follows" ||
+    metricRaw === "total-subscribers" ||
+    metricRaw === "session-subs"
+      ? metricRaw
+      : base.metric;
+  const current = clampInt(g.current, 0, 1_000_000, base.current);
+  const target = clampInt(g.target, 1, 1_000_000, base.target);
+  const reached = current >= target;
+  let completed = !!g.completed;
+  let completedAt = g.completedAt ? String(g.completedAt) : null;
+  if (reached && !completed) {
+    completed = true;
+    completedAt = completedAt || new Date().toISOString();
+  }
+  if (!reached) {
+    completed = false;
+    completedAt = null;
+  }
+  return {
+    enabled: g.enabled !== false,
+    title: String(g.title || base.title).trim() || base.title,
+    current,
+    target,
+    platform,
+    metric,
+    completed,
+    completedAt,
   };
 }
