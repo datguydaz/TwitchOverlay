@@ -18,6 +18,10 @@ const page = await (
 await page.goto("http://127.0.0.1:8787/avatar.html", { waitUntil: "networkidle" });
 await page.evaluate(() => {
   document.body.style.background = "radial-gradient(circle at 40% 30%, #2a2a2a, #0a0a0a 72%)";
+  // Freeze breath so vest edge doesn't drift away from static sleeves mid-shot
+  const style = document.createElement("style");
+  style.textContent = `#idle-breath, #vest-front-breath, #idle-head { animation: none !important; transform: none !important; }`;
+  document.head.appendChild(style);
 });
 await page.waitForTimeout(400);
 
@@ -162,6 +166,12 @@ const files = {};
 
 await setBg("dark");
 await setInput("rest");
+files.full = await shot("full", {
+  x: box.x,
+  y: box.y,
+  width: box.width,
+  height: box.height,
+});
 files.rest = await shot("rest", restClip);
 files.pairRest = await shot("pair-rest", pairClip);
 let jc = await junctionClips();
@@ -213,11 +223,32 @@ function analyze(path, side) {
   let rowsGap = 0;
   let rowsOk = 0;
   const samples = [];
-  // Only score rows where sleeve black already exists somewhere on the arm side
-  // (ignore neck/above-sleeve vest tip rows — those always show bg beside olive).
+  // Only score rows where sleeve/stripe exists on the ARM side of the olive edge
+  // (ignore neck rows and helm black misread as sleeve).
   for (let y = Math.floor(h * 0.02); y < Math.floor(h * 0.72); y += 2) {
+    let oliveEdgeProbe = -1;
+    if (side === "left") {
+      for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4;
+        if (isOlive(data[i], data[i + 1], data[i + 2])) {
+          oliveEdgeProbe = x;
+          break;
+        }
+      }
+    } else {
+      for (let x = w - 1; x >= 0; x--) {
+        const i = (y * w + x) * 4;
+        if (isOlive(data[i], data[i + 1], data[i + 2])) {
+          oliveEdgeProbe = x;
+          break;
+        }
+      }
+    }
+    if (oliveEdgeProbe < 0) continue;
     let hasSleeveRow = false;
-    for (let x = 0; x < w; x++) {
+    const x0 = side === "left" ? Math.max(0, oliveEdgeProbe - 120) : oliveEdgeProbe + 1;
+    const x1 = side === "left" ? oliveEdgeProbe : Math.min(w, oliveEdgeProbe + 120);
+    for (let x = x0; x < x1; x++) {
       const i = (y * w + x) * 4;
       if (isSleeve(data[i], data[i + 1], data[i + 2]) || isStripe(data[i], data[i + 1], data[i + 2])) {
         hasSleeveRow = true;
