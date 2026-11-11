@@ -178,18 +178,23 @@
   );
   opacity: 0;
   mix-blend-mode: screen;
+  pointer-events: none;
+  will-change: transform, opacity;
 }
-#uw-stage[data-atm="on"] .uw-header-scan {
-  animation: uw-header-scan 12.5s ease-in-out infinite;
+#uw-stage[data-atm="on"] .uw-header-scan.s-a {
+  animation: uw-header-scan-xfade 12s linear infinite;
+}
+#uw-stage[data-atm="on"] .uw-header-scan.s-b {
+  animation: uw-header-scan-xfade 12s linear infinite;
+  animation-delay: -6s;
 }
 .uw-bar-top[data-header-pulse="1"] .uw-header-rail-glow {
   opacity: 1;
   filter: brightness(1.32);
-  transition: opacity 80ms linear;
+  transition: filter 160ms linear, opacity 160ms linear;
 }
 .uw-bar-top[data-header-pulse="1"] .uw-header-scan {
-  animation: uw-header-scan-hit 400ms ease-out 1;
-  opacity: 0.8;
+  filter: brightness(1.2);
 }
 
 /* Embers live in side corridors — not over nameplate or social wells */
@@ -221,16 +226,19 @@
   bottom: 16%;
 }
 #uw-stage[data-atm="on"] .uw-header-ember.e1 {
-  animation: uw-header-ember-drift 7.5s ease-in-out infinite;
+  animation: uw-ember-xfade 8s linear infinite;
 }
 #uw-stage[data-atm="on"] .uw-header-ember.e2 {
-  animation: uw-header-ember-drift 9s ease-in-out 1.4s infinite;
+  animation: uw-ember-xfade 9.5s linear infinite;
+  animation-delay: -4.7s;
 }
 #uw-stage[data-atm="on"] .uw-header-ember.e3 {
-  animation: uw-header-ember-drift 8s ease-in-out 2.8s infinite;
+  animation: uw-ember-xfade 8.5s linear infinite;
+  animation-delay: -2.8s;
 }
 #uw-stage[data-atm="on"] .uw-header-ember.e4 {
-  animation: uw-header-ember-drift 10s ease-in-out 4.2s infinite;
+  animation: uw-ember-xfade 10.5s linear infinite;
+  animation-delay: -6.2s;
 }
 .uw-header-drift {
   position: absolute;
@@ -296,7 +304,7 @@
   animation: uw-footer-rail-pulse 4.2s ease-in-out infinite;
 }
 
-/* Continuous faint L→R amber scan ticker along the rail band */
+/* Dual L→R tickers — fade out → invisible pad → fade in (crossfade via 50% phase) */
 .uw-footer-ticker {
   position: absolute;
   left: -18%;
@@ -314,9 +322,15 @@
   opacity: 0;
   mix-blend-mode: screen;
   filter: blur(0.4px);
+  pointer-events: none;
+  will-change: transform, opacity;
 }
-#uw-stage[data-atm="on"] .uw-footer-ticker {
-  animation: uw-footer-ticker 7.5s linear infinite;
+#uw-stage[data-atm="on"] .uw-footer-ticker.t-a {
+  animation: uw-footer-ticker-xfade 8s linear infinite;
+}
+#uw-stage[data-atm="on"] .uw-footer-ticker.t-b {
+  animation: uw-footer-ticker-xfade 8s linear infinite;
+  animation-delay: -4s; /* half cycle — overlaps A's fade-out with B's fade-in */
 }
 
 .uw-footer-scan {
@@ -333,22 +347,44 @@
   );
   opacity: 0;
   mix-blend-mode: screen;
+  pointer-events: none;
+  will-change: transform, opacity;
 }
-#uw-stage[data-atm="on"] .uw-footer-scan {
-  animation: uw-footer-scan 13s ease-in-out infinite;
+#uw-stage[data-atm="on"] .uw-footer-scan.s-a {
+  animation: uw-footer-scan-xfade 14s linear infinite;
+}
+#uw-stage[data-atm="on"] .uw-footer-scan.s-b {
+  animation: uw-footer-scan-xfade 14s linear infinite;
+  animation-delay: -7s;
+}
+
+/* Soft stutter overlay — never replaces continuous ticker (that caused hard resets) */
+.uw-footer-stutter {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28%;
+  height: 18px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 220, 160, 0.16),
+    transparent
+  );
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 .uw-bar-bottom[data-footer-pulse="1"] .uw-footer-rail-glow {
   opacity: 1;
   filter: brightness(1.4);
-  transition: opacity 80ms linear;
+  transition: filter 160ms linear, opacity 160ms linear;
+}
+.uw-bar-bottom[data-scan-stutter="1"] .uw-footer-stutter {
+  animation: uw-footer-stutter-flash 520ms ease-out 1;
 }
 .uw-bar-bottom[data-scan-stutter="1"] .uw-footer-ticker {
-  animation: uw-footer-ticker-stutter 480ms steps(3, end) 1;
-  opacity: 0.75;
-}
-.uw-bar-bottom[data-footer-pulse="1"] .uw-footer-scan {
-  animation: uw-footer-scan-hit 420ms ease-out 1;
-  opacity: 0.8;
+  filter: brightness(1.15) blur(0.4px);
 }
 
 /* Hot pops along the ember rail line */
@@ -396,22 +432,27 @@
 .uw-footer-ember.e5 { left: 72%; top: 10%; }
 .uw-footer-ember.e6 { left: 88%; top: 20%; }
 #uw-stage[data-atm="on"] .uw-footer-ember.e1 {
-  animation: uw-footer-ember-drift 7.5s ease-in-out infinite;
+  animation: uw-ember-xfade 8s linear infinite;
 }
 #uw-stage[data-atm="on"] .uw-footer-ember.e2 {
-  animation: uw-footer-ember-drift 9s ease-in-out 1.1s infinite;
+  animation: uw-ember-xfade 9.5s linear infinite;
+  animation-delay: -4.7s;
 }
 #uw-stage[data-atm="on"] .uw-footer-ember.e3 {
-  animation: uw-footer-ember-drift 8s ease-in-out 2.4s infinite;
+  animation: uw-ember-xfade 8.5s linear infinite;
+  animation-delay: -2.1s;
 }
 #uw-stage[data-atm="on"] .uw-footer-ember.e4 {
-  animation: uw-footer-ember-drift 10s ease-in-out 3.6s infinite;
+  animation: uw-ember-xfade 10s linear infinite;
+  animation-delay: -6s;
 }
 #uw-stage[data-atm="on"] .uw-footer-ember.e5 {
-  animation: uw-footer-ember-drift 8.5s ease-in-out 4.8s infinite;
+  animation: uw-ember-xfade 9s linear infinite;
+  animation-delay: -3.4s;
 }
 #uw-stage[data-atm="on"] .uw-footer-ember.e6 {
-  animation: uw-footer-ember-drift 11s ease-in-out 0.6s infinite;
+  animation: uw-ember-xfade 11s linear infinite;
+  animation-delay: -7.5s;
 }
 
 /* Sparse soft hairline scratches — no hard geometric debris */
@@ -1471,61 +1512,6 @@
     filter: brightness(1.18);
   }
 }
-@keyframes uw-header-scan {
-  0%,
-  68%,
-  100% {
-    opacity: 0;
-    transform: translate3d(0, 0, 0);
-  }
-  70% {
-    opacity: 0.5;
-    transform: translate3d(12%, 0, 0);
-  }
-  76% {
-    opacity: 0.22;
-    transform: translate3d(130%, 0, 0);
-  }
-  78% {
-    opacity: 0;
-    transform: translate3d(170%, 0, 0);
-  }
-}
-@keyframes uw-header-scan-hit {
-  0% {
-    opacity: 0;
-    transform: translate3d(-8%, 0, 0);
-  }
-  35% {
-    opacity: 0.85;
-    transform: translate3d(36%, 0, 0);
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(165%, 0, 0);
-  }
-}
-@keyframes uw-header-ember-drift {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 6px, 0) scale(0.55);
-  }
-  12% {
-    opacity: 0.9;
-  }
-  45% {
-    opacity: 0.7;
-    transform: translate3d(20px, -12px, 0) scale(1.05);
-  }
-  75% {
-    opacity: 0.45;
-    transform: translate3d(34px, -22px, 0) scale(0.85);
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(48px, -34px, 0) scale(0.4);
-  }
-}
 @keyframes uw-header-smoke {
   0%,
   100% {
@@ -1552,73 +1538,94 @@
     filter: brightness(1.18);
   }
 }
-@keyframes uw-footer-ticker {
+/* Fade out → long invisible pad (transform may reset) → fade in. Dual layers crossfade. */
+@keyframes uw-footer-ticker-xfade {
   0% {
     opacity: 0;
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(-8%, 0, 0);
   }
-  4% {
+  12% {
+    opacity: 0;
+    transform: translate3d(-8%, 0, 0);
+  }
+  22% {
     opacity: 0.55;
   }
-  88% {
-    opacity: 0.35;
-    transform: translate3d(520%, 0, 0);
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(560%, 0, 0);
-  }
-}
-@keyframes uw-footer-ticker-stutter {
-  0% {
-    opacity: 0.2;
-    transform: translate3d(30%, 0, 0);
-  }
-  30% {
-    opacity: 0.85;
-    transform: translate3d(38%, 0.5px, 0);
-  }
-  55% {
-    opacity: 0.45;
-    transform: translate3d(52%, -0.5px, 0);
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(95%, 0, 0);
-  }
-}
-@keyframes uw-footer-scan {
-  0%,
-  72%,
-  100% {
-    opacity: 0;
-    transform: translate3d(0, 0, 0);
-  }
-  74% {
+  48% {
     opacity: 0.4;
-    transform: translate3d(8%, 0, 0);
+    transform: translate3d(260%, 0, 0);
   }
-  82% {
-    opacity: 0.18;
-    transform: translate3d(130%, 0, 0);
+  62% {
+    opacity: 0;
+    transform: translate3d(340%, 0, 0);
   }
-  84% {
+  100% {
+    opacity: 0;
+    transform: translate3d(340%, 0, 0);
+  }
+}
+@keyframes uw-footer-scan-xfade {
+  0% {
+    opacity: 0;
+    transform: translate3d(-8%, 0, 0);
+  }
+  14% {
+    opacity: 0;
+    transform: translate3d(-8%, 0, 0);
+  }
+  24% {
+    opacity: 0.38;
+  }
+  48% {
+    opacity: 0.22;
+    transform: translate3d(110%, 0, 0);
+  }
+  60% {
+    opacity: 0;
+    transform: translate3d(150%, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(150%, 0, 0);
+  }
+}
+@keyframes uw-header-scan-xfade {
+  0% {
+    opacity: 0;
+    transform: translate3d(-8%, 0, 0);
+  }
+  14% {
+    opacity: 0;
+    transform: translate3d(-8%, 0, 0);
+  }
+  24% {
+    opacity: 0.45;
+  }
+  48% {
+    opacity: 0.25;
+    transform: translate3d(120%, 0, 0);
+  }
+  60% {
+    opacity: 0;
+    transform: translate3d(160%, 0, 0);
+  }
+  100% {
     opacity: 0;
     transform: translate3d(160%, 0, 0);
   }
 }
-@keyframes uw-footer-scan-hit {
+@keyframes uw-footer-stutter-flash {
   0% {
     opacity: 0;
-    transform: translate3d(-10%, 0, 0);
+    transform: translate3d(16%, 0, 0);
   }
   35% {
-    opacity: 0.85;
-    transform: translate3d(40%, 0, 0);
+    opacity: 0.75;
+    transform: translate3d(32%, 0.3px, 0);
   }
   100% {
     opacity: 0;
-    transform: translate3d(160%, 0, 0);
+    transform: translate3d(58%, 0, 0);
   }
 }
 @keyframes uw-footer-rail-hot-pop {
@@ -1635,21 +1642,30 @@
     transform: translateY(-8px) scale(0.5);
   }
 }
-@keyframes uw-footer-ember-drift {
+/* Ember: fade in → drift → fade out → hold invisible through loop snap → fade in */
+@keyframes uw-ember-xfade {
   0% {
     opacity: 0;
     transform: translate3d(0, 4px, 0) scale(0.55);
   }
-  12% {
+  10% {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0) scale(0.55);
+  }
+  22% {
     opacity: 0.9;
   }
-  50% {
-    opacity: 0.6;
-    transform: translate3d(32px, -10px, 0) scale(1);
+  45% {
+    opacity: 0.65;
+    transform: translate3d(26px, -10px, 0) scale(1);
+  }
+  68% {
+    opacity: 0;
+    transform: translate3d(46px, -20px, 0) scale(0.45);
   }
   100% {
     opacity: 0;
-    transform: translate3d(58px, -22px, 0) scale(0.4);
+    transform: translate3d(46px, -20px, 0) scale(0.45);
   }
 }
 @keyframes uw-bar-jitter {
@@ -1685,6 +1701,7 @@
   .uw-header-drift,
   .uw-footer-rail-glow,
   .uw-footer-ticker,
+  .uw-footer-stutter,
   .uw-footer-scan,
   .uw-footer-ember,
   .uw-footer-rail-pop,
@@ -1701,7 +1718,8 @@
   .uw-name-crt,
   .uw-header-scan,
   .uw-footer-scan,
-  .uw-footer-ticker {
+  .uw-footer-ticker,
+  .uw-footer-stutter {
     opacity: 0 !important;
   }
   .uw-atm-dust-shared {
