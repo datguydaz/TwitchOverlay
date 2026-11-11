@@ -4,16 +4,25 @@ type Dust = { x: number; y: number; vx: number; vy: number; r: number; a: number
 
 const INTENSITY: Record<
   AtmosphereIntensity,
-  { dust: number; smokeMin: number; smokeSpan: number; sparkMin: number; sparkSpan: number; flickerMin: number; flickerSpan: number }
+  {
+    dust: number;
+    smokeMin: number;
+    smokeSpan: number;
+    sparkMin: number;
+    sparkSpan: number;
+    lampMin: number;
+    lampSpan: number;
+  }
 > = {
-  low: { dust: 10, smokeMin: 48000, smokeSpan: 42000, sparkMin: 32000, sparkSpan: 32000, flickerMin: 9000, flickerSpan: 14000 },
-  medium: { dust: 18, smokeMin: 28000, smokeSpan: 28000, sparkMin: 28000, sparkSpan: 22000, flickerMin: 6000, flickerSpan: 10000 },
-  high: { dust: 28, smokeMin: 16000, smokeSpan: 20000, sparkMin: 20000, sparkSpan: 18000, flickerMin: 4000, flickerSpan: 7000 },
+  /* Barely-powered bunker: slower lamps, rarer sparks, thin dust in glow only */
+  low: { dust: 6, smokeMin: 55000, smokeSpan: 45000, sparkMin: 42000, sparkSpan: 38000, lampMin: 14000, lampSpan: 20000 },
+  medium: { dust: 10, smokeMin: 35000, smokeSpan: 32000, sparkMin: 34000, sparkSpan: 28000, lampMin: 10000, lampSpan: 16000 },
+  high: { dust: 16, smokeMin: 22000, smokeSpan: 24000, sparkMin: 26000, sparkSpan: 22000, lampMin: 7000, lampSpan: 11000 },
 };
 
 /**
- * Scoped bunker-frame atmosphere — only touches #uw-stage descendants.
- * Pauses when hidden; no audio; center gameplay hole stays clear.
+ * Console atmosphere — lamp, vent wisp, corner sparks, edge dust.
+ * Scoped to #uw-stage; pauses when hidden; no audio.
  */
 export class AtmosphereVfx {
   private stage: HTMLElement;
@@ -55,14 +64,12 @@ export class AtmosphereVfx {
     }
     this.bootDust();
     this.startLoop();
-    if (this.cfg.flicker) this.scheduleFlicker();
+    if (this.cfg.flicker) this.scheduleLamp();
     if (this.cfg.smoke) this.scheduleSmoke();
     if (this.cfg.sparks) this.scheduleSparks();
   }
 
-  /** Brief edge brighten on follow/sub panels (simulated or live name change). */
   pulseSocial(kind: "follow" | "sub"): void {
-    if (!this.cfg.enabled) return;
     const id = kind === "follow" ? "#uw-follower" : "#uw-subscriber";
     const el = this.stage.querySelector<HTMLElement>(id);
     if (!el || el.hidden) return;
@@ -72,13 +79,12 @@ export class AtmosphereVfx {
     window.setTimeout(() => el.classList.remove("uw-social-activate"), 900);
   }
 
-  /** Dashboard preview buttons. */
   preview(kind: "flicker" | "smoke" | "sparks" | "follow" | "sub"): void {
     if (kind === "follow" || kind === "sub") {
       this.pulseSocial(kind);
       return;
     }
-    if (kind === "flicker") this.triggerFlicker();
+    if (kind === "flicker") this.triggerLamp();
     else if (kind === "smoke") this.triggerSmoke();
     else if (kind === "sparks") this.triggerSparks();
   }
@@ -97,39 +103,6 @@ export class AtmosphereVfx {
   };
 
   private ensureLayers(): void {
-    for (const bar of this.stage.querySelectorAll<HTMLElement>(".uw-bar")) {
-      if (!bar.querySelector(".uw-atm")) {
-        const atm = document.createElement("div");
-        atm.className = "uw-atm";
-        atm.setAttribute("aria-hidden", "true");
-        atm.innerHTML = `
-          <canvas class="uw-atm-dust" width="1" height="1"></canvas>
-          <div class="uw-atm-flicker"></div>
-          <div class="uw-atm-smoke"><span></span><span></span></div>
-          <div class="uw-atm-sparks"><i></i><i></i><i></i><i></i></div>
-          <div class="uw-atm-leds"><span></span><span></span><span></span></div>
-        `;
-        bar.insertBefore(atm, bar.firstChild);
-      }
-      if (!bar.querySelector(".uw-wear")) {
-        const wear = document.createElement("div");
-        wear.className = "uw-wear";
-        wear.setAttribute("aria-hidden", "true");
-        wear.innerHTML = `
-          <span class="uw-chip uw-chip-a"></span>
-          <span class="uw-chip uw-chip-b"></span>
-          <span class="uw-scratch uw-scratch-a"></span>
-          <span class="uw-scratch uw-scratch-b"></span>
-          <span class="uw-grime uw-grime-l"></span>
-          <span class="uw-grime uw-grime-r"></span>
-          <span class="uw-blood"></span>
-          <span class="uw-rust"></span>
-          <span class="uw-vent"></span>
-        `;
-        bar.insertBefore(wear, bar.firstChild);
-      }
-    }
-    // One shared dust canvas on stage (covers both bars, transparent center)
     let canvas = this.stage.querySelector<HTMLCanvasElement>("#uw-atm-dust-shared");
     if (!canvas) {
       canvas = document.createElement("canvas");
@@ -155,19 +128,28 @@ export class AtmosphereVfx {
   private spawnDust(randomLife = false): Dust {
     const w = this.canvas?.width || 800;
     const h = this.canvas?.height || 400;
-    // Bias to top/bottom band edges — keep center hole clear
-    const band = Math.random() < 0.55 ? "top" : "bottom";
-    const y =
-      band === "top"
-        ? Math.random() * Math.max(8, h * 0.14)
-        : h - Math.random() * Math.max(8, h * 0.14);
+    // Prefer near lamp glow in top bar (center-right of top band) + footer vent left
+    const zone = Math.random();
+    let x: number;
+    let y: number;
+    if (zone < 0.55) {
+      // top lamp area (~55–70% across top band)
+      x = w * (0.52 + Math.random() * 0.16);
+      y = Math.random() * Math.max(10, h * 0.12);
+    } else if (zone < 0.8) {
+      x = Math.random() * w;
+      y = Math.random() * Math.max(8, h * 0.1);
+    } else {
+      x = w * (0.04 + Math.random() * 0.12);
+      y = h - Math.random() * Math.max(8, h * 0.12);
+    }
     return {
-      x: Math.random() * w,
+      x,
       y,
-      vx: (Math.random() - 0.5) * 0.12,
-      vy: (Math.random() - 0.5) * 0.05,
-      r: 0.6 + Math.random() * 1.4,
-      a: 0.08 + Math.random() * 0.18,
+      vx: (Math.random() - 0.5) * 0.1,
+      vy: (Math.random() - 0.5) * 0.04,
+      r: 0.5 + Math.random() * 1.3,
+      a: 0.1 + Math.random() * 0.2,
       life: randomLife ? Math.random() : 0,
     };
   }
@@ -217,34 +199,33 @@ export class AtmosphereVfx {
     const w = this.canvas.width;
     const h = this.canvas.height;
     ctx.clearRect(0, 0, w, h);
-    const topBand = h * 0.145;
-    const botBand = h * 0.145;
+    const topBand = h * 0.14;
+    const botBand = h * 0.14;
     for (const p of this.dust) {
       p.x += p.vx * dt;
       p.y += p.vy * dt;
       p.life += dt * 0.00008;
       if (p.x < -4) p.x = w + 4;
       if (p.x > w + 4) p.x = -4;
-      // Clamp into edge bands (never mid canvas)
       if (p.y > topBand && p.y < h - botBand) {
-        p.y = Math.random() < 0.5 ? Math.random() * topBand : h - Math.random() * botBand;
+        Object.assign(p, this.spawnDust(true));
       }
       const fade = 0.55 + 0.45 * Math.sin(p.life * Math.PI * 2);
       ctx.beginPath();
-      ctx.fillStyle = `rgba(196,181,154,${p.a * fade})`;
+      ctx.fillStyle = `rgba(183,122,50,${p.a * fade * 0.85})`;
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fill();
     }
   }
 
-  private scheduleFlicker(): void {
+  private scheduleLamp(): void {
     const spec = INTENSITY[this.cfg.intensity];
-    const delay = spec.flickerMin + Math.random() * spec.flickerSpan;
+    const delay = spec.lampMin + Math.random() * spec.lampSpan;
     this.timers.push(
       window.setTimeout(() => {
         if (this.disposed || this.stage.dataset.atm !== "on" || !this.cfg.flicker) return;
-        this.triggerFlicker();
-        this.scheduleFlicker();
+        this.triggerLamp();
+        this.scheduleLamp();
       }, delay),
     );
   }
@@ -273,38 +254,36 @@ export class AtmosphereVfx {
     );
   }
 
-  private triggerFlicker(): void {
-    const bars = [...this.stage.querySelectorAll<HTMLElement>(".uw-bar")].filter(
-      (b) => b.dataset.hidden !== "true",
-    );
-    const bar = bars[Math.floor(Math.random() * Math.max(1, bars.length))];
-    if (!bar) return;
-    const el = bar.querySelector(".uw-atm-flicker");
-    if (!el) return;
-    // Local patch — randomize position within bar (not full-screen)
-    const x = 8 + Math.random() * 84;
-    const y = 10 + Math.random() * 70;
-    (el as HTMLElement).style.setProperty("--fx", `${x}%`);
-    (el as HTMLElement).style.setProperty("--fy", `${y}%`);
-    bar.dataset.flicker = "1";
+  private triggerLamp(): void {
+    const top = this.stage.querySelector<HTMLElement>("#uw-top");
+    if (!top || top.dataset.hidden === "true") return;
+    top.dataset.lamp = "dim";
+    const dimHold = 180 + Math.random() * 420;
+    const recoverMs = 700 + Math.random() * 500;
     this.timers.push(
       window.setTimeout(() => {
-        delete bar.dataset.flicker;
-      }, 180 + Math.random() * 160),
+        top.dataset.lamp = "recover";
+        this.timers.push(
+          window.setTimeout(() => {
+            delete top.dataset.lamp;
+          }, recoverMs),
+        );
+      }, dimHold),
     );
   }
 
   private triggerSmoke(): void {
-    const bars = [...this.stage.querySelectorAll<HTMLElement>(".uw-bar")].filter(
-      (b) => b.dataset.hidden !== "true",
-    );
-    const bar = bars[Math.floor(Math.random() * Math.max(1, bars.length))];
+    const bottom = this.stage.querySelector<HTMLElement>("#uw-bottom");
+    const bar =
+      bottom && bottom.dataset.hidden !== "true"
+        ? bottom
+        : this.stage.querySelector<HTMLElement>(".uw-bar:not([data-hidden='true'])");
     if (!bar) return;
     bar.dataset.smoke = "1";
     this.timers.push(
       window.setTimeout(() => {
         delete bar.dataset.smoke;
-      }, 2600),
+      }, 2500),
     );
   }
 
@@ -314,8 +293,7 @@ export class AtmosphereVfx {
     );
     const bar = bars[Math.floor(Math.random() * Math.max(1, bars.length))];
     if (!bar) return;
-    const corner = Math.random() < 0.5 ? "l" : "r";
-    bar.dataset.sparks = corner;
+    bar.dataset.sparks = Math.random() < 0.5 ? "l" : "r";
     this.timers.push(
       window.setTimeout(() => {
         delete bar.dataset.sparks;
@@ -325,10 +303,10 @@ export class AtmosphereVfx {
 
   private clearTransient(): void {
     this.stage.querySelectorAll<HTMLElement>(".uw-bar").forEach((b) => {
-      delete b.dataset.flicker;
+      delete b.dataset.lamp;
       delete b.dataset.smoke;
       delete b.dataset.sparks;
-      delete b.dataset.glitch;
+      delete b.dataset.flicker;
     });
   }
 

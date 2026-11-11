@@ -14,60 +14,59 @@
   <body class="uw-bar-only" data-uw-mode="top">
     <div id="uw-stage" data-atm="on" data-vfx="on">
       <div class="uw-bar uw-bar-top" id="uw-top" data-edge="top">
-        <div class="uw-bar-body">
+        <div class="uw-console-wear" aria-hidden="true">
+          <i class="uw-wear-patch flake-a"></i>
+          <i class="uw-wear-patch flake-b"></i>
+          <i class="uw-wear-patch corr-a"></i>
+          <i class="uw-wear-patch corr-b"></i>
+          <i class="uw-wear-patch streak-a"></i>
+          <i class="uw-wear-patch soot-a"></i>
+          <i class="uw-chip a"></i><i class="uw-chip b"></i>
+          <i class="uw-dent"></i>
+          <i class="uw-bolt a"></i><i class="uw-bolt b"></i>
+          <i class="uw-bolt c"></i><i class="uw-bolt d"></i>
+          <i class="uw-blood"></i>
+        </div>
+        <div class="uw-bar-body uw-console-header">
           <div class="uw-side" id="uw-follower-slot">
-            <aside class="uw-social uw-social-inbar" id="uw-follower">
-              <span class="uw-social-bezel" aria-hidden="true">
-                <i class="uw-screw tl"></i><i class="uw-screw tr"></i>
-                <i class="uw-screw bl"></i><i class="uw-screw br"></i>
-                <i class="uw-s-chip a"></i><i class="uw-s-chip b"></i><i class="uw-s-chip c"></i>
-                <i class="uw-s-scratch a"></i><i class="uw-s-scratch b"></i><i class="uw-s-scratch c"></i>
-                <i class="uw-s-paint"></i><i class="uw-s-rust"></i><i class="uw-s-grime"></i>
-              </span>
-              <div class="uw-social-well">
-                <div class="uw-social-tag">LATEST FOLLOW</div>
-                <div class="uw-social-name" id="uw-follower-name"></div>
+            <aside class="uw-readout uw-social-inbar" id="uw-follower">
+              <div class="uw-readout-shell">
+                <div class="uw-readout-label">LATEST FOLLOW</div>
+                <div class="uw-readout-value" id="uw-follower-name"></div>
               </div>
             </aside>
+            <div class="uw-conduit" aria-hidden="true"><span></span><span></span><span></span></div>
           </div>
           <div class="uw-center">
-            <div class="uw-id-plate" id="uw-top-text">
-              <span class="uw-id-bezel" aria-hidden="true">
-                <i class="uw-screw tl"></i><i class="uw-screw tr"></i>
-                <i class="uw-screw bl"></i><i class="uw-screw br"></i>
-                <i class="uw-s-chip a"></i><i class="uw-s-scratch a"></i>
-                <i class="uw-s-paint"></i><i class="uw-s-rust"></i>
-              </span>
-              <div class="uw-id-well">
+            <div class="uw-housing" id="uw-top-text">
+              <div class="uw-housing-face">
                 <div class="uw-id-name" data-streamer-name>datguydaz</div>
-                <div class="uw-op-line">
-                  <span class="uw-op-led" aria-hidden="true"></span>
-                  <span id="uw-operator-suffix">OPERATOR ONLINE</span>
+              </div>
+              <div class="uw-op-strip">
+                <span class="uw-op-led" aria-hidden="true"></span>
+                <span id="uw-operator-suffix">OPERATOR ONLINE</span>
+              </div>
+              <div class="uw-utility" aria-hidden="true">
+                <div class="uw-grille"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <div class="uw-lamp">
+                  <span class="uw-lamp-bulb"></span>
+                  <span class="uw-lamp-spill"></span>
                 </div>
               </div>
             </div>
-            <div class="uw-rule" aria-hidden="true"></div>
           </div>
           <div class="uw-side uw-side-right" id="uw-subscriber-slot">
-            <aside class="uw-social uw-social-inbar" id="uw-subscriber">
-              <span class="uw-social-bezel" aria-hidden="true">
-                <i class="uw-screw tl"></i><i class="uw-screw tr"></i>
-                <i class="uw-screw bl"></i><i class="uw-screw br"></i>
-                <i class="uw-s-chip a"></i><i class="uw-s-chip b"></i><i class="uw-s-chip c"></i>
-                <i class="uw-s-scratch a"></i><i class="uw-s-scratch b"></i><i class="uw-s-scratch c"></i>
-                <i class="uw-s-paint"></i><i class="uw-s-rust"></i><i class="uw-s-grime"></i>
-              </span>
-              <div class="uw-social-well">
-                <div class="uw-social-tag">LATEST SUB</div>
-                <div class="uw-social-name" id="uw-subscriber-name"></div>
+            <div class="uw-conduit" aria-hidden="true"><span></span><span></span><span></span></div>
+            <aside class="uw-readout uw-social-inbar" id="uw-subscriber">
+              <div class="uw-readout-shell">
+                <div class="uw-readout-label">LATEST SUB</div>
+                <div class="uw-readout-value" id="uw-subscriber-name"></div>
               </div>
             </aside>
           </div>
-          <span class="uw-tick uw-tick-l" aria-hidden="true"></span>
-          <span class="uw-tick uw-tick-r" aria-hidden="true"></span>
-          <div class="uw-scan" aria-hidden="true"></div>
         </div>
-        <div class="uw-hazard-rail" aria-hidden="true"></div>
+        <div class="uw-seam uw-seam-bottom" aria-hidden="true"></div>
+        <div class="uw-atm-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       </div>
     </div>
     <script type="module" src="/src/pages/ultrawide.ts"></script>

@@ -72,14 +72,18 @@ function applyUltrawide(settings: OverlaySettings): void {
   const name = settings.streamerName || "datguydaz";
   if (topPlate) {
     const nameEl = topPlate.querySelector<HTMLElement>("[data-streamer-name]");
-    const opLine = topPlate.querySelector<HTMLElement>(".uw-op-line");
+    const opStrip = topPlate.querySelector<HTMLElement>(".uw-op-strip");
+    const housingFace = topPlate.querySelector<HTMLElement>(".uw-housing-face");
+    const utility = topPlate.querySelector<HTMLElement>(".uw-utility");
     const legacyTitle = topPlate.querySelector<HTMLElement>(".uw-legacy-title");
     if (uw.operatorLineOnTop !== false) {
       if (nameEl) {
         nameEl.hidden = false;
         nameEl.textContent = name;
       }
-      if (opLine) opLine.hidden = false;
+      if (housingFace) housingFace.hidden = false;
+      if (opStrip) opStrip.hidden = false;
+      if (utility) utility.hidden = false;
       if (legacyTitle) legacyTitle.hidden = true;
       if (opSuffix) {
         opSuffix.textContent =
@@ -87,7 +91,9 @@ function applyUltrawide(settings: OverlaySettings): void {
       }
     } else {
       if (nameEl) nameEl.hidden = true;
-      if (opLine) opLine.hidden = true;
+      if (housingFace) housingFace.hidden = true;
+      if (opStrip) opStrip.hidden = true;
+      if (utility) utility.hidden = true;
       let legacy = legacyTitle;
       if (!legacy) {
         legacy = document.createElement("div");

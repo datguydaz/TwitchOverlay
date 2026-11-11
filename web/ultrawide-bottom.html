@@ -14,21 +14,35 @@
   <body class="uw-bar-only" data-uw-mode="bottom">
     <div id="uw-stage" data-atm="on" data-vfx="on">
       <div class="uw-bar uw-bar-bottom" id="uw-bottom" data-edge="bottom">
-        <div class="uw-hazard-rail" aria-hidden="true"></div>
-        <div class="uw-bar-body">
-          <div class="uw-side" aria-hidden="true"></div>
+        <div class="uw-seam uw-seam-top" aria-hidden="true"></div>
+        <div class="uw-console-wear" aria-hidden="true">
+          <i class="uw-wear-patch flake-a"></i>
+          <i class="uw-wear-patch corr-a"></i>
+          <i class="uw-wear-patch streak-a"></i>
+          <i class="uw-wear-patch soot-a"></i>
+          <i class="uw-chip a"></i><i class="uw-chip b"></i>
+          <i class="uw-dent"></i>
+          <i class="uw-bolt a"></i><i class="uw-bolt c"></i>
+        </div>
+        <div class="uw-bar-body uw-console-footer">
+          <div class="uw-side">
+            <div class="uw-footer-vent" aria-hidden="true">
+              <div class="uw-vent-face"><i></i><i></i><i></i><i></i><i></i></div>
+              <span class="uw-vent-wisp"></span>
+            </div>
+          </div>
           <div class="uw-center">
-            <div class="uw-title" id="uw-bottom-text">HOLD THE LINE</div>
-            <div class="uw-rule" aria-hidden="true"></div>
+            <div class="uw-paint-panel">
+              <div class="uw-title" id="uw-bottom-text">HOLD THE LINE</div>
+            </div>
           </div>
           <div class="uw-side uw-side-right">
-            <div class="uw-status" id="uw-bottom-status">ZONE THREAT // RAID READY</div>
-            <div class="uw-meta">EQ LABEL // DESK LIVE</div>
+            <div class="uw-status-module">
+              <div class="uw-status" id="uw-bottom-status">ZONE THREAT // RAID READY</div>
+            </div>
           </div>
-          <span class="uw-tick uw-tick-l" aria-hidden="true"></span>
-          <span class="uw-tick uw-tick-r" aria-hidden="true"></span>
-          <div class="uw-scan" aria-hidden="true"></div>
         </div>
+        <div class="uw-atm-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       </div>
     </div>
     <script type="module" src="/src/pages/ultrawide.ts"></script>
