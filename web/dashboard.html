@@ -172,6 +172,29 @@
       </section>
 
       <section class="dash-panel">
+        <h2>Frame Text Effects</h2>
+        <p class="hint">Worn electrical-sign life on letterbox text only. Separate from Overlay Atmosphere. Base lettering stays readable; glow is a separate layer. Sim events are labeled — not live Twitch.</p>
+        <label class="inline"><input id="textFxEnabled" type="checkbox" /> Master enable</label>
+        <label>Intensity
+          <select id="textFxIntensity">
+            <option value="low">Low</option>
+            <option value="medium">Medium (default)</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+        <label class="inline"><input id="textFxReducedMotion" type="checkbox" /> Reduced motion</label>
+        <p class="hint">Simulated text-life previews:</p>
+        <div class="btn-row">
+          <button type="button" class="btn" data-atm-preview="text-dip">Sim backlight dip</button>
+          <button type="button" class="btn" data-atm-preview="text-sweep">Sim light sweep</button>
+          <button type="button" class="btn" data-atm-preview="text-op">Sim operator flutter</button>
+          <button type="button" class="btn" data-atm-preview="text-hold">Sim HOLD light fault</button>
+          <button type="button" class="btn" data-atm-preview="follow">Sim follow text react</button>
+          <button type="button" class="btn" data-atm-preview="sub">Sim sub text react</button>
+        </div>
+      </section>
+
+      <section class="dash-panel">
         <h2>Avatar & input</h2>
         <label>Animation intensity <input id="intensity" type="range" min="0.2" max="2" step="0.1" /></label>
         <label class="inline"><input id="lightsEnabled" type="checkbox" /> Equipment lights</label>

@@ -354,10 +354,20 @@ wss.on("connection", (ws, req) => {
           break;
         }
         const kind = String(msg.kind || "");
-        const allowed = new Set(["flicker", "smoke", "sparks", "follow", "sub"]);
+        const allowed = new Set([
+          "flicker",
+          "smoke",
+          "sparks",
+          "follow",
+          "sub",
+          "text-dip",
+          "text-sweep",
+          "text-op",
+          "text-hold",
+        ]);
         if (!allowed.has(kind)) break;
         broadcast(
-          { type: "atm-preview", kind: kind as "flicker" | "smoke" | "sparks" | "follow" | "sub" },
+          { type: "atm-preview", kind: kind as import("../shared/protocol.ts").AtmPreviewKind },
           (c) => meta.get(c)?.role === "overlay",
         );
         break;

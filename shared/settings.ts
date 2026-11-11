@@ -74,6 +74,14 @@ export interface AtmosphereSettings {
   reducedMotion: boolean;
 }
 
+/** Frame lettering life FX — separate from ambient atmosphere. */
+export interface TextEffectsSettings {
+  enabled: boolean;
+  intensity: AtmosphereIntensity;
+  /** Force-disable text motion even if OS allows it. */
+  reducedMotion: boolean;
+}
+
 export interface ChatSettings {
   enabled: boolean;
   /** Auto Zone Ops trash-talk on a timer. */
@@ -167,6 +175,7 @@ export interface OverlaySettings {
   social: SocialSettings;
   ultrawide: UltrawideSettings;
   atmosphere: AtmosphereSettings;
+  textEffects: TextEffectsSettings;
   demoModeDefault: boolean;
 }
 
@@ -241,6 +250,11 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     smoke: true,
     sparks: true,
     flicker: true,
+    reducedMotion: false,
+  },
+  textEffects: {
+    enabled: true,
+    intensity: "medium",
     reducedMotion: false,
   },
   demoModeDefault: false,
@@ -354,6 +368,17 @@ export function mergeSettings(
         sparks: a.sparks !== false,
         flicker: a.flicker !== false,
         reducedMotion: !!a.reducedMotion,
+      };
+    })(),
+    textEffects: (() => {
+      const t = { ...base.textEffects, ...partial.textEffects };
+      const raw = String(t.intensity || "medium").toLowerCase();
+      const intensity: AtmosphereIntensity =
+        raw === "low" ? "low" : raw === "high" ? "high" : "medium";
+      return {
+        enabled: t.enabled !== false,
+        intensity,
+        reducedMotion: !!t.reducedMotion,
       };
     })(),
   };

@@ -52,8 +52,17 @@ export interface ChatLineMessage {
   from: "dashboard" | "demo" | "system";
 }
 
-/** Dashboard-only preview of bunker atmosphere / social panel reaction. */
-export type AtmPreviewKind = "flicker" | "smoke" | "sparks" | "follow" | "sub";
+/** Dashboard-only preview of bunker atmosphere / social / text-life reaction. */
+export type AtmPreviewKind =
+  | "flicker"
+  | "smoke"
+  | "sparks"
+  | "follow"
+  | "sub"
+  | "text-dip"
+  | "text-sweep"
+  | "text-op"
+  | "text-hold";
 
 export interface AtmPreviewMessage {
   type: "atm-preview";

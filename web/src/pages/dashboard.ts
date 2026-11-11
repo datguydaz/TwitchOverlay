@@ -123,6 +123,11 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("atmReducedMotion") as HTMLInputElement).checked =
     s.atmosphere.reducedMotion;
 
+  (document.getElementById("textFxEnabled") as HTMLInputElement).checked = s.textEffects.enabled;
+  (document.getElementById("textFxIntensity") as HTMLSelectElement).value = s.textEffects.intensity;
+  (document.getElementById("textFxReducedMotion") as HTMLInputElement).checked =
+    s.textEffects.reducedMotion;
+
   for (const key of Object.keys(s.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);
     if (!root) continue;
@@ -267,6 +272,19 @@ function readForm(): OverlaySettings {
       sparks: (document.getElementById("atmSparks") as HTMLInputElement).checked,
       flicker: (document.getElementById("atmFlicker") as HTMLInputElement).checked,
       reducedMotion: (document.getElementById("atmReducedMotion") as HTMLInputElement)
+        .checked,
+    };
+  }
+
+  {
+    const intensityRaw = (
+      document.getElementById("textFxIntensity") as HTMLSelectElement
+    ).value;
+    next.textEffects = {
+      enabled: (document.getElementById("textFxEnabled") as HTMLInputElement).checked,
+      intensity:
+        intensityRaw === "low" || intensityRaw === "high" ? intensityRaw : "medium",
+      reducedMotion: (document.getElementById("textFxReducedMotion") as HTMLInputElement)
         .checked,
     };
   }
@@ -616,7 +634,12 @@ async function main(): Promise<void> {
       const kind = (btn as HTMLElement).dataset.atmPreview || "";
       if (!kind) return;
       dashWs?.send(JSON.stringify({ type: "atm-preview", kind }));
-      toast(`Atmosphere preview: ${kind} (simulated)`);
+      const textish = kind.startsWith("text-") || kind === "follow" || kind === "sub";
+      toast(
+        textish
+          ? `Sim event: ${kind} (labeled — not live Twitch)`
+          : `Atmosphere preview: ${kind} (simulated)`,
+      );
     });
   });
 

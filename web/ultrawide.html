@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/src/styles/ultrawide.css" />
   </head>
   <body>
-    <div id="uw-stage" data-atm="on" data-vfx="on">
+    <div id="uw-stage" data-atm="on" data-vfx="on" data-text-fx="on">
       <div class="uw-bar uw-bar-top" id="uw-top" data-edge="top">
         <div class="uw-console-wear" aria-hidden="true">
           <i class="uw-wear-patch flake-a"></i>
@@ -31,8 +31,14 @@
           <div class="uw-side" id="uw-follower-slot">
             <aside class="uw-readout uw-social-inbar" id="uw-follower">
               <div class="uw-readout-shell">
-                <div class="uw-readout-label">LATEST FOLLOW</div>
-                <div class="uw-readout-value" id="uw-follower-name"></div>
+                <div class="uw-readout-label" data-text-fx="follow-label">
+                  <span class="uw-text-glow" aria-hidden="true"></span>
+                  <span class="uw-text-face">LATEST FOLLOW</span>
+                </div>
+                <div class="uw-readout-value" data-text-fx="follow-name">
+                  <span class="uw-text-glow" aria-hidden="true"></span>
+                  <span class="uw-text-face" id="uw-follower-name"></span>
+                </div>
               </div>
             </aside>
             <div class="uw-conduit" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -41,11 +47,15 @@
           <div class="uw-center">
             <div class="uw-housing" id="uw-top-text">
               <div class="uw-housing-face">
-                <div class="uw-id-name" data-streamer-name>datguydaz</div>
+                <div class="uw-id-name" data-text-fx="id">
+                  <span class="uw-text-glow" aria-hidden="true"></span>
+                  <span class="uw-text-face" data-streamer-name>datguydaz</span>
+                </div>
               </div>
-              <div class="uw-op-strip">
+              <div class="uw-op-strip" data-text-fx="op">
                 <span class="uw-op-led" aria-hidden="true"></span>
-                <span id="uw-operator-suffix">OPERATOR ONLINE</span>
+                <span class="uw-text-glow" aria-hidden="true"></span>
+                <span class="uw-text-face" id="uw-operator-suffix">OPERATOR ONLINE</span>
               </div>
               <div class="uw-utility" aria-hidden="true">
                 <div class="uw-grille"><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -61,8 +71,14 @@
             <div class="uw-conduit" aria-hidden="true"><span></span><span></span><span></span></div>
             <aside class="uw-readout uw-social-inbar" id="uw-subscriber">
               <div class="uw-readout-shell">
-                <div class="uw-readout-label">LATEST SUB</div>
-                <div class="uw-readout-value" id="uw-subscriber-name"></div>
+                <div class="uw-readout-label" data-text-fx="sub-label">
+                  <span class="uw-text-glow" aria-hidden="true"></span>
+                  <span class="uw-text-face">LATEST SUB</span>
+                </div>
+                <div class="uw-readout-value" data-text-fx="sub-name">
+                  <span class="uw-text-glow" aria-hidden="true"></span>
+                  <span class="uw-text-face" id="uw-subscriber-name"></span>
+                </div>
               </div>
             </aside>
           </div>
@@ -90,13 +106,20 @@
             </div>
           </div>
           <div class="uw-center">
-            <div class="uw-paint-panel">
-              <div class="uw-title" id="uw-bottom-text">HOLD THE LINE</div>
+            <div class="uw-paint-panel" data-text-fx="hold">
+              <span class="uw-plate-lit" aria-hidden="true"></span>
+              <div class="uw-title" id="uw-bottom-text">
+                <span class="uw-text-glow" aria-hidden="true"></span>
+                <span class="uw-text-face">HOLD THE LINE</span>
+              </div>
             </div>
           </div>
           <div class="uw-side uw-side-right">
             <div class="uw-status-module">
-              <div class="uw-status" id="uw-bottom-status">ZONE THREAT // RAID READY</div>
+              <div class="uw-status" data-text-fx="status" id="uw-bottom-status">
+                <span class="uw-text-glow" aria-hidden="true"></span>
+                <span class="uw-text-face">ZONE THREAT // RAID READY</span>
+              </div>
             </div>
           </div>
         </div>
