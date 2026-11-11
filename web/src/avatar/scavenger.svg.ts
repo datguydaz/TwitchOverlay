@@ -55,19 +55,29 @@ export const scavengerSvg = `
       <stop offset="45%" stop-color="#000" stop-opacity="0"/>
       <stop offset="100%" stop-color="#000" stop-opacity="0.4"/>
     </linearGradient>
-    <!-- Exclusion-zone field crate desk — charcoal with olive undertone (not warm brown) -->
+    <!-- Battered olive steel workbench -->
     <linearGradient id="deskTopGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3a3c36"/>
-      <stop offset="40%" stop-color="#262822"/>
-      <stop offset="100%" stop-color="#141612"/>
+      <stop offset="0%" stop-color="#3e4436"/>
+      <stop offset="35%" stop-color="#2a3024"/>
+      <stop offset="100%" stop-color="#141810"/>
     </linearGradient>
     <linearGradient id="deskEdgeGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2a2c26"/>
-      <stop offset="100%" stop-color="#0a0c0a"/>
+      <stop offset="0%" stop-color="#2e3428"/>
+      <stop offset="100%" stop-color="#0a0c08"/>
     </linearGradient>
     <linearGradient id="deskGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2e322c"/>
+      <stop offset="0%" stop-color="#32382c"/>
       <stop offset="100%" stop-color="#121410"/>
+    </linearGradient>
+    <linearGradient id="oliveFrag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6a6640"/>
+      <stop offset="55%" stop-color="#3e3c28"/>
+      <stop offset="100%" stop-color="#1e1c12"/>
+    </linearGradient>
+    <linearGradient id="pistolSteel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3a3c40"/>
+      <stop offset="50%" stop-color="#1a1c20"/>
+      <stop offset="100%" stop-color="#0a0c10"/>
     </linearGradient>
     <clipPath id="visor-clip">
       <rect x="170" y="128" width="60" height="4.5" rx="0.4"/>
@@ -82,12 +92,10 @@ export const scavengerSvg = `
       <!-- Keep pouches + KILLA; cut belt that would pierce desk (local y) -->
       <rect x="40" y="100" width="320" height="128"/>
     </clipPath>
-    <clipPath id="desk-led-clip">
-      <rect x="58" y="293.5" width="284" height="2.2" rx="0.8"/>
-    </clipPath>
   </defs>
 
-  <ellipse cx="200" cy="318" rx="140" ry="14" fill="#000" opacity="0.45"/>
+  <!-- Soft contact shade under compact workbench (no big scenery) -->
+  <ellipse cx="200" cy="312" rx="150" ry="10" fill="#000" opacity="0.32"/>
 
   <!-- Operator: torso/head FIRST, desk AFTER so body sits behind desk lip (no torso-through-table). -->
   <g id="operator">
@@ -327,63 +335,90 @@ export const scavengerSvg = `
 
     <!--
       DESK after torso/head: body stays BEHIND the table.
-      Real field-table feel — worn plywood top, thick front apron, olive/charcoal/dirty-beige.
-      KB/mouse/hands paint AFTER this so they sit ON the surface (not through the lip).
+      Battered olive steel workbench — NO gold/glow strip, no big legs/scenery.
+      KB/mouse/hands paint AFTER this so they sit ON the surface.
     -->
     <g id="desk">
-      <!-- Charcoal field-crate top (olive undertone only — not warm brown) -->
-      <path id="desk-top" d="M22 256 H378 L362 290 H38 Z" fill="url(#deskTopGrad)" stroke="#4a5044" stroke-width="1.35"/>
-      <path id="desk-apron" d="M38 290 H362 L352 316 H48 Z" fill="url(#deskEdgeGrad)" stroke="#1a1c18" stroke-width="1.2"/>
-      <path d="M40 292 H360" stroke="#5a6355" stroke-width="1.1" opacity="0.4"/>
-      <path d="M48 316 H352" stroke="#050605" stroke-width="1.3" opacity="0.6"/>
-      <!-- Restrained Zone Ops desk LED strip — soft amber/olive chase under front lip -->
-      <g id="desk-rgb" opacity="0.92">
-        <rect x="56" y="293.5" width="288" height="2.2" rx="1.1" fill="#1a1408" stroke="#0a0a08" stroke-width="0.35"/>
-        <g id="desk-led-strip" clip-path="url(#desk-led-clip)">
-          <rect id="desk-led-core" class="desk-led-core" x="58" y="293.8" width="284" height="1.5" rx="0.75" fill="#c7923a" opacity="0.42"/>
-          <g class="desk-led-chase">
-            <rect x="58" y="293.8" width="48" height="1.5" rx="0.75" fill="#e0b050" opacity="0.85"/>
-            <rect x="118" y="293.8" width="36" height="1.5" rx="0.75" fill="#6b7355" opacity="0.7"/>
-            <rect x="168" y="293.8" width="48" height="1.5" rx="0.75" fill="#c7923a" opacity="0.8"/>
-            <rect x="230" y="293.8" width="36" height="1.5" rx="0.75" fill="#8a9060" opacity="0.65"/>
-            <rect x="280" y="293.8" width="48" height="1.5" rx="0.75" fill="#a87830" opacity="0.75"/>
-            <!-- duplicate for seamless chase wrap -->
-            <rect x="342" y="293.8" width="48" height="1.5" rx="0.75" fill="#e0b050" opacity="0.85"/>
-            <rect x="402" y="293.8" width="36" height="1.5" rx="0.75" fill="#6b7355" opacity="0.7"/>
-          </g>
-        </g>
-        <ellipse class="desk-led-glow" cx="200" cy="296" rx="120" ry="4.5" fill="#c7923a" opacity="0.14"/>
-        <ellipse class="desk-led-glow-b" cx="160" cy="296" rx="55" ry="3.2" fill="#6b7355" opacity="0.1"/>
+      <path id="desk-top" d="M12 256 H388 L372 290 H28 Z" fill="url(#deskTopGrad)" stroke="#4a5240" stroke-width="1.3"/>
+      <!-- Reinforced lip / apron (compact) -->
+      <path id="desk-apron" d="M28 290 H372 L364 308 H36 Z" fill="url(#deskEdgeGrad)" stroke="#1a1c18" stroke-width="1.15"/>
+      <path d="M30 292 H370" stroke="#5a6350" stroke-width="1" opacity="0.35"/>
+      <path d="M36 308 H364" stroke="#050605" stroke-width="1.2" opacity="0.55"/>
+      <!-- Chipped front edge -->
+      <path d="M70 290 L78 288 L86 290 L94 287 L104 290" fill="none" stroke="#0a0c08" stroke-width="1.1" opacity="0.55"/>
+      <path d="M300 290 L312 287 L322 290" fill="none" stroke="#0a0c08" stroke-width="1" opacity="0.45"/>
+      <!-- Corner bolts -->
+      <g id="desk-bolts" fill="#1a1c18" stroke="#4a5044" stroke-width="0.45">
+        <circle cx="34" cy="262" r="2.4"/><circle cx="34" cy="262" r="1.1" fill="#2a2e28" stroke="none"/>
+        <circle cx="366" cy="262" r="2.4"/><circle cx="366" cy="262" r="1.1" fill="#2a2e28" stroke="none"/>
+        <circle cx="42" cy="286" r="2.1"/><circle cx="42" cy="286" r="0.95" fill="#2a2e28" stroke="none"/>
+        <circle cx="358" cy="286" r="2.1"/><circle cx="358" cy="286" r="0.95" fill="#2a2e28" stroke="none"/>
       </g>
-      <path d="M52 316 V340 H78 V316 M322 316 V340 H348 V316" fill="#0c0e0c" stroke="#2a2e28"/>
-      <path d="M28 258 H372" stroke="#6b7355" stroke-width="1.05" opacity="0.35"/>
-      <g id="desk-grain" fill="none" stroke-linecap="butt" opacity="0.32">
-        <path d="M36 262 H368" stroke="#0e100e" stroke-width="0.55"/>
-        <path d="M40 268 H364" stroke="#3a4238" stroke-width="0.4"/>
-        <path d="M44 274 H360" stroke="#121410" stroke-width="0.45"/>
-        <path d="M48 280 H356" stroke="#4a5346" stroke-width="0.35"/>
-        <path d="M52 285 H352" stroke="#1a1c18" stroke-width="0.4"/>
-      </g>
-      <!-- Sparse dirty-beige / olive scuffs only (not a beige table) -->
-      <g id="desk-patina" opacity="0.14">
-        <ellipse cx="120" cy="270" rx="28" ry="6" fill="#6b7355"/>
-        <ellipse cx="280" cy="276" rx="22" ry="5" fill="#c4b896"/>
+      <path d="M18 258 H382" stroke="#6b7355" stroke-width="0.9" opacity="0.28"/>
+      <g id="desk-grain" fill="none" stroke-linecap="butt" opacity="0.34">
+        <path d="M24 262 H376" stroke="#0e100e" stroke-width="0.5"/>
+        <path d="M28 268 H372" stroke="#3a4234" stroke-width="0.38"/>
+        <path d="M32 274 H368" stroke="#121410" stroke-width="0.42"/>
+        <path d="M36 280 H364" stroke="#4a5346" stroke-width="0.32"/>
+        <path d="M40 285 H360" stroke="#1a1c18" stroke-width="0.38"/>
       </g>
       <g id="desk-wear" fill="none" stroke-linecap="round">
-        <path d="M96 268 Q118 272 132 266 Q148 263 168 270" stroke="#050605" stroke-width="1.25" opacity="0.7"/>
-        <path d="M118 267 L126 274" stroke="#0a0c0a" stroke-width="0.85" opacity="0.55"/>
-        <path d="M250 264 Q268 270 286 266" stroke="#1a1c18" stroke-width="1" opacity="0.5"/>
-        <path d="M300 274 L322 282" stroke="#0e100e" stroke-width="0.85" opacity="0.45"/>
-        <path d="M78 282 Q92 286 108 281" stroke="#121410" stroke-width="0.75" opacity="0.4"/>
-        <path d="M34 260 L44 266" stroke="#050605" stroke-width="0.7" opacity="0.45"/>
-        <path d="M366 260 L354 268" stroke="#050605" stroke-width="0.65" opacity="0.4"/>
+        <path d="M96 268 Q118 272 132 266 Q148 263 168 270" stroke="#050605" stroke-width="1.15" opacity="0.65"/>
+        <path d="M118 267 L126 274" stroke="#0a0c0a" stroke-width="0.8" opacity="0.5"/>
+        <path d="M250 264 Q268 270 286 266" stroke="#1a1c18" stroke-width="0.95" opacity="0.48"/>
+        <path d="M300 274 L322 282" stroke="#0e100e" stroke-width="0.8" opacity="0.42"/>
+        <path d="M78 282 Q92 286 108 281" stroke="#121410" stroke-width="0.7" opacity="0.38"/>
+        <path d="M22 260 L34 266" stroke="#050605" stroke-width="0.7" opacity="0.45"/>
+        <path d="M378 260 L366 268" stroke="#050605" stroke-width="0.65" opacity="0.4"/>
+      </g>
+      <!-- Faded inventory stencil + restrained dried blood (outside corner) -->
+      <g id="desk-stencil" opacity="0.28" fill="none" stroke="#8a9060" stroke-width="0.55">
+        <rect x="318" y="270" width="38" height="12" rx="0.6"/>
+        <text x="337" y="278.5" fill="#8a9060" stroke="none" font-family="ui-monospace, Consolas, monospace" font-size="4.2" text-anchor="middle" opacity="0.9">INV-04</text>
+      </g>
+      <g id="desk-blood" opacity="0.42">
+        <path d="M352 278 C358 282 364 286 360 288 C354 286 350 282 352 278 Z" fill="#3a1212"/>
+        <circle cx="348" cy="284" r="0.9" fill="#2e1010"/>
+        <circle cx="366" cy="282" r="0.55" fill="#2e1010"/>
       </g>
     </g>
 
-    <!-- RECTANGULAR Nordic KB ON desk top (never trapezoid). Thin charcoal border. -->
+    <!-- Static props — clear of KB/mousepad/hands/arm paths -->
+    <g id="prop-frag" pointer-events="none">
+      <ellipse cx="28" cy="284" rx="9" ry="2.4" fill="#000" opacity="0.28"/>
+      <ellipse cx="28" cy="276" rx="7.2" ry="9.5" fill="url(#oliveFrag)" stroke="#1a1810" stroke-width="0.7"/>
+      <ellipse cx="28" cy="268.5" rx="6.2" ry="2.2" fill="#4a4830" stroke="#1a1810" stroke-width="0.5"/>
+      <path d="M22 269 Q28 266 34 269" fill="none" stroke="#7a7650" stroke-width="0.7" opacity="0.45"/>
+      <!-- lever + pin -->
+      <path d="M34 270 L40 262 L38 260 L33 268 Z" fill="#2a2c28" stroke="#0a0c08" stroke-width="0.45"/>
+      <circle cx="39" cy="261" r="1.15" fill="none" stroke="#c7923a" stroke-width="0.55"/>
+      <path d="M39 261 L42 258" stroke="#8a8a70" stroke-width="0.55"/>
+      <path d="M24 274 H32 M24 278 H32 M24 282 H32" stroke="#1a1810" stroke-width="0.45" opacity="0.4"/>
+    </g>
+    <g id="prop-pistol" pointer-events="none">
+      <ellipse cx="362" cy="286" rx="14" ry="2.6" fill="#000" opacity="0.26"/>
+      <!-- worn dark pistol, diagonal muzzle out (no muzzle flash) -->
+      <g transform="translate(350 272) rotate(-28)">
+        <path d="M0 8 H28 L30 6 H0 Z" fill="url(#pistolSteel)" stroke="#05070a" stroke-width="0.55"/>
+        <path d="M0 8 L2 18 H10 L12 8 Z" fill="#121418" stroke="#05070a" stroke-width="0.5"/>
+        <rect x="4" y="10" width="4" height="6" rx="0.4" fill="#1a1c20"/>
+        <path d="M18 5.5 H26" stroke="#4a4c50" stroke-width="0.55" opacity="0.45"/>
+        <circle cx="8" cy="7" r="1.1" fill="#0a0c10" stroke="#3a3c40" stroke-width="0.35"/>
+      </g>
+    </g>
+
+    <!-- RECTANGULAR Nordic KB — rugged security-room office; same key slots/positions. -->
     <g id="prop-keyboard">
       <rect x="56" y="262" width="192" height="28" rx="2.2" fill="#0a0a0a" stroke="#4a4a4a" stroke-width="0.65"/>
-      <rect x="59" y="264.5" width="186" height="23" rx="1.4" fill="#121212"/>
+      <rect x="59" y="264.5" width="186" height="23" rx="1.4" fill="#101010"/>
+      <!-- matte casing wear + dirt between rows -->
+      <path d="M60 266 H244" stroke="#1a1a1a" stroke-width="0.5" opacity="0.55"/>
+      <path d="M60 286 H244" stroke="#050505" stroke-width="0.7" opacity="0.4"/>
+      <g id="kb-amber-leds" opacity="0.55">
+        <circle class="kb-led" cx="66" cy="264.2" r="0.85" fill="#c7923a"/>
+        <circle class="kb-led" cx="70" cy="264.2" r="0.85" fill="#a87830"/>
+        <circle class="kb-led" cx="74" cy="264.2" r="0.85" fill="#6a5020" opacity="0.7"/>
+      </g>
       <!-- Toward him (top): Z-row + SPC -->
       <g class="kb-row" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="0.45">
         <rect class="kb-deco" x="62" y="265.5" width="7" height="5" rx="0.6" fill="#161616"/>
@@ -443,13 +478,21 @@ export const scavengerSvg = `
       </g>
     </g>
 
-    <!-- Black rectangular mousepad ON desk top, charcoal mouse -->
+    <!-- Faded dark olive fabric pad + worn charcoal wired mouse (same contact geometry) -->
     <g id="prop-mousepad">
-      <rect x="288" y="264" width="56" height="26" rx="2" fill="#0a0a0a" stroke="#1a1a1a" stroke-width="0.55" opacity="0.94"/>
-      <rect x="291" y="266.5" width="50" height="21" rx="1.2" fill="#050505" opacity="0.5"/>
+      <rect x="288" y="264" width="56" height="26" rx="2.2" fill="#2a2e22" stroke="#1a1c18" stroke-width="0.55" opacity="0.95"/>
+      <rect x="291" y="266.5" width="50" height="21" rx="1.2" fill="#1e2218" opacity="0.55"/>
+      <path d="M290 266 Q300 268 310 265" fill="none" stroke="#3a3e30" stroke-width="0.55" opacity="0.4"/>
+      <path d="M320 286 Q330 284 340 287" fill="none" stroke="#121410" stroke-width="0.7" opacity="0.45"/>
+      <path d="M292 288 L298 286" stroke="#0a0c08" stroke-width="0.8" opacity="0.4"/>
     </g>
     <g id="prop-mouse">
+      <!-- short curved cable back (static) -->
+      <path id="mouse-cable" d="M328 272 Q338 268 344 260 Q348 254 352 250" fill="none" stroke="#1a1a1a" stroke-width="1.35" stroke-linecap="round"/>
+      <path d="M328 272 Q338 268 344 260" fill="none" stroke="#2a2a2a" stroke-width="0.55" opacity="0.5"/>
+      <ellipse cx="315" cy="286" rx="12" ry="2.2" fill="#000" opacity="0.2"/>
       <path d="M300 268 Q316 264 330 269 L328 284 Q315 289 302 284 Z" fill="#121212" stroke="#4a4a4a" stroke-width="0.85"/>
+      <path d="M302 270 Q316 266 328 271" fill="none" stroke="#2a2a2a" stroke-width="0.55" opacity="0.4"/>
       <path id="mouse-lmb" class="mouse-btn mouse-lmb" d="M301.5 268.5 Q309 265.5 314.6 268 L314.3 280 Q308.2 282.2 301.8 280 Z" fill="#1a1a1a"/>
       <path id="mouse-rmb" class="mouse-btn mouse-rmb" d="M315.5 268 Q321.5 266 328 270 L326.5 280 Q321 282.5 315.5 279.5 Z" fill="#1a1a1a"/>
       <g id="mouse-wheel" transform-origin="315px 274px">

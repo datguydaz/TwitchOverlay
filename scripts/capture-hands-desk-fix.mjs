@@ -28,6 +28,10 @@ const meta = await page.evaluate(() => {
     idx("prop-keyboard") < idx("hand-left") &&
     idx("prop-mouse") < idx("hand-left") &&
     idx("prop-mouse") < idx("hand-right") &&
+    idx("prop-frag") > idx("desk") &&
+    idx("prop-frag") < idx("hand-left") &&
+    idx("prop-pistol") > idx("desk") &&
+    idx("prop-pistol") < idx("hand-left") &&
     !kids.includes("arm-bridge-left") &&
     !kids.includes("arm-bridge-right");
 
@@ -150,11 +154,19 @@ const meta = await page.evaluate(() => {
     headScaleVal: (document.querySelector("#head-scale")?.getAttribute("transform") || "").match(
       /scale\(([\d.]+)\)/,
     )?.[1] || "",
-    hasDeskRgb: !!document.querySelector("#desk-rgb"),
-    deskLedChase: !!document.querySelector(".desk-led-chase"),
-    deskLedAnim: (() => {
-      const el = document.querySelector(".desk-led-chase");
-      return el ? getComputedStyle(el).animationName : "";
+    // Gold/glow desk strip removed — battered olive steel workbench
+    noDeskGoldStrip:
+      !document.querySelector("#desk-rgb") &&
+      !document.querySelector(".desk-led-chase") &&
+      !document.querySelector("#desk-led-core"),
+    hasDeskBolts: !!document.querySelector("#desk-bolts"),
+    hasFrag: !!document.querySelector("#prop-frag"),
+    hasPistol: !!document.querySelector("#prop-pistol"),
+    hasMouseCable: !!document.querySelector("#mouse-cable"),
+    kbAmberOnly: (() => {
+      const leds = document.querySelectorAll("#kb-amber-leds .kb-led");
+      if (!leds.length) return true;
+      return [...leds].every((el) => /c7923a|a87830|6a5020/i.test(el.getAttribute("fill") || ""));
     })(),
     continuousArms: (() => {
       const left = document.querySelector("#arm-left");
@@ -761,9 +773,12 @@ const pass =
   Number(meta.torsoScaleVal) > 0.85 &&
   Number(meta.torsoScaleVal) < 0.96 &&
   meta.headSmaller &&
-  meta.hasDeskRgb &&
-  meta.deskLedChase &&
-  String(meta.deskLedAnim).includes("desk-led-chase") &&
+  meta.noDeskGoldStrip &&
+  meta.hasDeskBolts &&
+  meta.hasFrag &&
+  meta.hasPistol &&
+  meta.hasMouseCable &&
+  meta.kbAmberOnly &&
   meta.continuousArms &&
   meta.helmWhiteMatch &&
   meta.helmCoversHead &&
@@ -812,8 +827,9 @@ console.log(
     nearPress: meta.nearPress,
     mouseLmb: meta.mouseLmb,
     mouseRmb: meta.mouseRmb,
-    hasDeskRgb: meta.hasDeskRgb,
-    deskLedAnim: meta.deskLedAnim,
+    noDeskGoldStrip: meta.noDeskGoldStrip,
+    hasFrag: meta.hasFrag,
+    hasPistol: meta.hasPistol,
     skinHands: meta.skinHands,
   }),
 );
