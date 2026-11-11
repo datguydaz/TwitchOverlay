@@ -4,9 +4,10 @@
  * stripes (no brand marks), chest-rig mass, KB+mouse under animatable hands.
  * Layers: #layer-torso #layer-head #eyes #hand-left #hand-right #prop-mouse
  */
-/** Hi-res vector base: 3× user-space (1200×1020) so OBS/browser scale stays sharp. */
+/** Hi-res vector base: 3× user-space. ViewBox pads above y=0 so helm stays fully
+ *  visible through idle-head / breath (no body shrink — framing only). */
 export const scavengerSvg = `
-<svg viewBox="0 0 1200 1020" width="1200" height="1020" xmlns="http://www.w3.org/2000/svg" aria-label="Zone scavenger avatar" role="img" shape-rendering="geometricPrecision">
+<svg viewBox="0 -60 1200 1080" width="1200" height="1080" xmlns="http://www.w3.org/2000/svg" aria-label="Zone scavenger avatar" role="img" shape-rendering="geometricPrecision" overflow="visible">
   <g id="avatar-draw" transform="scale(3)">
   <defs>
     <!-- Olive/tan plate carrier (literal photo — warmer drab, not pure green) -->
@@ -84,21 +85,14 @@ export const scavengerSvg = `
     </clipPath>
     <!-- Stripes clipped to Maska unit ~1×1.2 (shallow dome + squared shield) -->
     <clipPath id="maska-shell-clip">
-      <path d="M164 118 C164 96 176 80 200 78 C224 80 236 96 236 118
+      <!-- Slight top pad so stripe tips aren't hard-clipped at the dome apex -->
+      <path d="M164 118 C164 94 176 76 200 74 C224 76 236 94 236 118
         L238 140 L240 168 L230 172 L170 172 L160 168 L162 140 Z"/>
     </clipPath>
     <!-- Clip vest/core only — sleeves live outside so they aren't hard-stumped -->
     <clipPath id="torso-above-desk">
       <!-- Keep pouches + KILLA; cut belt that would pierce desk (local y) -->
       <rect x="40" y="100" width="320" height="128"/>
-    </clipPath>
-    <!-- Fat continuous sleeves (same black language L/R); stripes clipped inside fill.
-         Body-side stays INBOARD (~36–44u from outer) so mid-arm is a solid tube, not a 4u rim. -->
-    <clipPath id="clip-sleeve-left">
-      <path d="M216 164 L96 164 C84 182 78 214 86 242 C94 258 106 266 118 268 L152 266 C168 252 188 236 198 214 C206 194 212 176 216 164 Z"/>
-    </clipPath>
-    <clipPath id="clip-sleeve-right">
-      <path d="M188 164 L304 164 C316 182 322 214 314 242 C306 258 310 266 314 268 L282 266 C270 250 258 228 248 206 C236 186 214 172 188 164 Z"/>
     </clipPath>
   </defs>
 
@@ -123,6 +117,19 @@ export const scavengerSvg = `
         C270 188 268 210 260 228
         L140 228
         C132 210 130 188 136 168 Z" fill="url(#suitDark)" stroke="#05070a" stroke-width="1.2"/>
+      <!-- Upper arms under vest — connect to stroke-sleeve roots (no floating forearms) -->
+      <path id="suit-upper-arm-l" d="M134 158
+        C122 166 116 182 118 200
+        C120 212 124 218 130 220
+        L142 218
+        C140 200 138 178 144 164
+        Z" fill="#0c0e12" stroke="#05070a" stroke-width="0.7"/>
+      <path id="suit-upper-arm-r" d="M266 158
+        C278 166 284 182 282 200
+        C280 212 276 218 270 220
+        L258 218
+        C260 200 262 178 256 164
+        Z" fill="#0c0e12" stroke="#05070a" stroke-width="0.7"/>
       <!-- Raised fabric collar — helm sits low inside (vest plate paints AFTER sleeves) -->
       <path id="padded-collar" d="M162 112
         Q200 98 238 112
@@ -424,9 +431,9 @@ export const scavengerSvg = `
     </g>
 
     <!--
-      ONE continuous stroke per arm (no separate shoulder bulbs — those read as a gap).
-      Deep under-vest roots tuck under #vest-front; same weights/stripes/elbow language.
-      #hand-*-aim owns key/mouse motion (rotate about shoulder — no whole-arm slide).
+      Stroke sleeves (approved 1dd2ef8 language): narrow bent fabric along a centerline,
+      stroke-width ~22 — NOT closed filled panels. Roots at vest pivots; #vest-front
+      covers shoulder stubs. #hand-*-aim owns key/mouse rotate (no whole-arm slide).
     -->
     <g id="hand-left">
       <g id="hand-left-pivot" transform="translate(128 220)">
@@ -434,60 +441,29 @@ export const scavengerSvg = `
           <circle cx="0" cy="0" r="0.5" fill="none" opacity="0"/>
           <g id="hand-left-sit" transform="translate(-128 -220)">
             <g id="arm-left" class="arm-continuous">
-              <!--
-                Solid black sleeve tube (same language as mouse arm):
-                under-vest root → fat outboard → bent elbow → cuff into KB hand.
-                Body-side stays inboard so mid-arm width stays ~40u (not a hollow rim).
-              -->
-              <!--
-                Body-side (+x) stays UNDER vest through armpit (no grey corridor /
-                straight vertical cut floating beside olive). Mirror mouse underlap depth.
-              -->
-              <path id="sleeve-left-bridge" d="M220 162
-                L92 162
-                C80 180 74 212 82 240
-                C90 256 102 264 118 268
-                L156 264
-                C172 250 192 234 202 212
-                C210 192 216 174 220 162 Z"
-                fill="#12161e"/>
-              <path id="sleeve-left-fill" d="M216 164
-                L96 164
-                C84 182 78 214 86 242
-                C94 258 106 266 118 268
-                L152 266
-                C168 252 188 236 198 214
-                C206 194 212 176 216 164 Z"
-                fill="#12161e"/>
-              <!-- Dark AO only — no light rim (light rims read as white wireframe on dark OBS bg) -->
-              <path d="M96 164 C84 182 78 214 86 242 C94 258 106 266 118 268"
-                fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
-              <path d="M208 168
-                L108 168
-                C96 186 90 214 98 238
-                C104 252 112 262 122 266
-                L144 264
-                C160 250 178 234 188 214
-                C196 194 204 176 208 168 Z"
-                fill="#1a1e28" opacity="0.4"/>
-              <g id="sleeve-stripes-left" clip-path="url(#clip-sleeve-left)" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="1.7">
-                <path d="M178 174 C158 190 140 214 126 236 L116 252 L120 260 L126 266"/>
-                <path d="M184 172 C164 188 146 212 132 234 L122 250 L126 258 L132 266"/>
-                <path d="M190 170 C170 186 152 210 138 232 L128 248 L132 256 L136 264"/>
+              <!-- Black Adidas sleeve: baggy thickness + round joins; same path for aim -->
+              <path d="M128 220 L116 236 L110 250 L114 260 L118 268" fill="none" stroke="#050507" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+              <path id="sleeve-left-fill" d="M128 220 L116 236 L110 250 L114 260 L118 268" fill="none" stroke="#0e0e0e" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M128 220 L116 236 L110 250 L114 260 L118 268" fill="none" stroke="#181a1e" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+              <!-- 3 off-white stripes following sleeve bend -->
+              <g id="sleeve-stripes-left" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.15">
+                <path d="M128 220 L116 236 L110 250 L114 260 L118 268" transform="translate(-4.2 0)"/>
+                <path d="M128 220 L116 236 L110 250 L114 260 L118 268"/>
+                <path d="M128 220 L116 236 L110 250 L114 260 L118 268" transform="translate(4.2 0)"/>
               </g>
-              <g id="sleeve-folds-left" clip-path="url(#clip-sleeve-left)" fill="none" stroke-linecap="round">
-                <path d="M138 226 Q130 234 126 232" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
-                <path d="M126 240 Q118 248 116 246" stroke="#000" stroke-width="0.85" opacity="0.38"/>
-                <path d="M116 252 Q110 258 112 256" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
+              <g id="sleeve-folds-left" fill="none" stroke-linecap="round">
+                <path d="M104 246 Q110 250 116 248" stroke="#2a2c30" stroke-width="1.1" opacity="0.55"/>
+                <path d="M106 252 Q112 256 118 254" stroke="#000" stroke-width="0.9" opacity="0.4"/>
+                <path d="M112 258 Q116 262 120 260" stroke="#2a2c30" stroke-width="0.8" opacity="0.35"/>
               </g>
-              <g id="sleeve-wear-left" clip-path="url(#clip-sleeve-left)" fill="none" stroke-linecap="round">
-                <path d="M158 196 L146 210" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
-                <path d="M140 220 L130 234" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
-                <path d="M122 246 Q116 252 118 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
+              <g id="sleeve-wear-left" fill="none" stroke-linecap="round">
+                <path d="M118 232 L110 238" stroke="#c8c2b0" stroke-width="0.55" opacity="0.28"/>
+                <path d="M114 246 L108 252" stroke="#5a5040" stroke-width="0.7" opacity="0.35"/>
+                <path d="M108 248 Q112 252 110 256" stroke="#3a3428" stroke-width="1.2" opacity="0.25"/>
               </g>
-              <ellipse cx="118" cy="268" rx="7.6" ry="4.1" fill="#12161e" stroke="#050505" stroke-width="0.75"/>
-              <ellipse cx="118" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
-              <path d="M111 266 H125" stroke="#000" stroke-width="0.55" opacity="0.32"/>
+              <ellipse cx="118" cy="268" rx="8.2" ry="4.4" fill="#121418" stroke="#050505" stroke-width="0.75"/>
+              <ellipse cx="118" cy="267.2" rx="6.6" ry="2.6" fill="none" stroke="#2a2e34" stroke-width="0.7" opacity="0.55"/>
+              <path d="M110 266 H126" stroke="#000" stroke-width="0.6" opacity="0.35"/>
             </g>
             <!-- Hands stay at approved KB rest pose -->
             <path d="M100 264 L138 262 L140 274 L103 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
@@ -507,49 +483,26 @@ export const scavengerSvg = `
             <circle cx="0" cy="0" r="0.5" fill="none" opacity="0"/>
             <g id="hand-right-sit" transform="translate(-272 -220)">
               <g id="arm-right" class="arm-continuous">
-                <!-- Mirror of left tube: same #0a0c10, inboard body-side, cuff into mouse hand 314 -->
-                <path id="sleeve-right-bridge" d="M184 162
-                  L308 162
-                  C320 180 326 212 318 240
-                  C310 256 306 264 314 268
-                  L278 264
-                  C266 248 254 226 242 204
-                  C230 184 210 168 184 162 Z"
-                  fill="#12161e"/>
-                <path id="sleeve-right-fill" d="M188 164
-                  L304 164
-                  C316 182 322 214 314 242
-                  C306 258 310 266 314 268
-                  L282 266
-                  C270 250 258 228 248 206
-                  C236 186 214 172 188 164 Z"
-                  fill="#12161e"/>
-                <path d="M304 164 C316 182 322 214 314 242 C306 258 310 266 314 268"
-                  fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
-                <path d="M196 168
-                  L292 168
-                  C304 186 310 214 302 238
-                  C296 252 300 262 306 266
-                  L288 264
-                  C278 248 268 226 258 206
-                  C246 186 224 172 196 168 Z"
-                  fill="#1a1e28" opacity="0.4"/>
-                <g id="sleeve-stripes-right" clip-path="url(#clip-sleeve-right)" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="1.7">
-                  <path d="M226 174 C246 190 264 214 278 236 L288 252 L298 260 L310 266"/>
-                  <path d="M220 172 C240 188 258 212 272 234 L282 250 L292 258 L306 266"/>
-                  <path d="M214 170 C234 186 252 210 266 232 L276 248 L286 256 L302 264"/>
+                <!-- Match left sleeve construction: same stroke weights + stripe treatment -->
+                <path d="M272 220 L286 236 L298 250 L306 260 L314 268" fill="none" stroke="#050507" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+                <path id="sleeve-right-fill" d="M272 220 L286 236 L298 250 L306 260 L314 268" fill="none" stroke="#0e0e0e" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M272 220 L286 236 L298 250 L306 260 L314 268" fill="none" stroke="#181a1e" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+                <g id="sleeve-stripes-right" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.15">
+                  <path d="M272 220 L286 236 L298 250 L306 260 L314 268" transform="translate(-4.2 0)"/>
+                  <path d="M272 220 L286 236 L298 250 L306 260 L314 268"/>
+                  <path d="M272 220 L286 236 L298 250 L306 260 L314 268" transform="translate(4.2 0)"/>
                 </g>
-                <g id="sleeve-folds-right" clip-path="url(#clip-sleeve-right)" fill="none" stroke-linecap="round">
-                  <path d="M262 226 Q270 234 274 232" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
-                  <path d="M274 240 Q282 248 284 246" stroke="#000" stroke-width="0.85" opacity="0.38"/>
-                  <path d="M284 252 Q290 258 288 256" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
+                <g id="sleeve-folds-right" fill="none" stroke-linecap="round">
+                  <path d="M292 246 Q298 250 304 248" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
+                  <path d="M294 252 Q300 256 306 254" stroke="#000" stroke-width="0.85" opacity="0.38"/>
+                  <path d="M300 258 Q306 262 310 260" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
                 </g>
-                <g id="sleeve-wear-right" clip-path="url(#clip-sleeve-right)" fill="none" stroke-linecap="round">
-                  <path d="M242 196 L254 210" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
-                  <path d="M260 220 L270 234" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
-                  <path d="M278 246 Q284 252 282 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
+                <g id="sleeve-wear-right" fill="none" stroke-linecap="round">
+                  <path d="M282 232 L290 238" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
+                  <path d="M294 246 L300 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
+                  <path d="M298 248 Q302 252 300 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
                 </g>
-                <ellipse cx="314" cy="268" rx="7.6" ry="4.1" fill="#12161e" stroke="#050505" stroke-width="0.75"/>
+                <ellipse cx="314" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
                 <ellipse cx="314" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
                 <path d="M307 266 H321" stroke="#000" stroke-width="0.55" opacity="0.32"/>
               </g>
