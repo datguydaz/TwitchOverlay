@@ -93,30 +93,6 @@ function fillForm(s: OverlaySettings): void {
       ? ""
       : s.social.latestSubscriber;
 
-  (document.getElementById("goalFolEnabled") as HTMLInputElement).checked = s.goals.follower.enabled;
-  (document.getElementById("goalFolTitle") as HTMLInputElement).value = s.goals.follower.title;
-  (document.getElementById("goalFolCurrent") as HTMLInputElement).value = String(
-    s.goals.follower.current,
-  );
-  (document.getElementById("goalFolTarget") as HTMLInputElement).value = String(
-    s.goals.follower.target,
-  );
-  (document.getElementById("goalFolPlatform") as HTMLSelectElement).value =
-    s.goals.follower.platform;
-  (document.getElementById("goalFolMetric") as HTMLSelectElement).value = s.goals.follower.metric;
-  (document.getElementById("goalSubEnabled") as HTMLInputElement).checked =
-    s.goals.subscriber.enabled;
-  (document.getElementById("goalSubTitle") as HTMLInputElement).value = s.goals.subscriber.title;
-  (document.getElementById("goalSubCurrent") as HTMLInputElement).value = String(
-    s.goals.subscriber.current,
-  );
-  (document.getElementById("goalSubTarget") as HTMLInputElement).value = String(
-    s.goals.subscriber.target,
-  );
-  (document.getElementById("goalSubPlatform") as HTMLSelectElement).value =
-    s.goals.subscriber.platform;
-  (document.getElementById("goalSubMetric") as HTMLSelectElement).value = s.goals.subscriber.metric;
-
   (document.getElementById("uwCanvasWidth") as HTMLInputElement).value = String(
     s.ultrawide.canvasWidth,
   );
@@ -253,41 +229,6 @@ function readForm(): OverlaySettings {
   delete next.social.latestSubscriberSample;
   delete next.social.followerPlacement;
   delete next.social.subscriberPlacement;
-
-  {
-    const folPlat = (document.getElementById("goalFolPlatform") as HTMLSelectElement).value;
-    const subPlat = (document.getElementById("goalSubPlatform") as HTMLSelectElement).value;
-    const folMetric = (document.getElementById("goalFolMetric") as HTMLSelectElement).value;
-    const subMetric = (document.getElementById("goalSubMetric") as HTMLSelectElement).value;
-    next.goals = {
-      follower: {
-        enabled: (document.getElementById("goalFolEnabled") as HTMLInputElement).checked,
-        title: (document.getElementById("goalFolTitle") as HTMLInputElement).value,
-        current: Number((document.getElementById("goalFolCurrent") as HTMLInputElement).value),
-        target: Number((document.getElementById("goalFolTarget") as HTMLInputElement).value),
-        platform: folPlat === "twitch" || folPlat === "kick" ? folPlat : "manual",
-        metric:
-          folMetric === "total-followers" || folMetric === "session-follows"
-            ? folMetric
-            : "session-follows",
-        completed: next.goals?.follower?.completed ?? false,
-        completedAt: next.goals?.follower?.completedAt ?? null,
-      },
-      subscriber: {
-        enabled: (document.getElementById("goalSubEnabled") as HTMLInputElement).checked,
-        title: (document.getElementById("goalSubTitle") as HTMLInputElement).value,
-        current: Number((document.getElementById("goalSubCurrent") as HTMLInputElement).value),
-        target: Number((document.getElementById("goalSubTarget") as HTMLInputElement).value),
-        platform: subPlat === "twitch" || subPlat === "kick" ? subPlat : "manual",
-        metric:
-          subMetric === "total-subscribers" || subMetric === "session-subs"
-            ? subMetric
-            : "session-subs",
-        completed: next.goals?.subscriber?.completed ?? false,
-        completedAt: next.goals?.subscriber?.completedAt ?? null,
-      },
-    };
-  }
 
   next.ultrawide.canvasWidth = Number(
     (document.getElementById("uwCanvasWidth") as HTMLInputElement).value,
@@ -693,14 +634,10 @@ async function main(): Promise<void> {
       const kind = (btn as HTMLElement).dataset.atmPreview || "";
       if (!kind) return;
       dashWs?.send(JSON.stringify({ type: "atm-preview", kind }));
-      const textish =
-        kind.startsWith("text-") ||
-        kind.startsWith("goal-") ||
-        kind === "follow" ||
-        kind === "sub";
+      const textish = kind.startsWith("text-") || kind === "follow" || kind === "sub";
       toast(
         textish
-          ? `Sim event: ${kind} (labeled — not live Twitch / does not mutate totals)`
+          ? `Sim event: ${kind} (labeled — does not overwrite saved names)`
           : `Atmosphere preview: ${kind} (simulated)`,
       );
     });

@@ -1,15 +1,7 @@
 import type { AtmosphereIntensity, TextEffectsSettings } from "../../../shared/settings.ts";
 import type { AtmPreviewKind } from "../../../shared/protocol.ts";
 
-type Target =
-  | "id"
-  | "op"
-  | "follow-label"
-  | "follow-name"
-  | "sub-label"
-  | "sub-name"
-  | "hold"
-  | "status";
+type Target = "id" | "op" | "hold" | "status";
 
 const INTENSITY: Record<
   AtmosphereIntensity,
@@ -20,8 +12,7 @@ const INTENSITY: Record<
   high: { dipMin: 2800, dipSpan: 4500, sweepMin: 5500, sweepSpan: 8000, opMin: 900, opSpan: 1600, holdMin: 4000, holdSpan: 6500 },
 };
 
-const ELECTRONIC: Target[] = ["follow-label", "follow-name", "sub-label", "sub-name", "status"];
-const SIGN: Target[] = ["id", "op", "hold", ...ELECTRONIC];
+const SIGN: Target[] = ["id", "op", "hold", "status"];
 
 /**
  * Worn electrical-sign text life — opacity/transform only; glow layer separate.
@@ -58,19 +49,13 @@ export class TextLifeVfx {
     this.scheduleGhost();
   }
 
-  pulseSocial(kind: "follow" | "sub"): void {
-    if (this.stage.dataset.textFx !== "on") return;
-    const label = kind === "follow" ? "follow-label" : "sub-label";
-    const name = kind === "follow" ? "follow-name" : "sub-name";
-    this.pulse(label, "activate", 820);
-    this.pulse(name, "activate", 820);
+  /** Follow/sub glass events are handled by SocialReadoutAnim — not here. */
+  pulseSocial(_kind: "follow" | "sub"): void {
+    /* no-op */
   }
 
   preview(kind: AtmPreviewKind): void {
-    if (kind === "follow" || kind === "sub") {
-      this.pulseSocial(kind);
-      return;
-    }
+    if (kind === "follow" || kind === "sub") return;
     if (kind === "text-dip") this.triggerDip();
     else if (kind === "text-sweep") this.triggerSweep();
     else if (kind === "text-op") this.triggerOp(true);
@@ -157,8 +142,7 @@ export class TextLifeVfx {
     this.timers.push(
       window.setTimeout(() => {
         if (this.disposed || this.stage.dataset.textFx !== "on") return;
-        const t = ELECTRONIC[(Math.random() * ELECTRONIC.length) | 0];
-        this.pulse(t, "ghost", 700);
+        this.pulse("status", "ghost", 700);
         this.scheduleGhost();
       }, delay),
     );

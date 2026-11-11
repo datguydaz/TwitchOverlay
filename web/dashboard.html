@@ -123,58 +123,15 @@
 
       <section class="dash-panel">
         <h2>Latest follow / sub</h2>
-        <p class="hint">Sit in the ultrawide <strong>top bar</strong> corners (replacing FIELD NET / uplink). Leave blank until Twitch/Kick is wired — no fake demo names or dash placeholders.</p>
+        <p class="hint">Smoked-glass readouts in the ultrawide <strong>top bar</strong>. Leave blank until Twitch/Kick is wired. Demo buttons below animate LATEST FOLLOW / SUB only — they never overwrite saved names.</p>
         <label class="inline"><input id="socialShowFollower" type="checkbox" /> Show latest follower</label>
         <label class="inline"><input id="socialShowSubscriber" type="checkbox" /> Show latest subscriber</label>
         <label>Latest follower <input id="socialFollowerName" type="text" placeholder="name" /></label>
         <label>Latest subscriber <input id="socialSubscriberName" type="text" placeholder="name" /></label>
-      </section>
-
-      <section class="dash-panel">
-        <h2>Follower / sub goals</h2>
-        <p class="hint">Footer meters left/right of HOLD THE LINE. Twitch/Kick live bridges are <strong>not wired yet</strong> — choose Manual (or Twitch/Kick as future target) and set current/target here. Completion persists; celebration does not replay on refresh. Preview buttons are labeled sims and never mutate real totals.</p>
-        <h3>Follower goal</h3>
-        <label class="inline"><input id="goalFolEnabled" type="checkbox" /> Enable</label>
-        <label>Title <input id="goalFolTitle" type="text" /></label>
-        <label>Current <input id="goalFolCurrent" type="number" min="0" step="1" /></label>
-        <label>Target <input id="goalFolTarget" type="number" min="1" step="1" /></label>
-        <label>Platform
-          <select id="goalFolPlatform">
-            <option value="manual">Manual</option>
-            <option value="twitch">Twitch (bridge later)</option>
-            <option value="kick">Kick (bridge later)</option>
-          </select>
-        </label>
-        <label>Metric
-          <select id="goalFolMetric">
-            <option value="session-follows">Session follows</option>
-            <option value="total-followers">Total followers</option>
-          </select>
-        </label>
-        <h3>Sub goal</h3>
-        <label class="inline"><input id="goalSubEnabled" type="checkbox" /> Enable</label>
-        <label>Title <input id="goalSubTitle" type="text" /></label>
-        <label>Current <input id="goalSubCurrent" type="number" min="0" step="1" /></label>
-        <label>Target <input id="goalSubTarget" type="number" min="1" step="1" /></label>
-        <label>Platform
-          <select id="goalSubPlatform">
-            <option value="manual">Manual</option>
-            <option value="twitch">Twitch (bridge later)</option>
-            <option value="kick">Kick (bridge later)</option>
-          </select>
-        </label>
-        <label>Metric
-          <select id="goalSubMetric">
-            <option value="session-subs">Session subs</option>
-            <option value="total-subscribers">Total subscribers</option>
-          </select>
-        </label>
-        <p class="hint">Simulated goal previews (labeled — do not change saved totals):</p>
+        <p class="hint">Labeled demos (sample names, restore after anim):</p>
         <div class="btn-row">
-          <button type="button" class="btn" data-atm-preview="goal-follow-inc">Sim follow +1</button>
-          <button type="button" class="btn" data-atm-preview="goal-sub-inc">Sim sub +1</button>
-          <button type="button" class="btn" data-atm-preview="goal-follow-complete">Sim follow complete</button>
-          <button type="button" class="btn" data-atm-preview="goal-sub-complete">Sim sub complete</button>
+          <button type="button" class="btn" data-atm-preview="follow">Demo follow event</button>
+          <button type="button" class="btn" data-atm-preview="sub">Demo sub event</button>
         </div>
       </section>
 
@@ -214,8 +171,6 @@
           <button type="button" class="btn" data-atm-preview="flicker">Preview flicker</button>
           <button type="button" class="btn" data-atm-preview="smoke">Preview smoke</button>
           <button type="button" class="btn" data-atm-preview="sparks">Preview sparks</button>
-          <button type="button" class="btn" data-atm-preview="follow">Sim follow react</button>
-          <button type="button" class="btn" data-atm-preview="sub">Sim sub react</button>
         </div>
       </section>
 
@@ -237,8 +192,6 @@
           <button type="button" class="btn" data-atm-preview="text-sweep">Sim light sweep</button>
           <button type="button" class="btn" data-atm-preview="text-op">Sim operator flutter</button>
           <button type="button" class="btn" data-atm-preview="text-hold">Sim HOLD light fault</button>
-          <button type="button" class="btn" data-atm-preview="follow">Sim follow text react</button>
-          <button type="button" class="btn" data-atm-preview="sub">Sim sub text react</button>
         </div>
       </section>
 

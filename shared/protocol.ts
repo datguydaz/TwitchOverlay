@@ -62,11 +62,7 @@ export type AtmPreviewKind =
   | "text-dip"
   | "text-sweep"
   | "text-op"
-  | "text-hold"
-  | "goal-follow-inc"
-  | "goal-sub-inc"
-  | "goal-follow-complete"
-  | "goal-sub-complete";
+  | "text-hold";
 
 export interface AtmPreviewMessage {
   type: "atm-preview";

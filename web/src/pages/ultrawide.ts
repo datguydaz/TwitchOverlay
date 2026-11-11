@@ -4,7 +4,7 @@ import {
 } from "../lib/settingsClient.ts";
 import { AtmosphereVfx } from "../lib/atmosphereVfx.ts";
 import { TextLifeVfx } from "../lib/textLifeVfx.ts";
-import { GoalMeters } from "../lib/goalMeters.ts";
+import { SocialReadoutAnim } from "../lib/socialReadoutAnim.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 import type { AtmPreviewKind } from "../../../shared/protocol.ts";
 
@@ -38,22 +38,19 @@ function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
 
 let atm: AtmosphereVfx | null = null;
 let textFx: TextLifeVfx | null = null;
-let goals: GoalMeters | null = null;
+let socialAnim: SocialReadoutAnim | null = null;
 let lastFollower = "";
 let lastSubscriber = "";
+let bootstrappedSocial = false;
 
 const TEXT_PREVIEW = new Set<AtmPreviewKind>(["text-dip", "text-sweep", "text-op", "text-hold"]);
-const ATM_PREVIEW = new Set<AtmPreviewKind>(["flicker", "smoke", "sparks"]);
-const GOAL_PREVIEW = new Set<AtmPreviewKind>([
-  "goal-follow-inc",
-  "goal-sub-inc",
-  "goal-follow-complete",
-  "goal-sub-complete",
-]);
+
+const DEMO_FOLLOW = "ZONE_SCOUT";
+const DEMO_SUB = "RAID_READY";
 
 function applyUltrawide(settings: OverlaySettings): void {
   const uw = settings.ultrawide;
-  const mode = document.body.dataset.uwMode; // top | bottom | undefined (full)
+  const mode = document.body.dataset.uwMode;
   const stage = qs<HTMLElement>("#uw-stage");
   if (!stage) return;
 
@@ -93,16 +90,16 @@ function applyUltrawide(settings: OverlaySettings): void {
   const name = settings.streamerName || "datguydaz";
   if (topPlate) {
     const nameEl = topPlate.querySelector<HTMLElement>("[data-streamer-name]");
-    const opStrip = topPlate.querySelector<HTMLElement>(".uw-op-strip");
-    const housingFace = topPlate.querySelector<HTMLElement>(".uw-housing-face");
-    const utility = topPlate.querySelector<HTMLElement>(".uw-utility");
+    const opStrip = topPlate.querySelector<HTMLElement>(".uw-op-readout");
+    const stencil = topPlate.querySelector<HTMLElement>(".uw-stencil");
+    const utility = topPlate.querySelector<HTMLElement>(".uw-util-lamp");
     const legacyTitle = topPlate.querySelector<HTMLElement>(".uw-legacy-title");
     if (uw.operatorLineOnTop !== false) {
       if (nameEl) {
         nameEl.hidden = false;
         nameEl.textContent = name;
       }
-      if (housingFace) housingFace.hidden = false;
+      if (stencil) stencil.hidden = false;
       if (opStrip) opStrip.hidden = false;
       if (utility) utility.hidden = false;
       if (legacyTitle) legacyTitle.hidden = true;
@@ -112,7 +109,7 @@ function applyUltrawide(settings: OverlaySettings): void {
       }
     } else {
       if (nameEl) nameEl.hidden = true;
-      if (housingFace) housingFace.hidden = true;
+      if (stencil) stencil.hidden = true;
       if (opStrip) opStrip.hidden = true;
       if (utility) utility.hidden = true;
       let legacy = legacyTitle;
@@ -136,10 +133,12 @@ function applyUltrawide(settings: OverlaySettings): void {
   const subscriberName = qs<HTMLElement>("#uw-subscriber-name");
   const nextFol = displayName(social.latestFollower ?? social.latestFollowerSample);
   const nextSub = displayName(social.latestSubscriber ?? social.latestSubscriberSample);
-  if (followerName) followerName.textContent = nextFol;
-  if (subscriberName) subscriberName.textContent = nextSub;
+
   if (follower) follower.hidden = !social.showFollower;
   if (subscriber) subscriber.hidden = !social.showSubscriber;
+
+  const reduced =
+    settings.textEffects.reducedMotion || settings.atmosphere.reducedMotion;
 
   if (!atm) atm = new AtmosphereVfx(stage, settings.atmosphere);
   else atm.applyConfig(settings.atmosphere);
@@ -147,19 +146,29 @@ function applyUltrawide(settings: OverlaySettings): void {
   if (!textFx) textFx = new TextLifeVfx(stage, settings.textEffects);
   else textFx.applyConfig(settings.textEffects);
 
-  const goalsReduced =
-    settings.textEffects.reducedMotion || settings.atmosphere.reducedMotion;
-  if (!goals) goals = new GoalMeters(stage, settings.goals, goalsReduced);
-  else goals.applyConfig(settings.goals, goalsReduced);
+  if (!socialAnim) socialAnim = new SocialReadoutAnim(stage, reduced);
+  else socialAnim.setReducedMotion(reduced);
 
-  if (nextFol && nextFol !== lastFollower) {
-    atm.pulseSocial("follow");
-    textFx.pulseSocial("follow");
+  // First load: set names quietly. Later changes: queue smoked-glass event anim.
+  if (!bootstrappedSocial) {
+    if (followerName) followerName.textContent = nextFol;
+    if (subscriberName) subscriberName.textContent = nextSub;
+    bootstrappedSocial = true;
+  } else {
+    if (nextFol && nextFol !== lastFollower) {
+      socialAnim.enqueue("follow", nextFol);
+      atm.pulseSocial("follow");
+    } else if (followerName && !followerName.closest("[data-social-fx]")) {
+      followerName.textContent = nextFol;
+    }
+    if (nextSub && nextSub !== lastSubscriber) {
+      socialAnim.enqueue("sub", nextSub);
+      atm.pulseSocial("sub");
+    } else if (subscriberName && !subscriberName.closest("[data-social-fx]")) {
+      subscriberName.textContent = nextSub;
+    }
   }
-  if (nextSub && nextSub !== lastSubscriber) {
-    atm.pulseSocial("sub");
-    textFx.pulseSocial("sub");
-  }
+
   lastFollower = nextFol;
   lastSubscriber = nextSub;
 
@@ -168,14 +177,18 @@ function applyUltrawide(settings: OverlaySettings): void {
 }
 
 function routePreview(kind: AtmPreviewKind): void {
-  if (kind === "follow" || kind === "sub") {
-    atm?.preview(kind);
-    textFx?.preview(kind);
+  if (kind === "follow") {
+    socialAnim?.demo("follow", DEMO_FOLLOW);
+    atm?.preview("follow");
     return;
   }
-  if (ATM_PREVIEW.has(kind)) atm?.preview(kind);
+  if (kind === "sub") {
+    socialAnim?.demo("sub", DEMO_SUB);
+    atm?.preview("sub");
+    return;
+  }
+  if (kind === "flicker" || kind === "smoke" || kind === "sparks") atm?.preview(kind);
   if (TEXT_PREVIEW.has(kind)) textFx?.preview(kind);
-  if (GOAL_PREVIEW.has(kind)) goals?.preview(kind);
 }
 
 async function main(): Promise<void> {
