@@ -81,6 +81,8 @@ export class AtmosphereVfx {
     if (this.cfg.smoke) this.scheduleSmoke();
     if (this.cfg.sparks) this.scheduleSparks();
     this.scheduleJitter();
+    this.scheduleFooterPulse();
+    this.scheduleHeaderPulse();
   }
 
   pulseSocial(kind: "follow" | "sub"): void {
@@ -159,14 +161,18 @@ export class AtmosphereVfx {
 
   private spawnDust(randomLife = false): Dust {
     const { topH, botH, w, h } = this.barBands();
-    // Footer slightly more atmospheric (~60% bottom / 40% top)
-    const band: "top" | "bot" = Math.random() < 0.4 ? "top" : "bot";
-    const rain = Math.random() < 0.28;
-    const ember = !rain && Math.random() < 0.28;
+    // Footer still carries more life; top gets ember beat (no rain — keeps stripe fix)
+    const band: "top" | "bot" = Math.random() < 0.42 ? "top" : "bot";
+    const rain = band === "bot" && Math.random() < 0.12;
+    const ember = !rain && (band === "bot" ? Math.random() < 0.42 : Math.random() < 0.38);
     let x: number;
     let y: number;
     if (band === "top") {
-      x = Math.random() < 0.5 ? w * (0.45 + Math.random() * 0.25) : Math.random() * w;
+      // Bias embers into side corridors so DATGUYDAZ / social wells stay readable
+      const side = Math.random();
+      if (side < 0.42) x = w * (0.04 + Math.random() * 0.22);
+      else if (side < 0.84) x = w * (0.74 + Math.random() * 0.22);
+      else x = w * (0.38 + Math.random() * 0.24);
       y = Math.random() * Math.max(6, topH - 2);
     } else {
       x = Math.random() * w;
@@ -175,12 +181,13 @@ export class AtmosphereVfx {
     return {
       x,
       y,
-      vx: rain ? (Math.random() - 0.5) * 0.04 : (Math.random() - 0.5) * (ember ? 0.07 : 0.11),
+      // Strong diagonal wind so drops read as weather, not vertical hairlines
+      vx: rain ? -0.1 - Math.random() * 0.08 : (Math.random() - 0.5) * (ember ? 0.08 : 0.11),
       vy: rain
-        ? 0.12 + Math.random() * 0.18
-        : (Math.random() - 0.5) * (ember ? 0.035 : 0.04) - (ember ? 0.015 : 0),
-      r: rain ? 0.4 + Math.random() * 0.5 : ember ? 1.1 + Math.random() * 1.9 : 0.7 + Math.random() * 1.6,
-      a: rain ? 0.12 + Math.random() * 0.18 : ember ? 0.4 + Math.random() * 0.45 : 0.18 + Math.random() * 0.32,
+        ? 0.1 + Math.random() * 0.12
+        : (Math.random() - 0.5) * (ember ? 0.04 : 0.045) - (ember ? 0.02 : 0),
+      r: rain ? 2.2 + Math.random() * 2.4 : ember ? 1.2 + Math.random() * 2.1 : 0.7 + Math.random() * 1.6,
+      a: rain ? 0.38 + Math.random() * 0.35 : ember ? 0.42 + Math.random() * 0.48 : 0.18 + Math.random() * 0.32,
       life: randomLife ? Math.random() : 0,
       ember,
       rain,
@@ -249,13 +256,21 @@ export class AtmosphereVfx {
       if (!inTop && !inBot) Object.assign(p, this.spawnDust(true));
       const fade = 0.55 + 0.45 * Math.sin(p.life * Math.PI * 2);
       if (p.rain) {
-        const len = 6 + p.r * 8;
-        ctx.strokeStyle = `rgba(190,180,160,${p.a * fade})`;
-        ctx.lineWidth = 1;
+        // Fat short diagonals (~35°) — sparse weather drops, never vertical stripe fields
+        const len = 22 + p.r * 8;
+        const dx = -len * 0.7;
+        const dy = len * 0.75;
+        ctx.strokeStyle = `rgba(220,205,175,${Math.min(0.85, p.a * fade)})`;
+        ctx.lineWidth = 2.4 + p.r * 0.45;
+        ctx.lineCap = "round";
         ctx.beginPath();
         ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x + p.vx * 40, p.y + len);
+        ctx.lineTo(p.x + dx, p.y + dy);
         ctx.stroke();
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(235,215,175,${p.a * fade * 0.7})`;
+        ctx.arc(p.x + dx * 0.2, p.y + dy * 0.2, 1.6, 0, Math.PI * 2);
+        ctx.fill();
       } else {
         ctx.beginPath();
         ctx.fillStyle = p.ember
@@ -368,10 +383,10 @@ export class AtmosphereVfx {
   }
 
   private triggerSparks(): void {
-    // Rare local sparks near lights — prefer top lamp / footer vent side
+    // Balanced spark pops — top + footer share the cinematic beat
     const top = this.stage.querySelector<HTMLElement>("#uw-top");
     const bottom = this.stage.querySelector<HTMLElement>("#uw-bottom");
-    const pickTop = Math.random() < 0.55;
+    const pickTop = Math.random() < 0.48;
     const bar =
       pickTop && top && top.dataset.hidden !== "true"
         ? top
@@ -389,6 +404,68 @@ export class AtmosphereVfx {
     );
   }
 
+  private scheduleFooterPulse(): void {
+    const delay = 3200 + Math.random() * 4800;
+    this.timers.push(
+      window.setTimeout(() => {
+        if (this.disposed || this.stage.dataset.atm !== "on") return;
+        this.triggerFooterPulse();
+        this.scheduleFooterPulse();
+      }, delay),
+    );
+  }
+
+  private triggerFooterPulse(): void {
+    const bottom = this.stage.querySelector<HTMLElement>("#uw-bottom");
+    if (!bottom || bottom.dataset.hidden === "true") return;
+    bottom.dataset.footerPulse = "1";
+    // Often couple with a left-side spark pop near vent
+    if (Math.random() < 0.55) {
+      bottom.dataset.sparks = "l";
+      this.timers.push(
+        window.setTimeout(() => {
+          delete bottom.dataset.sparks;
+        }, 380),
+      );
+    }
+    this.timers.push(
+      window.setTimeout(() => {
+        delete bottom.dataset.footerPulse;
+      }, 420 + Math.random() * 280),
+    );
+  }
+
+  private scheduleHeaderPulse(): void {
+    const delay = 3600 + Math.random() * 5200;
+    this.timers.push(
+      window.setTimeout(() => {
+        if (this.disposed || this.stage.dataset.atm !== "on") return;
+        this.triggerHeaderPulse();
+        this.scheduleHeaderPulse();
+      }, delay),
+    );
+  }
+
+  private triggerHeaderPulse(): void {
+    const top = this.stage.querySelector<HTMLElement>("#uw-top");
+    if (!top || top.dataset.hidden === "true") return;
+    top.dataset.headerPulse = "1";
+    // Side spark — keep energy at edges, away from nameplate
+    if (Math.random() < 0.6) {
+      top.dataset.sparks = Math.random() < 0.5 ? "l" : "r";
+      this.timers.push(
+        window.setTimeout(() => {
+          delete top.dataset.sparks;
+        }, 360),
+      );
+    }
+    this.timers.push(
+      window.setTimeout(() => {
+        delete top.dataset.headerPulse;
+      }, 400 + Math.random() * 260),
+    );
+  }
+
   private clearTransient(): void {
     this.stage.querySelectorAll<HTMLElement>(".uw-bar").forEach((b) => {
       delete b.dataset.lamp;
@@ -396,6 +473,8 @@ export class AtmosphereVfx {
       delete b.dataset.sparks;
       delete b.dataset.flicker;
       delete b.dataset.jitter;
+      delete b.dataset.footerPulse;
+      delete b.dataset.headerPulse;
     });
   }
 
