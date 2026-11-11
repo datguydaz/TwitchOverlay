@@ -178,11 +178,11 @@
   position: relative;
   flex: 1;
   display: grid;
-  /* Room for doubled follow/sub + centered nameplate */
+  /* Side slots flush to content edges; center holds nameplate */
   grid-template-columns: minmax(320px, 1.1fr) minmax(480px, 1.2fr) minmax(320px, 1.1fr);
   align-items: center;
-  gap: clamp(20px, 1.6vw, 40px);
-  padding: 0 clamp(28px, 2.2vw, 56px);
+  gap: clamp(16px, 1.4vw, 36px);
+  padding: 0 clamp(18px, 1.6vw, 40px);
   min-height: 0;
   z-index: 3;
   order: 1;
@@ -203,11 +203,11 @@
 .uw-side {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-width: 0;
 }
 .uw-side-right {
-  justify-content: center;
+  justify-content: flex-end;
 }
 .uw-center {
   position: relative;
@@ -218,7 +218,7 @@
   overflow: visible;
 }
 
-/* —— DATGUYDAZ: centered name; lamp in-flow with matching left balance spacer —— */
+/* —— DATGUYDAZ: centered nameplate; soft cinematic breath (no side LED) —— */
 .uw-id-block {
   position: relative;
   display: flex;
@@ -239,25 +239,6 @@
   text-align: center;
 }
 
-.uw-name-row {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-}
-
-/* Invisible twin of the lamp so DATGUYDAZ stays optically centered */
-.uw-name-balance {
-  display: block;
-  width: 22px;
-  height: 22px;
-  flex: 0 0 22px;
-  visibility: hidden;
-  pointer-events: none;
-}
-
 .uw-stencil .uw-text-face {
   position: relative;
   z-index: 1;
@@ -270,13 +251,22 @@
   margin-right: -0.14em;
   text-transform: uppercase;
   color: #ebe3cf;
-  opacity: 0.97;
+  opacity: 0.96;
   text-shadow:
     0 1px 0 rgba(0, 0, 0, 0.9),
-    0 0 24px rgba(0, 0, 0, 0.55);
+    0 0 22px rgba(200, 136, 58, 0.18),
+    0 0 28px rgba(0, 0, 0, 0.5);
   white-space: nowrap;
   overflow: visible;
   text-align: center;
+}
+
+#uw-stage[data-text-fx="on"] .uw-stencil .uw-text-face {
+  animation: uw-name-breathe 5.6s ease-in-out infinite;
+}
+
+#uw-stage[data-text-fx="on"] .uw-stencil .uw-text-glow {
+  animation: uw-name-glow-breathe 5.6s ease-in-out infinite;
 }
 
 .uw-op-readout {
@@ -330,61 +320,14 @@
   text-shadow: 0 0 12px rgba(200, 136, 58, 0.32);
 }
 
-/* Full square amber LED — in-flow beside name (balance spacer keeps center) */
-.uw-util-lamp {
-  position: relative;
-  top: auto;
-  right: auto;
-  left: auto;
-  display: block;
-  width: 22px;
-  height: 22px;
-  flex: 0 0 22px;
-  z-index: 3;
-  pointer-events: none;
-  overflow: visible;
-}
-
-.uw-lamp-cage {
-  position: absolute;
-  inset: 0;
-  background: #121110;
-  border: 1px solid rgba(0, 0, 0, 0.95);
-  box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.8),
-    0 0 12px rgba(200, 136, 58, 0.45);
-}
-
-.uw-lamp-bulb {
-  position: absolute;
-  inset: 3px;
-  background: var(--uw-amber);
-  box-shadow:
-    0 0 16px rgba(200, 136, 58, 0.95),
-    inset 0 1px 0 rgba(255, 220, 160, 0.45);
-}
-
-.uw-lamp-spill {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 40px;
-  height: 40px;
-  margin: -20px 0 0 -20px;
-  background: radial-gradient(circle, rgba(200, 136, 58, 0.4), transparent 72%);
-  opacity: 0.8;
-  pointer-events: none;
-  mix-blend-mode: screen;
-}
-
-/* —— Follow/sub: match bottom-right status housing language —— */
+/* —— Follow/sub: status-plate language; flush to outer header edges; taller —— */
 .uw-readout {
   position: relative;
   z-index: 4;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: min(560px, 40vw);
+  width: min(560px, 42vw);
   max-width: 100%;
   min-width: 0;
   height: auto;
@@ -411,15 +354,15 @@
   text-align: right;
 }
 
-/* Plate = same material as .uw-status */
+/* Plate = same material as .uw-status; taller for longer names */
 .uw-glass-well {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-  min-height: 0;
-  padding: 22px 28px 22px 52px;
+  min-height: calc(var(--uw-bar-h) * 0.52);
+  padding: 26px 28px 26px 52px;
   overflow: hidden;
   background: rgba(6, 6, 5, 0.78);
   border: 1px solid rgba(55, 50, 42, 0.8);
@@ -427,7 +370,7 @@
 }
 
 .uw-side-right .uw-glass-well {
-  padding: 22px 52px 22px 28px;
+  padding: 26px 52px 26px 28px;
   justify-content: flex-end;
 }
 
@@ -635,11 +578,13 @@
 
 .uw-status {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: min(900px, 68vw);
   max-width: 100%;
   min-width: min(480px, 40vw);
-  /* ~2× prior housing */
-  padding: 28px 36px 28px 56px;
+  padding: 28px 36px;
   background: rgba(6, 6, 5, 0.78);
   border: 1px solid rgba(55, 50, 42, 0.8);
   box-shadow: inset 0 0 18px rgba(200, 136, 58, 0.1);
@@ -649,30 +594,7 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #efe6d0;
-  text-align: right;
-}
-
-.uw-status-fixture {
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #0c0c0b;
-  border: 1px solid #000;
-}
-
-.uw-status-led {
-  display: block;
-  width: 12px;
-  height: 12px;
-  background: var(--uw-amber);
-  box-shadow: 0 0 10px rgba(200, 136, 58, 0.75);
-  opacity: 0.85;
+  text-align: center;
 }
 
 .uw-status .uw-text-face {
@@ -682,10 +604,13 @@
   font: inherit;
   letter-spacing: inherit;
   color: inherit;
+  /* optical center for trailing letter-spacing */
+  margin-right: -0.12em;
   text-shadow:
     0 1px 0 rgba(0, 0, 0, 0.9),
     0 0 14px rgba(200, 136, 58, 0.28);
   white-space: nowrap;
+  text-align: center;
 }
 
 /* Highlight glow layers (animated); base text stays stable */
@@ -1093,6 +1018,34 @@
   }
   50% {
     opacity: 1;
+  }
+}
+
+/* Soft cinematic nameplate breath — opacity + glow only */
+@keyframes uw-name-breathe {
+  0%,
+  100% {
+    opacity: 0.9;
+    text-shadow:
+      0 1px 0 rgba(0, 0, 0, 0.9),
+      0 0 18px rgba(200, 136, 58, 0.12),
+      0 0 28px rgba(0, 0, 0, 0.5);
+  }
+  50% {
+    opacity: 1;
+    text-shadow:
+      0 1px 0 rgba(0, 0, 0, 0.9),
+      0 0 28px rgba(200, 136, 58, 0.28),
+      0 0 36px rgba(0, 0, 0, 0.45);
+  }
+}
+@keyframes uw-name-glow-breathe {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+  50% {
+    opacity: 0.42;
   }
 }
 
