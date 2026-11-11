@@ -448,11 +448,11 @@ body.scene-opaque {
   transform-origin: center;
 }
 
-/* Left key aim: SVG transform attribute only — do NOT set CSS transform (overrides SVG). */
+/* Mouse aim: CSS transform. KB aim: SVG attr only (JS) — never CSS-transform #hand-left-aim. */
 #hand-right-aim {
   transform-box: fill-box;
   transform-origin: 0px 0px;
-  transition: transform 140ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: transform 90ms ease-out;
   will-change: transform;
 }
 
@@ -591,11 +591,15 @@ body.scene-opaque {
   font-weight: 500;
 }
 
-/* Hand XY comes from JS (slot aim). Keycaps depress via data-pressed. */
+/* KB held: outer wrapper stays put; pulse dips the sleeve like mouse click-l. */
 .avatar-root[data-key="1"] #hand-left {
   animation: none;
-  /* Keep transition alive across keyTap/pulse attribute flips */
-  transition: transform 110ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform: none;
+}
+
+.avatar-root[data-key="1"][data-key-pulse="1"] #arm-left {
+  /* Same 120ms ease-out + ~2px dip as mouse click-l peak */
+  animation: sleeve-tap 120ms ease-out 1;
 }
 
 .kb-key {
@@ -679,7 +683,7 @@ body.scene-opaque {
 }
 
 .avatar-root[data-mouse-r="1"][data-mouse-r-pulse="1"] #hand-right-aim {
-  animation: click-r 130ms ease-out 1;
+  animation: click-r 120ms ease-out 1;
 }
 
 /* Scroll wheel — soft press at vest pivot (no detach) */
@@ -1149,6 +1153,17 @@ body.scene-opaque {
   }
   100% {
     transform: translateY(0);
+  }
+}
+
+/* Shared sleeve press dip — same timing/distance for KB + mouse */
+@keyframes sleeve-tap {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40% {
+    transform: translate3d(0, 2px, 0);
   }
 }
 

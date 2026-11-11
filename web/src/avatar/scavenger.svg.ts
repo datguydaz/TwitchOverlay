@@ -524,30 +524,28 @@ export const scavengerSvg = `
           <circle cx="0" cy="0" r="0.5" fill="none" opacity="0"/>
           <g id="hand-left-sit" transform="translate(-128 -220)">
             <g id="arm-left" class="arm-continuous">
-              <!-- Black Adidas sleeve: baggy thickness + round joins; same path for aim -->
-              <path d="M128 220 L116 236 L110 250 L114 260 L118 268" fill="none" stroke="#050507" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-              <path id="sleeve-left-fill" d="M128 220 L116 236 L110 250 L114 260 L118 268" fill="none" stroke="#0e0e0e" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M128 220 L116 236 L110 250 L114 260 L118 268" fill="none" stroke="#181a1e" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-              <!-- 3 off-white stripes outside sleeve following bend -->
-              <g id="sleeve-stripes-left" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.15">
-                <path d="M128 220 L116 236 L110 250 L114 260 L118 268" transform="translate(-4.2 0)"/>
-                <path d="M128 220 L116 236 L110 250 L114 260 L118 268"/>
-                <path d="M128 220 L116 236 L110 250 L114 260 L118 268" transform="translate(4.2 0)"/>
+              <!-- Match mouse sleeve construction (24/20/14, ±4.0); cuff stays on KB hand -->
+              <path d="M128 220 L114 236 L106 250 L110 260 L118 268" fill="none" stroke="#050507" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+              <path id="sleeve-left-fill" d="M128 220 L114 236 L106 250 L110 260 L118 268" fill="none" stroke="#0e0e0e" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M128 220 L114 236 L106 250 L110 260 L118 268" fill="none" stroke="#181a1e" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+              <g id="sleeve-stripes-left" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.1">
+                <path d="M128 220 L114 236 L106 250 L110 260 L118 268" transform="translate(-4.0 0)"/>
+                <path d="M128 220 L114 236 L106 250 L110 260 L118 268"/>
+                <path d="M128 220 L114 236 L106 250 L110 260 L118 268" transform="translate(4.0 0)"/>
               </g>
-              <!-- Elbow folds + cuff -->
               <g id="sleeve-folds-left" fill="none" stroke-linecap="round">
-                <path d="M104 246 Q110 250 116 248" stroke="#2a2c30" stroke-width="1.1" opacity="0.55"/>
-                <path d="M106 252 Q112 256 118 254" stroke="#000" stroke-width="0.9" opacity="0.4"/>
-                <path d="M112 258 Q116 262 120 260" stroke="#2a2c30" stroke-width="0.8" opacity="0.35"/>
+                <path d="M100 246 Q106 250 112 248" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
+                <path d="M102 252 Q108 256 114 254" stroke="#000" stroke-width="0.85" opacity="0.38"/>
+                <path d="M108 258 Q114 262 118 260" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
               </g>
               <g id="sleeve-wear-left" fill="none" stroke-linecap="round">
-                <path d="M118 232 L110 238" stroke="#c8c2b0" stroke-width="0.55" opacity="0.28"/>
-                <path d="M114 246 L108 252" stroke="#5a5040" stroke-width="0.7" opacity="0.35"/>
-                <path d="M108 248 Q112 252 110 256" stroke="#3a3428" stroke-width="1.2" opacity="0.25"/>
+                <path d="M116 232 L108 238" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
+                <path d="M110 246 L104 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
+                <path d="M106 248 Q110 252 108 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
               </g>
-              <ellipse cx="118" cy="268" rx="8.2" ry="4.4" fill="#121418" stroke="#050505" stroke-width="0.75"/>
-              <ellipse cx="118" cy="267.2" rx="6.6" ry="2.6" fill="none" stroke="#2a2e34" stroke-width="0.7" opacity="0.55"/>
-              <path d="M110 266 H126" stroke="#000" stroke-width="0.6" opacity="0.35"/>
+              <ellipse cx="118" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
+              <ellipse cx="118" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
+              <path d="M111 266 H125" stroke="#000" stroke-width="0.55" opacity="0.32"/>
             </g>
             <path d="M100 264 L138 262 L140 274 L103 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
             <rect x="106" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
