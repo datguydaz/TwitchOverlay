@@ -315,13 +315,22 @@ export const scavengerSvg = `
             <path d="M212 112 L216 115 L213 116 Z" opacity="0.6"/>
           </g>
         </g>
-        <!-- Narrow dark slit only — no cartoon eyes/mouth/nose -->
+        <!-- Visor slit + clipped pupils (ride with #idle-head; do not reshape helm) -->
         <g id="eyes">
           <rect id="eye-slit-recess" x="168" y="126" width="64" height="9" rx="0.5" fill="#000" opacity="0.55"/>
           <rect id="eye-slit" x="170" y="128" width="60" height="4.5" rx="0.35" fill="#050607" stroke="#121416" stroke-width="0.45"/>
           <rect x="172" y="128.4" width="56" height="2.2" fill="#000" opacity="0.88"/>
-          <g id="eye-look"></g>
-          <rect class="eyelid" x="170" y="128" width="60" height="4.5" fill="#050607" opacity="0"/>
+          <g id="eye-look" clip-path="url(#visor-clip)" pointer-events="none">
+            <!-- Left eye — restrained pupil + thin highlight, inside slit -->
+            <ellipse class="eye-sclera" cx="184.5" cy="130.25" rx="3.25" ry="1.65" fill="#2a3824" opacity="0.95"/>
+            <ellipse class="eye-pupil" cx="184.5" cy="130.25" rx="1.4" ry="1.25" fill="#050705"/>
+            <ellipse class="eye-glint" cx="185.2" cy="129.7" rx="0.48" ry="0.36" fill="#e4ecd8" opacity="0.7"/>
+            <!-- Right eye -->
+            <ellipse class="eye-sclera" cx="215.5" cy="130.25" rx="3.25" ry="1.65" fill="#2a3824" opacity="0.95"/>
+            <ellipse class="eye-pupil" cx="215.5" cy="130.25" rx="1.4" ry="1.25" fill="#050705"/>
+            <ellipse class="eye-glint" cx="216.2" cy="129.7" rx="0.48" ry="0.36" fill="#e4ecd8" opacity="0.7"/>
+          </g>
+          <rect class="eyelid" x="170" y="128" width="60" height="4.5" rx="0.35" fill="#050607" opacity="0" pointer-events="none"/>
           <rect id="visor-glow" class="eq-blink" x="172" y="128.4" width="56" height="2.2" fill="#1a1c1e" opacity="0.06"/>
         </g>
         <g id="helm-stripe-drips" fill="#e8e2d4" opacity="0.7">

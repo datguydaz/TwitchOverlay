@@ -222,6 +222,8 @@ export class ReactiveAvatar {
   private tapClearTimer: number | null = null;
   private flavorTimer: number | null = null;
   private flavorClearTimer: number | null = null;
+  private eyeBlinkTimer: number | null = null;
+  private eyeBlinkClearTimer: number | null = null;
   private talkClearTimer: number | null = null;
   private chatHideTimer: number | null = null;
   private talkBurstMs = 0;
@@ -251,8 +253,13 @@ export class ReactiveAvatar {
   private lastHandTx = "";
   private disposed = false;
   private readonly onVis = (): void => {
-    if (document.hidden) this.clearFlavorSchedule();
-    else this.scheduleFlavor();
+    if (document.hidden) {
+      this.clearFlavorSchedule();
+      this.clearEyeBlinkSchedule();
+    } else {
+      this.scheduleFlavor();
+      this.scheduleEyeBlink();
+    }
   };
 
   constructor(opts: ReactiveAvatarOptions) {
@@ -282,6 +289,7 @@ export class ReactiveAvatar {
     this.bindChatDrag();
     document.addEventListener("visibilitychange", this.onVis);
     this.scheduleFlavor();
+    this.scheduleEyeBlink();
     // Clear any legacy duration overrides once — never reseed idle loops after this.
     this.clearLegacyIdleDurationOverrides();
   }
@@ -933,11 +941,46 @@ export class ReactiveAvatar {
     }
   }
 
+  /** Idle visor blink — separate from EQ flavor `data-blink`. */
+  private scheduleEyeBlink(): void {
+    this.clearEyeBlinkSchedule();
+    if (this.disposed || document.hidden) return;
+    const delay = 3000 + Math.random() * 3000; // ~3–6s
+    this.eyeBlinkTimer = window.setTimeout(() => {
+      this.eyeBlinkTimer = null;
+      if (this.disposed || document.hidden) return;
+      this.triggerEyeBlink();
+      this.scheduleEyeBlink();
+    }, delay);
+  }
+
+  private clearEyeBlinkSchedule(): void {
+    if (this.eyeBlinkTimer != null) {
+      window.clearTimeout(this.eyeBlinkTimer);
+      this.eyeBlinkTimer = null;
+    }
+  }
+
+  private triggerEyeBlink(): void {
+    if (this.eyeBlinkClearTimer != null) window.clearTimeout(this.eyeBlinkClearTimer);
+    delete this.root.dataset.eyeBlink;
+    const double = Math.random() < 0.18;
+    this.root.dataset.eyeBlink = double ? "2" : "1";
+    const ms = double ? 360 : 170;
+    this.eyeBlinkClearTimer = window.setTimeout(() => {
+      this.eyeBlinkClearTimer = null;
+      if (this.disposed) return;
+      delete this.root.dataset.eyeBlink;
+    }, ms);
+  }
+
   dispose(): void {
     this.disposed = true;
     document.removeEventListener("visibilitychange", this.onVis);
     this.clearFlavorSchedule();
+    this.clearEyeBlinkSchedule();
     if (this.flavorClearTimer != null) window.clearTimeout(this.flavorClearTimer);
+    if (this.eyeBlinkClearTimer != null) window.clearTimeout(this.eyeBlinkClearTimer);
     if (this.talkClearTimer != null) window.clearTimeout(this.talkClearTimer);
     if (this.chatHideTimer != null) window.clearTimeout(this.chatHideTimer);
     if (this.tapClearTimer != null) window.clearTimeout(this.tapClearTimer);
@@ -946,6 +989,7 @@ export class ReactiveAvatar {
     this.clearPulse("mouseL");
     this.clearPulse("mouseR");
     this.flavorClearTimer = null;
+    this.eyeBlinkClearTimer = null;
     this.talkClearTimer = null;
     this.chatHideTimer = null;
     this.tapClearTimer = null;
@@ -953,6 +997,7 @@ export class ReactiveAvatar {
     delete this.root.dataset.cough;
     delete this.root.dataset.roll;
     delete this.root.dataset.blink;
+    delete this.root.dataset.eyeBlink;
     delete this.root.dataset.talk;
     delete this.root.dataset.talkNod;
     delete this.root.dataset.wheel;

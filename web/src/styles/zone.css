@@ -462,15 +462,24 @@ body.scene-opaque {
   transform: none;
 }
 
-/* Eyes — blink + look slightly with head sway */
-/* Eye cartoon look removed — Maska slit is a dark void. Hooks kept for compat. */
+/* Eyes — pupils live inside #visor-clip; eyelid covers slit on blink */
 #eye-look {
-  display: none;
+  display: block;
 }
 
 .eyelid {
   opacity: 0;
   animation: none;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.avatar-root[data-eye-blink="1"] .eyelid {
+  animation: eye-lid-blink 150ms ease-in-out 1;
+}
+
+.avatar-root[data-eye-blink="2"] .eyelid {
+  animation: eye-lid-double 340ms ease-in-out 1;
 }
 
 #mouth-vent {
@@ -1084,6 +1093,46 @@ body.scene-opaque {
   }
 }
 
+/* One-shot idle blink (triggered via data-eye-blink) */
+@keyframes eye-lid-blink {
+  0% {
+    opacity: 0;
+  }
+  32% {
+    opacity: 1;
+  }
+  68% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes eye-lid-double {
+  0% {
+    opacity: 0;
+  }
+  16% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0;
+  }
+  48% {
+    opacity: 0;
+  }
+  62% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 @keyframes talk-vent {
   0%,
   100% {
@@ -1196,6 +1245,8 @@ body.scene-opaque {
   #idle-head,
   #eye-look,
   .eyelid,
+  .avatar-root[data-eye-blink="1"] .eyelid,
+  .avatar-root[data-eye-blink="2"] .eyelid,
   .signal-noise,
   .desk-led-chase,
   .desk-led-core,
