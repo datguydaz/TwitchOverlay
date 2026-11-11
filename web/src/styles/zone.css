@@ -12,6 +12,8 @@
   --panel: rgba(26, 28, 24, 0.82);
   --line: rgba(107, 115, 85, 0.55);
   --font-display: "Oswald", "Zone Display", "Arial Narrow", sans-serif;
+  --font-nameplate: "Bebas Neue", "Oswald", "Zone Display", sans-serif;
+  --font-op: "Rajdhani", "Oswald", "Zone Display", sans-serif;
   --font-mono: "Share Tech Mono", "Zone Mono", Consolas, monospace;
   color-scheme: dark;
 }

@@ -178,30 +178,36 @@
   position: relative;
   flex: 1;
   display: grid;
-  /* Side columns dominate — follow/sub hug center banner without crossing */
-  grid-template-columns: minmax(560px, 1.55fr) minmax(280px, 0.7fr) minmax(560px, 1.55fr);
-  align-items: stretch;
-  gap: clamp(4px, 0.35vw, 10px);
-  padding: 6px clamp(8px, 0.75vw, 18px);
+  /* Room for doubled follow/sub + centered nameplate */
+  grid-template-columns: minmax(320px, 1.1fr) minmax(480px, 1.2fr) minmax(320px, 1.1fr);
+  align-items: center;
+  gap: clamp(20px, 1.6vw, 40px);
+  padding: 0 clamp(28px, 2.2vw, 56px);
   min-height: 0;
   z-index: 3;
   order: 1;
 }
 
 .uw-wall-footer {
-  grid-template-columns: minmax(100px, 0.45fr) minmax(1fr, 2fr) minmax(220px, 0.85fr);
+  grid-template-columns: minmax(80px, 0.3fr) minmax(0.5fr, 1fr) minmax(420px, 1.5fr);
   align-items: center;
-  padding-top: 0;
-  padding-bottom: 0;
+  gap: clamp(12px, 1.2vw, 28px);
+}
+.uw-wall-footer .uw-side:not(.uw-side-right) {
+  justify-content: flex-start;
+}
+.uw-wall-footer .uw-side-right {
+  justify-content: flex-end;
 }
 
 .uw-side {
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
   min-width: 0;
 }
 .uw-side-right {
-  justify-content: flex-end;
+  justify-content: center;
 }
 .uw-center {
   position: relative;
@@ -209,67 +215,96 @@
   align-items: center;
   justify-content: center;
   min-width: 0;
+  overflow: visible;
 }
 
-/* —— DATGUYDAZ: typography only, no slab —— */
+/* —— DATGUYDAZ: centered name; lamp in-flow with matching left balance spacer —— */
 .uw-id-block {
   position: relative;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: max-content;
   max-width: 100%;
-  padding: 4px 28px 4px 2px;
-  text-align: left;
+  margin: 0 auto;
+  padding: 6px 8px;
+  text-align: center;
+  overflow: visible;
 }
 
 .uw-stencil {
   position: relative;
   z-index: 1;
+  width: 100%;
+  text-align: center;
+}
+
+.uw-name-row {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* Invisible twin of the lamp so DATGUYDAZ stays optically centered */
+.uw-name-balance {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .uw-stencil .uw-text-face {
   position: relative;
   z-index: 1;
   display: block;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(34px, calc(var(--uw-bar-h) * 0.4), 64px);
-  letter-spacing: 0.2em;
+  font-family: var(--font-nameplate);
+  font-weight: 400;
+  font-size: clamp(40px, calc(var(--uw-bar-h) * 0.46), 72px);
+  letter-spacing: 0.14em;
+  /* optical center: letter-spacing trails after last glyph */
+  margin-right: -0.14em;
   text-transform: uppercase;
-  color: #e4dbc4;
-  opacity: 0.96;
+  color: #ebe3cf;
+  opacity: 0.97;
   text-shadow:
     0 1px 0 rgba(0, 0, 0, 0.9),
     0 0 24px rgba(0, 0, 0, 0.55);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  /* light distress — soft edge wear, not heavy flake mask */
-  -webkit-mask-image: linear-gradient(180deg, #000 42%, rgba(0, 0, 0, 0.82) 100%);
-  mask-image: linear-gradient(180deg, #000 42%, rgba(0, 0, 0, 0.82) 100%);
+  overflow: visible;
+  text-align: center;
 }
 
 .uw-op-readout {
   position: relative;
   z-index: 1;
-  margin-top: 8px;
+  margin: 12px auto 0;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 5px 12px 5px 7px;
-  background: rgba(6, 6, 5, 0.72);
-  border: 1px solid rgba(0, 0, 0, 0.7);
-  box-shadow: inset 0 0 18px rgba(200, 136, 58, 0.08);
-  font-family: var(--font-mono);
-  font-size: clamp(12px, calc(var(--uw-bar-h) * 0.1), 16px);
-  letter-spacing: 0.22em;
+  justify-content: center;
+  gap: 14px;
+  /* ~2× prior housing */
+  padding: 12px 28px 12px 16px;
+  background: rgba(6, 6, 5, 0.78);
+  border: 1px solid rgba(55, 50, 42, 0.8);
+  box-shadow: inset 0 0 18px rgba(200, 136, 58, 0.1);
+  font-family: var(--font-op);
+  font-weight: 600;
+  font-size: clamp(18px, calc(var(--uw-bar-h) * 0.16), 28px);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #ebe2cc;
+  color: #f0e6d0;
 }
 
 .uw-op-fixture {
   display: inline-flex;
-  width: 14px;
-  height: 14px;
-  flex: 0 0 14px;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
   align-items: center;
   justify-content: center;
   background: #0c0c0b;
@@ -278,8 +313,8 @@
 
 .uw-op-led {
   display: block;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background: var(--uw-amber);
   box-shadow:
     0 0 10px rgba(200, 136, 58, 0.85),
@@ -289,125 +324,149 @@
 .uw-op-readout .uw-text-face {
   position: relative;
   z-index: 1;
-  text-shadow: 0 0 10px rgba(200, 136, 58, 0.28);
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  text-shadow: 0 0 12px rgba(200, 136, 58, 0.32);
 }
 
-/* Small utility lamp — light fixture only, not a prop wall */
+/* Full square amber LED — in-flow beside name (balance spacer keeps center) */
 .uw-util-lamp {
-  position: absolute;
-  top: 8px;
-  right: 4px;
-  width: 26px;
+  position: relative;
+  top: auto;
+  right: auto;
+  left: auto;
+  display: block;
+  width: 22px;
   height: 22px;
-  z-index: 2;
+  flex: 0 0 22px;
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
 }
 
 .uw-lamp-cage {
   position: absolute;
   inset: 0;
   background: #121110;
-  border: 1px solid #000;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.95);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.8),
+    0 0 12px rgba(200, 136, 58, 0.45);
 }
 
 .uw-lamp-bulb {
   position: absolute;
-  inset: 4px 5px;
-  background: radial-gradient(circle at 40% 30%, #d4a060, var(--uw-amber) 55%, #5a3a18);
-  box-shadow: 0 0 12px rgba(200, 136, 58, 0.7);
+  inset: 3px;
+  background: var(--uw-amber);
+  box-shadow:
+    0 0 16px rgba(200, 136, 58, 0.95),
+    inset 0 1px 0 rgba(255, 220, 160, 0.45);
 }
 
 .uw-lamp-spill {
   position: absolute;
-  left: -36px;
-  top: -10px;
-  width: 90px;
-  height: 48px;
-  background: radial-gradient(ellipse at 75% 50%, rgba(200, 136, 58, 0.32), transparent 70%);
-  opacity: 0.7;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  background: radial-gradient(circle, rgba(200, 136, 58, 0.4), transparent 72%);
+  opacity: 0.8;
   pointer-events: none;
   mix-blend-mode: screen;
 }
 
-/* —— Follow/sub: fill side columns; sit close to bar hairlines without crossing —— */
+/* —— Follow/sub: match bottom-right status housing language —— */
 .uw-readout {
   position: relative;
   z-index: 4;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 100%;
+  width: min(560px, 40vw);
   max-width: 100%;
   min-width: 0;
-  height: 100%;
+  height: auto;
   box-sizing: border-box;
-  padding: 10px 14px 12px;
-  background: rgba(8, 8, 7, 0.62);
-  border: 1px solid rgba(55, 50, 42, 0.8);
-  box-shadow: inset 0 1px 10px rgba(0, 0, 0, 0.55);
-}
-
-.uw-readout-fixture {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 12px;
-  height: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #0c0c0b;
-  border: 1px solid #000;
-}
-
-.uw-side-right .uw-readout-fixture {
-  right: auto;
-  left: 8px;
-}
-
-.uw-glass-ind {
-  display: block;
-  width: 6px;
-  height: 6px;
-  background: #3a3428;
-  opacity: 0.65;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .uw-glass-label {
-  font-family: var(--font-mono);
-  font-size: clamp(12px, calc(var(--uw-bar-h) * 0.095), 15px);
-  letter-spacing: 0.2em;
+  font-family: var(--font-op);
+  font-weight: 600;
+  font-size: clamp(12px, calc(var(--uw-bar-h) * 0.1), 16px);
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #c2b79c;
-  margin-bottom: 8px;
-  padding-right: 18px;
+  color: #c8bea6;
+  margin: 0 0 8px;
+  padding: 0 4px;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.85);
 }
 
 .uw-side-right .uw-glass-label {
   text-align: right;
-  padding-right: 0;
-  padding-left: 18px;
 }
 
+/* Plate = same material as .uw-status */
 .uw-glass-well {
   position: relative;
-  flex: 1 1 auto;
   display: flex;
   align-items: center;
-  min-height: 2.4em;
-  padding: 14px 16px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+  padding: 22px 28px 22px 52px;
   overflow: hidden;
-  background: rgba(4, 4, 3, 0.88);
+  background: rgba(6, 6, 5, 0.78);
+  border: 1px solid rgba(55, 50, 42, 0.8);
+  box-shadow: inset 0 0 18px rgba(200, 136, 58, 0.1);
+}
+
+.uw-side-right .uw-glass-well {
+  padding: 22px 52px 22px 28px;
+  justify-content: flex-end;
+}
+
+.uw-readout-fixture {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0c0c0b;
   border: 1px solid #000;
-  box-shadow: inset 0 0 16px rgba(200, 136, 58, 0.06);
+  z-index: 2;
+}
+
+.uw-side-right .uw-readout-fixture {
+  left: auto;
+  right: 18px;
+}
+
+.uw-glass-ind {
+  display: block;
+  width: 12px;
+  height: 12px;
+  background: var(--uw-amber);
+  box-shadow:
+    0 0 10px rgba(200, 136, 58, 0.75),
+    inset 0 1px 0 rgba(255, 220, 160, 0.4);
+  opacity: 0.85;
 }
 
 .uw-glass-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, rgba(200, 136, 58, 0.22), transparent 70%);
-  opacity: 0.5;
+  background: radial-gradient(ellipse at 50% 50%, rgba(200, 136, 58, 0.16), transparent 70%);
+  opacity: 0.45;
   pointer-events: none;
   mix-blend-mode: screen;
 }
@@ -418,8 +477,8 @@
   top: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(232, 223, 200, 0.4), transparent);
-  opacity: 0.48;
+  background: linear-gradient(90deg, transparent, rgba(232, 223, 200, 0.35), transparent);
+  opacity: 0.4;
   pointer-events: none;
   animation: uw-glass-scan-idle 3.6s linear infinite;
 }
@@ -428,15 +487,16 @@
   position: relative;
   z-index: 1;
   display: block;
-  font-family: var(--font-display);
+  width: 100%;
+  font-family: var(--font-op);
   font-weight: 700;
-  font-size: clamp(26px, calc(var(--uw-bar-h) * 0.3), 42px);
-  letter-spacing: 0.08em;
+  font-size: clamp(26px, calc(var(--uw-bar-h) * 0.28), 42px);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #efe6d0;
   text-shadow:
     0 1px 0 rgba(0, 0, 0, 0.9),
-    0 0 12px rgba(200, 136, 58, 0.2);
+    0 0 14px rgba(200, 136, 58, 0.28);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -575,26 +635,30 @@
 
 .uw-status {
   position: relative;
-  min-width: min(220px, 18vw);
-  padding: 7px 10px 7px 24px;
-  background: rgba(6, 6, 5, 0.65);
-  border: 1px solid rgba(0, 0, 0, 0.7);
-  box-shadow: inset 0 0 14px rgba(200, 136, 58, 0.06);
-  font-family: var(--font-mono);
-  font-size: clamp(10px, calc(var(--uw-bar-h) * 0.085), 14px);
+  width: min(900px, 68vw);
+  max-width: 100%;
+  min-width: min(480px, 40vw);
+  /* ~2× prior housing */
+  padding: 28px 36px 28px 56px;
+  background: rgba(6, 6, 5, 0.78);
+  border: 1px solid rgba(55, 50, 42, 0.8);
+  box-shadow: inset 0 0 18px rgba(200, 136, 58, 0.1);
+  font-family: var(--font-op);
+  font-weight: 600;
+  font-size: clamp(28px, calc(var(--uw-bar-h) * 0.32), 48px);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #c8bea6;
+  color: #efe6d0;
   text-align: right;
 }
 
 .uw-status-fixture {
   position: absolute;
-  left: 7px;
+  left: 18px;
   top: 50%;
   transform: translateY(-50%);
-  width: 10px;
-  height: 10px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -604,16 +668,24 @@
 
 .uw-status-led {
   display: block;
-  width: 5px;
-  height: 5px;
+  width: 12px;
+  height: 12px;
   background: var(--uw-amber);
-  box-shadow: 0 0 7px rgba(200, 136, 58, 0.7);
-  opacity: 0.8;
+  box-shadow: 0 0 10px rgba(200, 136, 58, 0.75);
+  opacity: 0.85;
 }
 
 .uw-status .uw-text-face {
   position: relative;
   z-index: 1;
+  display: block;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.9),
+    0 0 14px rgba(200, 136, 58, 0.28);
+  white-space: nowrap;
 }
 
 /* Highlight glow layers (animated); base text stays stable */

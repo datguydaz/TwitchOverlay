@@ -6,7 +6,7 @@
     <title>Ultrawide Letterbox</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@500;600;700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/fonts.css" />
     <link rel="stylesheet" href="/src/styles/zone.css" />
     <link rel="stylesheet" href="/src/styles/ultrawide.css" />
@@ -23,9 +23,9 @@
         <div class="uw-bar-body uw-wall-header">
           <div class="uw-side" id="uw-follower-slot">
             <aside class="uw-readout uw-social-inbar" id="uw-follower" data-social="follow">
-              <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
               <div class="uw-glass-label">LATEST FOLLOW</div>
               <div class="uw-glass-well">
+                <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
                 <span class="uw-glass-scan" aria-hidden="true"></span>
                 <span class="uw-glass-glow" aria-hidden="true"></span>
                 <span class="uw-glass-name" id="uw-follower-name"></span>
@@ -37,26 +37,29 @@
             <div class="uw-id-block" id="uw-top-text">
               <div class="uw-stencil" data-text-fx="id">
                 <span class="uw-text-glow" aria-hidden="true"></span>
-                <span class="uw-text-face" data-streamer-name>datguydaz</span>
+                <div class="uw-name-row">
+                  <i class="uw-name-balance" aria-hidden="true"></i>
+                  <span class="uw-text-face" data-streamer-name>datguydaz</span>
+                  <span class="uw-util-lamp" aria-hidden="true">
+                    <span class="uw-lamp-cage"></span>
+                    <span class="uw-lamp-bulb"></span>
+                    <span class="uw-lamp-spill"></span>
+                  </span>
+                </div>
               </div>
               <div class="uw-op-readout" data-text-fx="op">
                 <span class="uw-op-fixture" aria-hidden="true"><i class="uw-op-led"></i></span>
                 <span class="uw-text-glow" aria-hidden="true"></span>
                 <span class="uw-text-face" id="uw-operator-suffix">OPERATOR ONLINE</span>
               </div>
-              <div class="uw-util-lamp" aria-hidden="true">
-                <span class="uw-lamp-cage"></span>
-                <span class="uw-lamp-bulb"></span>
-                <span class="uw-lamp-spill"></span>
-              </div>
             </div>
           </div>
 
           <div class="uw-side uw-side-right" id="uw-subscriber-slot">
             <aside class="uw-readout uw-social-inbar" id="uw-subscriber" data-social="sub">
-              <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
               <div class="uw-glass-label">LATEST SUB</div>
               <div class="uw-glass-well">
+                <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
                 <span class="uw-glass-scan" aria-hidden="true"></span>
                 <span class="uw-glass-glow" aria-hidden="true"></span>
                 <span class="uw-glass-name" id="uw-subscriber-name"></span>
