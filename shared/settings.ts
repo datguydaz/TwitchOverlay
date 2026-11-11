@@ -132,6 +132,16 @@ export interface OverlaySettings {
   avatar: {
     intensity: number;
     lightsEnabled: boolean;
+    /**
+     * Mouse+hand follow gain (speed). Higher = bigger nudge per cursor delta.
+     * Typical 0.06–0.35; default ~0.12 (slower/smoother than the first pass).
+     */
+    mouseFollowGain: number;
+    /**
+     * Mouse+hand follow smoothness 0–1. Higher = slower lerp / more glide.
+     * 0 = snappy; ~0.75 default; 0.95 = very soft.
+     */
+    mouseFollowSmooth: number;
   };
   mic: {
     /** Dashboard Web Audio mic → overlays (levels only). */
@@ -171,6 +181,8 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   avatar: {
     intensity: 1,
     lightsEnabled: true,
+    mouseFollowGain: 0.12,
+    mouseFollowSmooth: 0.75,
   },
   mic: {
     enabled: false,
@@ -224,7 +236,21 @@ export function mergeSettings(
       events: { ...base.modules.events, ...partial.modules?.events },
       avatar: { ...base.modules.avatar, ...partial.modules?.avatar },
     },
-    avatar: { ...base.avatar, ...partial.avatar },
+    avatar: (() => {
+      const a = { ...base.avatar, ...partial.avatar };
+      const clamp = (n: unknown, min: number, max: number, fallback: number) => {
+        const v = Number(n);
+        if (!Number.isFinite(v)) return fallback;
+        return Math.max(min, Math.min(max, Math.round(v * 1000) / 1000));
+      };
+      return {
+        ...a,
+        intensity: clamp(a.intensity, 0.2, 2, 1),
+        lightsEnabled: !!a.lightsEnabled,
+        mouseFollowGain: clamp(a.mouseFollowGain, 0.04, 0.45, 0.12),
+        mouseFollowSmooth: clamp(a.mouseFollowSmooth, 0, 0.95, 0.75),
+      };
+    })(),
     mic: { ...base.mic, ...partial.mic },
     chat: (() => {
       const c = { ...base.chat, ...partial.chat };

@@ -149,6 +149,9 @@
         <h2>Avatar & input</h2>
         <label>Animation intensity <input id="intensity" type="range" min="0.2" max="2" step="0.1" /></label>
         <label class="inline"><input id="lightsEnabled" type="checkbox" /> Equipment lights</label>
+        <p class="hint">Mouse+hand follow (live companion deltas). Higher smooth = slower glide; gain = how far it tracks.</p>
+        <label>Mouse follow gain <input id="mouseFollowGain" type="range" min="0.04" max="0.45" step="0.01" title="Speed / how much cursor moves the hand+mouse" /></label>
+        <label>Mouse follow smooth <input id="mouseFollowSmooth" type="range" min="0" max="0.95" step="0.05" title="Lerp smoothing — higher is slower and softer" /></label>
         <div class="status-block">
           <p id="conn-status">Companion: unknown</p>
           <p id="last-input">Last input: —</p>

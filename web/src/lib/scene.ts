@@ -139,6 +139,10 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
     });
     avatar.setGameList(settings.chat.games ?? []);
     avatar.setChatPlacement(settings.chat);
+    avatar.setMouseFollowTuning(
+      settings.avatar.mouseFollowGain,
+      settings.avatar.mouseFollowSmooth,
+    );
     avatar.setChatPlacementPersist((chat) => {
       settings.chat.placement = chat.placement;
       settings.chat.offsetXPct = chat.offsetXPct;
@@ -182,6 +186,10 @@ export async function bootScene(opts: SceneBootOptions): Promise<void> {
     if (avatar) {
       avatar.setIntensity(settings.avatar.intensity);
       avatar.setLightsEnabled(settings.avatar.lightsEnabled);
+      avatar.setMouseFollowTuning(
+        settings.avatar.mouseFollowGain,
+        settings.avatar.mouseFollowSmooth,
+      );
       avatar.setStreamerName(settings.streamerName);
       avatar.setChatEnabled(settings.chat.enabled);
       avatar.setGameList(settings.chat.games ?? []);

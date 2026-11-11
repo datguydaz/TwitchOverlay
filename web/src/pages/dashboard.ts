@@ -52,6 +52,12 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("intensity") as HTMLInputElement).value = String(s.avatar.intensity);
   (document.getElementById("lightsEnabled") as HTMLInputElement).checked =
     s.avatar.lightsEnabled;
+  (document.getElementById("mouseFollowGain") as HTMLInputElement).value = String(
+    s.avatar.mouseFollowGain ?? 0.12,
+  );
+  (document.getElementById("mouseFollowSmooth") as HTMLInputElement).value = String(
+    s.avatar.mouseFollowSmooth ?? 0.75,
+  );
   (document.getElementById("micEnabled") as HTMLInputElement).checked = s.mic.enabled;
   (document.getElementById("micThreshold") as HTMLInputElement).value = String(s.mic.threshold);
   (document.getElementById("chatEnabled") as HTMLInputElement).checked = s.chat.enabled;
@@ -147,6 +153,16 @@ function readForm(): OverlaySettings {
   next.avatar.lightsEnabled = (
     document.getElementById("lightsEnabled") as HTMLInputElement
   ).checked;
+  {
+    const g = Number((document.getElementById("mouseFollowGain") as HTMLInputElement).value);
+    next.avatar.mouseFollowGain = Number.isFinite(g)
+      ? Math.max(0.04, Math.min(0.45, Math.round(g * 1000) / 1000))
+      : 0.12;
+    const sm = Number((document.getElementById("mouseFollowSmooth") as HTMLInputElement).value);
+    next.avatar.mouseFollowSmooth = Number.isFinite(sm)
+      ? Math.max(0, Math.min(0.95, Math.round(sm * 1000) / 1000))
+      : 0.75;
+  }
   next.mic.enabled = (document.getElementById("micEnabled") as HTMLInputElement).checked;
   next.mic.threshold = Number(
     (document.getElementById("micThreshold") as HTMLInputElement).value,
@@ -362,6 +378,7 @@ async function connectDashWs(): Promise<void> {
           avatar.setStreamerName(s.streamerName);
           avatar.setIntensity(s.avatar.intensity);
           avatar.setLightsEnabled(s.avatar.lightsEnabled);
+          avatar.setMouseFollowTuning(s.avatar.mouseFollowGain, s.avatar.mouseFollowSmooth);
           avatar.setChatEnabled(s.chat.enabled);
           avatar.setGameList(s.chat.games ?? []);
           avatar.setChatPlacement(s.chat);
@@ -395,6 +412,10 @@ async function main(): Promise<void> {
   });
   avatar.setGameList(settings.chat.games ?? []);
   avatar.setChatPlacement(settings.chat);
+  avatar.setMouseFollowTuning(
+    settings.avatar.mouseFollowGain,
+    settings.avatar.mouseFollowSmooth,
+  );
   avatar.setChatPlacementPersist((chat) => {
     settings.chat.placement = chat.placement;
     settings.chat.offsetXPct = chat.offsetXPct;
@@ -409,6 +430,10 @@ async function main(): Promise<void> {
     fillForm(settings);
     avatar.setIntensity(settings.avatar.intensity);
     avatar.setLightsEnabled(settings.avatar.lightsEnabled);
+    avatar.setMouseFollowTuning(
+      settings.avatar.mouseFollowGain,
+      settings.avatar.mouseFollowSmooth,
+    );
     avatar.setStreamerName(settings.streamerName);
     avatar.setChatEnabled(settings.chat.enabled);
     avatar.setGameList(settings.chat.games ?? []);
@@ -423,6 +448,10 @@ async function main(): Promise<void> {
     applyCssVars(settings);
     avatar.setIntensity(settings.avatar.intensity);
     avatar.setLightsEnabled(settings.avatar.lightsEnabled);
+    avatar.setMouseFollowTuning(
+      settings.avatar.mouseFollowGain,
+      settings.avatar.mouseFollowSmooth,
+    );
     avatar.setStreamerName(settings.streamerName);
     avatar.setChatEnabled(settings.chat.enabled);
     avatar.setGameList(settings.chat.games ?? []);

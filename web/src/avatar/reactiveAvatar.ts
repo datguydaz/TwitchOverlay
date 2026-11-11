@@ -241,7 +241,12 @@ export class ReactiveAvatar {
   /** Soft mouse-follow offset (SVG px), same direction as real cursor deltas. */
   private mouseFollowX = 0;
   private mouseFollowY = 0;
+  private mouseFollowTargetX = 0;
+  private mouseFollowTargetY = 0;
+  private mouseFollowGain = 0.12;
+  private mouseFollowSmooth = 0.75;
   private mouseFollowDecayTimer: number | null = null;
+  private mouseFollowRaf: number | null = null;
   /** Last applied hand aim transform — skip redundant writes that restart transitions. */
   private lastHandTx = "";
   private disposed = false;
@@ -416,6 +421,16 @@ export class ReactiveAvatar {
     // Idle breath/head use fixed CSS durations on nested layers — never reseed here.
   }
 
+  /** Dashboard-persisted mouse+hand follow gain (speed) + smoothness (lerp). */
+  setMouseFollowTuning(gain?: number, smooth?: number): void {
+    if (Number.isFinite(gain)) {
+      this.mouseFollowGain = Math.max(0.04, Math.min(0.45, Number(gain)));
+    }
+    if (Number.isFinite(smooth)) {
+      this.mouseFollowSmooth = Math.max(0, Math.min(0.95, Number(smooth)));
+    }
+  }
+
   /** Strip old inline duration hacks that restarted idle loops (pre-nested idle). */
   private clearLegacyIdleDurationOverrides(): void {
     for (const sel of ["#layer-torso", "#layer-head", "#idle-breath", "#idle-head"] as const) {
@@ -521,9 +536,15 @@ export class ReactiveAvatar {
     this.clearKeycaps();
     this.mouseFollowX = 0;
     this.mouseFollowY = 0;
+    this.mouseFollowTargetX = 0;
+    this.mouseFollowTargetY = 0;
     if (this.mouseFollowDecayTimer != null) {
       window.clearTimeout(this.mouseFollowDecayTimer);
       this.mouseFollowDecayTimer = null;
+    }
+    if (this.mouseFollowRaf != null) {
+      window.cancelAnimationFrame(this.mouseFollowRaf);
+      this.mouseFollowRaf = null;
     }
     this.writeMouseFollow();
     this.applyVisualState();
@@ -824,28 +845,67 @@ export class ReactiveAvatar {
   private applyMouseFollowDelta(dx: number, dy: number): void {
     if (!Number.isFinite(dx) || !Number.isFinite(dy)) return;
     if (dx === 0 && dy === 0) return;
-    // Screen px → visible SVG nudge; same sign as cursor (right/down positive).
-    const gain = 0.18;
-    this.mouseFollowX = Math.max(-7, Math.min(7, this.mouseFollowX * 0.78 + dx * gain));
-    this.mouseFollowY = Math.max(-5.5, Math.min(5.5, this.mouseFollowY * 0.78 + dy * gain));
-    this.writeMouseFollow();
+    // Screen px → target SVG nudge; same sign as cursor (right/down positive).
+    this.mouseFollowTargetX = Math.max(
+      -7,
+      Math.min(7, this.mouseFollowTargetX + dx * this.mouseFollowGain),
+    );
+    this.mouseFollowTargetY = Math.max(
+      -5.5,
+      Math.min(5.5, this.mouseFollowTargetY + dy * this.mouseFollowGain),
+    );
+    this.kickMouseFollowLoop();
     if (this.mouseFollowDecayTimer != null) window.clearTimeout(this.mouseFollowDecayTimer);
-    this.mouseFollowDecayTimer = window.setTimeout(() => this.decayMouseFollow(), 120);
+    this.mouseFollowDecayTimer = window.setTimeout(() => this.decayMouseFollowTarget(), 140);
   }
 
-  private decayMouseFollow(): void {
+  /** Higher smooth → smaller lerp step → slower/softer glide. */
+  private mouseFollowLerp(): number {
+    return Math.max(0.05, Math.min(1, 1 - this.mouseFollowSmooth));
+  }
+
+  private kickMouseFollowLoop(): void {
+    if (this.mouseFollowRaf != null) return;
+    const tick = () => {
+      this.mouseFollowRaf = null;
+      if (this.disposed) return;
+      const t = this.mouseFollowLerp();
+      this.mouseFollowX += (this.mouseFollowTargetX - this.mouseFollowX) * t;
+      this.mouseFollowY += (this.mouseFollowTargetY - this.mouseFollowY) * t;
+      if (
+        Math.abs(this.mouseFollowX - this.mouseFollowTargetX) < 0.02 &&
+        Math.abs(this.mouseFollowY - this.mouseFollowTargetY) < 0.02
+      ) {
+        this.mouseFollowX = this.mouseFollowTargetX;
+        this.mouseFollowY = this.mouseFollowTargetY;
+      }
+      this.writeMouseFollow();
+      const stillMoving =
+        Math.abs(this.mouseFollowX - this.mouseFollowTargetX) >= 0.02 ||
+        Math.abs(this.mouseFollowY - this.mouseFollowTargetY) >= 0.02 ||
+        Math.abs(this.mouseFollowTargetX) >= 0.05 ||
+        Math.abs(this.mouseFollowTargetY) >= 0.05;
+      if (stillMoving) {
+        this.mouseFollowRaf = window.requestAnimationFrame(tick);
+      }
+    };
+    this.mouseFollowRaf = window.requestAnimationFrame(tick);
+  }
+
+  private decayMouseFollowTarget(): void {
     this.mouseFollowDecayTimer = null;
     if (this.disposed) return;
-    this.mouseFollowX *= 0.78;
-    this.mouseFollowY *= 0.78;
-    if (Math.abs(this.mouseFollowX) < 0.08 && Math.abs(this.mouseFollowY) < 0.08) {
-      this.mouseFollowX = 0;
-      this.mouseFollowY = 0;
-      this.writeMouseFollow();
-      return;
+    // Ease target back to rest; display pos continues lerping via rAF.
+    this.mouseFollowTargetX *= 0.82;
+    this.mouseFollowTargetY *= 0.82;
+    if (Math.abs(this.mouseFollowTargetX) < 0.06 && Math.abs(this.mouseFollowTargetY) < 0.06) {
+      this.mouseFollowTargetX = 0;
+      this.mouseFollowTargetY = 0;
     }
-    this.writeMouseFollow();
-    this.mouseFollowDecayTimer = window.setTimeout(() => this.decayMouseFollow(), 120);
+    this.kickMouseFollowLoop();
+    if (this.mouseFollowTargetX !== 0 || this.mouseFollowTargetY !== 0) {
+      this.mouseFollowDecayTimer = window.setTimeout(() => this.decayMouseFollowTarget(), 140);
+    }
   }
 
   private writeMouseFollow(): void {
