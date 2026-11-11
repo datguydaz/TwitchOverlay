@@ -105,8 +105,10 @@ body.scene-opaque {
 }
 
 .webcam-frame {
-  width: 320px;
-  height: 240px;
+  /* Letterbox cam window — wider 16:9 (was 320×240 / 4:3) */
+  width: 420px;
+  height: 236px;
+  aspect-ratio: 16 / 9;
   border: 1px solid var(--line);
   background:
     repeating-linear-gradient(
