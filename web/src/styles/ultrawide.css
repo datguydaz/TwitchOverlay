@@ -693,7 +693,7 @@
   text-shadow: 0 0 12px rgba(200, 136, 58, 0.32);
 }
 
-/* —— Follow/sub: status-plate language; hard-flush outer edges; shorter toward center —— */
+/* —— Follow/sub: status-plate language; hard-flush outer edges; hug username width —— */
 .uw-readout {
   position: relative;
   z-index: 4;
@@ -710,10 +710,15 @@
   border: none;
   box-shadow: none;
 }
-/* Trim from center-facing side to red mark (~66% of side slot); outer edges stay flush */
+/* Option 1: wells hug username; min/max clamp; outer edges flush via side justify */
 .uw-wall-header .uw-readout {
-  width: 66%;
+  width: max-content;
   max-width: 66%;
+  min-width: 0;
+  align-items: flex-start;
+}
+.uw-wall-header .uw-side-right .uw-readout {
+  align-items: flex-end;
 }
 
 .uw-glass-label {
@@ -731,6 +736,9 @@
     0 1px 0 rgba(0, 0, 0, 0.9),
     0 0 12px rgba(200, 136, 58, 0.22);
   flex: 0 0 auto;
+  width: max-content;
+  max-width: 100%;
+  white-space: nowrap;
 }
 #uw-follower .uw-glass-label,
 #uw-subscriber .uw-glass-label {
@@ -741,7 +749,7 @@
   text-align: right;
 }
 
-/* Plate material — compact housing; room for larger name glyphs */
+/* Plate material — width follows username glyphs (+ fixture pad), clamped */
 .uw-glass-well {
   position: relative;
   display: flex;
@@ -759,6 +767,12 @@
   box-shadow:
     inset 0 0 18px rgba(200, 136, 58, 0.16),
     0 0 10px rgba(200, 136, 58, 0.22);
+}
+
+.uw-wall-header .uw-glass-well {
+  width: max-content;
+  min-width: clamp(200px, 12vw, 260px);
+  max-width: 100%;
 }
 
 .uw-side-right .uw-glass-well {
@@ -837,6 +851,11 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.uw-wall-header .uw-glass-name {
+  width: max-content;
+  max-width: 100%;
 }
 #uw-follower .uw-glass-name,
 #uw-subscriber .uw-glass-name,
