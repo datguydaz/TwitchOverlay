@@ -710,10 +710,13 @@
   border: none;
   box-shadow: none;
 }
-/* Option 1: wells hug username; min/max clamp; outer edges flush via side justify */
+/* Option 1: wells hug username; min/max clamp; outer edges flush via side justify.
+   IMPORTANT: do NOT use a low % max-width — on ultrawide-top (OBS bar-only) the side
+   slot is ~viewport/3, so max-width:66% forced RYSEABOVEIT and ACTYR:[6] to the same
+   width. Cap against the full side slot instead so short names stay visibly shorter. */
 .uw-wall-header .uw-readout {
   width: max-content;
-  max-width: 66%;
+  max-width: 100%;
   min-width: 0;
   align-items: flex-start;
 }
@@ -770,8 +773,9 @@
 }
 
 .uw-wall-header .uw-glass-well {
-  width: max-content;
-  min-width: clamp(200px, 12vw, 260px);
+  display: inline-flex;
+  width: auto;
+  min-width: clamp(160px, 7vw, 220px);
   max-width: 100%;
 }
 
@@ -854,7 +858,8 @@
 }
 
 .uw-wall-header .uw-glass-name {
-  width: max-content;
+  width: auto;
+  flex: 0 0 auto;
   max-width: 100%;
 }
 #uw-follower .uw-glass-name,
