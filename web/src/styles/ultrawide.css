@@ -762,7 +762,8 @@
   box-sizing: border-box;
   min-height: calc(var(--uw-bar-h) * 0.46);
   height: calc(var(--uw-bar-h) * 0.5);
-  padding: 8px 16px 8px 46px;
+  /* Extra horizontal air so short names (ACTYR) don't feel cramped */
+  padding: 8px 32px 8px 52px;
   overflow: hidden;
   background: rgba(6, 6, 5, 0.78);
   /* Brighter amber outline (follow/sub only) — still bunker, not neon */
@@ -775,12 +776,12 @@
 .uw-wall-header .uw-glass-well {
   display: inline-flex;
   width: auto;
-  min-width: clamp(160px, 7vw, 220px);
+  min-width: clamp(300px, 18vw, 420px);
   max-width: 100%;
 }
 
 .uw-side-right .uw-glass-well {
-  padding: 8px 46px 8px 16px;
+  padding: 8px 52px 8px 32px;
   justify-content: flex-end;
 }
 
