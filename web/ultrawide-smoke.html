@@ -3,32 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ultrawide Smoke — Mono B/W + Red</title>
+    <title>Ultrawide Smoke — Rich Mono</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Oswald:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/fonts.css" />
     <link rel="stylesheet" href="/src/styles/zone.css" />
-    <!-- Current letterbox stays at ultrawide.html — this page is a Streamlabs-inspired variant. -->
+    <!-- Variant only — ultrawide.html / arms restore bars stay untouched -->
     <link rel="stylesheet" href="/src/styles/ultrawide.css" />
     <link rel="stylesheet" href="/src/styles/ultrawide-smoke.css" />
   </head>
   <body class="uw-smoke-variant">
-    <div id="uw-stage" data-atm="on" data-vfx="on" data-text-fx="on" data-variant="smoke-flare">
+    <script>
+      // Streamlabs CEF-safe: mark html before paint for fixed 3440×1440 + transparent void
+      document.documentElement.classList.add("uw-smoke-html");
+    </script>
+    <div id="uw-stage" data-atm="on" data-vfx="on" data-text-fx="off" data-variant="smoke-flare">
       <div class="uw-bar uw-bar-top" id="uw-top" data-edge="top">
+        <!-- Atmosphere stack -->
         <div class="uw-smoke-depth" aria-hidden="true"></div>
+        <div class="uw-bar-haze uw-bar-haze-header" aria-hidden="true"></div>
+        <div class="smk-layer smk-wave a" aria-hidden="true"></div>
+        <div class="smk-layer smk-wave b" aria-hidden="true"></div>
+        <div class="smk-layer smk-bolt a" aria-hidden="true"></div>
+        <div class="smk-layer smk-bolt b" aria-hidden="true"></div>
         <div class="uw-smoke-wisp w1" aria-hidden="true"></div>
         <div class="uw-smoke-wisp w2" aria-hidden="true"></div>
         <div class="uw-smoke-wisp w3" aria-hidden="true"></div>
-        <div class="uw-bar-haze uw-bar-haze-header" aria-hidden="true"></div>
+        <div class="smk-corner-crack tl" aria-hidden="true"></div>
+        <div class="smk-corner-crack tr" aria-hidden="true"></div>
+        <div class="smk-blade left" aria-hidden="true"></div>
+        <div class="smk-blade right" aria-hidden="true"></div>
         <div class="uw-grime" aria-hidden="true">
           <i class="uw-scratch a"></i>
           <i class="uw-scratch b"></i>
         </div>
+
         <div class="uw-bar-body uw-wall-header">
           <div class="uw-side" id="uw-follower-slot">
             <aside class="uw-readout uw-social-inbar" id="uw-follower" data-social="follow">
-              <div class="uw-glass-label">LATEST FOLLOWER</div>
+              <div class="uw-glass-label">
+                <i class="smk-label-tick" aria-hidden="true"></i>
+                LATEST FOLLOWER
+              </div>
               <div class="uw-glass-well">
                 <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
                 <span class="uw-glass-scan" aria-hidden="true"></span>
@@ -40,14 +57,14 @@
 
           <div class="uw-center">
             <div class="uw-id-block" id="uw-top-text">
-              <div class="uw-stencil" data-text-fx="id">
-                <span class="uw-text-glow" aria-hidden="true"></span>
-                <span class="uw-text-face" data-streamer-name>datguydaz</span>
-                <span class="uw-name-crt" aria-hidden="true"></span>
+              <div class="uw-stencil smk-nameplate" data-text-fx="id">
+                <!-- metallic layers: face + slash streak (no amber lamp/glow) -->
+                <span class="uw-text-face smk-name-face" data-streamer-name>datguydaz</span>
+                <span class="smk-name-metal" aria-hidden="true">datguydaz</span>
+                <span class="smk-name-slash" aria-hidden="true"></span>
+                <span class="smk-name-distress" aria-hidden="true"></span>
               </div>
-              <div class="uw-op-readout" data-text-fx="op">
-                <span class="uw-op-fixture" aria-hidden="true"><i class="uw-op-led"></i></span>
-                <span class="uw-text-glow" aria-hidden="true"></span>
+              <div class="uw-op-readout smk-op" data-text-fx="op">
                 <span class="uw-text-face" id="uw-operator-suffix">OPERATOR ONLINE</span>
               </div>
             </div>
@@ -55,7 +72,10 @@
 
           <div class="uw-side uw-side-right" id="uw-subscriber-slot">
             <aside class="uw-readout uw-social-inbar" id="uw-subscriber" data-social="sub">
-              <div class="uw-glass-label">LATEST SUBSCRIBER</div>
+              <div class="uw-glass-label">
+                LATEST SUBSCRIBER
+                <i class="smk-label-tick" aria-hidden="true"></i>
+              </div>
               <div class="uw-glass-well">
                 <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
                 <span class="uw-glass-scan" aria-hidden="true"></span>
@@ -66,13 +86,20 @@
           </div>
         </div>
 
-        <div class="uw-header-rail" aria-hidden="true">
+        <!-- Double rail + flares + stage bloom + chevron -->
+        <div class="uw-header-rail smk-rail-pack" aria-hidden="true">
+          <span class="smk-rail-line outer"></span>
+          <span class="smk-rail-line inner"></span>
           <span class="uw-header-rail-glow"></span>
           <span class="uw-divider-rail"></span>
           <span class="uw-lens-flare f1"></span>
           <span class="uw-lens-flare f2"></span>
           <span class="uw-lens-flare f3"></span>
           <span class="uw-lens-flare f4"></span>
+          <span class="smk-flare-bloom b1"></span>
+          <span class="smk-flare-bloom b2"></span>
+          <span class="smk-flare-bloom b3"></span>
+          <span class="smk-chevron"></span>
           <span class="uw-header-scan s-a"></span>
           <span class="uw-header-scan s-b"></span>
           <span class="uw-header-ember e1"></span>
@@ -86,21 +113,33 @@
         <div class="uw-atm-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       </div>
 
-      <!-- Transparent gameplay void — avatar can be a separate OBS source or composited -->
       <div class="uw-smoke-void" aria-hidden="true"></div>
 
       <div class="uw-bar uw-bar-bottom" id="uw-bottom" data-edge="bottom">
         <div class="uw-seam uw-seam-top" aria-hidden="true"></div>
         <div class="uw-smoke-depth" aria-hidden="true"></div>
+        <div class="uw-bar-haze uw-bar-haze-footer" aria-hidden="true"></div>
+        <div class="smk-layer smk-wave c" aria-hidden="true"></div>
+        <div class="smk-layer smk-wave d" aria-hidden="true"></div>
+        <div class="smk-layer smk-bolt c" aria-hidden="true"></div>
+        <div class="smk-starfield" aria-hidden="true"></div>
         <div class="uw-smoke-wisp w4" aria-hidden="true"></div>
         <div class="uw-smoke-wisp w5" aria-hidden="true"></div>
-        <div class="uw-bar-haze uw-bar-haze-footer" aria-hidden="true"></div>
-        <div class="uw-footer-rail" aria-hidden="true">
+        <div class="smk-corner-crack bl" aria-hidden="true"></div>
+        <div class="smk-corner-crack br" aria-hidden="true"></div>
+        <div class="smk-blade left bot" aria-hidden="true"></div>
+        <div class="smk-blade right bot" aria-hidden="true"></div>
+
+        <div class="uw-footer-rail smk-rail-pack" aria-hidden="true">
+          <span class="smk-rail-line outer foot"></span>
+          <span class="smk-rail-line inner foot"></span>
           <span class="uw-footer-rail-glow"></span>
           <span class="uw-divider-rail uw-divider-rail-footer"></span>
           <span class="uw-lens-flare f5"></span>
           <span class="uw-lens-flare f6"></span>
           <span class="uw-lens-flare f7"></span>
+          <span class="smk-flare-bloom b4"></span>
+          <span class="smk-flare-bloom b5"></span>
           <span class="uw-footer-ticker t-a"></span>
           <span class="uw-footer-ticker t-b"></span>
           <span class="uw-footer-stutter"></span>
@@ -138,7 +177,19 @@
         <div class="uw-atm-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       </div>
     </div>
-    <!-- Same live bindings / settings / WS as current ultrawide -->
     <script type="module" src="/src/pages/ultrawide.ts"></script>
+    <script type="module">
+      // Mirror streamer name onto metallic outline layer (no MutationObserver loop)
+      const face = document.querySelector(".smk-name-face");
+      const metal = document.querySelector(".smk-name-metal");
+      if (face && metal) {
+        const apply = () => {
+          const t = face.textContent || "";
+          if (metal.textContent !== t) metal.textContent = t;
+        };
+        apply();
+        setInterval(apply, 1500);
+      }
+    </script>
   </body>
 </html>

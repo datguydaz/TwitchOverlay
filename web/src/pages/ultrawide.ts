@@ -48,12 +48,14 @@ function applyUltrawide(settings: OverlaySettings): void {
   if (!stage) return;
 
   let barH = Math.max(64, Math.min(420, uw.barHeight || 180));
+  const smokeFixed = stage.dataset.variant === "smoke-flare";
   // Smoke mono variant needs taller bars for oversized DATGUYDAZ + OPERATOR ONLINE
-  if (stage.dataset.variant === "smoke-flare") {
-    barH = Math.max(barH, 230);
+  if (smokeFixed) {
+    barH = Math.max(barH, 248);
   }
-  const canvasW = Math.max(1280, uw.canvasWidth || 3440);
-  const canvasH = Math.max(720, uw.canvasHeight || 1440);
+  // Streamlabs Browser Source smoke page: always exact 3440×1440 (no window scaling)
+  const canvasW = smokeFixed ? 3440 : Math.max(1280, uw.canvasWidth || 3440);
+  const canvasH = smokeFixed ? 1440 : Math.max(720, uw.canvasHeight || 1440);
 
   stage.style.setProperty("--uw-bar-h", `${barH}px`);
   stage.style.setProperty("--uw-canvas-w", `${canvasW}px`);
@@ -61,7 +63,14 @@ function applyUltrawide(settings: OverlaySettings): void {
   if (!mode) {
     stage.style.width = `${canvasW}px`;
     stage.style.height = `${canvasH}px`;
-    scaleUwStage(stage, canvasW, canvasH);
+    if (smokeFixed) {
+      document.documentElement.classList.add("uw-smoke-html");
+      stage.style.transform = "none";
+      // Keep text-fx lamp/amber breathe off on smoke mono variant
+      stage.dataset.textFx = "off";
+    } else {
+      scaleUwStage(stage, canvasW, canvasH);
+    }
   }
 
   document.querySelectorAll("[data-streamer-name]").forEach((el) => {
@@ -137,6 +146,8 @@ function applyUltrawide(settings: OverlaySettings): void {
 
   if (!textFx) textFx = new TextLifeVfx(stage, settings.textEffects);
   else textFx.applyConfig(settings.textEffects);
+  // Smoke mono: kill lamp/amber text-life after TextLifeVfx may flip dataset on
+  if (smokeFixed) stage.dataset.textFx = "off";
 
   if (!socialAnim) socialAnim = new SocialReadoutAnim(stage, reduced);
   else socialAnim.setReducedMotion(reduced);
