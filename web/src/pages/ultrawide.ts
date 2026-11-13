@@ -5,6 +5,7 @@ import {
 import { AtmosphereVfx } from "../lib/atmosphereVfx.ts";
 import { TextLifeVfx } from "../lib/textLifeVfx.ts";
 import { SocialReadoutAnim } from "../lib/socialReadoutAnim.ts";
+import { applySmokeRuinTextures } from "../lib/smokeRuinTextures.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 import type { AtmPreviewKind } from "../../../shared/protocol.ts";
 
@@ -35,6 +36,8 @@ let socialAnim: SocialReadoutAnim | null = null;
 let lastFollower = "";
 let lastSubscriber = "";
 let bootstrappedSocial = false;
+let smokeRuinCleanup: (() => void) | null = null;
+let smokeRuinReady = false;
 
 const TEXT_PREVIEW = new Set<AtmPreviewKind>(["text-dip", "text-sweep", "text-op"]);
 
@@ -147,7 +150,14 @@ function applyUltrawide(settings: OverlaySettings): void {
   if (!textFx) textFx = new TextLifeVfx(stage, settings.textEffects);
   else textFx.applyConfig(settings.textEffects);
   // Smoke mono: kill lamp/amber text-life after TextLifeVfx may flip dataset on
-  if (smokeFixed) stage.dataset.textFx = "off";
+  if (smokeFixed) {
+    stage.dataset.textFx = "off";
+    if (!smokeRuinReady) {
+      smokeRuinCleanup?.();
+      smokeRuinCleanup = applySmokeRuinTextures(stage);
+      smokeRuinReady = true;
+    }
+  }
 
   if (!socialAnim) socialAnim = new SocialReadoutAnim(stage, reduced);
   else socialAnim.setReducedMotion(reduced);

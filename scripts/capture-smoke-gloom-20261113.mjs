@@ -36,6 +36,16 @@ await page.waitForFunction(() => !!document.getElementById("uw-stage"), null, {
   timeout: 10000,
 });
 await page.waitForTimeout(900);
+// Wait for procedural ruin canvases (steel / wisps / blood / torn edge)
+await page.waitForFunction(
+  () =>
+    document.querySelectorAll("canvas.smk-steel-canvas").length >= 2 &&
+    document.querySelectorAll("canvas.smk-wisp-canvas").length >= 2 &&
+    document.querySelectorAll("canvas.smk-blood-canvas").length >= 4,
+  null,
+  { timeout: 15000 },
+);
+await page.waitForTimeout(400);
 
 const dump = await page.evaluate((bar) => {
   const s = document.getElementById("uw-stage");
