@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zone Overlay Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/fonts.css" />
+    <link rel="stylesheet" href="/src/styles/zone.css" />
+    <link rel="stylesheet" href="/src/styles/dashboard.css" />
+  </head>
+  <body class="dash-body">
+    <header class="dash-header">
+      <div>
+        <p class="eyebrow">LOCAL CONTROL // NOT AN OBS SOURCE</p>
+        <h1>ZONE OPS DASHBOARD</h1>
+      </div>
+      <div class="header-actions">
+        <button type="button" id="btn-save" class="btn primary">Save settings</button>
+        <button type="button" id="btn-reset" class="btn">Reset defaults</button>
+      </div>
+    </header>
+
+    <main class="dash-grid">
+      <section class="dash-panel">
+        <h2>Identity & colours</h2>
+        <label>Streamer name <input id="streamerName" type="text" /></label>
+        <label>Accent (amber) <input id="accentColor" type="color" /></label>
+        <label>Olive <input id="oliveColor" type="color" /></label>
+        <label>Beige <input id="beigeColor" type="color" /></label>
+        <label>Charcoal <input id="charcoalColor" type="color" /></label>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Scene text</h2>
+        <label>Starting soon title <input id="startingSoonTitle" type="text" /></label>
+        <label>Starting soon sub <input id="startingSoonSub" type="text" /></label>
+        <label>BRB title <input id="brbTitle" type="text" /></label>
+        <label>BRB sub <input id="brbSub" type="text" /></label>
+        <label>Ending title <input id="endingTitle" type="text" /></label>
+        <label>Ending sub <input id="endingSub" type="text" /></label>
+        <label>Countdown minutes <input id="countdownMinutes" type="number" min="1" max="180" /></label>
+        <button type="button" id="btn-countdown-now" class="btn">Start countdown from now</button>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Modules</h2>
+        <div class="mod-editor" data-mod="identity">
+          <strong>Identity</strong>
+          <label class="inline"><input type="checkbox" data-field="visible" /> Visible</label>
+          <label>X <input type="number" data-field="x" /></label>
+          <label>Y <input type="number" data-field="y" /></label>
+          <label>Scale <input type="number" step="0.05" min="0.2" max="3" data-field="scale" /></label>
+        </div>
+        <div class="mod-editor" data-mod="webcam">
+          <strong>Webcam frame</strong>
+          <label class="inline"><input type="checkbox" data-field="visible" /> Visible</label>
+          <label>X <input type="number" data-field="x" /></label>
+          <label>Y <input type="number" data-field="y" /></label>
+          <label>Scale <input type="number" step="0.05" min="0.2" max="3" data-field="scale" /></label>
+        </div>
+        <div class="mod-editor" data-mod="events">
+          <strong>Events</strong>
+          <label class="inline"><input type="checkbox" data-field="visible" /> Visible</label>
+          <label>X <input type="number" data-field="x" /></label>
+          <label>Y <input type="number" data-field="y" /></label>
+          <label>Scale <input type="number" step="0.05" min="0.2" max="3" data-field="scale" /></label>
+        </div>
+        <div class="mod-editor" data-mod="avatar">
+          <strong>Avatar</strong>
+          <label class="inline"><input type="checkbox" data-field="visible" /> Visible</label>
+          <label>X <input type="number" data-field="x" /></label>
+          <label>Y <input type="number" data-field="y" /></label>
+          <label>Scale <input type="number" step="0.05" min="0.2" max="3" data-field="scale" /></label>
+        </div>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Mic talk react</h2>
+        <p class="hint"><strong>Works now:</strong> level-based talk (mouth, lean, head nod, occasional ACK bubble). Levels only — never records audio. <strong>Not AI:</strong> no understanding of Twitch chat or spoken topics unless you use Topic react (local keywords) or wire STT/chat later.</p>
+        <label class="inline"><input id="micEnabled" type="checkbox" /> Enable mic → avatar</label>
+        <label>Talk threshold <input id="micThreshold" type="range" min="0.04" max="0.5" step="0.01" /></label>
+        <p id="mic-level">Mic level: —</p>
+        <label>Topic react (local keywords) <input id="topicReact" type="text" maxlength="80" placeholder="raid / extract / hello" /></label>
+        <div class="btn-row">
+          <button type="button" id="btn-topic-react" class="btn">Topic react demo</button>
+        </div>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Chat persona</h2>
+        <p class="hint">COMMS bubble on the <strong>avatar</strong> source only (ultrawide AI chat removed). Default sits centered under the desk.</p>
+        <label class="inline"><input id="chatEnabled" type="checkbox" /> Show chat</label>
+        <label class="inline"><input id="chatDemoAuto" type="checkbox" /> Random trash-talk timer</label>
+        <label>Trash-talk interval (ms) <input id="chatIntervalMs" type="number" min="6000" max="90000" step="1000" /></label>
+        <label>Chat position
+          <select id="chatPlacement">
+            <option value="bottom-center">Below desk (center)</option>
+            <option value="bottom-left">Bottom left</option>
+            <option value="bottom-right">Bottom right</option>
+            <option value="top-left">Top left</option>
+            <option value="top-right">Top right</option>
+            <option value="mid-left">Mid left</option>
+            <option value="mid-right">Mid right</option>
+          </select>
+        </label>
+        <label>Nudge X % <input id="chatOffsetX" type="number" min="0" max="40" step="1" title="Below desk: 20 = center. Corners: inset from edge." /></label>
+        <label>Nudge Y % <input id="chatOffsetY" type="number" min="0" max="40" step="1" title="Distance from bottom (or top) edge — raise to sit under desk lip." /></label>
+        <label>COMMS scale <input id="chatScale" type="number" min="0.6" max="10" step="0.05" title="Bubble size multiplier (1 = default, max 10)" /></label>
+        <p class="hint">Nudge X/Y + scale save with settings. You can also drag the COMMS box on the avatar while it’s visible.</p>
+        <label>Games he “plays” (one per line — canned match talk only, not live game reading)
+          <textarea id="chatGames" rows="5" placeholder="Tarkov&#10;DayZ&#10;Arena Breakout"></textarea>
+        </label>
+        <p class="hint">Random lines name a game from this list as if he’s mid-match. No API / no fake live reading.</p>
+        <label>Send line <input id="chatLine" type="text" maxlength="220" placeholder="Extract window's thin. Move clean." /></label>
+        <div class="btn-row">
+          <button type="button" id="btn-chat-send" class="btn primary">Send to overlays</button>
+          <button type="button" id="btn-chat-sample" class="btn">Sample trash-talk</button>
+        </div>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Latest follow / sub</h2>
+        <p class="hint">Smoked-glass readouts in the ultrawide <strong>top bar</strong>. Leave blank until Twitch/Kick is wired. Demo buttons below animate LATEST FOLLOW / SUB only — they never overwrite saved names.</p>
+        <label class="inline"><input id="socialShowFollower" type="checkbox" /> Show latest follower</label>
+        <label class="inline"><input id="socialShowSubscriber" type="checkbox" /> Show latest subscriber</label>
+        <label>Latest follower <input id="socialFollowerName" type="text" placeholder="name" /></label>
+        <label>Latest subscriber <input id="socialSubscriberName" type="text" placeholder="name" /></label>
+        <p class="hint">Labeled demos (sample names, restore after anim):</p>
+        <div class="btn-row">
+          <button type="button" class="btn" data-atm-preview="follow">Demo follow event</button>
+          <button type="button" class="btn" data-atm-preview="sub">Demo sub event</button>
+        </div>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Ultrawide letterbox</h2>
+        <p class="hint">Optimized for 3440×1440 and 4K. Bars fill empty top/bottom around centered 16:9 gameplay.</p>
+        <label>Canvas width <input id="uwCanvasWidth" type="number" min="1280" max="7680" step="1" /></label>
+        <label>Canvas height <input id="uwCanvasHeight" type="number" min="720" max="4320" step="1" /></label>
+        <label>Bar height (px) <input id="uwBarHeight" type="number" min="48" max="400" step="1" /></label>
+        <label class="inline"><input id="uwTopVisible" type="checkbox" /> Top bar visible</label>
+        <label class="inline"><input id="uwBottomVisible" type="checkbox" /> Bottom bar visible</label>
+        <label class="inline"><input id="uwOperatorOnTop" type="checkbox" /> Put streamer // operator line on TOP bar</label>
+        <label>Operator line (top) <input id="uwOperatorLine" type="text" placeholder="OPERATOR ONLINE" /></label>
+        <label>Top text (if operator-on-top off) <input id="uwTopText" type="text" /></label>
+        <label>Bottom-right status <input id="uwStatusText" type="text" placeholder="ZONE THREAT // RAID READY" /></label>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Overlay Atmosphere</h2>
+        <p class="hint">Bunker frame VFX only (ultrawide bars). Not in broadcast as a separate source — toggles live here; OBS reads ultrawide pages. Default intensity Low. Decorative LEDs are not connection status.</p>
+        <label class="inline"><input id="atmEnabled" type="checkbox" /> Master enable</label>
+        <label>Intensity
+          <select id="atmIntensity">
+            <option value="low">Low (default)</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+        <label class="inline"><input id="atmDust" type="checkbox" /> Dust</label>
+        <label class="inline"><input id="atmSmoke" type="checkbox" /> Smoke wisps</label>
+        <label class="inline"><input id="atmSparks" type="checkbox" /> Corner sparks</label>
+        <label class="inline"><input id="atmFlicker" type="checkbox" /> Local amber flicker</label>
+        <label class="inline"><input id="atmReducedMotion" type="checkbox" /> Reduced motion</label>
+        <p class="hint">Preview (simulated — labels only; follow/sub also pulse recessed readouts):</p>
+        <div class="btn-row">
+          <button type="button" class="btn" data-atm-preview="flicker">Preview flicker</button>
+          <button type="button" class="btn" data-atm-preview="smoke">Preview smoke</button>
+          <button type="button" class="btn" data-atm-preview="sparks">Preview sparks</button>
+        </div>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Frame Text Effects</h2>
+        <p class="hint">Worn electrical-sign life on letterbox text only. Separate from Overlay Atmosphere. Base lettering stays readable; glow is a separate layer. Sim events are labeled — not live Twitch.</p>
+        <label class="inline"><input id="textFxEnabled" type="checkbox" /> Master enable</label>
+        <label>Intensity
+          <select id="textFxIntensity">
+            <option value="low">Low</option>
+            <option value="medium">Medium (default)</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+        <label class="inline"><input id="textFxReducedMotion" type="checkbox" /> Reduced motion</label>
+        <p class="hint">Simulated text-life previews:</p>
+        <div class="btn-row">
+          <button type="button" class="btn" data-atm-preview="text-dip">Sim backlight dip</button>
+          <button type="button" class="btn" data-atm-preview="text-sweep">Sim light sweep</button>
+          <button type="button" class="btn" data-atm-preview="text-op">Sim operator flutter</button>
+        </div>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Avatar & input</h2>
+        <label>Animation intensity <input id="intensity" type="range" min="0.2" max="2" step="0.1" /></label>
+        <label class="inline"><input id="lightsEnabled" type="checkbox" /> Equipment lights</label>
+        <p class="hint">Mouse+hand follow (live companion deltas). Higher smooth = slower glide; gain = how far it tracks.</p>
+        <label>Mouse follow gain <input id="mouseFollowGain" type="range" min="0.04" max="0.45" step="0.01" title="Speed / how much cursor moves the hand+mouse" /></label>
+        <label>Mouse follow smooth <input id="mouseFollowSmooth" type="range" min="0" max="0.95" step="0.05" title="Lerp smoothing — higher is slower and softer" /></label>
+        <div class="status-block">
+          <p id="conn-status">Companion: unknown</p>
+          <p id="last-input">Last input: —</p>
+          <p class="hint">Demo preview is local to this page and never reports as a live companion. Streamlabs must use <code>http://127.0.0.1:8787/…</code> with companion running.</p>
+        </div>
+        <div class="btn-row">
+          <button type="button" id="btn-demo-toggle" class="btn">Enable demo preview</button>
+          <button type="button" id="btn-demo-key" class="btn">Demo key</button>
+          <button type="button" id="btn-demo-hold" class="btn">Demo key hold</button>
+          <button type="button" id="btn-demo-l" class="btn">Demo L-click</button>
+          <button type="button" id="btn-demo-r" class="btn">Demo R-click</button>
+          <button type="button" id="btn-demo-wheel" class="btn">Demo scroll</button>
+        </div>
+        <div class="btn-row">
+          <button type="button" id="btn-pause" class="btn">Pause capture</button>
+          <button type="button" id="btn-resume" class="btn">Resume capture</button>
+        </div>
+        <div id="dash-avatar" class="dash-avatar-wrap"></div>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Scene previews</h2>
+        <p class="hint">OBS sources use these URLs at 1920×1080 with transparent background (except BRB / starting / ending which are opaque scenes). Ultrawide pages use your canvas size (default 3440×1440).</p>
+        <ul class="url-list">
+          <li><a href="/gameplay.html" target="_blank" rel="noopener">/gameplay.html</a></li>
+          <li><a href="/starting-soon.html" target="_blank" rel="noopener">/starting-soon.html</a></li>
+          <li><a href="/brb.html" target="_blank" rel="noopener">/brb.html</a></li>
+          <li><a href="/ending.html" target="_blank" rel="noopener">/ending.html</a></li>
+          <li><a href="/avatar.html" target="_blank" rel="noopener">/avatar.html</a></li>
+          <li><a href="/ultrawide.html" target="_blank" rel="noopener">/ultrawide.html</a> (full canvas + both bars)</li>
+          <li><a href="/ultrawide-top.html" target="_blank" rel="noopener">/ultrawide-top.html</a></li>
+          <li><a href="/ultrawide-bottom.html" target="_blank" rel="noopener">/ultrawide-bottom.html</a></li>
+        </ul>
+        <p class="warn">Do not add <strong>dashboard.html</strong> as an OBS browser source.</p>
+      </section>
+
+      <section class="dash-panel">
+        <h2>Sample alerts (preview only)</h2>
+        <p class="hint">Visual samples — Twitch/Kick live events are NOT connected.</p>
+        <div class="btn-row">
+          <button type="button" class="btn" data-sample="follow">Sample follow</button>
+          <button type="button" class="btn" data-sample="sub">Sample sub</button>
+          <button type="button" class="btn" data-sample="donation">Sample donation</button>
+        </div>
+        <div id="sample-rail" class="events-rail"></div>
+        <div class="integrations">
+          <h3>Future integrations</h3>
+          <p>Twitch EventSub / Kick events require app credentials stored only on a future local bridge — never in browser overlay code. See README.</p>
+        </div>
+      </section>
+    </main>
+
+    <p id="toast" class="toast" hidden></p>
+    <script type="module" src="/src/pages/dashboard.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,1275 @@
+:root {
+  --charcoal: #1a1c18;
+  --charcoal-2: #242820;
+  --olive: #6b7355;
+  --olive-dim: #4a5240;
+  --beige: #c4b59a;
+  --beige-dim: #9a8f78;
+  --amber: #c7923a;
+  --amber-dim: #8a6528;
+  --danger: #8b3a2a;
+  --scratch: rgba(196, 181, 154, 0.08);
+  --panel: rgba(26, 28, 24, 0.82);
+  --line: rgba(107, 115, 85, 0.55);
+  --font-display: "Oswald", "Zone Display", "Arial Narrow", sans-serif;
+  --font-nameplate: "Bebas Neue", "Oswald", "Zone Display", sans-serif;
+  --font-op: "Rajdhani", "Oswald", "Zone Display", sans-serif;
+  --font-mono: "Share Tech Mono", "Zone Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: var(--font-mono);
+  color: var(--beige);
+  -webkit-font-smoothing: antialiased;
+}
+
+body.scene-opaque {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(107, 115, 85, 0.18), transparent 55%),
+    radial-gradient(ellipse at 80% 70%, rgba(139, 58, 42, 0.12), transparent 50%),
+    linear-gradient(160deg, #141612 0%, #1c2018 45%, #121410 100%);
+}
+
+#stage {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: top left;
+  overflow: hidden;
+}
+
+.module {
+  position: absolute;
+  transform-origin: top left;
+  will-change: transform;
+}
+
+.module[data-hidden="true"] {
+  display: none !important;
+}
+
+.identity-plate {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 280px;
+  padding: 14px 18px 12px;
+  background:
+    linear-gradient(135deg, rgba(36, 40, 32, 0.92), rgba(26, 28, 24, 0.88));
+  border: 1px solid var(--line);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.identity-plate::before {
+  content: "FIELD ID // AUTH";
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--olive);
+  text-transform: uppercase;
+}
+
+.identity-name {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--beige);
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.identity-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--beige-dim);
+}
+
+.identity-meta span {
+  color: var(--amber);
+}
+
+.webcam-frame {
+  /* Letterbox cam window — 16:9; must stay fully inside 1920 stage */
+  width: 420px;
+  height: 236px;
+  aspect-ratio: 16 / 9;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(196, 181, 154, 0.03) 3px,
+      rgba(196, 181, 154, 0.03) 4px
+    ),
+    rgba(10, 12, 9, 0.35);
+  /* Mild corner cuts that leave room for all four L-brackets */
+  clip-path: polygon(
+    0 10px,
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px)
+  );
+  position: relative;
+  overflow: visible;
+}
+
+.webcam-frame::after {
+  content: "CAM-02 // OPTICAL";
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--olive);
+  z-index: 1;
+}
+
+.webcam-corners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.webcam-corners span {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--amber-dim);
+  border-style: solid;
+  opacity: 0.7;
+  box-sizing: border-box;
+}
+
+.webcam-corners span:nth-child(1) {
+  top: 8px;
+  left: 8px;
+  border-width: 1px 0 0 1px;
+}
+.webcam-corners span:nth-child(2) {
+  top: 8px;
+  right: 8px;
+  border-width: 1px 1px 0 0;
+}
+.webcam-corners span:nth-child(3) {
+  bottom: 8px;
+  left: 8px;
+  border-width: 0 0 1px 1px;
+}
+.webcam-corners span:nth-child(4) {
+  bottom: 8px;
+  right: 8px;
+  border-width: 0 1px 1px 0;
+}
+
+.events-rail {
+  width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.event-card {
+  padding: 10px 14px;
+  background: var(--panel);
+  border-left: 3px solid var(--amber);
+  border-top: 1px solid var(--line);
+  border-right: 1px solid rgba(107, 115, 85, 0.25);
+  border-bottom: 1px solid rgba(107, 115, 85, 0.25);
+  animation: event-in 280ms ease-out;
+}
+
+.event-card.sample {
+  border-left-color: var(--olive);
+}
+
+.event-card .tag {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--amber);
+  margin-bottom: 4px;
+}
+
+.event-card.sample .tag {
+  color: var(--olive);
+}
+
+.event-card .body {
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@keyframes event-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.scene-terminal {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 64px;
+}
+
+.terminal-panel {
+  width: min(920px, 90%);
+  padding: 48px 56px;
+  background:
+    linear-gradient(180deg, rgba(36, 40, 32, 0.94), rgba(20, 22, 18, 0.96));
+  border: 1px solid var(--line);
+  position: relative;
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.45),
+    0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.terminal-panel::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(107, 115, 85, 0.25);
+  pointer-events: none;
+}
+
+.terminal-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  color: var(--olive);
+  margin-bottom: 18px;
+}
+
+.terminal-title {
+  font-family: var(--font-display);
+  font-size: 72px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--beige);
+  margin: 0 0 16px;
+}
+
+.terminal-sub {
+  font-size: 16px;
+  letter-spacing: 0.08em;
+  color: var(--beige-dim);
+  max-width: 38ch;
+  margin: 0 0 28px;
+}
+
+.countdown {
+  font-family: var(--font-display);
+  font-size: 64px;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+
+.rad-stamp {
+  position: absolute;
+  right: 40px;
+  top: 36px;
+  width: 88px;
+  height: 88px;
+  border: 2px solid var(--danger);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--danger);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  transform: rotate(12deg);
+  opacity: 0.75;
+}
+
+.signal-noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(196, 181, 154, 0.5) 2px,
+      rgba(196, 181, 154, 0.5) 3px
+    );
+  animation: noise-shift 8s steps(4) infinite;
+  mix-blend-mode: soft-light;
+}
+
+@keyframes noise-shift {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-8px);
+  }
+}
+
+.conn-pill {
+  position: absolute;
+  left: 24px;
+  bottom: 18px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--beige-dim);
+  opacity: 0.85;
+}
+
+.conn-pill[data-state="live"] {
+  color: var(--olive);
+}
+
+.conn-pill[data-state="demo"] {
+  color: var(--amber);
+}
+
+.conn-pill[data-state="offline"] {
+  color: var(--beige-dim);
+}
+
+/* Avatar — large CSS pixel base so OBS Browser Source scale stays crisp */
+.avatar-root {
+  width: 1200px;
+  height: 1020px;
+  position: relative;
+}
+
+.avatar-root svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+  shape-rendering: geometricPrecision;
+}
+
+.avatar-root[data-source="demo"] .demo-badge {
+  opacity: 1;
+}
+
+.demo-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--amber);
+  background: rgba(26, 28, 24, 0.85);
+  border: 1px dashed var(--amber-dim);
+  padding: 4px 8px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.avatar-root[data-source="live"] .live-badge {
+  opacity: 1;
+}
+
+.live-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--olive);
+  background: rgba(26, 28, 24, 0.85);
+  border: 1px solid var(--olive-dim);
+  padding: 4px 8px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Layer hooks — talk/cough/roll may animate these parents.
+ * Idle breath/head live on nested #idle-breath / #idle-head so they never reseed. */
+#layer-torso {
+  transform-box: view-box;
+  transform-origin: 600px 720px;
+}
+
+#layer-head {
+  transform-box: view-box;
+  transform-origin: 600px 390px;
+}
+
+/* Chest breath only (translate — no scale stretch of armour). Arms/hands are outside this node. */
+#idle-breath {
+  transform-box: fill-box;
+  transform-origin: 50% 35%;
+  animation: breath 6s ease-in-out infinite;
+}
+
+/* Head idle: long seamless loop, pivot near helm base / collar. Single animation — do not stack. */
+#idle-head {
+  transform-box: fill-box;
+  transform-origin: 50% 88%;
+  animation: head-idle 75s linear infinite;
+}
+
+#arm-left,
+#arm-right {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Mouse aim: CSS transform. KB aim: SVG attr only (JS) — never CSS-transform #hand-left-aim. */
+#hand-right-aim {
+  transform-box: fill-box;
+  transform-origin: 0px 0px;
+  transition: transform 90ms ease-out;
+  will-change: transform;
+}
+
+#hand-left,
+#hand-right {
+  /* Outer wrappers stay identity — SVG pivot handles attach */
+  transform: none;
+}
+
+/* Eyes — pupils live inside #visor-clip; eyelid covers slit on blink */
+#eye-look {
+  display: block;
+}
+
+.eyelid {
+  opacity: 0;
+  animation: none;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.avatar-root[data-eye-blink="1"] .eyelid {
+  animation: eye-lid-blink 150ms ease-in-out 1;
+}
+
+.avatar-root[data-eye-blink="2"] .eyelid {
+  animation: eye-lid-double 340ms ease-in-out 1;
+}
+
+#mouth-vent {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.avatar-root[data-talk="1"] #mouth-vent,
+.avatar-root[data-talk="2"] #mouth-vent {
+  animation: talk-vent 160ms ease-in-out infinite;
+}
+
+.avatar-root[data-talk="2"] #mouth-vent {
+  animation: talk-vent-strong 120ms ease-in-out infinite;
+}
+
+.avatar-root[data-talk="1"] #layer-torso,
+.avatar-root[data-talk="2"] #layer-torso {
+  animation: talk-lean 480ms ease-in-out infinite;
+}
+
+.avatar-root[data-talk="2"] #layer-torso {
+  animation: talk-lean-strong 420ms ease-in-out infinite;
+}
+
+.avatar-root[data-talk-nod="1"] #layer-head {
+  animation: talk-nod 520ms ease-in-out infinite;
+}
+
+.avatar-chat {
+  --chat-scale: 1;
+  position: absolute;
+  /* Default: centered under desk; dashboard placement overrides via inline + data-placement */
+  left: 50%;
+  bottom: 3%;
+  right: auto;
+  top: auto;
+  max-width: min(520px, 78%);
+  min-width: 220px;
+  padding: 14px 18px 16px;
+  background: rgba(12, 14, 10, 0.94);
+  border: 1px solid rgba(107, 115, 85, 0.65);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.45),
+    0 8px 24px rgba(0, 0, 0, 0.35);
+  color: var(--beige);
+  font-family: var(--font-mono);
+  font-size: clamp(15px, 1.35vw, 22px);
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  opacity: 0;
+  transform-origin: center bottom;
+  transform: translate(-50%, 8px) scale(var(--chat-scale));
+  transition: opacity 180ms ease, transform 180ms ease;
+  pointer-events: none;
+  z-index: 3;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.avatar-chat[data-show="1"] {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(var(--chat-scale));
+  pointer-events: auto;
+}
+
+/* Non-centered placements: no translateX; origin from their corner */
+.avatar-chat[data-placement="bottom-left"] {
+  transform-origin: left bottom;
+  transform: translateY(8px) scale(var(--chat-scale));
+}
+.avatar-chat[data-placement="bottom-right"] {
+  transform-origin: right bottom;
+  transform: translateY(8px) scale(var(--chat-scale));
+}
+.avatar-chat[data-placement="top-left"] {
+  transform-origin: left top;
+  transform: translateY(8px) scale(var(--chat-scale));
+}
+.avatar-chat[data-placement="top-right"] {
+  transform-origin: right top;
+  transform: translateY(8px) scale(var(--chat-scale));
+}
+.avatar-chat[data-placement="mid-left"] {
+  transform-origin: left center;
+  transform: translateY(8px) scale(var(--chat-scale));
+}
+.avatar-chat[data-placement="mid-right"] {
+  transform-origin: right center;
+  transform: translateY(8px) scale(var(--chat-scale));
+}
+.avatar-chat[data-placement="bottom-left"][data-show="1"],
+.avatar-chat[data-placement="bottom-right"][data-show="1"],
+.avatar-chat[data-placement="top-left"][data-show="1"],
+.avatar-chat[data-placement="top-right"][data-show="1"],
+.avatar-chat[data-placement="mid-left"][data-show="1"],
+.avatar-chat[data-placement="mid-right"][data-show="1"] {
+  transform: translateY(0) scale(var(--chat-scale));
+}
+
+.avatar-chat[data-dragging="1"] {
+  cursor: grabbing;
+  transition: none;
+}
+
+.avatar-chat .chat-tag {
+  display: block;
+  margin-bottom: 6px;
+  font-size: clamp(11px, 0.85vw, 13px);
+  letter-spacing: 0.18em;
+  color: var(--olive);
+}
+
+.avatar-chat .chat-body {
+  color: var(--beige);
+  font-weight: 500;
+}
+
+/* KB held: outer wrapper stays put; pulse dips the sleeve like mouse click-l. */
+.avatar-root[data-key="1"] #hand-left {
+  animation: none;
+  transform: none;
+}
+
+.avatar-root[data-key="1"][data-key-pulse="1"] #arm-left {
+  /* Same 120ms ease-out + ~2px dip as mouse click-l peak */
+  animation: sleeve-tap 120ms ease-out 1;
+}
+
+.kb-key {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 55ms ease-out;
+}
+
+.kb-key > rect {
+  transition: fill 55ms ease-out;
+}
+
+.kb-label {
+  fill: #b0b0b0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 5px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  opacity: 0.82;
+  /* Upside-down to viewer — glyphs face the operator */
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(180deg);
+}
+
+/* Scuffed / worn legend — charcoal theme, uneven opacity, still readable */
+.kb-label.wear-a { opacity: 0.94; fill: #d0d0d0; }
+.kb-label.wear-b { opacity: 0.7; fill: #9a9a9a; }
+.kb-label.wear-c { opacity: 0.52; fill: #6e6e6e; }
+.kb-label.wear-d { opacity: 0.78; fill: #b5b5b5; }
+.kb-label.wear-e { opacity: 0.6; fill: #888888; }
+.kb-deco-label {
+  opacity: 0.48;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(180deg);
+}
+.kb-labels-num text {
+  opacity: 0.72;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(180deg);
+}
+.kb-labels-num text:nth-child(3n) { opacity: 0.5; fill: #5a5a5a; }
+.kb-labels-num text:nth-child(3n + 1) { opacity: 0.85; fill: #8a8a8a; }
+.kb-labels-num text:nth-child(3n + 2) { opacity: 0.62; fill: #707070; }
+
+.kb-key[data-pressed="1"] {
+  transform: translateY(2.5px) scale(0.96, 0.88);
+}
+
+.kb-key[data-pressed="1"] > rect {
+  fill: #c7923a !important;
+}
+
+.kb-key[data-pressed="1"] .kb-label {
+  fill: #1a1810;
+  opacity: 0.95;
+}
+
+/*
+  Mouse press pivots #hand-right-aim at vest root (0,0 after pivot translate).
+  Keeps continuous sleeve attached — never translate the outer #hand-right wrapper.
+*/
+/* LMB: press into left pad (keep finger over LMB — was under-visible vs RMB) */
+.avatar-root[data-mouse-l="1"] #hand-right-aim {
+  animation: none;
+  transform: rotate(3deg) translate(-2px, 5px);
+  transition: transform 90ms ease-out;
+}
+
+.avatar-root[data-mouse-l="1"][data-mouse-l-pulse="1"] #hand-right-aim {
+  animation: click-l 120ms ease-out 1;
+}
+
+.avatar-root[data-mouse-r="1"] #hand-right-aim {
+  animation: none;
+  transform: rotate(-4deg) translate(1px, 5px);
+  transition: transform 90ms ease-out;
+}
+
+.avatar-root[data-mouse-r="1"][data-mouse-r-pulse="1"] #hand-right-aim {
+  animation: click-r 120ms ease-out 1;
+}
+
+/* Scroll wheel — soft press at vest pivot (no detach) */
+.avatar-root[data-wheel="up"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right-aim,
+.avatar-root[data-wheel="down"]:not([data-mouse-l="1"]):not([data-mouse-r="1"]) #hand-right-aim {
+  animation: none;
+  transform: rotate(-1deg) translate(0px, 3px);
+  transition: transform 70ms ease-out;
+}
+
+#mouse-wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+#mouse-wheel ellipse {
+  transition: fill 90ms linear, stroke 90ms linear;
+}
+
+#mouse-wheel path {
+  transition: stroke 90ms linear;
+}
+
+.avatar-root[data-wheel="up"] #mouse-wheel,
+.avatar-root[data-wheel="down"] #mouse-wheel {
+  animation: none;
+}
+
+.avatar-root[data-wheel="up"] #mouse-wheel ellipse,
+.avatar-root[data-wheel="down"] #mouse-wheel ellipse {
+  fill: #c7923a !important;
+  stroke: #e0b35a;
+}
+
+.avatar-root[data-wheel="up"] #mouse-wheel path,
+.avatar-root[data-wheel="down"] #mouse-wheel path {
+  stroke: #1a1810;
+}
+
+/* Occasional flavor beats — cough / shoulder roll / eq blink */
+.avatar-root[data-cough="1"] #layer-head {
+  animation: cough-head 560ms cubic-bezier(0.33, 0, 0.2, 1) 1;
+}
+
+.avatar-root[data-cough="1"] #layer-torso {
+  animation: cough-torso 560ms cubic-bezier(0.33, 0, 0.2, 1) 1;
+}
+
+.avatar-root[data-roll="1"] #arm-left {
+  animation: shoulder-roll-l 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
+}
+
+.avatar-root[data-roll="1"] #arm-right {
+  animation: shoulder-roll-r 700ms cubic-bezier(0.4, 0, 0.2, 1) 1;
+}
+
+.avatar-root[data-roll="1"] #layer-torso {
+  animation: torso-settle 700ms ease-out 1;
+}
+
+.avatar-root[data-blink="1"] .eq-blink,
+.avatar-root[data-blink="1"] .eq-light {
+  animation: eq-blink 400ms ease-in-out 1;
+}
+
+.avatar-root[data-active="1"] .eq-light {
+  opacity: 1;
+}
+
+.eq-light {
+  opacity: 0.25;
+  transition: opacity 120ms linear;
+}
+
+/* Single mouse — dark idle; ONLY LMB/RMB buttons amber while held (never fingers) */
+.mouse-btn {
+  transition: fill 90ms linear, opacity 90ms linear;
+}
+
+.mouse-lmb,
+.mouse-rmb {
+  fill: #1a1a1a;
+}
+
+.mouse-lmb-overlay,
+.mouse-rmb-overlay {
+  fill: #c7923a;
+  fill-opacity: 0;
+  transition: fill-opacity 90ms linear;
+  pointer-events: none;
+}
+
+.avatar-root[data-lights="0"] .mouse-btn {
+  fill: #121410 !important;
+  opacity: 0.7;
+}
+
+/* Held rules AFTER lights-off so amber always wins; fingers stay skin */
+.avatar-root[data-mouse-l="1"] .mouse-lmb {
+  fill: #c7923a !important;
+  opacity: 1 !important;
+  stroke: #e0b050;
+  stroke-width: 0.7;
+}
+
+.avatar-root[data-mouse-r="1"] .mouse-rmb {
+  fill: #c7923a !important;
+  opacity: 1 !important;
+  stroke: #e0b050;
+  stroke-width: 0.7;
+}
+
+.avatar-root[data-mouse-l="1"] .mouse-lmb-overlay {
+  fill-opacity: 1 !important;
+}
+
+.avatar-root[data-mouse-r="1"] .mouse-rmb-overlay {
+  fill-opacity: 1 !important;
+}
+
+#finger-lmb,
+#finger-rmb {
+  fill: #b89068 !important;
+}
+
+.eq-blink {
+  transition: opacity 160ms linear;
+}
+
+/* Desk lip LED — soft amber/olive chase + glow pulse (not disco) */
+.desk-led-chase {
+  animation: desk-led-chase 4.8s linear infinite;
+}
+
+.desk-led-core {
+  animation: desk-led-core-pulse 3.6s ease-in-out infinite;
+}
+
+.desk-led-glow {
+  animation: desk-led-glow-pulse 3.6s ease-in-out infinite;
+}
+
+.desk-led-glow-b {
+  animation: desk-led-glow-pulse 3.6s ease-in-out infinite 0.9s;
+}
+
+.avatar-root[data-lights="0"] #desk-rgb {
+  opacity: 0.25;
+}
+
+.avatar-root[data-lights="0"] .desk-led-chase,
+.avatar-root[data-lights="0"] .desk-led-core,
+.avatar-root[data-lights="0"] .desk-led-glow,
+.avatar-root[data-lights="0"] .desk-led-glow-b {
+  animation: none;
+}
+
+@keyframes desk-led-chase {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-142px);
+  }
+}
+
+@keyframes desk-led-core-pulse {
+  0%,
+  100% {
+    opacity: 0.32;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes desk-led-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.08;
+  }
+  50% {
+    opacity: 0.18;
+  }
+}
+
+/* Quiet chest breath — translate only (no armour/helm stretch) */
+@keyframes breath {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  45% {
+    transform: translate3d(0, -1.6px, 0);
+  }
+  70% {
+    transform: translate3d(0, -0.5px, 0);
+  }
+}
+
+/*
+ * ~75s seamless head life: tiny offsets, 1–3° turns/tilts/glances,
+ * irregular pauses, matched 0%/100% — linear sampling, no snap.
+ * Tiny rise/fall pairs with breath feel without a second stacked animation.
+ */
+@keyframes head-idle {
+  0% {
+    transform: translate3d(0, 0.2px, 0) rotate(0deg);
+  }
+  4% {
+    transform: translate3d(0, -0.5px, 0) rotate(0.05deg);
+  }
+  8% {
+    transform: translate3d(0.2px, 0.15px, 0) rotate(0deg);
+  }
+  /* pause */
+  14% {
+    transform: translate3d(0.15px, 0.2px, 0) rotate(0.05deg);
+  }
+  18% {
+    transform: translate3d(-1.2px, 0.25px, 0) rotate(-1.1deg);
+  }
+  21% {
+    transform: translate3d(-1.6px, 0.2px, 0) rotate(-1.6deg);
+  }
+  24% {
+    transform: translate3d(-0.4px, -0.3px, 0) rotate(-0.3deg);
+  }
+  28% {
+    transform: translate3d(0, 0.15px, 0) rotate(0deg);
+  }
+  /* long pause */
+  36% {
+    transform: translate3d(0.1px, -0.4px, 0) rotate(0.1deg);
+  }
+  40% {
+    transform: translate3d(1.4px, 0.2px, 0) rotate(1.2deg);
+  }
+  43% {
+    transform: translate3d(2.2px, 0.35px, 0) rotate(2.2deg);
+  }
+  46% {
+    transform: translate3d(1.0px, 0.15px, 0) rotate(0.8deg);
+  }
+  49% {
+    transform: translate3d(0, 0.2px, 0) rotate(0deg);
+  }
+  55% {
+    transform: translate3d(-0.2px, -0.35px, 0) rotate(-0.15deg);
+  }
+  /* soft glance down-left */
+  60% {
+    transform: translate3d(-1.0px, 0.55px, 0) rotate(-0.9deg);
+  }
+  63% {
+    transform: translate3d(-0.3px, 0.2px, 0) rotate(-0.2deg);
+  }
+  68% {
+    transform: translate3d(0.15px, -0.45px, 0) rotate(0.15deg);
+  }
+  /* mild tilt right */
+  74% {
+    transform: translate3d(1.8px, 0.25px, 0) rotate(1.8deg);
+  }
+  77% {
+    transform: translate3d(0.5px, 0.15px, 0) rotate(0.4deg);
+  }
+  82% {
+    transform: translate3d(0, 0.2px, 0) rotate(0deg);
+  }
+  /* pause + micro breath rise */
+  88% {
+    transform: translate3d(-0.1px, -0.5px, 0) rotate(-0.1deg);
+  }
+  93% {
+    transform: translate3d(-1.3px, 0.3px, 0) rotate(-1.3deg);
+  }
+  96% {
+    transform: translate3d(-0.4px, 0.15px, 0) rotate(-0.35deg);
+  }
+  100% {
+    transform: translate3d(0, 0.2px, 0) rotate(0deg);
+  }
+}
+
+@keyframes cough-head {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  18% {
+    transform: translate3d(2px, 8px, 0) rotate(2.8deg);
+  }
+  40% {
+    transform: translate3d(-2px, 18px, 0) rotate(5.5deg);
+  }
+  62% {
+    transform: translate3d(1px, 10px, 0) rotate(2deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+}
+
+@keyframes cough-torso {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1, 1);
+  }
+  28% {
+    transform: translate3d(0, 2px, 0) scale(1.003, 0.994);
+  }
+  52% {
+    transform: translate3d(0, 3px, 0) scale(1.004, 0.99);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1, 1);
+  }
+}
+
+@keyframes shoulder-roll-l {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  40% {
+    transform: translate3d(-4px, -8px, 0) rotate(-6deg);
+  }
+  70% {
+    transform: translate3d(-1px, -3px, 0) rotate(-2deg);
+  }
+}
+
+@keyframes shoulder-roll-r {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  45% {
+    transform: translate3d(3px, 4px, 0) rotate(3deg);
+  }
+}
+
+@keyframes torso-settle {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  40% {
+    transform: translate3d(-2px, -3px, 0) rotate(-0.8deg);
+  }
+}
+
+@keyframes eq-blink {
+  0%,
+  100% {
+    opacity: 0.85;
+    filter: brightness(1);
+  }
+  30% {
+    opacity: 1;
+    filter: brightness(1.55);
+  }
+  55% {
+    opacity: 0.35;
+    filter: brightness(0.7);
+  }
+  75% {
+    opacity: 1;
+    filter: brightness(1.35);
+  }
+}
+
+@keyframes eye-look {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  26% {
+    transform: translate3d(-2.5px, 0.5px, 0);
+  }
+  55% {
+    transform: translate3d(2.8px, 0, 0);
+  }
+  78% {
+    transform: translate3d(1px, 0.4px, 0);
+  }
+}
+
+@keyframes eye-blink {
+  0%,
+  42%,
+  48%,
+  100% {
+    opacity: 0;
+  }
+  44%,
+  46% {
+    opacity: 1;
+  }
+}
+
+/* One-shot idle blink (triggered via data-eye-blink) */
+@keyframes eye-lid-blink {
+  0% {
+    opacity: 0;
+  }
+  32% {
+    opacity: 1;
+  }
+  68% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes eye-lid-double {
+  0% {
+    opacity: 0;
+  }
+  16% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0;
+  }
+  48% {
+    opacity: 0;
+  }
+  62% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes talk-vent {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.06, 0.88);
+  }
+}
+
+@keyframes talk-vent-strong {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  40% {
+    transform: scale(1.1, 0.82);
+  }
+  70% {
+    transform: scale(1.04, 0.92);
+  }
+}
+
+/* Talk: barely move chest; head nods more */
+@keyframes talk-lean {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1, 1);
+  }
+  50% {
+    transform: translate3d(0, 1px, 0) scale(1.001, 0.998);
+  }
+}
+
+@keyframes talk-lean-strong {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1, 1);
+  }
+  50% {
+    transform: translate3d(0, 1.5px, 0) scale(1.002, 0.996);
+  }
+}
+
+@keyframes talk-nod {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  30% {
+    transform: translate3d(-1px, 3.5px, 0) rotate(1.2deg);
+  }
+  55% {
+    transform: translate3d(0.8px, 1.5px, 0) rotate(-0.45deg);
+  }
+  75% {
+    transform: translate3d(0.4px, 2.8px, 0) rotate(0.85deg);
+  }
+}
+
+@keyframes tap-left {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(12px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Shared sleeve press dip — same timing/distance for KB + mouse */
+@keyframes sleeve-tap {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40% {
+    transform: translate3d(0, 2px, 0);
+  }
+}
+
+@keyframes click-l {
+  0% {
+    transform: rotate(3deg) translate(-2px, 5px);
+  }
+  40% {
+    transform: rotate(4deg) translate(-2px, 7px);
+  }
+  100% {
+    transform: rotate(3deg) translate(-2px, 5px);
+  }
+}
+
+@keyframes click-r {
+  0% {
+    transform: rotate(-4deg) translate(1px, 5px);
+  }
+  35% {
+    transform: rotate(-5deg) translate(1px, 7px);
+  }
+  100% {
+    transform: rotate(-4deg) translate(1px, 5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #idle-breath,
+  #idle-head,
+  #eye-look,
+  .eyelid,
+  .avatar-root[data-eye-blink="1"] .eyelid,
+  .avatar-root[data-eye-blink="2"] .eyelid,
+  .signal-noise,
+  .desk-led-chase,
+  .desk-led-core,
+  .desk-led-glow,
+  .desk-led-glow-b,
+  .avatar-root[data-key="1"] #hand-left,
+  .avatar-root[data-key="1"][data-key-pulse="1"] #hand-left,
+  .avatar-root[data-mouse-l="1"] #hand-right-aim,
+  .avatar-root[data-mouse-r="1"] #hand-right-aim,
+  .avatar-root[data-cough="1"] #layer-head,
+  .avatar-root[data-cough="1"] #layer-torso,
+  .avatar-root[data-roll="1"] #arm-left,
+  .avatar-root[data-roll="1"] #arm-right,
+  .avatar-root[data-roll="1"] #layer-torso,
+  .avatar-root[data-blink="1"] .eq-blink,
+  .avatar-root[data-blink="1"] .eq-light,
+  .avatar-root[data-talk="1"] #mouth-vent,
+  .avatar-root[data-talk="2"] #mouth-vent,
+  .avatar-root[data-talk="1"] #layer-torso,
+  .avatar-root[data-talk="2"] #layer-torso,
+  .avatar-root[data-talk-nod="1"] #layer-head {
+    animation: none;
+  }
+}

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+data/settings.json
+data/local-token.txt
+companion/node_modules/
+*.tsbuildinfo
+
+_proofs/
