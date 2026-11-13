@@ -99,6 +99,11 @@ const dump = await page.evaluate((bar) => {
   const opRules = document.querySelectorAll(".smk-op-rule").length;
   const blood = document.querySelectorAll(".smk-corner-blood").length;
   const plates = document.querySelectorAll(".smk-plate").length;
+  const crates = document.querySelectorAll(".smk-crate").length;
+  const radioScreens = document.querySelectorAll(".smk-radio-screen").length;
+  const fxStatic = document.querySelectorAll(".smk-fx-static").length;
+  const fxScan = document.querySelectorAll(".smk-fx-scan").length;
+  const fxDrop = document.querySelectorAll(".smk-fx-dropout").length;
   const edgeStacks = document.querySelectorAll(".smk-edge-stack").length;
   const steel = document.querySelectorAll(".smk-steel").length;
   const hud = document.querySelectorAll(".smk-hud").length;
@@ -137,9 +142,15 @@ const dump = await page.evaluate((bar) => {
     opRules,
     bloodCorners: blood,
     plates,
+    crates,
+    radioScreens,
+    fxStatic,
+    fxScan,
+    fxDrop,
     edgeStacks,
     steel,
     hud,
+    hasStandby: /STANDBY/i.test(`${folName?.textContent || ""}${subName?.textContent || ""}`),
     forbidden,
     labels: [...document.querySelectorAll(".uw-glass-label")].map((el) =>
       (el.textContent || "").replace(/\s+/g, " ").trim(),
@@ -175,14 +186,35 @@ if (dump.forbidden.some((f) => f.visible)) {
   process.exit(9);
 }
 if (dump.opRules < 2 || dump.bloodCorners < 4) process.exit(10);
-if (dump.plates < 2 || dump.edgeStacks < 2 || dump.steel < 2 || dump.hud < 2) {
+if (
+  dump.plates < 2 ||
+  dump.crates < 2 ||
+  dump.radioScreens < 2 ||
+  dump.edgeStacks < 2 ||
+  dump.steel < 2 ||
+  dump.hud < 2
+) {
   console.error("missing ruin layers", {
     plates: dump.plates,
+    crates: dump.crates,
+    radioScreens: dump.radioScreens,
     edgeStacks: dump.edgeStacks,
     steel: dump.steel,
     hud: dump.hud,
   });
   process.exit(11);
+}
+if (dump.fxStatic < 2 || dump.fxScan < 2 || dump.fxDrop < 2) {
+  console.error("missing bar FX layers", {
+    fxStatic: dump.fxStatic,
+    fxScan: dump.fxScan,
+    fxDrop: dump.fxDrop,
+  });
+  process.exit(20);
+}
+if (dump.hasStandby) {
+  console.error("STANDBY must not appear");
+  process.exit(21);
 }
 if (/amber|255,\s*200|255,\s*230|ffc|ffe|yellow/i.test(dump.nameFilter || "")) process.exit(12);
 if (dump.followerLeft < 200 || dump.subRight < 200) {
@@ -213,7 +245,23 @@ if (
   process.exit(19);
 }
 
-await page.waitForTimeout(500);
+await page.waitForTimeout(300);
+// Freeze a subtle FX state for proof readability (live FX are timed bursts)
+await page.evaluate(() => {
+  document.querySelectorAll(".smk-ruin-bar").forEach((el) => {
+    el.classList.add("smk-fx-on-static");
+  });
+  document.querySelector("#uw-top")?.classList.add("smk-fx-on-dropout");
+  document.querySelector(".smk-nameplate")?.classList.add("smk-fx-on-tear");
+  document.querySelector("#uw-bottom")?.classList.add("smk-fx-on-sparks");
+  const fol = document.getElementById("uw-follower");
+  if (fol) {
+    fol.dataset.socialFx = "new";
+    fol.querySelector(".smk-new")?.classList.add("on");
+  }
+});
+await page.waitForTimeout(100);
+
 const fullPath = resolve(media, "smoke-gloom-20261113.png");
 const topPath = resolve(media, "smoke-gloom-20261113-top.png");
 const botPath = resolve(media, "smoke-gloom-20261113-bottom.png");
@@ -305,7 +353,7 @@ writeFileSync(
       width: W,
       height: H,
       proofNotes:
-        "3440×1440 dpr=1; Google Fonts allowed; names via localStorage last-known fallback (not DOM inject).",
+        "3440×1440 dpr=1; Google Fonts allowed; names via localStorage last-known; ammo-crate radio plates; FX classes briefly forced for proof (live = timed).",
     },
     null,
     2,

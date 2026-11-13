@@ -6,6 +6,7 @@ import { AtmosphereVfx } from "../lib/atmosphereVfx.ts";
 import { TextLifeVfx } from "../lib/textLifeVfx.ts";
 import { SocialReadoutAnim } from "../lib/socialReadoutAnim.ts";
 import { applySmokeRuinTextures } from "../lib/smokeRuinTextures.ts";
+import { applySmokeBarFx } from "../lib/smokeBarFx.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 import type { AtmPreviewKind } from "../../../shared/protocol.ts";
 
@@ -41,14 +42,12 @@ function writeStoredName(key: string, name: string): void {
 
 /**
  * Live social name with last-known fallback.
- * Empty settings (scrubbed samples / no Twitch event yet) must not blank the plates —
- * Streamlabs Browser Source often polls empty until EventSub writes a real name.
+ * Empty settings → last memory → localStorage → "" (never STANDBY).
  */
 function resolveSocialName(
   incoming: string | undefined,
   memory: string,
   lsKey: string,
-  smokeFixed: boolean,
 ): string {
   const next = displayName(incoming);
   if (next) {
@@ -56,9 +55,7 @@ function resolveSocialName(
     return next;
   }
   if (memory) return memory;
-  const stored = readStoredName(lsKey);
-  if (stored) return stored;
-  return smokeFixed ? "STANDBY" : "";
+  return readStoredName(lsKey);
 }
 
 function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
@@ -79,6 +76,7 @@ let lastFollower = "";
 let lastSubscriber = "";
 let bootstrappedSocial = false;
 let smokeRuinCleanup: (() => void) | null = null;
+let smokeBarFxCleanup: (() => void) | null = null;
 let smokeRuinReady = false;
 
 const TEXT_PREVIEW = new Set<AtmPreviewKind>(["text-dip", "text-sweep", "text-op"]);
@@ -181,13 +179,11 @@ function applyUltrawide(settings: OverlaySettings): void {
     social.latestFollower ?? social.latestFollowerSample,
     lastFollower,
     LS_LAST_FOLLOWER,
-    smokeFixed,
   );
   const nextSub = resolveSocialName(
     social.latestSubscriber ?? social.latestSubscriberSample,
     lastSubscriber,
     LS_LAST_SUBSCRIBER,
-    smokeFixed,
   );
 
   if (follower) follower.hidden = !social.showFollower;
@@ -206,7 +202,9 @@ function applyUltrawide(settings: OverlaySettings): void {
     stage.dataset.textFx = "off";
     if (!smokeRuinReady) {
       smokeRuinCleanup?.();
+      smokeBarFxCleanup?.();
       smokeRuinCleanup = applySmokeRuinTextures(stage);
+      smokeBarFxCleanup = applySmokeBarFx(stage);
       smokeRuinReady = true;
     }
   }
