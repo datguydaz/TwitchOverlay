@@ -576,14 +576,13 @@ export const scavengerSvg = `
               <!-- Cuff soft detail tracks cuff via JS translate — alive curly folds above the hand -->
               <g id="sleeve-left-cuff-soft">
                 <g id="sleeve-folds-left" fill="none" stroke-linecap="round">
-                  <!-- Cross-sleeve fabric curls (paint on top of thick stroke) -->
-                  <path d="M112 252 Q127 244 142 253" stroke="#5a5c62" stroke-width="1.25" opacity="0.58"/>
-                  <path d="M114 257 Q127 249 140 258" stroke="#3a3c42" stroke-width="1.05" opacity="0.48"/>
-                  <path d="M116 262 Q127 255 138 263" stroke="#6a6c72" stroke-width="0.95" opacity="0.42"/>
-                  <!-- Outer-edge curly S / bunch -->
-                  <path d="M110 248 Q106 256 112 263 Q116 268 114 266" stroke="#8a8c90" stroke-width="0.85" opacity="0.4"/>
-                  <path d="M140 250 Q146 258 140 265 Q136 268 138 266" stroke="#7a7c80" stroke-width="0.75" opacity="0.36"/>
-                  <path d="M118 265 Q124 270 130 267 Q134 264 128 262" stroke="#4a4c50" stroke-width="0.8" opacity="0.38"/>
+                  <!-- Dark fabric wrinkles + one soft highlight curl above cuff -->
+                  <path d="M112 252 Q127 244 142 253" stroke="#1a1c20" stroke-width="1.35" opacity="0.72"/>
+                  <path d="M114 257 Q127 248 140 258" stroke="#000" stroke-width="1.15" opacity="0.55"/>
+                  <path d="M116 262 Q127 254 138 263" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
+                  <path d="M110 248 Q106 256 112 263 Q117 269 114 267" stroke="#0a0c10" stroke-width="1.0" opacity="0.48"/>
+                  <path d="M141 249 Q147 257 141 265 Q136 269 138 266" stroke="#121418" stroke-width="0.9" opacity="0.42"/>
+                  <path d="M118 264 Q124 270 131 266" stroke="#4a4c52" stroke-width="0.85" opacity="0.45"/>
                 </g>
                 <g id="sleeve-cuff-wear-left" fill="none" stroke-linecap="round" pointer-events="none">
                   <path d="M122 246 L118 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
