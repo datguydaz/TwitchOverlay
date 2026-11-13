@@ -246,6 +246,12 @@ export class ReactiveAvatar {
   private leftCuffSoft: SVGGElement | null = null;
   private lastSleeveD = "";
   private handRightFollow: SVGGElement | null = null;
+  private handRightWrist: SVGGElement | null = null;
+  private readonly rightSleeveHomeD = "M272 220 L280 234 L292 248 L304 258 L314 268";
+  private readonly rightCuffHome = { x: 314, y: 268 };
+  private rightSleevePaths: SVGPathElement[] = [];
+  private rightCuffGroup: SVGGElement | null = null;
+  private lastRightSleeveD = "";
   private mouseFollowEl: SVGGElement | null = null;
   /** Soft mouse-follow offset (SVG px), same direction as real cursor deltas. */
   private mouseFollowX = 0;
@@ -292,6 +298,8 @@ export class ReactiveAvatar {
     this.handLeftWrist = this.root.querySelector("#hand-left-wrist");
     this.cacheLeftSleeveGeometry();
     this.handRightFollow = this.root.querySelector("#hand-right-follow");
+    this.handRightWrist = this.root.querySelector("#hand-right-wrist");
+    this.cacheRightSleeveGeometry();
     // Test/capture hook — hold proofs call handleInput without fighting a live companion
     (this.root as HTMLElement & { __pzAvatar?: ReactiveAvatar }).__pzAvatar = this;
     this.mouseFollowEl = this.root.querySelector("#prop-mouse");
@@ -953,6 +961,54 @@ export class ReactiveAvatar {
     }, ms);
   }
 
+  private cacheRightSleeveGeometry(): void {
+    const fill = this.root.querySelector("#sleeve-right-fill");
+    const arm = fill?.parentElement;
+    this.rightSleevePaths = [];
+    if (arm) {
+      for (const p of arm.querySelectorAll(":scope > path")) {
+        if (p.getAttribute("d")?.startsWith("M272 220")) this.rightSleevePaths.push(p as SVGPathElement);
+      }
+      for (const p of arm.querySelectorAll("#sleeve-stripes-right path")) {
+        this.rightSleevePaths.push(p as SVGPathElement);
+      }
+      this.rightCuffGroup = arm.querySelector("#sleeve-right-cuff") as SVGGElement | null;
+    }
+  }
+
+  private buildRightSleevePath(
+    shoulder: { x: number; y: number },
+    cuff: { x: number; y: number },
+  ): string {
+    const dx = cuff.x - shoulder.x;
+    const dy = cuff.y - shoulder.y;
+    // Slight outward bend (viewer-right = +x), capped — short/connected like KB arm
+    const bend = Math.max(2, Math.min(6, dx * 0.08));
+    const p = (t: number) => ({
+      x: shoulder.x + dx * t + bend * Math.sin(Math.PI * t),
+      y: shoulder.y + dy * t,
+    });
+    const a = p(0.28);
+    const b = p(0.52);
+    const c = p(0.76);
+    return `M${shoulder.x} ${shoulder.y} L${a.x.toFixed(1)} ${a.y.toFixed(1)} L${b.x.toFixed(1)} ${b.y.toFixed(1)} L${c.x.toFixed(1)} ${c.y.toFixed(1)} L${cuff.x.toFixed(1)} ${cuff.y.toFixed(1)}`;
+  }
+
+  private setRightSleevePath(d: string): void {
+    if (!this.rightSleevePaths.length) this.cacheRightSleeveGeometry();
+    for (const p of this.rightSleevePaths) p.setAttribute("d", d);
+    this.lastRightSleeveD = d;
+  }
+
+  private setRightCuffOffset(dx: number, dy: number): void {
+    if (!this.rightCuffGroup) this.cacheRightSleeveGeometry();
+    if (!this.rightCuffGroup) return;
+    if (Math.abs(dx) < 0.05 && Math.abs(dy) < 0.05) {
+      this.rightCuffGroup.removeAttribute("transform");
+    } else {
+      this.rightCuffGroup.setAttribute("transform", `translate(${dx.toFixed(2)} ${dy.toFixed(2)})`);
+    }
+  }
   /**
    * Slight mouse + right-hand follow in the same direction as real cursor deltas.
    * Clamped small; does not touch click animations on #hand-right-aim.
@@ -1024,19 +1080,46 @@ export class ReactiveAvatar {
   }
 
   private writeMouseFollow(): void {
-    const tx = `translate(${this.mouseFollowX.toFixed(2)} ${this.mouseFollowY.toFixed(2)})`;
-    if (this.handRightFollow) {
-      if (this.mouseFollowX === 0 && this.mouseFollowY === 0) {
-        this.handRightFollow.removeAttribute("transform");
+    // Planted shoulder (same quality as KB ASD): morph sleeve + glue hand/mouse.
+    // Never translate #hand-right-follow — that slid the root off the vest.
+    const shoulder = { x: 272, y: 220 };
+    const home = this.rightCuffHome;
+    const MAX_REACH = 64;
+    let cuff = {
+      x: home.x + this.mouseFollowX,
+      y: home.y + this.mouseFollowY,
+    };
+    const rdx = cuff.x - shoulder.x;
+    const rdy = cuff.y - shoulder.y;
+    const dist = Math.hypot(rdx, rdy) || 1;
+    if (dist > MAX_REACH) {
+      const s = MAX_REACH / dist;
+      cuff = { x: shoulder.x + rdx * s, y: shoulder.y + rdy * s };
+    }
+    const sleeveD =
+      Math.abs(this.mouseFollowX) < 0.05 && Math.abs(this.mouseFollowY) < 0.05
+        ? this.rightSleeveHomeD
+        : this.buildRightSleevePath(shoulder, cuff);
+    this.setRightSleevePath(sleeveD);
+    const dx = cuff.x - home.x;
+    const dy = cuff.y - home.y;
+    this.setRightCuffOffset(dx, dy);
+
+    if (this.handRightFollow) this.handRightFollow.removeAttribute("transform");
+
+    const wristTx = `translate(${dx.toFixed(2)} ${dy.toFixed(2)})`;
+    if (this.handRightWrist) {
+      if (Math.abs(dx) < 0.05 && Math.abs(dy) < 0.05) {
+        this.handRightWrist.removeAttribute("transform");
       } else {
-        this.handRightFollow.setAttribute("transform", tx);
+        this.handRightWrist.setAttribute("transform", wristTx);
       }
     }
     if (this.mouseFollowEl) {
-      if (this.mouseFollowX === 0 && this.mouseFollowY === 0) {
+      if (Math.abs(dx) < 0.05 && Math.abs(dy) < 0.05) {
         this.mouseFollowEl.removeAttribute("transform");
       } else {
-        this.mouseFollowEl.setAttribute("transform", tx);
+        this.mouseFollowEl.setAttribute("transform", wristTx);
       }
     }
   }
