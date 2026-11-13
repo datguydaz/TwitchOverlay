@@ -714,29 +714,44 @@ export class ReactiveAvatar {
     if (!this.handLeftAim) return;
     // Vest pivot (#hand-left-pivot @ 128,220). SVG only — rotate for lean, then
     // residual translate so palm lands on the keycap. No CSS fill-box, no scale stretch.
+    // Left-of-home keys (A/S/D…) blend hard toward home so hold poses don't stretch
+    // the sleeve like a full keycap chase; right-of-home keeps more travel.
     const shoulder = { x: 128, y: 220 };
     const home = HAND_HOME;
     const kbMinX = 64;
     const kbMaxX = 214;
     const kbMinY = 266;
     const kbMaxY = 282;
+    const REACH_BLEND_LEFT = 0.28;
+    const REACH_BLEND_RIGHT = 0.72;
+    const MAX_ROT_DEG = 10;
+    const MAX_TX = 12;
+    const MAX_TY = 8;
     let next: string;
     if (this.keyHeld > 0 && this.activeSlot != null) {
       const pos = slotPos(this.activeSlot);
       // Palm sits slightly above key center so fingertips hit the cap
-      const targetCx = Math.min(kbMaxX, Math.max(kbMinX, pos.cx));
-      const targetCy = Math.min(kbMaxY, Math.max(kbMinY, pos.cy - 6));
+      const rawCx = Math.min(kbMaxX, Math.max(kbMinX, pos.cx));
+      const rawCy = Math.min(kbMaxY, Math.max(kbMinY, pos.cy - 6));
+      const dxHome = rawCx - home.cx;
+      const dyHome = rawCy - home.cy;
+      const blend = dxHome < 0 ? REACH_BLEND_LEFT : REACH_BLEND_RIGHT;
+      const targetCx = home.cx + dxHome * blend;
+      const targetCy = home.cy + dyHome * blend;
       const homeAng = Math.atan2(home.cy - shoulder.y, home.cx - shoulder.x);
       const tgtAng = Math.atan2(targetCy - shoulder.y, targetCx - shoulder.x);
-      const rotDeg = ((tgtAng - homeAng) * 180) / Math.PI;
+      let rotDeg = ((tgtAng - homeAng) * 180) / Math.PI;
+      rotDeg = Math.max(-MAX_ROT_DEG, Math.min(MAX_ROT_DEG, rotDeg));
       const hx = home.cx - shoulder.x;
       const hy = home.cy - shoulder.y;
       const rad = (rotDeg * Math.PI) / 180;
       // Tip after rotate-only around vest root
       const tipX = shoulder.x + hx * Math.cos(rad) - hy * Math.sin(rad);
       const tipY = shoulder.y + hx * Math.sin(rad) + hy * Math.cos(rad);
-      const dx = targetCx - tipX;
-      const dy = targetCy - tipY;
+      let dx = targetCx - tipX;
+      let dy = targetCy - tipY;
+      dx = Math.max(-MAX_TX, Math.min(MAX_TX, dx));
+      dy = Math.max(-MAX_TY, Math.min(MAX_TY, dy));
       // SVG: rotate first, then translate residual (right-to-left attr order)
       next = `translate(${dx.toFixed(1)} ${dy.toFixed(1)}) rotate(${rotDeg.toFixed(2)})`;
       this.root.dataset.keySlot = String(this.activeSlot);
