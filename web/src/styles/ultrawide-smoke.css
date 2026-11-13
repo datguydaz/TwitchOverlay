@@ -419,29 +419,16 @@ body.uw-smoke-variant {
     );
 }
 
-/* Procedural dark-grey noise wisps (canvas) — no ellipse streaks / diagonal beams */
-.smk-wisps {
-  inset: 0;
-  z-index: 8;
-  overflow: hidden;
-  pointer-events: none;
-}
-.smk-wisps > i {
+/* Smoke / haze / wisps removed from ultrawide-smoke (user choosing next FX) */
+#uw-stage[data-variant="smoke-flare"] .smk-wisps,
+#uw-stage[data-variant="smoke-flare"] .smk-wisp-canvas,
+#uw-stage[data-variant="smoke-flare"] .smk-gloom-smoke,
+#uw-stage[data-variant="smoke-flare"] .uw-smoke-wisp,
+#uw-stage[data-variant="smoke-flare"] .uw-bar-haze,
+#uw-stage[data-variant="smoke-flare"] .uw-smoke-depth,
+#uw-stage[data-variant="smoke-flare"] .uw-header-drift,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-drift {
   display: none !important;
-}
-.smk-wisp-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  mix-blend-mode: screen;
-  opacity: 0.75;
-  image-rendering: auto;
-}
-.smk-wisps.bot .smk-wisp-canvas {
-  /* Soft dark haze (soft-light keeps it visible without screen-beam look) */
-  mix-blend-mode: soft-light;
-  opacity: 0.95;
-  filter: blur(1.4px);
 }
 
 /* Ash + dim orange-red embers (sparse, dark) */

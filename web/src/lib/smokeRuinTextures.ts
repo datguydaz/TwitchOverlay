@@ -307,77 +307,6 @@ function paintSteelPlate(
   ctx.restore();
 }
 
-function paintSmokeWisps(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  seed: number,
-  heavy: boolean,
-  t = 0,
-): void {
-  ctx.clearRect(0, 0, w, h);
-  const img = ctx.createImageData(w, h);
-  const d = img.data;
-
-  if (heavy) {
-    // Bottom bar: low dark smoke drifting horizontally — no vertical shafts / spotlights
-    const density = 0.72;
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        // Drift along X over time; keep smoke in the lower ~60% of the bar
-        const warpX = fbm(x * 0.0025 + t * 0.045, y * 0.009, seed, 3);
-        const warpY = fbm(x * 0.0016, y * 0.007 + t * 0.01, seed + 7, 2);
-        const nx = x * 0.004 + warpX * 3.5 + t * 0.07;
-        const ny = y * 0.014 + warpY * 1.2;
-        const n = fbm(nx, ny, seed + 19, 4);
-        const ridge = 1 - Math.abs(n * 2 - 1);
-        // Broad horizontal sheets (not thin vertical ridges)
-        const sheet = Math.pow(Math.max(0, ridge - 0.36) / 0.64, 1.8);
-        const band = Math.max(0, Math.min(1, (y / h - 0.22) / 0.6));
-        const floorBias = Math.pow(band, 1.15);
-        let a = sheet * floorBias * density;
-        if (a < 0.1) continue;
-        a = (a - 0.1) * 1.05;
-        const i = (y * w + x) * 4;
-        // Cool charcoal gray — dark haze, not lit beams
-        const v = 36 + ridge * 28;
-        d[i] = v * 0.78;
-        d[i + 1] = v * 0.82;
-        d[i + 2] = v * 0.86;
-        d[i + 3] = Math.min(120, a * 155);
-      }
-    }
-    ctx.putImageData(img, 0, 0);
-    return;
-  }
-
-  // Top bar: light sparse tendrils (low warp)
-  const density = 0.3;
-  const warpAmp = 2.0;
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const warpX = fbm(x * 0.0035 + t * 0.015, y * 0.008, seed, 2);
-      const warpY = fbm(x * 0.0025, y * 0.006 + t * 0.012, seed + 5, 2);
-      const nx = x * 0.006 + warpX * warpAmp;
-      const ny = y * 0.028 + warpY * (warpAmp * 0.7) + t * 0.025;
-      const n = fbm(nx, ny, seed + 17, 4);
-      const ridge = 1 - Math.abs(n * 2 - 1);
-      const tendril = Math.pow(Math.max(0, ridge - 0.48) / 0.52, 3.2);
-      const band = Math.max(0, 1 - Math.abs(y / h - 0.38) * 2.6);
-      let a = tendril * band * density;
-      if (a < 0.22) continue;
-      a = (a - 0.22) * 1.15;
-      const i = (y * w + x) * 4;
-      const v = 48 + ridge * 38;
-      d[i] = v * 0.88;
-      d[i + 1] = v * 0.93;
-      d[i + 2] = v;
-      d[i + 3] = Math.min(110, a * 150);
-    }
-  }
-  ctx.putImageData(img, 0, 0);
-}
-
 function paintBloodSplatter(
   ctx: CanvasRenderingContext2D,
   w: number,
@@ -584,28 +513,7 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     drawTornRustStrip(ctx, profile, BAR_W, BAR_H, side, seed);
   }
 
-  // --- Smoke wisps (procedural; ~2/3 res keeps detail without freezing) ---
-  const SMOKE_W = Math.floor(BAR_W * 0.65);
-  const SMOKE_H = Math.floor(BAR_H * 0.65);
-  const smokeCanvases: {
-    ctx: CanvasRenderingContext2D;
-    heavy: boolean;
-    seed: number;
-  }[] = [];
-  for (const [bar, heavy, seed] of [
-    [top, false, 701] as const,
-    [bot, true, 702] as const,
-  ]) {
-    const host = bar.querySelector(".smk-wisps") as HTMLElement | null;
-    if (!host) continue;
-    host.querySelectorAll("i").forEach((el) => el.remove());
-    const c = ensureLayer(host, "smk-wisp-canvas");
-    c.width = SMOKE_W;
-    c.height = SMOKE_H;
-    const ctx = c.getContext("2d")!;
-    paintSmokeWisps(ctx, SMOKE_W, SMOKE_H, seed, heavy, 0);
-    smokeCanvases.push({ ctx, heavy, seed });
-  }
+  // Smoke / haze / wisp layers removed — user choosing next FX options
 
   // --- Corner blood ---
   const corners: Array<["tl" | "tr" | "bl" | "br", HTMLElement, number]> = [];
@@ -659,27 +567,17 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     }
   }
 
-  // Hide obsolete geometric layers that cause beams/blobs
-  stage.querySelectorAll(".smk-scratches, .smk-peel, .smk-grime, .smk-soot, .smk-impacts, .smk-wire").forEach((el) => {
-    (el as HTMLElement).style.display = "none";
-  });
+  // Hide obsolete geometric / smoke layers
+  stage
+    .querySelectorAll(
+      ".smk-scratches, .smk-peel, .smk-grime, .smk-soot, .smk-impacts, .smk-wire, .smk-wisps, .smk-gloom-smoke, .uw-smoke-wisp, .uw-bar-haze, .uw-smoke-depth, .uw-header-drift, .uw-footer-drift",
+    )
+    .forEach((el) => {
+      (el as HTMLElement).style.display = "none";
+    });
   stage.querySelectorAll(".smk-name-distress, .smk-name-overspray, .smk-name-drips").forEach((el) => {
     (el as HTMLElement).style.display = "none";
   });
 
-  // Slow smoke drift — repaint ~2.5s (half-res keeps it cheap)
-  let timer = 0;
-  let tAcc = 0;
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    timer = window.setInterval(() => {
-      tAcc += 0.35;
-      for (const s of smokeCanvases) {
-        paintSmokeWisps(s.ctx, SMOKE_W, SMOKE_H, s.seed, s.heavy, tAcc);
-      }
-    }, 2500);
-  }
-
-  return () => {
-    if (timer) window.clearInterval(timer);
-  };
+  return () => {};
 }
