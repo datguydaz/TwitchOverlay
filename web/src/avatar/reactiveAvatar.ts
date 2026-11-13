@@ -238,6 +238,13 @@ export class ReactiveAvatar {
   private onChatPlacementPersist: ((chat: ChatLayout) => void) | null = null;
   private handLeft: SVGElement | null = null;
   private handLeftAim: SVGGElement | null = null;
+  private handLeftWrist: SVGGElement | null = null;
+  private readonly leftSleeveHomeD = "M128 220 L123 234 L120 247 L123 257 L127 268";
+  private leftSleevePaths: SVGPathElement[] = [];
+  private leftCuffEllipses: SVGEllipseElement[] = [];
+  private leftCuffSeam: SVGPathElement | null = null;
+  private leftCuffSoft: SVGGElement | null = null;
+  private lastSleeveD = "";
   private handRightFollow: SVGGElement | null = null;
   private mouseFollowEl: SVGGElement | null = null;
   /** Soft mouse-follow offset (SVG px), same direction as real cursor deltas. */
@@ -249,8 +256,9 @@ export class ReactiveAvatar {
   private mouseFollowSmooth = 0.75;
   private mouseFollowDecayTimer: number | null = null;
   private mouseFollowRaf: number | null = null;
-  /** Last applied hand aim transform — skip redundant writes that restart transitions. */
+  /** Last applied hand aim / wrist transforms — skip redundant writes that restart transitions. */
   private lastHandTx = "";
+  private lastWristTx = "";
   private disposed = false;
   private readonly onVis = (): void => {
     if (document.hidden) {
@@ -281,7 +289,11 @@ export class ReactiveAvatar {
     this.chatEl = this.root.querySelector("#avatar-chat");
     this.handLeft = this.root.querySelector("#hand-left");
     this.handLeftAim = this.root.querySelector("#hand-left-aim");
+    this.handLeftWrist = this.root.querySelector("#hand-left-wrist");
+    this.cacheLeftSleeveGeometry();
     this.handRightFollow = this.root.querySelector("#hand-right-follow");
+    // Test/capture hook — hold proofs call handleInput without fighting a live companion
+    (this.root as HTMLElement & { __pzAvatar?: ReactiveAvatar }).__pzAvatar = this;
     this.mouseFollowEl = this.root.querySelector("#prop-mouse");
     this.setStreamerName(this.streamerName);
     this.applyVisualState();
@@ -710,61 +722,141 @@ export class ReactiveAvatar {
     delete this.root.dataset[pulseAttr];
   }
 
+  private cacheLeftSleeveGeometry(): void {
+    const fill = this.root.querySelector("#sleeve-left-fill");
+    const arm = fill?.parentElement;
+    this.leftSleevePaths = [];
+    if (arm) {
+      for (const p of arm.querySelectorAll(":scope > path")) {
+        if (p.getAttribute("d")?.startsWith("M128 220")) this.leftSleevePaths.push(p as SVGPathElement);
+      }
+      for (const p of arm.querySelectorAll("#sleeve-stripes-left path")) {
+        this.leftSleevePaths.push(p as SVGPathElement);
+      }
+      this.leftCuffSoft = arm.querySelector("#sleeve-left-cuff-soft") as SVGGElement | null;
+      this.leftCuffEllipses = this.leftCuffSoft
+        ? ([...this.leftCuffSoft.querySelectorAll("ellipse")] as SVGEllipseElement[])
+        : ([...arm.querySelectorAll(":scope > ellipse")] as SVGEllipseElement[]);
+      this.leftCuffSeam = (this.leftCuffSoft ?? arm).querySelector(
+        'path[d^="M120 266"]',
+      ) as SVGPathElement | null;
+    }
+  }
+
+  private buildLeftSleevePath(
+    shoulder: { x: number; y: number },
+    cuff: { x: number; y: number },
+  ): string {
+    const dx = cuff.x - shoulder.x;
+    const dy = cuff.y - shoulder.y;
+    // Slight outward bend (viewer-left = -x), capped so it stays short/connected
+    const bend = Math.max(-6, Math.min(-2, dx * 0.08));
+    const p = (t: number, extra = 0) => ({
+      x: shoulder.x + dx * t + bend * Math.sin(Math.PI * t) + extra,
+      y: shoulder.y + dy * t,
+    });
+    const a = p(0.28);
+    const b = p(0.52);
+    const c = p(0.76);
+    return `M${shoulder.x} ${shoulder.y} L${a.x.toFixed(1)} ${a.y.toFixed(1)} L${b.x.toFixed(1)} ${b.y.toFixed(1)} L${c.x.toFixed(1)} ${c.y.toFixed(1)} L${cuff.x.toFixed(1)} ${cuff.y.toFixed(1)}`;
+  }
+
+  private setLeftSleevePath(d: string): void {
+    if (!this.leftSleevePaths.length) this.cacheLeftSleeveGeometry();
+    for (const p of this.leftSleevePaths) p.setAttribute("d", d);
+    this.lastSleeveD = d;
+  }
+
+  private setLeftCuffAt(cx: number, cy: number): void {
+    if (!this.leftCuffSoft && !this.leftCuffEllipses.length) this.cacheLeftSleeveGeometry();
+    // Fold/cuff soft detail is authored at home cuff (127,268) — slide the whole group
+    // so curly folds stay above the hand when the sleeve morphs for ASD.
+    if (this.leftCuffSoft) {
+      const dx = cx - HAND_HOME.cx;
+      const dy = cy - HAND_HOME.cy;
+      if (Math.abs(dx) < 0.05 && Math.abs(dy) < 0.05) {
+        this.leftCuffSoft.removeAttribute("transform");
+      } else {
+        this.leftCuffSoft.setAttribute("transform", `translate(${dx.toFixed(1)} ${dy.toFixed(1)})`);
+      }
+      return;
+    }
+    if (this.leftCuffEllipses[0]) {
+      this.leftCuffEllipses[0].setAttribute("cx", String(cx));
+      this.leftCuffEllipses[0].setAttribute("cy", String(cy));
+    }
+    if (this.leftCuffEllipses[1]) {
+      this.leftCuffEllipses[1].setAttribute("cx", String(cx));
+      this.leftCuffEllipses[1].setAttribute("cy", String(cy - 0.8));
+    }
+    if (this.leftCuffSeam) {
+      this.leftCuffSeam.setAttribute("d", `M${(cx - 7).toFixed(1)} ${(cy - 2).toFixed(1)} H${(cx + 7).toFixed(1)}`);
+    }
+  }
+
   private applyHandToSlot(): void {
     if (!this.handLeftAim) return;
-    // Vest pivot (#hand-left-pivot @ 128,220). SVG only — rotate for lean, then
-    // residual translate so palm lands on the keycap. No CSS fill-box, no scale stretch.
-    // Left-of-home keys (A/S/D…) blend hard toward home so hold poses don't stretch
-    // the sleeve like a full keycap chase; right-of-home keeps more travel.
+    // Shoulder stays planted: morph sleeve path from vest root → cuff, glue hand to cuff.
+    // No large aim-translate (that opened a gap at the shoulder).
     const shoulder = { x: 128, y: 220 };
     const home = HAND_HOME;
     const kbMinX = 64;
     const kbMaxX = 214;
-    const kbMinY = 266;
+    const kbMinY = 258;
     const kbMaxY = 282;
-    const REACH_BLEND_LEFT = 0.28;
-    const REACH_BLEND_RIGHT = 0.72;
-    const MAX_ROT_DEG = 10;
-    const MAX_TX = 12;
-    const MAX_TY = 8;
-    let next: string;
+    const tipLeft = { x: -10, y: 12 };
+    const tipMid = { x: 2, y: 10 };
+    const MAX_REACH = 64;
+    let aimNext = "";
+    let wristNext = "";
+    let sleeveD = this.leftSleeveHomeD;
+    let cuff = { x: home.cx, y: home.cy };
+
     if (this.keyHeld > 0 && this.activeSlot != null) {
       const pos = slotPos(this.activeSlot);
-      // Palm sits slightly above key center so fingertips hit the cap
-      const rawCx = Math.min(kbMaxX, Math.max(kbMinX, pos.cx));
-      const rawCy = Math.min(kbMaxY, Math.max(kbMinY, pos.cy - 6));
-      const dxHome = rawCx - home.cx;
-      const dyHome = rawCy - home.cy;
-      const blend = dxHome < 0 ? REACH_BLEND_LEFT : REACH_BLEND_RIGHT;
-      const targetCx = home.cx + dxHome * blend;
-      const targetCy = home.cy + dyHome * blend;
-      const homeAng = Math.atan2(home.cy - shoulder.y, home.cx - shoulder.x);
-      const tgtAng = Math.atan2(targetCy - shoulder.y, targetCx - shoulder.x);
-      let rotDeg = ((tgtAng - homeAng) * 180) / Math.PI;
-      rotDeg = Math.max(-MAX_ROT_DEG, Math.min(MAX_ROT_DEG, rotDeg));
-      const hx = home.cx - shoulder.x;
-      const hy = home.cy - shoulder.y;
-      const rad = (rotDeg * Math.PI) / 180;
-      // Tip after rotate-only around vest root
-      const tipX = shoulder.x + hx * Math.cos(rad) - hy * Math.sin(rad);
-      const tipY = shoulder.y + hx * Math.sin(rad) + hy * Math.cos(rad);
-      let dx = targetCx - tipX;
-      let dy = targetCy - tipY;
-      dx = Math.max(-MAX_TX, Math.min(MAX_TX, dx));
-      dy = Math.max(-MAX_TY, Math.min(MAX_TY, dy));
-      // SVG: rotate first, then translate residual (right-to-left attr order)
-      next = `translate(${dx.toFixed(1)} ${dy.toFixed(1)}) rotate(${rotDeg.toFixed(2)})`;
+      const keyCx = Math.min(kbMaxX, Math.max(kbMinX, pos.cx));
+      const keyCy = Math.min(kbMaxY, Math.max(kbMinY, pos.cy));
+      const leftOfHome = keyCx < home.cx;
+      const tip = leftOfHome ? tipLeft : tipMid;
+      cuff = { x: keyCx - tip.x, y: keyCy - tip.y };
+      // Keep arm short — clamp cuff to max reach from shoulder
+      const rdx = cuff.x - shoulder.x;
+      const rdy = cuff.y - shoulder.y;
+      const dist = Math.hypot(rdx, rdy) || 1;
+      if (dist > MAX_REACH) {
+        const s = MAX_REACH / dist;
+        cuff = { x: shoulder.x + rdx * s, y: shoulder.y + rdy * s };
+      }
+      sleeveD = this.buildLeftSleevePath(shoulder, cuff);
+      // Hand glued to cuff (no float). Aim stays identity so shoulder root doesn't slide.
+      wristNext = `translate(${(cuff.x - home.cx).toFixed(1)} ${(cuff.y - home.cy).toFixed(1)})`;
       this.root.dataset.keySlot = String(this.activeSlot);
     } else {
-      next = "";
       delete this.root.dataset.keySlot;
     }
-    if (next === this.lastHandTx) return;
-    this.lastHandTx = next;
+
+    if (
+      aimNext === this.lastHandTx &&
+      wristNext === this.lastWristTx &&
+      sleeveD === this.lastSleeveD
+    ) {
+      return;
+    }
+    this.lastHandTx = aimNext;
+    this.lastWristTx = wristNext;
+
     this.handLeftAim.style.transform = "";
     this.handLeftAim.style.transition = "";
-    if (next) this.handLeftAim.setAttribute("transform", next);
-    else this.handLeftAim.removeAttribute("transform");
+    this.handLeftAim.removeAttribute("transform");
+
+    this.setLeftSleevePath(sleeveD);
+    this.setLeftCuffAt(cuff.x, cuff.y);
+
+    if (this.handLeftWrist) {
+      this.handLeftWrist.style.transform = "";
+      if (wristNext) this.handLeftWrist.setAttribute("transform", wristNext);
+      else this.handLeftWrist.removeAttribute("transform");
+    }
     if (this.handLeft) this.handLeft.style.transform = "";
   }
 

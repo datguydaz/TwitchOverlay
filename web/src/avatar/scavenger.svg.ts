@@ -568,32 +568,44 @@ export const scavengerSvg = `
                 <path d="M128 220 L123 234 L120 247 L123 257 L127 268"/>
                 <path d="M128 220 L123 234 L120 247 L123 257 L127 268" transform="translate(4.0 0)"/>
               </g>
-              <g id="sleeve-folds-left" fill="none" stroke-linecap="round">
-                <path d="M112 246 Q118 250 124 248" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
-                <path d="M114 252 Q120 256 126 254" stroke="#000" stroke-width="0.85" opacity="0.38"/>
-                <path d="M118 258 Q124 262 128 260" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
-              </g>
               <g id="sleeve-wear-left" fill="none" stroke-linecap="round" pointer-events="none">
+                <!-- upper-sleeve scuffs (stay on morphing stroke path zone) -->
                 <path d="M124 232 L120 238" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
-                <path d="M122 246 L118 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
-                <path d="M120 248 Q124 252 122 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
-                <!-- fabric scuffs along sleeve (stripes stay readable) -->
                 <path d="M126 228 L122 234" stroke="#3a3c40" stroke-width="0.45" opacity="0.3"/>
-                <path d="M124 242 L120 248" stroke="#1a1c20" stroke-width="0.55" opacity="0.28"/>
-                <path d="M120 258 L126 262" stroke="#4a4c50" stroke-width="0.4" opacity="0.22"/>
-                <!-- stripe chips (dark nicks on cream stripes) -->
-                <path d="M122 240 L124 242 L122 243 Z" fill="#0e0e0e" stroke="none" opacity="0.45"/>
-                <path d="M120 254 L122 256 L119 257 Z" fill="#0e0e0e" stroke="none" opacity="0.4"/>
               </g>
-              <ellipse cx="127" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
-              <ellipse cx="127" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
-              <path d="M120 266 H134" stroke="#000" stroke-width="0.55" opacity="0.32"/>
+              <!-- Cuff soft detail tracks cuff via JS translate — alive curly folds above the hand -->
+              <g id="sleeve-left-cuff-soft">
+                <g id="sleeve-folds-left" fill="none" stroke-linecap="round">
+                  <!-- Cross-sleeve fabric curls (paint on top of thick stroke) -->
+                  <path d="M112 252 Q127 244 142 253" stroke="#5a5c62" stroke-width="1.25" opacity="0.58"/>
+                  <path d="M114 257 Q127 249 140 258" stroke="#3a3c42" stroke-width="1.05" opacity="0.48"/>
+                  <path d="M116 262 Q127 255 138 263" stroke="#6a6c72" stroke-width="0.95" opacity="0.42"/>
+                  <!-- Outer-edge curly S / bunch -->
+                  <path d="M110 248 Q106 256 112 263 Q116 268 114 266" stroke="#8a8c90" stroke-width="0.85" opacity="0.4"/>
+                  <path d="M140 250 Q146 258 140 265 Q136 268 138 266" stroke="#7a7c80" stroke-width="0.75" opacity="0.36"/>
+                  <path d="M118 265 Q124 270 130 267 Q134 264 128 262" stroke="#4a4c50" stroke-width="0.8" opacity="0.38"/>
+                </g>
+                <g id="sleeve-cuff-wear-left" fill="none" stroke-linecap="round" pointer-events="none">
+                  <path d="M122 246 L118 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
+                  <path d="M120 248 Q124 252 122 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
+                  <path d="M124 242 L120 248" stroke="#1a1c20" stroke-width="0.55" opacity="0.28"/>
+                  <path d="M120 258 L126 262" stroke="#4a4c50" stroke-width="0.4" opacity="0.22"/>
+                  <path d="M122 240 L124 242 L122 243 Z" fill="#0e0e0e" stroke="none" opacity="0.45"/>
+                  <path d="M120 254 L122 256 L119 257 Z" fill="#0e0e0e" stroke="none" opacity="0.4"/>
+                </g>
+                <ellipse cx="127" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
+                <ellipse cx="127" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
+                <path d="M120 266 H134" stroke="#000" stroke-width="0.55" opacity="0.32"/>
+              </g>
             </g>
-            <path d="M109 264 L147 262 L149 274 L112 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
-            <rect x="115" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
-            <rect x="124" y="271" width="4.4" height="11" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
-            <rect x="133" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
-            <rect x="142" y="273" width="4.4" height="9" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
+            <!-- Wrist/hand turn for left-of-home keys (A/S/D) — JS aims #hand-left-wrist -->
+            <g id="hand-left-wrist">
+              <path d="M109 264 L147 262 L149 274 L112 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
+              <rect x="115" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
+              <rect x="124" y="271" width="4.4" height="11" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
+              <rect x="133" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
+              <rect x="142" y="273" width="4.4" height="9" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
+            </g>
           </g>
         </g>
       </g>
