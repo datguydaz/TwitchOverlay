@@ -231,26 +231,26 @@ function paintSteelPlate(
       const grit = fbm(x * fG, y * (quiet ? 0.04 : 0.09), seed + 11, quiet ? 2 : 3);
       const soot = fbm(x * fS, y * (quiet ? 0.012 : 0.02), seed + 23, 3);
       const rustN = fbm(x * fR, y * (quiet ? 0.015 : 0.03), seed + 41, 3);
-      // Base steel charcoal
-      let r = 16 + n * 18 * amp;
-      let g = 14 + n * 15 * amp;
-      let b = 12 + n * 12 * amp;
+      // Colder grey-green military steel (lets red rim + ONLINE green pop)
+      let r = 11 + n * 13 * amp;
+      let g = 15 + n * 17 * amp;
+      let b = 14 + n * 15 * amp;
       // Grime
-      r -= grit * 8 * amp;
-      g -= grit * 7 * amp;
-      b -= grit * 6 * amp;
+      r -= grit * 7 * amp;
+      g -= grit * 6 * amp;
+      b -= grit * 5 * amp;
       // Soot darkening toward edges / bottomish
       const edge = Math.min(x / w, 1 - x / w, y / h, 1 - y / h);
       const sootAmt = soot * (0.35 + (1 - edge) * 0.5) * (quiet ? 0.7 : 1);
       r *= 1 - sootAmt * 0.55;
-      g *= 1 - sootAmt * 0.55;
-      b *= 1 - sootAmt * 0.55;
+      g *= 1 - sootAmt * 0.5;
+      b *= 1 - sootAmt * 0.48;
       // Localized rust patches — sparse, cool-dark (not a warm beige wash)
       if (rustN > (quiet ? 0.8 : 0.72) && grit > (quiet ? 0.65 : 0.55)) {
-        const k = Math.min(quiet ? 0.35 : 0.55, (rustN - 0.72) * 2.8);
-        r = r * (1 - k) + (58 + grit * 18) * k;
-        g = g * (1 - k) + (28 + grit * 8) * k;
-        b = b * (1 - k) + (16 + grit * 4) * k;
+        const k = Math.min(quiet ? 0.32 : 0.48, (rustN - 0.72) * 2.6);
+        r = r * (1 - k) + (52 + grit * 14) * k;
+        g = g * (1 - k) + (30 + grit * 10) * k;
+        b = b * (1 - k) + (22 + grit * 6) * k;
       }
       d[i] = Math.max(0, Math.min(255, r));
       d[i + 1] = Math.max(0, Math.min(255, g));
@@ -987,6 +987,154 @@ function ensureLayer(parent: HTMLElement, className: string): HTMLCanvasElement 
   return el;
 }
 
+/** Barbed wire / bent rebar along torn edge — stays inside the bar. */
+function paintEdgeWire(
+  ctx: CanvasRenderingContext2D,
+  profile: Float32Array,
+  barW: number,
+  barH: number,
+  side: EdgeSide,
+  seed: number,
+): void {
+  const rnd = mulberry32(seed + 2200);
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, barW, barH);
+  ctx.clip();
+  const samples = 48;
+  // Bent rebar strand
+  ctx.beginPath();
+  ctx.strokeStyle = "rgba(28, 30, 28, 0.75)";
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = "round";
+  for (let i = 0; i <= samples; i++) {
+    const x = (i / samples) * barW;
+    const depth = depthAt(profile, x, barW, seed);
+    const y =
+      side === "bottom"
+        ? barH - depth - 5 - (fbm(x * 0.01, 1, seed, 2) - 0.5) * 4
+        : depth + 5 + (fbm(x * 0.01, 2, seed, 2) - 0.5) * 4;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  // Sparse barbs
+  for (let i = 2; i < samples; i += 2 + Math.floor(rnd() * 2)) {
+    const x = (i / samples) * barW;
+    if (x > 1300 && x < 2140) continue; // keep clear of name / centre
+    const depth = depthAt(profile, x, barW, seed);
+    const y =
+      side === "bottom" ? barH - depth - 5 : depth + 5;
+    const dir = side === "bottom" ? -1 : 1;
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(36, 38, 34, ${0.45 + rnd() * 0.3})`;
+    ctx.lineWidth = 1.1;
+    ctx.moveTo(x - 4, y);
+    ctx.lineTo(x + 1, y + dir * (5 + rnd() * 4));
+    ctx.moveTo(x + 4, y);
+    ctx.lineTo(x - 1, y + dir * (5 + rnd() * 4));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/** Torn tape + faded paper notice on open steel. */
+function paintTapeAndPaper(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  seed: number,
+  quiet: boolean,
+): void {
+  const rnd = mulberry32(seed + 2400);
+  ctx.save();
+  // Masking-tape scraps
+  const tapes = quiet
+    ? [
+        { x: 1320, y: h * 0.28, rot: -0.12, w: 70, h: 16 },
+        { x: 2680, y: h * 0.5, rot: 0.18, w: 58, h: 14 },
+      ]
+    : [
+        { x: 780, y: h * 0.62, rot: -0.2, w: 64, h: 15 },
+        { x: 2520, y: h * 0.22, rot: 0.14, w: 72, h: 14 },
+      ];
+  for (const t of tapes) {
+    ctx.save();
+    ctx.translate(t.x, t.y);
+    ctx.rotate(t.rot);
+    ctx.fillStyle = `rgba(${150 + rnd() * 20}, ${138 + rnd() * 16}, ${100}, ${0.22 + rnd() * 0.12})`;
+    ctx.beginPath();
+    ctx.moveTo(-t.w / 2, -t.h / 2);
+    ctx.lineTo(t.w / 2, -t.h / 2 + rnd() * 2);
+    ctx.lineTo(t.w / 2 - 2, t.h / 2);
+    ctx.lineTo(-t.w / 2 + 3, t.h / 2 - rnd());
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  // Ripped paper notice
+  const px = quiet ? 2100 : 1100;
+  const py = h * (quiet ? 0.32 : 0.58);
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.rotate(quiet ? 0.08 : -0.1);
+  ctx.fillStyle = "rgba(170, 162, 140, 0.16)";
+  ctx.beginPath();
+  ctx.moveTo(-38, -16);
+  ctx.lineTo(40, -14);
+  ctx.lineTo(36, 18);
+  ctx.lineTo(-32, 20);
+  ctx.lineTo(-40, 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 0.22;
+  ctx.fillStyle = "rgba(90, 28, 22, 0.85)";
+  ctx.font = `bold ${Math.max(8, Math.round(h * 0.07))}px "Share Tech Mono", monospace`;
+  ctx.fillText("RESTRICTED", -34, 0);
+  ctx.fillText("AREA", -16, 12);
+  ctx.restore();
+  ctx.restore();
+}
+
+/** Brass shell casings along bottom bar — catch a cool glint, not yellow flare. */
+function paintShellCasings(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  seed: number,
+): void {
+  const rnd = mulberry32(seed + 2600);
+  const spots = [
+    { x: 420, y: h * 0.72 },
+    { x: 980, y: h * 0.68 },
+    { x: 1880, y: h * 0.74 },
+    { x: 2560, y: h * 0.7 },
+    { x: 3180, y: h * 0.66 },
+  ];
+  ctx.save();
+  for (const s of spots) {
+    if (rnd() > 0.85) continue;
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.rotate((rnd() - 0.5) * 1.2);
+    const len = 9 + rnd() * 5;
+    const g = ctx.createLinearGradient(-len / 2, 0, len / 2, 0);
+    g.addColorStop(0, "rgba(48, 46, 38, 0.85)");
+    g.addColorStop(0.45, "rgba(118, 116, 100, 0.7)");
+    g.addColorStop(0.55, "rgba(168, 166, 150, 0.45)"); // cool glint, not yellow
+    g.addColorStop(1, "rgba(40, 38, 32, 0.85)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, len / 2, 2.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(20, 18, 14, 0.5)";
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
 function resolveSmokeBarPx(stage: HTMLElement, top: HTMLElement): number {
   const fromBox = Math.round(top.getBoundingClientRect().height || 0);
   const fromCss = Number.parseFloat(
@@ -1039,6 +1187,8 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     paintMapEtching(ctx, BAR_W, BAR_H, seed + 17);
     paintSprayStencils(ctx, BAR_W, BAR_H, seed + 31, quiet);
     paintRustDrips(ctx, BAR_W, BAR_H, rivets, seed + 53);
+    paintTapeAndPaper(ctx, BAR_W, BAR_H, seed + 71, quiet);
+    if (quiet) paintShellCasings(ctx, BAR_W, BAR_H, seed + 91);
     for (const h of holes) {
       const yy = Math.round(h.y * yScale);
       // Keep cores away from torn grit (~8% edges) and chatter band on bottom
@@ -1086,6 +1236,7 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     const ctx = c.getContext("2d")!;
     ctx.clearRect(0, 0, BAR_W, BAR_H);
     drawTornRustStrip(ctx, profile, BAR_W, BAR_H, side, seed);
+    paintEdgeWire(ctx, profile, BAR_W, BAR_H, side, seed);
   }
 
   // Smoke / haze / wisp layers removed — user choosing next FX options
@@ -1117,7 +1268,7 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     paintBloodSplatter(c.getContext("2d")!, bw, bh, seed, corner);
   }
 
-  // --- Name erosion + spray ---
+  // --- Name erosion + spray overspray + short drips + helmet silhouette ---
   const nameFace = stage.querySelector(".smk-name-face") as HTMLElement | null;
   const nameplate = stage.querySelector(".smk-nameplate") as HTMLElement | null;
   if (nameFace && nameplate) {
@@ -1128,7 +1279,15 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     nameFace.style.maskSize = "100% 100%";
     nameFace.style.webkitMaskRepeat = "no-repeat";
     nameFace.style.maskRepeat = "no-repeat";
-    // Spray overspray as canvas behind face
+
+    let helm = nameplate.querySelector(".smk-helm-sil") as HTMLElement | null;
+    if (!helm) {
+      helm = document.createElement("span");
+      helm.className = "smk-helm-sil";
+      helm.setAttribute("aria-hidden", "true");
+      nameplate.insertBefore(helm, nameFace);
+    }
+
     let spray = nameplate.querySelector("canvas.smk-spray-canvas") as HTMLCanvasElement | null;
     if (!spray) {
       spray = document.createElement("canvas");
@@ -1137,17 +1296,37 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
       nameplate.insertBefore(spray, nameFace);
     }
     spray.width = 980;
-    spray.height = 180;
+    spray.height = 200;
     const sctx = spray.getContext("2d")!;
-    sctx.clearRect(0, 0, 980, 180);
+    sctx.clearRect(0, 0, 980, 200);
     const rnd = mulberry32(1300);
-    for (let i = 0; i < 900; i++) {
-      const x = 40 + rnd() * 900;
-      const y = 20 + rnd() * 140;
+    // Soft overspray cloud
+    for (let i = 0; i < 1400; i++) {
+      const x = 30 + rnd() * 920;
+      const y = 18 + rnd() * 150;
       const n = fbm(x * 0.05, y * 0.05, 1301, 2);
-      if (n < 0.55) continue;
-      sctx.fillStyle = `rgba(210, 200, 180, ${0.015 + rnd() * 0.04})`;
-      sctx.fillRect(x, y, 1 + rnd() * 2, 1 + rnd() * 2);
+      if (n < 0.48) continue;
+      sctx.fillStyle = `rgba(215, 208, 190, ${0.02 + rnd() * 0.05})`;
+      sctx.fillRect(x, y, 1 + rnd() * 2.5, 1 + rnd() * 2);
+    }
+    // Short paint drips (stay inside nameplate / bar)
+    sctx.lineCap = "round";
+    for (let d = 0; d < 9; d++) {
+      const x = 120 + rnd() * 740;
+      const y0 = 95 + rnd() * 35;
+      const len = 8 + rnd() * 18;
+      sctx.beginPath();
+      sctx.strokeStyle = `rgba(200, 194, 178, ${0.1 + rnd() * 0.12})`;
+      sctx.lineWidth = 1 + rnd() * 1.6;
+      let xw = x;
+      let y = y0;
+      sctx.moveTo(xw, y);
+      while (y < y0 + len && y < 188) {
+        y += 2 + rnd() * 3;
+        xw += (rnd() - 0.5) * 1.2;
+        sctx.lineTo(xw, y);
+      }
+      sctx.stroke();
     }
   }
 

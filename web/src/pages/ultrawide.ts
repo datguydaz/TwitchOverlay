@@ -8,6 +8,7 @@ import { SocialReadoutAnim } from "../lib/socialReadoutAnim.ts";
 import { applySmokeRuinTextures } from "../lib/smokeRuinTextures.ts";
 import { applySmokeBarFx } from "../lib/smokeBarFx.ts";
 import { applySmokeBunkerHud } from "../lib/smokeBunkerHud.ts";
+import { applySmokeBarProps } from "../lib/smokeBarProps.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 import type { AtmPreviewKind } from "../../../shared/protocol.ts";
 
@@ -109,6 +110,7 @@ let bootstrappedSocial = false;
 let smokeRuinCleanup: (() => void) | null = null;
 let smokeBarFxCleanup: (() => void) | null = null;
 let smokeBunkerHudCleanup: (() => void) | null = null;
+let smokeBarPropsCleanup: (() => void) | null = null;
 let smokeRuinReady = false;
 let lastSmokeBarH = 0;
 
@@ -257,9 +259,11 @@ function applyUltrawide(settings: OverlaySettings): void {
       smokeRuinCleanup?.();
       smokeBarFxCleanup?.();
       smokeBunkerHudCleanup?.();
+      smokeBarPropsCleanup?.();
       smokeRuinCleanup = applySmokeRuinTextures(stage);
       smokeBarFxCleanup = applySmokeBarFx(stage);
       smokeBunkerHudCleanup = applySmokeBunkerHud(stage);
+      smokeBarPropsCleanup = applySmokeBarProps(stage);
       smokeRuinReady = true;
       lastSmokeBarH = barH;
     }

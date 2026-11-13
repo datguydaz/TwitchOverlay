@@ -17,9 +17,9 @@ body.uw-smoke-variant {
 
 #uw-stage[data-variant="smoke-flare"] {
   --uw-bar-h: 180px;
-  --smk-bg: #0a0a0a;
-  --smk-steel: #161412;
-  --smk-steel-hi: #2a2622;
+  --smk-bg: #080a09;
+  --smk-steel: #121614;
+  --smk-steel-hi: #242a26;
   --smk-rust: #4a2a1a;
   --smk-rust-hot: #6a3218;
   --smk-bone: #e6dfd0;
@@ -176,7 +176,7 @@ body.uw-smoke-variant {
 .smk-steel {
   inset: 0;
   z-index: 0;
-  background: #0a0908;
+  background: #0a0c0b;
   overflow: hidden;
 }
 .smk-steel-canvas {
@@ -186,7 +186,7 @@ body.uw-smoke-variant {
 }
 /* Clip-path set procedurally in smokeRuinTextures.ts (irregular torn profile) */
 .smk-ruin-bar {
-  background: #0a0908;
+  background: #0a0c0b;
 }
 .smk-torn-canvas-host {
   position: absolute;
@@ -631,12 +631,30 @@ body.uw-smoke-variant {
   left: 50%;
   top: 50%;
   width: min(1080px, 70%);
-  height: calc(var(--uw-bar-h) * 0.9);
-  transform: translate(-50%, -54%);
+  height: calc(var(--uw-bar-h) * 0.95);
+  transform: translate(-50%, -52%);
   z-index: 2;
   pointer-events: none;
   mix-blend-mode: screen;
-  opacity: 0.7;
+  opacity: 0.78;
+}
+/* Faint gas-mask / helmet silhouette behind DATGUYDAZ */
+.smk-helm-sil {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: min(520px, 42%);
+  height: calc(var(--uw-bar-h) * 0.72);
+  transform: translate(-50%, -55%);
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.16;
+  background:
+    radial-gradient(ellipse 42% 48% at 50% 38%, rgba(18, 20, 18, 0.95), transparent 70%),
+    radial-gradient(ellipse 18% 14% at 35% 42%, rgba(8, 8, 8, 0.9), transparent 70%),
+    radial-gradient(ellipse 18% 14% at 65% 42%, rgba(8, 8, 8, 0.9), transparent 70%),
+    radial-gradient(ellipse 28% 18% at 50% 62%, rgba(14, 16, 14, 0.85), transparent 72%);
+  filter: blur(0.35px);
 }
 #uw-stage[data-variant="smoke-flare"] .smk-name-face {
   position: relative;
@@ -1474,6 +1492,231 @@ body.uw-smoke-variant {
   filter: contrast(1.2);
 }
 
+/* —— Terminal glass grit (grime / spider crack / dead pixels / burn-in) —— */
+.smk-radio-glass {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+.smk-radio-grime {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 15%, rgba(40, 44, 36, 0.35), transparent 70%),
+    radial-gradient(ellipse 50% 45% at 85% 80%, rgba(30, 32, 28, 0.4), transparent 70%),
+    repeating-linear-gradient(115deg, transparent 0 7px, rgba(0, 0, 0, 0.04) 7px 8px);
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+}
+.smk-radio-spider {
+  display: none;
+  position: absolute;
+  right: 6%;
+  top: 8%;
+  width: 28%;
+  height: 42%;
+  background:
+    linear-gradient(125deg, transparent 48%, rgba(180, 180, 170, 0.22) 49%, transparent 51%),
+    linear-gradient(55deg, transparent 46%, rgba(160, 160, 150, 0.18) 48%, transparent 52%),
+    linear-gradient(95deg, transparent 40%, rgba(140, 140, 130, 0.14) 50%, transparent 60%);
+  opacity: 0.7;
+}
+.smk-has-spider .smk-radio-spider { display: block; }
+.smk-radio-deadpx {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 18% 62%, rgba(0, 0, 0, 0.85) 0 1.1px, transparent 1.4px),
+    radial-gradient(circle at 72% 28%, rgba(0, 0, 0, 0.8) 0 0.9px, transparent 1.2px),
+    radial-gradient(circle at 44% 48%, rgba(90, 100, 70, 0.35) 0 0.8px, transparent 1.1px),
+    radial-gradient(circle at 88% 70%, rgba(0, 0, 0, 0.75) 0 1px, transparent 1.3px);
+  opacity: 0.55;
+}
+.smk-radio-burn {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 35%;
+  height: 28%;
+  background: linear-gradient(180deg, transparent, rgba(90, 110, 70, 0.07), transparent);
+  opacity: 0.65;
+  filter: blur(0.5px);
+}
+
+/* Duct tape patch + marker masking-tape label on crates */
+.smk-duct {
+  position: absolute;
+  left: 18%;
+  top: -3px;
+  width: 42%;
+  height: 9px;
+  z-index: 4;
+  background: linear-gradient(180deg, #3a3830, #2a2822 55%, #1c1a16);
+  box-shadow: inset 0 1px 0 rgba(120, 110, 90, 0.2);
+  transform: rotate(-1.5deg);
+  opacity: 0.7;
+  pointer-events: none;
+}
+.uw-side-right .smk-duct {
+  left: auto;
+  right: 16%;
+  transform: rotate(1.8deg);
+}
+.smk-mask-label {
+  position: absolute;
+  right: 10px;
+  bottom: 4px;
+  z-index: 4;
+  padding: 1px 5px 0;
+  font-family: "Share Tech Mono", "Consolas", monospace;
+  font-size: clamp(7px, calc(var(--uw-bar-h) * 0.04), 9px);
+  letter-spacing: 0.12em;
+  color: rgba(30, 28, 24, 0.75);
+  background: rgba(160, 148, 110, 0.45);
+  transform: rotate(2deg);
+  pointer-events: none;
+  opacity: 0.7;
+}
+.uw-side-right .smk-mask-label {
+  right: auto;
+  left: 10px;
+  transform: rotate(-2deg);
+}
+
+/* Frayed cables zip-tied toward terminals — top bar only, inside bar */
+.smk-cables {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  overflow: hidden;
+}
+.smk-cable {
+  position: absolute;
+  top: 0;
+  width: clamp(200px, 16%, 360px);
+  height: 100%;
+  opacity: 0.95;
+}
+.smk-cable-l { left: 6%; }
+.smk-cable-r { right: 6%; }
+
+/* Corner warning lamps — mostly dead, rare blink */
+.smk-warn-lamp {
+  position: absolute;
+  z-index: 24;
+  width: calc(var(--uw-bar-h) * 0.09);
+  height: calc(var(--uw-bar-h) * 0.09);
+  min-width: 10px;
+  min-height: 10px;
+  max-width: 16px;
+  max-height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #4a2018, #180a08 70%);
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(60, 28, 22, 0.75);
+  opacity: 0.72;
+  pointer-events: none;
+}
+.smk-warn-lamp > i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, rgba(160, 40, 28, 0.15), transparent 65%);
+}
+.smk-warn-lamp.smk-warn-on {
+  opacity: 1;
+  box-shadow:
+    inset 0 0 2px rgba(0, 0, 0, 0.5),
+    0 0 6px rgba(140, 28, 18, 0.55);
+}
+.smk-warn-lamp.smk-warn-on > i {
+  background: radial-gradient(circle at 40% 35%, rgba(180, 40, 28, 0.85), rgba(90, 16, 12, 0.2) 70%);
+}
+.smk-warn-tl { left: 10px; top: 8px; }
+.smk-warn-tr { right: 10px; top: 8px; }
+.smk-warn-bl { left: 10px; bottom: 10px; }
+.smk-warn-br { right: 10px; bottom: 10px; }
+
+/* Dog tags on chain — hang inside top bar, sway with bulb */
+.smk-dogtags {
+  position: absolute;
+  left: 58.5%;
+  top: 2px;
+  width: 40px;
+  height: calc(var(--uw-bar-h) * 0.58);
+  max-height: 105px;
+  z-index: 14;
+  transform-origin: 50% 0;
+  pointer-events: none;
+  animation: smk-dog-sway 7.5s ease-in-out infinite;
+  opacity: 0.88;
+}
+.smk-dog-chain {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 38%;
+  margin-left: -0.5px;
+  background: linear-gradient(180deg, rgba(70, 66, 58, 0.7), rgba(40, 38, 34, 0.5));
+}
+.smk-dog-tag {
+  position: absolute;
+  left: 50%;
+  width: 22px;
+  height: 14px;
+  margin-left: -11px;
+  border-radius: 2px 2px 5px 5px;
+  background: linear-gradient(160deg, #6a665c, #3a3830 60%, #2a2822);
+  border: 1px solid rgba(90, 86, 74, 0.55);
+  box-shadow: inset 0 1px 0 rgba(160, 150, 130, 0.2), 0 1px 2px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.smk-dog-tag.a { top: 36%; transform: rotate(-8deg); }
+.smk-dog-tag.b { top: 52%; margin-left: -6px; transform: rotate(11deg); opacity: 0.9; }
+.smk-dog-tag em {
+  font-style: normal;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 6px;
+  letter-spacing: 0.08em;
+  color: rgba(30, 28, 24, 0.7);
+}
+@keyframes smk-dog-sway {
+  0%, 100% { transform: rotate(-2.2deg); }
+  50% { transform: rotate(2.4deg); }
+}
+
+/* Rare power surge */
+#uw-stage.smk-surge-flare .smk-bulb-glow {
+  opacity: 1.4 !important;
+  filter: brightness(1.35);
+}
+#uw-stage.smk-surge-flare .smk-bulb {
+  opacity: 0.95 !important;
+  box-shadow: 0 0 10px rgba(200, 190, 165, 0.35);
+}
+#uw-stage.smk-surge-shake .uw-bar-top,
+#uw-stage.smk-surge-shake .uw-bar-bottom {
+  animation: smk-surge-shake 0.28s steps(2, end);
+}
+#uw-stage.smk-surge-brown {
+  filter: brightness(0.72) contrast(1.05);
+}
+#uw-stage.smk-surge-brown .smk-bulb-glow {
+  opacity: 0.15 !important;
+}
+@keyframes smk-surge-shake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-1px, 0.5px); }
+  50% { transform: translate(1px, -0.5px); }
+  75% { transform: translate(-0.5px, 0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .smk-wisps > i,
   .smk-ash > i,
@@ -1494,6 +1737,7 @@ body.uw-smoke-variant {
   .smk-chatter-track,
   .smk-op-online,
   .smk-op-dot,
+  .smk-dogtags,
   #uw-stage[data-variant="smoke-flare"] .uw-glass-name {
     animation: none !important;
   }
