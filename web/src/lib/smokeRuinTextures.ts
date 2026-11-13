@@ -155,6 +155,30 @@ function buildTornMask(
   return c.toDataURL("image/png");
 }
 
+export type SmokeEdgeStyle = "red" | "steel" | "rust" | "phosphor" | "blackout";
+
+export function resolveSmokeEdgeStyle(stage?: HTMLElement | null): SmokeEdgeStyle {
+  const fromData = (stage?.dataset.edge || "").toLowerCase();
+  let raw = fromData;
+  if (!raw) {
+    try {
+      raw = (new URLSearchParams(location.search).get("edge") || "").toLowerCase();
+    } catch {
+      raw = "";
+    }
+  }
+  if (raw === "steel" || raw === "rust" || raw === "phosphor" || raw === "blackout" || raw === "red") {
+    return raw;
+  }
+  // Default stays current red until user picks a new style
+  return "red";
+}
+
+/**
+ * Torn-edge lip colour variants (`?edge=`).
+ * red = current; steel / rust / phosphor / blackout = alternatives.
+ * All stay inside the bar — nothing into the transparent stage.
+ */
 function drawTornRustStrip(
   ctx: CanvasRenderingContext2D,
   profile: Float32Array,
@@ -162,8 +186,9 @@ function drawTornRustStrip(
   barH: number,
   side: EdgeSide,
   seed: number,
+  style: SmokeEdgeStyle = "red",
 ): void {
-  const stripH = 5;
+  const stripH = style === "blackout" ? 6 : style === "phosphor" ? 4 : 5;
   const img = ctx.createImageData(barW, barH);
   const d = img.data;
   for (let x = 0; x < barW; x++) {
@@ -179,34 +204,126 @@ function drawTornRustStrip(
       const i = (y * barW + x) * 4;
       const fade = 1 - dy / (stripH + 4);
       if (dy <= 1) {
-        // dark-red warn hairline along the break
-        d[i] = 120;
-        d[i + 1] = 28;
-        d[i + 2] = 18;
-        d[i + 3] = Math.floor(200 * fade);
+        // Lip hairline — style decides colour
+        if (style === "red") {
+          d[i] = 120;
+          d[i + 1] = 28;
+          d[i + 2] = 18;
+          d[i + 3] = Math.floor(200 * fade);
+        } else if (style === "steel") {
+          // Cold bare-steel + thin bone/grey highlight
+          d[i] = 168 + rustN * 20;
+          d[i + 1] = 170 + rustN * 18;
+          d[i + 2] = 162 + rustN * 16;
+          d[i + 3] = Math.floor(190 * fade);
+        } else if (style === "rust") {
+          // Dark oxidised rust / burnt brown
+          d[i] = 72 + rustN * 28;
+          d[i + 1] = 32 + rustN * 10;
+          d[i + 2] = 16 + rustN * 6;
+          d[i + 3] = Math.floor(210 * fade);
+        } else if (style === "phosphor") {
+          // Dim green-grey CRT line (matches ONLINE #7fae6a family)
+          d[i] = 90 + rustN * 16;
+          d[i + 1] = 130 + rustN * 22;
+          d[i + 2] = 80 + rustN * 14;
+          d[i + 3] = Math.floor(150 * fade);
+        } else {
+          // blackout — almost no colour, raw dark lip
+          d[i] = 18 + rustN * 8;
+          d[i + 1] = 18 + rustN * 7;
+          d[i + 2] = 16 + rustN * 6;
+          d[i + 3] = Math.floor(220 * fade);
+        }
+      } else if (style === "steel" && dy === 2) {
+        // Weld bead under the highlight
+        d[i] = 42 + rustN * 18;
+        d[i + 1] = 44 + rustN * 16;
+        d[i + 2] = 40 + rustN * 14;
+        d[i + 3] = Math.floor(170 * fade);
+      } else if (style === "blackout") {
+        // Hard shadow falloff into the bar
+        d[i] = 6 + rustN * 6;
+        d[i + 1] = 6 + rustN * 5;
+        d[i + 2] = 5 + rustN * 4;
+        d[i + 3] = Math.floor((200 - dy * 18) * fade);
+      } else if (style === "phosphor") {
+        d[i] = 20 + rustN * 8;
+        d[i + 1] = 28 + rustN * 12;
+        d[i + 2] = 18 + rustN * 6;
+        d[i + 3] = Math.floor((90 + rustN * 30) * fade * 0.55);
+      } else if (style === "rust") {
+        d[i] = 52 + rustN * 36;
+        d[i + 1] = 24 + rustN * 12;
+        d[i + 2] = 12 + rustN * 6;
+        d[i + 3] = Math.floor((170 + rustN * 50) * fade);
+      } else if (style === "steel") {
+        d[i] = 28 + rustN * 16;
+        d[i + 1] = 30 + rustN * 15;
+        d[i + 2] = 28 + rustN * 14;
+        d[i + 3] = Math.floor((140 + rustN * 40) * fade);
       } else {
+        // red body wash (current)
         d[i] = 48 + rustN * 40;
         d[i + 1] = 24 + rustN * 14;
         d[i + 2] = 12 + rustN * 6;
         d[i + 3] = Math.floor((160 + rustN * 60) * fade);
       }
     }
-    // Sparse hazard flecks (not a repeating stripe tile)
-    if (hash2(x, seed, seed + 9) > 0.92) {
+    // Sparse flecks — style-tinted; blackout skips coloured flecks
+    if (style !== "blackout" && hash2(x, seed, seed + 9) > 0.92) {
       const y =
         side === "bottom"
           ? Math.floor(edgeY - 3 - hash2(x, 1, seed) * 3)
           : Math.floor(edgeY + 3 + hash2(x, 1, seed) * 3);
       if (y >= 0 && y < barH) {
         const i = (y * barW + x) * 4;
-        d[i] = 90;
-        d[i + 1] = 22;
-        d[i + 2] = 14;
-        d[i + 3] = 140;
+        if (style === "phosphor") {
+          d[i] = 70;
+          d[i + 1] = 110;
+          d[i + 2] = 65;
+          d[i + 3] = 100;
+        } else if (style === "steel") {
+          d[i] = 140;
+          d[i + 1] = 142;
+          d[i + 2] = 136;
+          d[i + 3] = 110;
+        } else if (style === "rust") {
+          d[i] = 78;
+          d[i + 1] = 30;
+          d[i + 2] = 14;
+          d[i + 3] = 150;
+        } else {
+          d[i] = 90;
+          d[i + 1] = 22;
+          d[i + 2] = 14;
+          d[i + 3] = 140;
+        }
       }
     }
   }
   ctx.putImageData(img, 0, 0);
+
+  // Steel: irregular weld-bead strokes along the lip
+  if (style === "steel") {
+    const rnd = mulberry32(seed + 55);
+    ctx.save();
+    ctx.strokeStyle = "rgba(70, 72, 68, 0.45)";
+    ctx.lineWidth = 1.4;
+    ctx.lineCap = "round";
+    let x = 0;
+    while (x < barW) {
+      const depth = depthAt(profile, x, barW, seed, side);
+      const edgeY = side === "bottom" ? barH - depth : depth;
+      const len = 18 + rnd() * 40;
+      ctx.beginPath();
+      ctx.moveTo(x, edgeY + (side === "bottom" ? -2.5 : 2.5));
+      ctx.lineTo(x + len, edgeY + (side === "bottom" ? -2.5 : 2.5) + (rnd() - 0.5) * 1.5);
+      ctx.stroke();
+      x += len + 8 + rnd() * 24;
+    }
+    ctx.restore();
+  }
 }
 
 function paintSteelPlate(
@@ -995,17 +1112,19 @@ function paintEdgeWire(
   barH: number,
   side: EdgeSide,
   seed: number,
+  style: SmokeEdgeStyle = "red",
 ): void {
   const rnd = mulberry32(seed + 2200);
+  const emphasize = style === "blackout";
   ctx.save();
   ctx.beginPath();
   ctx.rect(0, 0, barW, barH);
   ctx.clip();
-  const samples = 48;
+  const samples = emphasize ? 64 : 48;
   // Bent rebar strand
   ctx.beginPath();
-  ctx.strokeStyle = "rgba(28, 30, 28, 0.75)";
-  ctx.lineWidth = 2.2;
+  ctx.strokeStyle = emphasize ? "rgba(38, 40, 36, 0.9)" : "rgba(28, 30, 28, 0.75)";
+  ctx.lineWidth = emphasize ? 2.8 : 2.2;
   ctx.lineCap = "round";
   for (let i = 0; i <= samples; i++) {
     const x = (i / samples) * barW;
@@ -1018,8 +1137,9 @@ function paintEdgeWire(
     else ctx.lineTo(x, y);
   }
   ctx.stroke();
-  // Sparse barbs
-  for (let i = 2; i < samples; i += 2 + Math.floor(rnd() * 2)) {
+  // Sparse barbs (denser for blackout — wire carries the edge detail)
+  const step = emphasize ? 1 : 2;
+  for (let i = 2; i < samples; i += step + Math.floor(rnd() * 2)) {
     const x = (i / samples) * barW;
     if (x > 1300 && x < 2140) continue; // keep clear of name / centre
     const depth = depthAt(profile, x, barW, seed);
@@ -1027,8 +1147,8 @@ function paintEdgeWire(
       side === "bottom" ? barH - depth - 5 : depth + 5;
     const dir = side === "bottom" ? -1 : 1;
     ctx.beginPath();
-    ctx.strokeStyle = `rgba(36, 38, 34, ${0.45 + rnd() * 0.3})`;
-    ctx.lineWidth = 1.1;
+    ctx.strokeStyle = `rgba(36, 38, 34, ${emphasize ? 0.65 + rnd() * 0.25 : 0.45 + rnd() * 0.3})`;
+    ctx.lineWidth = emphasize ? 1.35 : 1.1;
     ctx.moveTo(x - 4, y);
     ctx.lineTo(x + 1, y + dir * (5 + rnd() * 4));
     ctx.moveTo(x + 4, y);
@@ -1235,8 +1355,12 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     c.height = BAR_H;
     const ctx = c.getContext("2d")!;
     ctx.clearRect(0, 0, BAR_W, BAR_H);
-    drawTornRustStrip(ctx, profile, BAR_W, BAR_H, side, seed);
-    paintEdgeWire(ctx, profile, BAR_W, BAR_H, side, seed);
+    const edgeStyle = resolveSmokeEdgeStyle(stage);
+    stage.dataset.edge = edgeStyle;
+    edgeHost.dataset.edge = edgeStyle;
+    edgeHost.classList.toggle("smk-edge-phosphor", edgeStyle === "phosphor");
+    drawTornRustStrip(ctx, profile, BAR_W, BAR_H, side, seed, edgeStyle);
+    paintEdgeWire(ctx, profile, BAR_W, BAR_H, side, seed, edgeStyle);
   }
 
   // Smoke / haze / wisp layers removed — user choosing next FX options

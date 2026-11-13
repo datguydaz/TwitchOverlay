@@ -5,7 +5,11 @@ import {
 import { AtmosphereVfx } from "../lib/atmosphereVfx.ts";
 import { TextLifeVfx } from "../lib/textLifeVfx.ts";
 import { SocialReadoutAnim } from "../lib/socialReadoutAnim.ts";
-import { applySmokeRuinTextures } from "../lib/smokeRuinTextures.ts";
+import {
+  applySmokeRuinTextures,
+  resolveSmokeEdgeStyle,
+  type SmokeEdgeStyle,
+} from "../lib/smokeRuinTextures.ts";
 import { applySmokeBarFx } from "../lib/smokeBarFx.ts";
 import { applySmokeBunkerHud } from "../lib/smokeBunkerHud.ts";
 import { applySmokeBarProps } from "../lib/smokeBarProps.ts";
@@ -113,6 +117,7 @@ let smokeBunkerHudCleanup: (() => void) | null = null;
 let smokeBarPropsCleanup: (() => void) | null = null;
 let smokeRuinReady = false;
 let lastSmokeBarH = 0;
+let lastSmokeEdge: SmokeEdgeStyle | "" = "";
 
 /** Smoke page only: `?bar=` tunes letterbox height (120–248). Default 180. */
 function resolveSmokeBarH(): number {
@@ -255,7 +260,9 @@ function applyUltrawide(settings: OverlaySettings): void {
   if (smokeFixed) {
     stage.dataset.textFx = "off";
     stage.dataset.barH = String(barH);
-    if (!smokeRuinReady || lastSmokeBarH !== barH) {
+    const edgeStyle = resolveSmokeEdgeStyle(stage);
+    stage.dataset.edge = edgeStyle;
+    if (!smokeRuinReady || lastSmokeBarH !== barH || lastSmokeEdge !== edgeStyle) {
       smokeRuinCleanup?.();
       smokeBarFxCleanup?.();
       smokeBunkerHudCleanup?.();
@@ -266,6 +273,7 @@ function applyUltrawide(settings: OverlaySettings): void {
       smokeBarPropsCleanup = applySmokeBarProps(stage);
       smokeRuinReady = true;
       lastSmokeBarH = barH;
+      lastSmokeEdge = edgeStyle;
     }
   }
 
