@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ultrawide Smoke — Bunker Gloom</title>
+    <title>Ultrawide Smoke — Tarkov Ruin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Oswald:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
@@ -17,75 +17,108 @@
       document.documentElement.classList.add("uw-smoke-html");
     </script>
     <div id="uw-stage" data-atm="on" data-vfx="on" data-text-fx="off" data-variant="smoke-flare">
-      <div class="uw-bar uw-bar-top" id="uw-top" data-edge="top">
-        <!-- FX strictly inside bar; overflow:hidden + contain:paint -->
-        <div class="smk-gloom-base" aria-hidden="true"></div>
-        <div class="smk-wisps" aria-hidden="true">
-          <i class="w1"></i><i class="w2"></i><i class="w3"></i><i class="w4"></i><i class="w5"></i>
+      <div class="uw-bar uw-bar-top smk-ruin-bar" id="uw-top" data-edge="top">
+        <div class="smk-steel" aria-hidden="true"></div>
+        <div class="smk-peel" aria-hidden="true"></div>
+        <div class="smk-grime" aria-hidden="true"></div>
+        <div class="smk-soot" aria-hidden="true"></div>
+        <div class="smk-scratches" aria-hidden="true"></div>
+        <div class="smk-impacts" aria-hidden="true">
+          <i class="h1"></i><i class="h2"></i><i class="h3"></i><i class="h4"></i><i class="h5"></i>
         </div>
+        <div class="smk-rivets" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="smk-wire top" aria-hidden="true"></div>
+        <div class="smk-concrete left" aria-hidden="true"></div>
+        <div class="smk-concrete right" aria-hidden="true"></div>
+        <div class="smk-wisps" aria-hidden="true">
+          <i class="w1"></i><i class="w2"></i><i class="w3"></i><i class="w4"></i><i class="w5"></i><i class="w6"></i>
+        </div>
+        <div class="smk-ash" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="smk-embers" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="smk-dust" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="smk-corner-pulse tl" aria-hidden="true"></div>
+        <div class="smk-corner-pulse tr" aria-hidden="true"></div>
         <div class="smk-corner-blood tl" aria-hidden="true">
-          <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet">
-            <g fill="#6e1c14" fill-opacity="0.92">
-              <path d="M0 0 C42 6 58 28 52 58 C46 88 22 102 0 110 Z"/>
-              <path d="M8 0 C38 2 62 18 78 42 C92 62 96 86 70 98 C48 108 28 92 18 70 C10 52 14 28 8 0 Z"/>
-              <path d="M48 12 C68 8 92 22 98 44 C104 66 88 78 70 72 C52 66 44 42 48 12 Z"/>
-              <ellipse cx="118" cy="28" rx="7" ry="5" transform="rotate(-28 118 28)"/>
-              <ellipse cx="132" cy="48" rx="4" ry="3"/>
-              <ellipse cx="96" cy="78" rx="5" ry="3.5" transform="rotate(18 96 78)"/>
-              <ellipse cx="64" cy="108" rx="3.5" ry="2.5"/>
-              <ellipse cx="148" cy="18" rx="3" ry="2"/>
-              <path d="M72 54 C88 58 102 72 106 90 C108 102 96 108 88 98 C80 88 74 70 72 54 Z" fill-opacity="0.7"/>
+          <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet">
+            <g fill="#6a1810" fill-opacity="0.95">
+              <path d="M0 0 C48 4 72 26 68 62 C62 98 28 118 0 128 Z"/>
+              <path d="M6 0 C44 2 78 20 96 48 C112 72 118 102 86 116 C58 128 30 108 18 78 C10 56 16 26 6 0 Z"/>
+              <path d="M54 10 C82 6 112 24 120 50 C128 76 108 92 86 84 C64 76 50 44 54 10 Z"/>
+              <ellipse cx="138" cy="30" rx="9" ry="6" transform="rotate(-24 138 30)"/>
+              <ellipse cx="156" cy="54" rx="5" ry="3.5"/>
+              <ellipse cx="112" cy="88" rx="6" ry="4" transform="rotate(16 112 88)"/>
+              <ellipse cx="72" cy="122" rx="4" ry="3"/>
+              <ellipse cx="172" cy="18" rx="3.5" ry="2.5"/>
+              <ellipse cx="188" cy="42" rx="2.5" ry="2"/>
             </g>
-            <g fill="#4a120e" fill-opacity="0.75">
-              <path d="M0 0 C28 18 34 48 20 78 C10 96 0 104 0 104 Z"/>
-              <ellipse cx="108" cy="62" rx="2.5" ry="2"/>
-              <ellipse cx="140" cy="36" rx="2" ry="1.5"/>
+            <g fill="#3d0e0a" fill-opacity="0.8">
+              <path d="M0 0 C32 22 40 56 22 90 C10 112 0 122 0 122 Z"/>
+              <ellipse cx="124" cy="70" rx="3" ry="2.2"/>
             </g>
-            <g fill="none" stroke="#5a1812" stroke-opacity="0.85" stroke-linecap="round">
-              <path d="M30 8 C50 22 70 48 82 78" stroke-width="2.2"/>
-              <path d="M12 20 C32 40 42 70 50 102" stroke-width="1.6"/>
-              <path d="M44 6 C66 18 90 36 112 44" stroke-width="1.4"/>
-              <path d="M60 36 C76 52 88 70 94 92" stroke-width="1.1"/>
+            <g fill="#5a3a28" fill-opacity="0.55">
+              <path d="M0 40 C24 48 36 70 28 96 C18 118 0 130 0 130 Z"/>
+            </g>
+            <g fill="none" stroke="#5a1610" stroke-opacity="0.9" stroke-linecap="round">
+              <path d="M34 6 C58 24 82 54 96 90" stroke-width="2.4"/>
+              <path d="M14 22 C36 46 48 80 56 118" stroke-width="1.7"/>
+              <path d="M50 4 C78 18 108 40 132 52" stroke-width="1.5"/>
+              <path d="M70 40 C90 58 104 82 112 108" stroke-width="1.2"/>
             </g>
           </svg>
         </div>
         <div class="smk-corner-blood tr" aria-hidden="true">
-          <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMaxYMin meet">
-            <g fill="#6e1c14" fill-opacity="0.92">
-              <path d="M280 0 C238 6 222 28 228 58 C234 88 258 102 280 110 Z"/>
-              <path d="M272 0 C242 2 218 18 202 42 C188 62 184 86 210 98 C232 108 252 92 262 70 C270 52 266 28 272 0 Z"/>
-              <path d="M232 12 C212 8 188 22 182 44 C176 66 192 78 210 72 C228 66 236 42 232 12 Z"/>
-              <ellipse cx="162" cy="28" rx="7" ry="5" transform="rotate(28 162 28)"/>
-              <ellipse cx="148" cy="48" rx="4" ry="3"/>
-              <ellipse cx="184" cy="78" rx="5" ry="3.5" transform="rotate(-18 184 78)"/>
-              <ellipse cx="216" cy="108" rx="3.5" ry="2.5"/>
-              <ellipse cx="132" cy="18" rx="3" ry="2"/>
-              <path d="M208 54 C192 58 178 72 174 90 C172 102 184 108 192 98 C200 88 206 70 208 54 Z" fill-opacity="0.7"/>
+          <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMaxYMin meet">
+            <g fill="#6a1810" fill-opacity="0.95">
+              <path d="M320 0 C272 4 248 26 252 62 C258 98 292 118 320 128 Z"/>
+              <path d="M314 0 C276 2 242 20 224 48 C208 72 202 102 234 116 C262 128 290 108 302 78 C310 56 304 26 314 0 Z"/>
+              <path d="M266 10 C238 6 208 24 200 50 C192 76 212 92 234 84 C256 76 270 44 266 10 Z"/>
+              <ellipse cx="182" cy="30" rx="9" ry="6" transform="rotate(24 182 30)"/>
+              <ellipse cx="164" cy="54" rx="5" ry="3.5"/>
+              <ellipse cx="208" cy="88" rx="6" ry="4" transform="rotate(-16 208 88)"/>
+              <ellipse cx="248" cy="122" rx="4" ry="3"/>
+              <ellipse cx="148" cy="18" rx="3.5" ry="2.5"/>
+              <ellipse cx="132" cy="42" rx="2.5" ry="2"/>
             </g>
-            <g fill="#4a120e" fill-opacity="0.75">
-              <path d="M280 0 C252 18 246 48 260 78 C270 96 280 104 280 104 Z"/>
-              <ellipse cx="172" cy="62" rx="2.5" ry="2"/>
-              <ellipse cx="140" cy="36" rx="2" ry="1.5"/>
+            <g fill="#3d0e0a" fill-opacity="0.8">
+              <path d="M320 0 C288 22 280 56 298 90 C310 112 320 122 320 122 Z"/>
+              <ellipse cx="196" cy="70" rx="3" ry="2.2"/>
             </g>
-            <g fill="none" stroke="#5a1812" stroke-opacity="0.85" stroke-linecap="round">
-              <path d="M250 8 C230 22 210 48 198 78" stroke-width="2.2"/>
-              <path d="M268 20 C248 40 238 70 230 102" stroke-width="1.6"/>
-              <path d="M236 6 C214 18 190 36 168 44" stroke-width="1.4"/>
-              <path d="M220 36 C204 52 192 70 186 92" stroke-width="1.1"/>
+            <g fill="#5a3a28" fill-opacity="0.55">
+              <path d="M320 40 C296 48 284 70 292 96 C302 118 320 130 320 130 Z"/>
+            </g>
+            <g fill="none" stroke="#5a1610" stroke-opacity="0.9" stroke-linecap="round">
+              <path d="M286 6 C262 24 238 54 224 90" stroke-width="2.4"/>
+              <path d="M306 22 C284 46 272 80 264 118" stroke-width="1.7"/>
+              <path d="M270 4 C242 18 212 40 188 52" stroke-width="1.5"/>
+              <path d="M250 40 C230 58 216 82 208 108" stroke-width="1.2"/>
             </g>
           </svg>
         </div>
+        <div class="smk-name-scorch" aria-hidden="true"></div>
 
         <div class="uw-bar-body uw-wall-header">
           <div class="uw-side" id="uw-follower-slot">
             <aside class="uw-readout uw-social-inbar smk-social" id="uw-follower" data-social="follow">
-              <div class="uw-glass-label">LATEST FOLLOWER</div>
-              <i class="smk-label-hair" aria-hidden="true"></i>
-              <div class="uw-glass-well smk-name-plain">
-                <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
-                <span class="uw-glass-scan" aria-hidden="true"></span>
-                <span class="uw-glass-glow" aria-hidden="true"></span>
-                <span class="uw-glass-name" id="uw-follower-name"></span>
+              <div class="smk-plate">
+                <i class="smk-bolt a"></i><i class="smk-bolt b"></i><i class="smk-bolt c"></i><i class="smk-bolt d"></i>
+                <div class="uw-glass-label">LATEST FOLLOWER</div>
+                <div class="uw-glass-well smk-name-plain">
+                  <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
+                  <span class="uw-glass-scan" aria-hidden="true"></span>
+                  <span class="uw-glass-glow" aria-hidden="true"></span>
+                  <span class="uw-glass-name" id="uw-follower-name"></span>
+                </div>
+                <div class="smk-hud" aria-hidden="true">
+                  <span>N 47.21.08</span><span class="smk-hud-sep">|</span><span>RAID 34:12</span><span class="smk-hud-sep">|</span><span class="smk-sig"><i></i><i></i><i></i><i></i></span>
+                </div>
               </div>
             </aside>
           </div>
@@ -93,12 +126,17 @@
           <div class="uw-center">
             <div class="uw-id-block" id="uw-top-text">
               <div class="uw-stencil smk-nameplate" data-text-fx="id">
+                <span class="smk-name-glow" aria-hidden="true"></span>
                 <span class="uw-text-face smk-name-face" data-streamer-name>datguydaz</span>
+                <span class="smk-name-overspray" aria-hidden="true"></span>
+                <span class="smk-name-drips" aria-hidden="true"></span>
                 <span class="smk-name-distress" aria-hidden="true"></span>
               </div>
-              <div class="uw-op-readout smk-op" data-text-fx="op">
+              <div class="uw-op-readout smk-op smk-dogtag" data-text-fx="op">
                 <i class="smk-op-rule left" aria-hidden="true"></i>
-                <span class="uw-text-face" id="uw-operator-suffix">OPERATOR ONLINE</span>
+                <span class="smk-tape">
+                  <span class="uw-text-face" id="uw-operator-suffix">OPERATOR ONLINE</span>
+                </span>
                 <i class="smk-op-rule right" aria-hidden="true"></i>
               </div>
             </div>
@@ -106,75 +144,108 @@
 
           <div class="uw-side uw-side-right" id="uw-subscriber-slot">
             <aside class="uw-readout uw-social-inbar smk-social" id="uw-subscriber" data-social="sub">
-              <div class="uw-glass-label">LATEST SUBSCRIBER</div>
-              <i class="smk-label-hair" aria-hidden="true"></i>
-              <div class="uw-glass-well smk-name-plain">
-                <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
-                <span class="uw-glass-scan" aria-hidden="true"></span>
-                <span class="uw-glass-glow" aria-hidden="true"></span>
-                <span class="uw-glass-name" id="uw-subscriber-name"></span>
+              <div class="smk-plate">
+                <i class="smk-bolt a"></i><i class="smk-bolt b"></i><i class="smk-bolt c"></i><i class="smk-bolt d"></i>
+                <div class="uw-glass-label">LATEST SUBSCRIBER</div>
+                <div class="uw-glass-well smk-name-plain">
+                  <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
+                  <span class="uw-glass-scan" aria-hidden="true"></span>
+                  <span class="uw-glass-glow" aria-hidden="true"></span>
+                  <span class="uw-glass-name" id="uw-subscriber-name"></span>
+                </div>
+                <div class="smk-hud" aria-hidden="true">
+                  <span>E 12.84.55</span><span class="smk-hud-sep">|</span><span>PMC · SURV</span><span class="smk-hud-sep">|</span><span class="smk-sig"><i></i><i></i><i></i><i></i></span>
+                </div>
               </div>
             </aside>
           </div>
         </div>
 
-        <!-- Hairline + chevron stay inside the bar (tip flush with bottom edge) -->
-        <div class="smk-hairline" aria-hidden="true"></div>
-        <div class="smk-chevron" aria-hidden="true"></div>
-        <div class="uw-atm-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="smk-edge-stack" aria-hidden="true">
+          <div class="smk-metal-strip"></div>
+          <div class="smk-hazard"></div>
+          <div class="smk-warn-line"></div>
+          <div class="smk-torn-edge"></div>
+        </div>
+        <div class="smk-flicker" aria-hidden="true"></div>
       </div>
 
       <div class="uw-smoke-void" aria-hidden="true"></div>
 
-      <div class="uw-bar uw-bar-bottom" id="uw-bottom" data-edge="bottom">
-        <div class="smk-hairline foot" aria-hidden="true"></div>
-        <div class="smk-gloom-base" aria-hidden="true"></div>
-        <div class="smk-wisps bot" aria-hidden="true">
-          <i class="w1"></i><i class="w2"></i><i class="w3"></i><i class="w4"></i><i class="w5"></i><i class="w6"></i>
+      <div class="uw-bar uw-bar-bottom smk-ruin-bar" id="uw-bottom" data-edge="bottom">
+        <div class="smk-edge-stack foot" aria-hidden="true">
+          <div class="smk-torn-edge"></div>
+          <div class="smk-warn-line"></div>
+          <div class="smk-hazard"></div>
+          <div class="smk-metal-strip"></div>
         </div>
+        <div class="smk-steel" aria-hidden="true"></div>
+        <div class="smk-peel" aria-hidden="true"></div>
+        <div class="smk-grime" aria-hidden="true"></div>
+        <div class="smk-soot" aria-hidden="true"></div>
+        <div class="smk-scratches" aria-hidden="true"></div>
+        <div class="smk-impacts" aria-hidden="true">
+          <i class="h1"></i><i class="h2"></i><i class="h3"></i><i class="h4"></i>
+        </div>
+        <div class="smk-rivets bot" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="smk-wire bot" aria-hidden="true"></div>
+        <div class="smk-concrete left bot" aria-hidden="true"></div>
+        <div class="smk-concrete right bot" aria-hidden="true"></div>
+        <div class="smk-wisps bot" aria-hidden="true">
+          <i class="w1"></i><i class="w2"></i><i class="w3"></i><i class="w4"></i><i class="w5"></i><i class="w6"></i><i class="w7"></i><i class="w8"></i>
+        </div>
+        <div class="smk-ash bot" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="smk-embers bot" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="smk-dust bot" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="smk-corner-pulse bl" aria-hidden="true"></div>
+        <div class="smk-corner-pulse br" aria-hidden="true"></div>
         <div class="smk-corner-blood bl" aria-hidden="true">
-          <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMax meet">
-            <g fill="#6e1c14" fill-opacity="0.9">
-              <path d="M0 160 C42 154 58 132 52 102 C46 72 22 58 0 50 Z"/>
-              <path d="M8 160 C38 158 62 142 78 118 C92 98 96 74 70 62 C48 52 28 68 18 90 C10 108 14 132 8 160 Z"/>
-              <path d="M48 148 C68 152 92 138 98 116 C104 94 88 82 70 88 C52 94 44 118 48 148 Z"/>
-              <ellipse cx="118" cy="132" rx="7" ry="5" transform="rotate(28 118 132)"/>
-              <ellipse cx="132" cy="112" rx="4" ry="3"/>
-              <ellipse cx="96" cy="82" rx="5" ry="3.5" transform="rotate(-18 96 82)"/>
-              <ellipse cx="64" cy="52" rx="3.5" ry="2.5"/>
-              <ellipse cx="148" cy="142" rx="3" ry="2"/>
+          <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMax meet">
+            <g fill="#6a1810" fill-opacity="0.92">
+              <path d="M0 180 C48 176 72 154 68 118 C62 82 28 62 0 52 Z"/>
+              <path d="M6 180 C44 178 78 160 96 132 C112 108 118 78 86 64 C58 52 30 72 18 102 C10 124 16 154 6 180 Z"/>
+              <path d="M54 170 C82 174 112 156 120 130 C128 104 108 88 86 96 C64 104 50 136 54 170 Z"/>
+              <ellipse cx="138" cy="150" rx="9" ry="6" transform="rotate(24 138 150)"/>
+              <ellipse cx="156" cy="126" rx="5" ry="3.5"/>
+              <ellipse cx="112" cy="92" rx="6" ry="4"/>
+              <ellipse cx="72" cy="58" rx="4" ry="3"/>
             </g>
-            <g fill="#4a120e" fill-opacity="0.72">
-              <path d="M0 160 C28 142 34 112 20 82 C10 64 0 56 0 56 Z"/>
-              <ellipse cx="108" cy="98" rx="2.5" ry="2"/>
+            <g fill="#5a3a28" fill-opacity="0.5">
+              <path d="M0 140 C26 132 38 108 30 84 C20 62 0 50 0 50 Z"/>
             </g>
-            <g fill="none" stroke="#5a1812" stroke-opacity="0.8" stroke-linecap="round">
-              <path d="M28 152 C50 136 70 112 82 84" stroke-width="2"/>
-              <path d="M10 140 C30 118 42 90 48 62" stroke-width="1.5"/>
-              <path d="M46 154 C70 140 96 124 118 116" stroke-width="1.3"/>
+            <g fill="none" stroke="#5a1610" stroke-opacity="0.85" stroke-linecap="round">
+              <path d="M32 174 C56 156 80 126 94 90" stroke-width="2.2"/>
+              <path d="M12 158 C34 134 48 100 56 66" stroke-width="1.5"/>
+              <path d="M52 176 C78 160 106 140 130 128" stroke-width="1.3"/>
             </g>
           </svg>
         </div>
         <div class="smk-corner-blood br" aria-hidden="true">
-          <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMaxYMax meet">
-            <g fill="#6e1c14" fill-opacity="0.9">
-              <path d="M280 160 C238 154 222 132 228 102 C234 72 258 58 280 50 Z"/>
-              <path d="M272 160 C242 158 218 142 202 118 C188 98 184 74 210 62 C232 52 252 68 262 90 C270 108 266 132 272 160 Z"/>
-              <path d="M232 148 C212 152 188 138 182 116 C176 94 192 82 210 88 C228 94 236 118 232 148 Z"/>
-              <ellipse cx="162" cy="132" rx="7" ry="5" transform="rotate(-28 162 132)"/>
-              <ellipse cx="148" cy="112" rx="4" ry="3"/>
-              <ellipse cx="184" cy="82" rx="5" ry="3.5" transform="rotate(18 184 82)"/>
-              <ellipse cx="216" cy="52" rx="3.5" ry="2.5"/>
-              <ellipse cx="132" cy="142" rx="3" ry="2"/>
+          <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMaxYMax meet">
+            <g fill="#6a1810" fill-opacity="0.92">
+              <path d="M320 180 C272 176 248 154 252 118 C258 82 292 62 320 52 Z"/>
+              <path d="M314 180 C276 178 242 160 224 132 C208 108 202 78 234 64 C262 52 290 72 302 102 C310 124 304 154 314 180 Z"/>
+              <path d="M266 170 C238 174 208 156 200 130 C192 104 212 88 234 96 C256 104 270 136 266 170 Z"/>
+              <ellipse cx="182" cy="150" rx="9" ry="6" transform="rotate(-24 182 150)"/>
+              <ellipse cx="164" cy="126" rx="5" ry="3.5"/>
+              <ellipse cx="208" cy="92" rx="6" ry="4"/>
+              <ellipse cx="248" cy="58" rx="4" ry="3"/>
             </g>
-            <g fill="#4a120e" fill-opacity="0.72">
-              <path d="M280 160 C252 142 246 112 260 82 C270 64 280 56 280 56 Z"/>
-              <ellipse cx="172" cy="98" rx="2.5" ry="2"/>
+            <g fill="#5a3a28" fill-opacity="0.5">
+              <path d="M320 140 C294 132 282 108 290 84 C300 62 320 50 320 50 Z"/>
             </g>
-            <g fill="none" stroke="#5a1812" stroke-opacity="0.8" stroke-linecap="round">
-              <path d="M252 152 C230 136 210 112 198 84" stroke-width="2"/>
-              <path d="M270 140 C250 118 238 90 232 62" stroke-width="1.5"/>
-              <path d="M234 154 C210 140 184 124 162 116" stroke-width="1.3"/>
+            <g fill="none" stroke="#5a1610" stroke-opacity="0.85" stroke-linecap="round">
+              <path d="M288 174 C264 156 240 126 226 90" stroke-width="2.2"/>
+              <path d="M308 158 C286 134 272 100 264 66" stroke-width="1.5"/>
+              <path d="M268 176 C242 160 214 140 190 128" stroke-width="1.3"/>
             </g>
           </svg>
         </div>
@@ -183,7 +254,7 @@
           <div class="uw-center"></div>
           <div class="uw-side uw-side-right"></div>
         </div>
-        <div class="uw-atm-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="smk-flicker" aria-hidden="true"></div>
       </div>
     </div>
     <script type="module" src="/src/pages/ultrawide.ts"></script>

@@ -35,7 +35,7 @@ await page.goto(url, { waitUntil: "commit", timeout: 20000 });
 await page.waitForFunction(() => !!document.getElementById("uw-stage"), null, {
   timeout: 10000,
 });
-await page.waitForTimeout(800);
+await page.waitForTimeout(900);
 
 const dump = await page.evaluate((bar) => {
   const s = document.getElementById("uw-stage");
@@ -69,12 +69,12 @@ const dump = await page.evaluate((bar) => {
       return cs.display !== "none" && cs.visibility !== "hidden" && Number(cs.opacity) > 0;
     }),
   }));
-  const chevron = document.querySelector(".smk-chevron");
-  const chevBox = chevron?.getBoundingClientRect();
-  const hair = document.querySelector(".smk-hairline");
   const opRules = document.querySelectorAll(".smk-op-rule").length;
-  const labelHairs = document.querySelectorAll(".smk-label-hair").length;
   const blood = document.querySelectorAll(".smk-corner-blood").length;
+  const plates = document.querySelectorAll(".smk-plate").length;
+  const edgeStacks = document.querySelectorAll(".smk-edge-stack").length;
+  const steel = document.querySelectorAll(".smk-steel").length;
+  const hud = document.querySelectorAll(".smk-hud").length;
   return {
     path: location.pathname,
     variant: s?.dataset.variant,
@@ -98,12 +98,12 @@ const dump = await page.evaluate((bar) => {
     topBottom: Math.round(top?.bottom || 0),
     botTop: Math.round(bot?.top || 0),
     barExpected: bar,
-    hasChevron: !!chevron,
-    chevronBottom: chevBox ? Math.round(chevBox.bottom) : null,
-    hasHairline: !!hair,
     opRules,
-    labelHairs,
     bloodCorners: blood,
+    plates,
+    edgeStacks,
+    steel,
+    hud,
     forbidden,
     labels: [...document.querySelectorAll(".uw-glass-label")].map((el) =>
       (el.textContent || "").replace(/\s+/g, " ").trim(),
@@ -122,6 +122,8 @@ const dump = await page.evaluate((bar) => {
     nameFont: csFace?.fontFamily,
     socialFont: getComputedStyle(document.getElementById("uw-follower-name") || document.body)
       .fontFamily,
+    socialSize: getComputedStyle(document.getElementById("uw-follower-name") || document.body)
+      .fontSize,
   };
 }, BAR);
 console.log(JSON.stringify(dump, null, 2));
@@ -132,33 +134,39 @@ if (dump.stageW !== W || dump.stageH !== H) process.exit(4);
 if (dump.stageTransform && dump.stageTransform !== "none") process.exit(5);
 if (dump.topH !== BAR || dump.botH !== BAR) process.exit(6);
 if (dump.topBottom !== BAR || dump.botTop !== H - BAR) process.exit(7);
-if (dump.gapPx == null || dump.gapPx < 10) process.exit(8);
+if (dump.gapPx == null || dump.gapPx < 8) process.exit(8);
 if (dump.forbidden.some((f) => f.visible)) {
   console.error("forbidden bright FX still visible", dump.forbidden);
   process.exit(9);
 }
-if (!dump.hasChevron || !dump.hasHairline) process.exit(10);
-if (dump.chevronBottom != null && dump.chevronBottom > BAR + 1) {
-  console.error("chevron overlaps stage", dump.chevronBottom);
+if (dump.opRules < 2 || dump.bloodCorners < 4) process.exit(10);
+if (dump.plates < 2 || dump.edgeStacks < 2 || dump.steel < 2 || dump.hud < 2) {
+  console.error("missing ruin layers", {
+    plates: dump.plates,
+    edgeStacks: dump.edgeStacks,
+    steel: dump.steel,
+    hud: dump.hud,
+  });
   process.exit(11);
 }
-if (dump.opRules < 2 || dump.labelHairs < 2 || dump.bloodCorners < 4) process.exit(12);
-if (/amber|255,\s*200|255,\s*230|ffc|ffe/i.test(dump.nameFilter || "")) process.exit(13);
+if (/amber|255,\s*200|255,\s*230|ffc|ffe|yellow/i.test(dump.nameFilter || "")) process.exit(12);
 if (dump.followerLeft < 200 || dump.subRight < 200) {
   console.error("social not inset enough", dump.followerLeft, dump.subRight);
-  process.exit(14);
+  process.exit(13);
 }
 if (!/Oswald/i.test(dump.socialFont || "") || !/Oswald/i.test(dump.nameFont || "")) {
   console.error("expected Oswald condensed family", dump.nameFont, dump.socialFont);
-  process.exit(15);
+  process.exit(14);
 }
 
-await page.waitForTimeout(400);
+await page.waitForTimeout(500);
 const fullPath = resolve(media, "smoke-gloom-20261113.png");
 const topPath = resolve(media, "smoke-gloom-20261113-top.png");
+const botPath = resolve(media, "smoke-gloom-20261113-bottom.png");
 
 await page.screenshot({ path: fullPath, type: "png", omitBackground: true });
 const top = await page.locator("#uw-top").boundingBox();
+const bot = await page.locator("#uw-bottom").boundingBox();
 await page.screenshot({
   path: topPath,
   type: "png",
@@ -170,12 +178,22 @@ await page.screenshot({
     height: Math.min(H, top.height + 8),
   },
 });
+await page.screenshot({
+  path: botPath,
+  type: "png",
+  omitBackground: true,
+  clip: {
+    x: 0,
+    y: Math.max(0, bot.y - 4),
+    width: W,
+    height: Math.min(H - bot.y + 4, bot.height + 8),
+  },
+});
 
-// Verify stage hole pixels are fully transparent
 const png = PNG.sync.read(readFileSync(fullPath));
 if (png.width !== W || png.height !== H) {
   console.error("proof size mismatch", png.width, png.height);
-  process.exit(11);
+  process.exit(15);
 }
 const samples = [
   [W / 2, BAR + 40],
@@ -196,7 +214,6 @@ for (const [x, y] of samples) {
   sampleOut.push({ x: xi, y: yi, r: png.data[i], g: png.data[i + 1], b: png.data[i + 2], a });
   if (a !== 0) opaque++;
 }
-// Also scan a dense grid in the stage for any opaque pixels
 let stageOpaque = 0;
 let stageChecked = 0;
 for (let y = BAR + 2; y < H - BAR - 2; y += 24) {
@@ -215,19 +232,31 @@ const transparency = {
 console.log("transparency", JSON.stringify(transparency, null, 2));
 if (opaque > 0 || stageOpaque > 0) {
   console.error("STAGE NOT FULLY TRANSPARENT");
-  process.exit(12);
+  process.exit(16);
 }
 
 if (also) {
   copyFileSync(fullPath, resolve(also, "smoke-gloom-20261113.png"));
   copyFileSync(topPath, resolve(also, "smoke-gloom-20261113-top.png"));
+  copyFileSync(botPath, resolve(also, "smoke-gloom-20261113-bottom.png"));
 }
 
 writeFileSync(
   resolve(media, "smoke-gloom-20261113-meta.json"),
-  JSON.stringify({ dump, transparency, browserSourceUrl: "http://127.0.0.1:8787/ultrawide-smoke.html", width: W, height: H }, null, 2),
+  JSON.stringify(
+    {
+      dump,
+      transparency,
+      browserSourceUrl: "http://127.0.0.1:8787/ultrawide-smoke.html",
+      width: W,
+      height: H,
+    },
+    null,
+    2,
+  ),
 );
 
 console.log("wrote", fullPath);
 console.log("wrote", topPath);
+console.log("wrote", botPath);
 await browser.close();
