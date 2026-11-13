@@ -307,6 +307,409 @@ function paintSteelPlate(
   ctx.restore();
 }
 
+type RivetSpot = { x: number; y: number };
+
+/** Split bar into dented plates with irregular weld seams + rusty rivet rows. */
+function paintWeldedPlates(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  seed: number,
+): RivetSpot[] {
+  const rnd = mulberry32(seed + 700);
+  const rivets: RivetSpot[] = [];
+  const seams: number[] = [0];
+  let x = 380 + rnd() * 220;
+  while (x < w - 280) {
+    seams.push(Math.round(x + (rnd() - 0.5) * 40));
+    x += 520 + rnd() * 380;
+  }
+  seams.push(w);
+
+  ctx.save();
+  // Per-plate tone shift (subtle dented panels)
+  for (let i = 0; i < seams.length - 1; i++) {
+    const x0 = seams[i];
+    const x1 = seams[i + 1];
+    const tint = (rnd() - 0.5) * 10;
+    ctx.fillStyle = `rgba(${18 + tint}, ${15 + tint * 0.8}, ${12 + tint * 0.5}, ${0.08 + rnd() * 0.1})`;
+    ctx.beginPath();
+    ctx.moveTo(x0 + 2, 2);
+    for (let px = x0; px <= x1; px += 18) {
+      const wobble = (fbm(px * 0.02, i * 0.4, seed + 3, 2) - 0.5) * 5;
+      ctx.lineTo(px, 3 + wobble);
+    }
+    ctx.lineTo(x1 - 2, h - 3);
+    for (let px = x1; px >= x0; px -= 18) {
+      const wobble = (fbm(px * 0.02, i * 0.4 + 2, seed + 5, 2) - 0.5) * 5;
+      ctx.lineTo(px, h - 3 + wobble);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Weld seams — dark irregular beads, not straight lines
+  for (let i = 1; i < seams.length - 1; i++) {
+    const sx = seams[i];
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(8, 6, 5, ${0.55 + rnd() * 0.28})`;
+    ctx.lineWidth = 2.4 + rnd() * 1.8;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    let py = 4;
+    ctx.moveTo(sx + (rnd() - 0.5) * 3, py);
+    while (py < h - 4) {
+      py += 6 + rnd() * 10;
+      const wx = sx + (fbm(sx * 0.05, py * 0.08, seed + i, 3) - 0.5) * 7;
+      ctx.lineTo(wx, Math.min(h - 4, py));
+    }
+    ctx.stroke();
+    // Highlight bead edge
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(70, 62, 52, ${0.12 + rnd() * 0.1})`;
+    ctx.lineWidth = 0.8;
+    py = 6;
+    ctx.moveTo(sx + 2, py);
+    while (py < h - 6) {
+      py += 8 + rnd() * 8;
+      ctx.lineTo(sx + 2 + (rnd() - 0.5) * 2, Math.min(h - 6, py));
+    }
+    ctx.stroke();
+
+    // Rivet rows along seam
+    const step = 22 + rnd() * 10;
+    for (let ry = 14 + rnd() * 8; ry < h - 14; ry += step) {
+      const rx = sx + (rnd() - 0.5) * 4;
+      rivets.push({ x: rx, y: ry });
+      paintRivet(ctx, rx, ry, 2.6 + rnd() * 1.2, seed + Math.floor(rx + ry));
+    }
+  }
+
+  // Horizontal plate join near mid (broken, not full-width)
+  const midY = h * (0.38 + rnd() * 0.22);
+  for (let seg = 0; seg < 5; seg++) {
+    if (rnd() > 0.7) continue;
+    const x0 = 80 + rnd() * (w - 200);
+    const len = 140 + rnd() * 260;
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(6, 5, 4, ${0.35 + rnd() * 0.2})`;
+    ctx.lineWidth = 1.6 + rnd();
+    let px = x0;
+    ctx.moveTo(px, midY);
+    while (px < x0 + len) {
+      px += 8 + rnd() * 10;
+      const wy = midY + (fbm(px * 0.04, midY * 0.1, seed + 40, 2) - 0.5) * 4;
+      ctx.lineTo(px, wy);
+    }
+    ctx.stroke();
+    for (let rx = x0 + 18; rx < x0 + len - 10; rx += 28 + rnd() * 12) {
+      const ry = midY + (rnd() - 0.5) * 3;
+      rivets.push({ x: rx, y: ry });
+      paintRivet(ctx, rx, ry, 2.4 + rnd() * 1.1, seed + Math.floor(rx));
+    }
+  }
+
+  // Edge bolt rows (sparse)
+  for (const ey of [10 + rnd() * 4, h - 12 - rnd() * 4]) {
+    for (let rx = 60 + rnd() * 40; rx < w - 40; rx += 180 + rnd() * 120) {
+      // Skip centre name band on top-ish bolts
+      if (rx > 1180 && rx < 2260 && ey < h * 0.55) continue;
+      rivets.push({ x: rx, y: ey });
+      paintRivet(ctx, rx, ey, 2.8 + rnd() * 0.8, seed + Math.floor(rx + ey * 3));
+    }
+  }
+  ctx.restore();
+  return rivets;
+}
+
+function paintRivet(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  r: number,
+  seed: number,
+): void {
+  const rnd = mulberry32(seed);
+  const g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.35, 0, x, y, r);
+  g.addColorStop(0, `rgba(${90 + rnd() * 20}, ${78 + rnd() * 16}, ${62 + rnd() * 12}, 0.85)`);
+  g.addColorStop(0.45, `rgba(${42 + rnd() * 12}, ${34 + rnd() * 8}, ${26}, 0.9)`);
+  g.addColorStop(1, `rgba(8, 6, 5, 0.95)`);
+  ctx.beginPath();
+  ctx.fillStyle = g;
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+  // Rust ring
+  ctx.beginPath();
+  ctx.strokeStyle = `rgba(${70 + rnd() * 20}, ${32 + rnd() * 10}, ${16}, ${0.25 + rnd() * 0.25})`;
+  ctx.lineWidth = 0.7;
+  ctx.arc(x, y, r + 0.6, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
+/** Rust / water stains running down from rivets & seams — clipped inside bar. */
+function paintRustDrips(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  rivets: RivetSpot[],
+  seed: number,
+): void {
+  const rnd = mulberry32(seed + 880);
+  const edgePad = Math.max(8, Math.round(h * 0.08));
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, edgePad * 0.3, w, h - edgePad);
+  ctx.clip();
+
+  const sample = rivets.filter((_, i) => i % 3 === 0 || rnd() > 0.55);
+  for (const rv of sample) {
+    if (rnd() > 0.72) continue;
+    const len = 10 + rnd() * (h * 0.35);
+    const maxY = Math.min(h - edgePad, rv.y + len);
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(${58 + rnd() * 22}, ${26 + rnd() * 10}, ${12 + rnd() * 6}, ${0.2 + rnd() * 0.2})`;
+    ctx.lineWidth = 0.8 + rnd() * 1.6;
+    ctx.lineCap = "round";
+    let x = rv.x + (rnd() - 0.5) * 1.5;
+    let y = rv.y + 2;
+    ctx.moveTo(x, y);
+    while (y < maxY) {
+      y += 3 + rnd() * 5;
+      x += (fbm(x * 0.1, y * 0.08, seed, 2) - 0.5) * 2.2;
+      ctx.lineTo(x, Math.min(maxY, y));
+    }
+    ctx.stroke();
+    // Soft stain blot at tip
+    const tip = ctx.createRadialGradient(x, maxY, 0, x, maxY, 4 + rnd() * 5);
+    tip.addColorStop(0, `rgba(50, 22, 12, ${0.18 + rnd() * 0.12})`);
+    tip.addColorStop(1, "transparent");
+    ctx.fillStyle = tip;
+    ctx.fillRect(x - 8, maxY - 4, 16, 12);
+  }
+
+  // A few seam water stains (vertical washes)
+  for (let i = 0; i < 7; i++) {
+    const sx = 200 + rnd() * (w - 400);
+    if (sx > 1250 && sx < 2200) continue; // keep name clear
+    const g = ctx.createLinearGradient(sx, edgePad, sx, h - edgePad);
+    g.addColorStop(0, `rgba(40, 28, 20, ${0.05 + rnd() * 0.06})`);
+    g.addColorStop(0.5, `rgba(55, 30, 16, ${0.08 + rnd() * 0.06})`);
+    g.addColorStop(1, "transparent");
+    ctx.fillStyle = g;
+    ctx.fillRect(sx - 6 - rnd() * 8, edgePad, 10 + rnd() * 14, h - edgePad * 2);
+  }
+  ctx.restore();
+}
+
+/** Faint raid-map etching: contour lines + grid coords scratched into steel. */
+function paintMapEtching(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  seed: number,
+): void {
+  const rnd = mulberry32(seed + 1200);
+  ctx.save();
+  ctx.globalAlpha = 0.16;
+  // Contour loops
+  for (let c = 0; c < 9; c++) {
+    const cx = 180 + rnd() * (w - 360);
+    if (cx > 1300 && cx < 2150) continue;
+    const cy = h * (0.25 + rnd() * 0.5);
+    const rx = 40 + rnd() * 90;
+    const ry = 12 + rnd() * 28;
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(${150 + rnd() * 30}, ${140 + rnd() * 25}, ${120}, 0.55)`;
+    ctx.lineWidth = 0.55;
+    for (let a = 0; a <= Math.PI * 2 + 0.01; a += 0.18) {
+      const warp = 0.85 + fbm(Math.cos(a) * 3 + c, Math.sin(a) * 3, seed + c, 2) * 0.35;
+      const px = cx + Math.cos(a) * rx * warp;
+      const py = cy + Math.sin(a) * ry * warp;
+      if (a === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  // Sparse grid ticks
+  ctx.strokeStyle = "rgba(160, 150, 130, 0.35)";
+  ctx.lineWidth = 0.4;
+  for (let gx = 120; gx < w; gx += 280 + Math.floor(rnd() * 80)) {
+    if (gx > 1280 && gx < 2180) continue;
+    ctx.beginPath();
+    ctx.moveTo(gx, h * 0.12);
+    ctx.lineTo(gx, h * 0.88);
+    ctx.stroke();
+  }
+  // Coordinate glyphs (scratched, not clean type)
+  ctx.font = `${Math.max(8, Math.round(h * 0.055))}px "Share Tech Mono", monospace`;
+  ctx.fillStyle = "rgba(170, 160, 140, 0.45)";
+  const labels = ["A-04", "B-12", "C-07", "D-19", "GRID 3", "N48", "E-22"];
+  for (let i = 0; i < 5; i++) {
+    const lx = 100 + rnd() * (w - 200);
+    if (lx > 1200 && lx < 2240) continue;
+    const ly = h * (0.18 + rnd() * 0.6);
+    ctx.save();
+    ctx.translate(lx, ly);
+    ctx.rotate((rnd() - 0.5) * 0.12);
+    ctx.globalAlpha = 0.08 + rnd() * 0.08;
+    ctx.fillText(labels[Math.floor(rnd() * labels.length)], 0, 0);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+/** Faded stencil marks — sector / tally / arrows / skull. Avoid HUD bands. */
+function paintSprayStencils(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  seed: number,
+  quiet: boolean,
+): void {
+  const rnd = mulberry32(seed + 1500);
+  const safeX = (x: number, pad = 160) => x < 1180 - pad || x > 2260 + pad;
+  const places: Array<{ x: number; y: number }> = [];
+  const candidates = quiet
+    ? [
+        { x: 480, y: h * 0.42 },
+        { x: 1600, y: h * 0.35 },
+        { x: 2450, y: h * 0.48 },
+        { x: 3100, y: h * 0.4 },
+        { x: 980, y: h * 0.55 },
+      ]
+    : [
+        { x: 560, y: h * 0.55 },
+        { x: 980, y: h * 0.38 },
+        { x: 2480, y: h * 0.42 },
+        { x: 3050, y: h * 0.5 },
+        { x: 180, y: h * 0.45 },
+      ];
+  for (const p of candidates) {
+    if (safeX(p.x)) places.push(p);
+  }
+
+  const erodeStamp = (
+    draw: () => void,
+    ox: number,
+    oy: number,
+    color: string,
+    alpha: number,
+  ) => {
+    ctx.save();
+    ctx.translate(ox, oy);
+    ctx.rotate((rnd() - 0.5) * 0.15);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    draw();
+    // Noise erase for eroded look
+    ctx.globalCompositeOperation = "destination-out";
+    for (let i = 0; i < 40; i++) {
+      const ex = (rnd() - 0.5) * 90;
+      const ey = (rnd() - 0.5) * 70;
+      if (fbm(ex * 0.1, ey * 0.1, seed + i, 2) < 0.42) {
+        ctx.beginPath();
+        ctx.arc(ex, ey, 1 + rnd() * 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0,0,0,0.85)";
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+  };
+
+  // Sector number
+  if (places[0]) {
+    erodeStamp(
+      () => {
+        ctx.font = `bold ${Math.round(h * 0.28)}px "Oswald", Impact, sans-serif`;
+        ctx.fillText("S-" + (3 + Math.floor(rnd() * 6)), -28, 10);
+      },
+      places[0].x,
+      places[0].y,
+      rnd() > 0.45 ? "rgba(210, 205, 190, 1)" : "rgba(120, 36, 28, 1)",
+      0.2 + rnd() * 0.08,
+    );
+  }
+
+  // Kill tally chalk marks
+  if (places[1]) {
+    erodeStamp(
+      () => {
+        ctx.lineWidth = 1.8;
+        ctx.lineCap = "round";
+        for (let t = 0; t < 4; t++) {
+          ctx.beginPath();
+          ctx.moveTo(t * 9 - 16, -10);
+          ctx.lineTo(t * 9 - 12, 12);
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.moveTo(-18, -4);
+        ctx.lineTo(20, 8);
+        ctx.stroke();
+      },
+      places[1].x,
+      places[1].y,
+      "rgba(200, 195, 180, 1)",
+      0.18 + rnd() * 0.08,
+    );
+  }
+
+  // Warning arrows
+  if (places[2]) {
+    erodeStamp(
+      () => {
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(-18, 0);
+        ctx.lineTo(14, 0);
+        ctx.lineTo(6, -8);
+        ctx.moveTo(14, 0);
+        ctx.lineTo(6, 8);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-10, 16);
+        ctx.lineTo(10, 16);
+        ctx.lineTo(4, 10);
+        ctx.moveTo(10, 16);
+        ctx.lineTo(4, 22);
+        ctx.stroke();
+      },
+      places[2].x,
+      places[2].y,
+      "rgba(110, 34, 26, 1)",
+      0.18 + rnd() * 0.08,
+    );
+  }
+
+  // Skull stencil
+  if (places[3]) {
+    erodeStamp(
+      () => {
+        ctx.beginPath();
+        ctx.ellipse(0, -2, 14, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.save();
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.ellipse(-5, -3, 3.2, 3.8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(5, -3, 3.2, 3.8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        ctx.fillRect(-2, 6, 4, 5);
+        ctx.fillRect(-7, 10, 4, 3);
+        ctx.fillRect(3, 10, 4, 3);
+      },
+      places[3].x,
+      places[3].y,
+      "rgba(200, 195, 185, 1)",
+      0.16 + rnd() * 0.07,
+    );
+  }
+}
+
 /** Reduced corner blood — ~half coverage/opacity vs original. */
 function paintBloodSplatter(
   ctx: CanvasRenderingContext2D,
@@ -632,6 +1035,10 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     c.height = BAR_H;
     const ctx = c.getContext("2d")!;
     paintSteelPlate(ctx, BAR_W, BAR_H, seed, quiet);
+    const rivets = paintWeldedPlates(ctx, BAR_W, BAR_H, seed);
+    paintMapEtching(ctx, BAR_W, BAR_H, seed + 17);
+    paintSprayStencils(ctx, BAR_W, BAR_H, seed + 31, quiet);
+    paintRustDrips(ctx, BAR_W, BAR_H, rivets, seed + 53);
     for (const h of holes) {
       const yy = Math.round(h.y * yScale);
       // Keep cores away from torn grit (~8% edges) and chatter band on bottom
@@ -747,7 +1154,7 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
   // Hide obsolete geometric / smoke layers
   stage
     .querySelectorAll(
-      ".smk-scratches, .smk-peel, .smk-grime, .smk-soot, .smk-impacts, .smk-wire, .smk-wisps, .smk-gloom-smoke, .uw-smoke-wisp, .uw-bar-haze, .uw-smoke-depth, .uw-header-drift, .uw-footer-drift",
+      ".smk-scratches, .smk-peel, .smk-grime, .smk-soot, .smk-impacts, .smk-wire, .smk-rivets, .smk-wisps, .smk-gloom-smoke, .uw-smoke-wisp, .uw-bar-haze, .uw-smoke-depth, .uw-header-drift, .uw-footer-drift",
     )
     .forEach((el) => {
       (el as HTMLElement).style.display = "none";
