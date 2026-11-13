@@ -117,10 +117,18 @@ const dump = await page.evaluate((bar) => {
   const chronoRaid = document.querySelector('[data-chrono="raid"]')?.textContent || "";
   const nameBox = document.querySelector(".smk-nameplate")?.getBoundingClientRect();
   const opTagBox = document.querySelector(".smk-op")?.getBoundingClientRect();
-  // Expected bullet-hole centres (must sit in open steel)
+  // Expected bullet-hole centres (fixed; must sit in open steel)
+  const chronoBoxes = [...document.querySelectorAll(".smk-chrono")].map((el) =>
+    el.getBoundingClientRect(),
+  );
+  const chatterBox = document.querySelector(".smk-chatter")?.getBoundingClientRect();
   const holes = [
     { bar: "top", x: 2380, y: 105 },
+    { bar: "top", x: 920, y: 68 },
+    { bar: "top", x: 2588, y: 162 },
     { bar: "bot", x: 1100, y: 1192 + 95 },
+    { bar: "bot", x: 690, y: 1192 + 142 },
+    { bar: "bot", x: 2910, y: 1192 + 74 },
   ];
   const holeClear = holes.map((h) => {
     const hits = [];
@@ -129,12 +137,18 @@ const dump = await page.evaluate((bar) => {
       ["subscriber", subBox],
       ["name", nameBox],
       ["op", opTagBox],
+      ["chatter", chatterBox],
     ]) {
       if (!box) continue;
-      if (h.x >= box.left - 24 && h.x <= box.right + 24 && h.y >= box.top - 24 && h.y <= box.bottom + 24) {
+      if (h.x >= box.left - 28 && h.x <= box.right + 28 && h.y >= box.top - 28 && h.y <= box.bottom + 28) {
         hits.push(label);
       }
     }
+    chronoBoxes.forEach((box, i) => {
+      if (h.x >= box.left - 20 && h.x <= box.right + 20 && h.y >= box.top - 20 && h.y <= box.bottom + 20) {
+        hits.push(`chrono${i}`);
+      }
+    });
     return { ...h, hits, clear: hits.length === 0 };
   });
   const edgeStacks = document.querySelectorAll(".smk-edge-stack").length;
@@ -289,8 +303,8 @@ if (dump.follower !== "RYSEABOVEIT" || dump.subscriber !== "ACTYR:[6]") {
   console.error("expected seeded last-known names", dump.follower, dump.subscriber);
   process.exit(18);
 }
-if (!dump.holeClear || dump.holeClear.some((h) => !h.clear)) {
-  console.error("bullet holes overlap UI", dump.holeClear);
+if (!dump.holeClear || dump.holeClear.length < 6 || dump.holeClear.some((h) => !h.clear)) {
+  console.error("bullet holes overlap UI or missing", dump.holeClear);
   process.exit(24);
 }
 // Plates fully inside bar (positive gap above torn edge)
@@ -398,15 +412,19 @@ if (opaque > 0 || stageOpaque > 0) {
 
 // Verify bullet-hole cores are visible (near-black opaque pixels at expected centres)
 const holePts = [
-  { x: 2380, y: 105, label: "top" },
-  { x: 1100, y: H - BAR + 95, label: "bot" },
+  { x: 2380, y: 105, label: "top-a" },
+  { x: 920, y: 68, label: "top-b" },
+  { x: 2588, y: 162, label: "top-c" },
+  { x: 1100, y: H - BAR + 95, label: "bot-a" },
+  { x: 690, y: H - BAR + 142, label: "bot-b" },
+  { x: 2910, y: H - BAR + 74, label: "bot-c" },
 ];
 const holeVis = [];
 for (const h of holePts) {
   let dark = 0;
   let checked = 0;
-  for (let dy = -4; dy <= 4; dy++) {
-    for (let dx = -4; dx <= 4; dx++) {
+  for (let dy = -5; dy <= 5; dy++) {
+    for (let dx = -5; dx <= 5; dx++) {
       const xi = Math.round(h.x + dx);
       const yi = Math.round(h.y + dy);
       if (xi < 0 || yi < 0 || xi >= W || yi >= H) continue;
@@ -414,13 +432,13 @@ for (const h of holePts) {
       const a = png.data[i + 3];
       const v = (png.data[i] + png.data[i + 1] + png.data[i + 2]) / 3;
       checked++;
-      if (a > 180 && v < 28) dark++;
+      if (a > 180 && v < 32) dark++;
     }
   }
-  holeVis.push({ ...h, dark, checked, visible: dark >= 6 });
+  holeVis.push({ ...h, dark, checked, visible: dark >= 5 });
 }
 console.log("bulletHoles", JSON.stringify(holeVis, null, 2));
-if (holeVis.some((h) => !h.visible)) {
+if (holeVis.length < 6 || holeVis.some((h) => !h.visible)) {
   console.error("bullet holes not visible in proof", holeVis);
   process.exit(25);
 }

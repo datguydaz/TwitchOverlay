@@ -410,6 +410,7 @@ function paintBloodSplatter(
 /**
  * Realistic static bullet hole: dark puncture, outward-bent metal petals,
  * radial micro-cracks, scorch + paint chip, rim highlight.
+ * Drawn in local space around (0,0) then transformed — rotDeg varies silhouette.
  */
 function paintBulletHole(
   ctx: CanvasRenderingContext2D,
@@ -417,30 +418,38 @@ function paintBulletHole(
   cy: number,
   seed: number,
   scale = 1,
+  rotDeg = 0,
 ): void {
   const rnd = mulberry32(seed);
-  const holeR = (5.5 + rnd() * 2.2) * scale;
-  const petalR = holeR * (2.1 + rnd() * 0.5);
+  const holeR = (4.2 + rnd() * 3.8) * scale;
+  const petalR = holeR * (1.85 + rnd() * 0.85);
+  const petalCount = 5 + Math.floor(rnd() * 5);
+  const crackCount = 5 + Math.floor(rnd() * 8);
+  const chipCount = 8 + Math.floor(rnd() * 12);
+  const squash = 0.78 + rnd() * 0.4; // elliptical impact
 
   ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate((rotDeg * Math.PI) / 180);
+  ctx.scale(1, squash);
 
   // Scorch / paint chip ring
-  const scorch = ctx.createRadialGradient(cx, cy, holeR * 0.6, cx, cy, petalR * 1.55);
+  const scorch = ctx.createRadialGradient(0, 0, holeR * 0.6, 0, 0, petalR * 1.55);
   scorch.addColorStop(0, "rgba(8, 6, 5, 0.55)");
   scorch.addColorStop(0.35, "rgba(42, 28, 18, 0.4)");
   scorch.addColorStop(0.65, "rgba(70, 48, 28, 0.18)");
   scorch.addColorStop(1, "transparent");
   ctx.fillStyle = scorch;
   ctx.beginPath();
-  ctx.arc(cx, cy, petalR * 1.55, 0, Math.PI * 2);
+  ctx.arc(0, 0, petalR * 1.55, 0, Math.PI * 2);
   ctx.fill();
 
   // Paint chips (irregular flakes around rim)
-  for (let i = 0; i < 14; i++) {
+  for (let i = 0; i < chipCount; i++) {
     const ang = rnd() * Math.PI * 2;
     const dist = holeR * (1.1 + rnd() * 1.6);
-    const px = cx + Math.cos(ang) * dist;
-    const py = cy + Math.sin(ang) * dist * 0.9;
+    const px = Math.cos(ang) * dist;
+    const py = Math.sin(ang) * dist * 0.9;
     const rw = 1.2 + rnd() * 3.5;
     const rh = 0.8 + rnd() * 2.2;
     ctx.beginPath();
@@ -458,54 +467,46 @@ function paintBulletHole(
   }
 
   // Outward-bent metal petals
-  const petals = 7 + Math.floor(rnd() * 3);
-  for (let p = 0; p < petals; p++) {
-    const ang = (p / petals) * Math.PI * 2 + (rnd() - 0.5) * 0.35;
-    const len = petalR * (0.75 + rnd() * 0.45);
-    const spread = 0.28 + rnd() * 0.22;
+  for (let p = 0; p < petalCount; p++) {
+    const ang = (p / petalCount) * Math.PI * 2 + (rnd() - 0.5) * 0.55;
+    const len = petalR * (0.65 + rnd() * 0.6);
+    const spread = 0.22 + rnd() * 0.32;
     ctx.beginPath();
-    ctx.moveTo(cx + Math.cos(ang - spread) * holeR * 0.85, cy + Math.sin(ang - spread) * holeR * 0.85);
+    ctx.moveTo(Math.cos(ang - spread) * holeR * 0.85, Math.sin(ang - spread) * holeR * 0.85);
     const mid = len * (0.55 + rnd() * 0.25);
-    const tipX = cx + Math.cos(ang) * len;
-    const tipY = cy + Math.sin(ang) * len + (rnd() - 0.5) * 2;
-    const c1x = cx + Math.cos(ang - spread * 0.4) * mid;
-    const c1y = cy + Math.sin(ang - spread * 0.4) * mid - 1.5 * scale;
+    const tipX = Math.cos(ang) * len;
+    const tipY = Math.sin(ang) * len + (rnd() - 0.5) * 2;
+    const c1x = Math.cos(ang - spread * 0.4) * mid;
+    const c1y = Math.sin(ang - spread * 0.4) * mid - 1.5 * scale;
     ctx.quadraticCurveTo(c1x, c1y, tipX, tipY);
     ctx.quadraticCurveTo(
-      cx + Math.cos(ang + spread * 0.4) * mid,
-      cy + Math.sin(ang + spread * 0.4) * mid - 1.2 * scale,
-      cx + Math.cos(ang + spread) * holeR * 0.85,
-      cy + Math.sin(ang + spread) * holeR * 0.85,
+      Math.cos(ang + spread * 0.4) * mid,
+      Math.sin(ang + spread * 0.4) * mid - 1.2 * scale,
+      Math.cos(ang + spread) * holeR * 0.85,
+      Math.sin(ang + spread) * holeR * 0.85,
     );
     ctx.closePath();
-    // Raised metal face (lighter) + underside shadow
-    const g = ctx.createLinearGradient(
-      cx,
-      cy,
-      tipX,
-      tipY,
-    );
+    const g = ctx.createLinearGradient(0, 0, tipX, tipY);
     g.addColorStop(0, "rgba(12, 10, 8, 0.95)");
     g.addColorStop(0.45, `rgba(${55 + rnd() * 25}, ${48 + rnd() * 18}, ${40 + rnd() * 14}, 0.85)`);
     g.addColorStop(1, `rgba(${28 + rnd() * 16}, ${24 + rnd() * 12}, ${20 + rnd() * 10}, 0.7)`);
     ctx.fillStyle = g;
     ctx.fill();
-    // Rim highlight on petal edge
     ctx.strokeStyle = `rgba(${140 + rnd() * 40}, ${130 + rnd() * 30}, ${110 + rnd() * 25}, ${0.22 + rnd() * 0.2})`;
     ctx.lineWidth = 0.6;
     ctx.stroke();
   }
 
   // Radial micro-cracks
-  for (let k = 0; k < 9; k++) {
+  for (let k = 0; k < crackCount; k++) {
     const ang = rnd() * Math.PI * 2;
-    let x = cx + Math.cos(ang) * holeR * 0.9;
-    let y = cy + Math.sin(ang) * holeR * 0.9;
+    let x = Math.cos(ang) * holeR * 0.9;
+    let y = Math.sin(ang) * holeR * 0.9;
     ctx.beginPath();
     ctx.strokeStyle = `rgba(6, 5, 4, ${0.35 + rnd() * 0.35})`;
     ctx.lineWidth = 0.45 + rnd() * 0.55;
     ctx.moveTo(x, y);
-    const segs = 4 + Math.floor(rnd() * 4);
+    const segs = 3 + Math.floor(rnd() * 5);
     for (let s = 0; s < segs; s++) {
       x += Math.cos(ang + (rnd() - 0.5) * 0.5) * (3 + rnd() * 7) * scale;
       y += Math.sin(ang + (rnd() - 0.5) * 0.5) * (3 + rnd() * 7) * scale;
@@ -515,7 +516,7 @@ function paintBulletHole(
   }
 
   // Dark puncture core
-  const core = ctx.createRadialGradient(cx - holeR * 0.2, cy - holeR * 0.25, 0, cx, cy, holeR);
+  const core = ctx.createRadialGradient(-holeR * 0.2, -holeR * 0.25, 0, 0, 0, holeR);
   core.addColorStop(0, "rgba(0, 0, 0, 1)");
   core.addColorStop(0.55, "rgba(6, 5, 4, 0.98)");
   core.addColorStop(0.85, "rgba(18, 14, 10, 0.9)");
@@ -524,8 +525,8 @@ function paintBulletHole(
   ctx.fillStyle = core;
   for (let a = 0; a < Math.PI * 2; a += 0.4) {
     const rr = holeR * (0.85 + fbm(Math.cos(a) * 3 + seed, Math.sin(a) * 3, seed, 2) * 0.28);
-    const px = cx + Math.cos(a) * rr;
-    const py = cy + Math.sin(a) * rr * 0.92;
+    const px = Math.cos(a) * rr;
+    const py = Math.sin(a) * rr * 0.92;
     if (a === 0) ctx.moveTo(px, py);
     else ctx.lineTo(px, py);
   }
@@ -536,12 +537,12 @@ function paintBulletHole(
   ctx.beginPath();
   ctx.strokeStyle = "rgba(190, 180, 155, 0.35)";
   ctx.lineWidth = 1.1;
-  ctx.arc(cx - holeR * 0.15, cy - holeR * 0.2, holeR * 0.95, -2.4, -0.4);
+  ctx.arc(-holeR * 0.15, -holeR * 0.2, holeR * 0.95, -2.4, -0.4);
   ctx.stroke();
   ctx.beginPath();
   ctx.strokeStyle = "rgba(40, 36, 30, 0.55)";
   ctx.lineWidth = 1;
-  ctx.arc(cx + holeR * 0.1, cy + holeR * 0.15, holeR * 0.9, 0.5, 2.6);
+  ctx.arc(holeR * 0.1, holeR * 0.15, holeR * 0.9, 0.5, 2.6);
   ctx.stroke();
 
   ctx.restore();
@@ -591,12 +592,23 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
   const BAR_W = 3440;
   const BAR_H = 248;
 
-  // --- Steel plates + static bullet holes (open steel only — clear of UI) ---
+  // --- Steel plates + fixed static bullet holes (open steel only — clear of UI) ---
+  // Keep y away from torn edges (~y 20–190) and bottom ticker (~y > 200).
+  // Top gaps: left of name (~700–1150), right of name/OP (~2250–2750). Avoid clocks/plates.
+  type Hole = { x: number; y: number; seed: number; scale: number; rot: number };
+  const topHoles: Hole[] = [
+    { x: 2380, y: 105, seed: 4401, scale: 1.1, rot: 14 },
+    { x: 920, y: 68, seed: 4403, scale: 0.78, rot: -31 },
+    { x: 2588, y: 162, seed: 4404, scale: 1.28, rot: 47 },
+  ];
+  const botHoles: Hole[] = [
+    { x: 1100, y: 95, seed: 4402, scale: 1.05, rot: -11 },
+    { x: 690, y: 142, seed: 4405, scale: 0.72, rot: 58 },
+    { x: 2910, y: 74, seed: 4406, scale: 1.18, rot: -39 },
+  ];
   for (const [bar, seed, quiet, holes] of [
-    // Top: between DATGUYDAZ / OP tag and right subscriber terminal
-    [top, 101, false, [{ x: 2380, y: 105, seed: 4401, scale: 1.1 }]] as const,
-    // Bottom: left of centre, above chatter band (y mid-upper so ticker at bottom doesn't cover)
-    [bot, 202, true, [{ x: 1100, y: 95, seed: 4402, scale: 1.05 }]] as const,
+    [top, 101, false, topHoles] as const,
+    [bot, 202, true, botHoles] as const,
   ]) {
     const steelHost = bar.querySelector(".smk-steel") as HTMLElement | null;
     if (!steelHost) continue;
@@ -607,7 +619,7 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     const ctx = c.getContext("2d")!;
     paintSteelPlate(ctx, BAR_W, BAR_H, seed, quiet);
     for (const h of holes) {
-      paintBulletHole(ctx, h.x, h.y, h.seed, h.scale);
+      paintBulletHole(ctx, h.x, h.y, h.seed, h.scale, h.rot);
     }
   }
 
