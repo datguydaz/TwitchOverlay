@@ -573,25 +573,8 @@ export const scavengerSvg = `
                 <path d="M124 232 L120 238" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
                 <path d="M126 228 L122 234" stroke="#3a3c40" stroke-width="0.45" opacity="0.3"/>
               </g>
-              <!-- Cuff soft detail tracks cuff via JS translate — alive curly folds above the hand -->
-              <g id="sleeve-left-cuff-soft">
-                <g id="sleeve-folds-left" fill="none" stroke-linecap="round">
-                  <!-- Dark fabric wrinkles + one soft highlight curl above cuff -->
-                  <path d="M112 252 Q127 244 142 253" stroke="#1a1c20" stroke-width="1.35" opacity="0.72"/>
-                  <path d="M114 257 Q127 248 140 258" stroke="#000" stroke-width="1.15" opacity="0.55"/>
-                  <path d="M116 262 Q127 254 138 263" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
-                  <path d="M110 248 Q106 256 112 263 Q117 269 114 267" stroke="#0a0c10" stroke-width="1.0" opacity="0.48"/>
-                  <path d="M141 249 Q147 257 141 265 Q136 269 138 266" stroke="#121418" stroke-width="0.9" opacity="0.42"/>
-                  <path d="M118 264 Q124 270 131 266" stroke="#4a4c52" stroke-width="0.85" opacity="0.45"/>
-                </g>
-                <g id="sleeve-cuff-wear-left" fill="none" stroke-linecap="round" pointer-events="none">
-                  <path d="M122 246 L118 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
-                  <path d="M120 248 Q124 252 122 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
-                  <path d="M124 242 L120 248" stroke="#1a1c20" stroke-width="0.55" opacity="0.28"/>
-                  <path d="M120 258 L126 262" stroke="#4a4c50" stroke-width="0.4" opacity="0.22"/>
-                  <path d="M122 240 L124 242 L122 243 Z" fill="#0e0e0e" stroke="none" opacity="0.45"/>
-                  <path d="M120 254 L122 256 L119 257 Z" fill="#0e0e0e" stroke="none" opacity="0.4"/>
-                </g>
+              <!-- Plain cuff endcap only — no living soft folds. Tracks cuff via JS translate for ASD. -->
+              <g id="sleeve-left-cuff">
                 <ellipse cx="127" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
                 <ellipse cx="127" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
                 <path d="M120 266 H134" stroke="#000" stroke-width="0.55" opacity="0.32"/>

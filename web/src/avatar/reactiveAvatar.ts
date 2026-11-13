@@ -243,7 +243,7 @@ export class ReactiveAvatar {
   private leftSleevePaths: SVGPathElement[] = [];
   private leftCuffEllipses: SVGEllipseElement[] = [];
   private leftCuffSeam: SVGPathElement | null = null;
-  private leftCuffSoft: SVGGElement | null = null;
+  private leftCuffGroup: SVGGElement | null = null;
   private lastSleeveD = "";
   private handRightFollow: SVGGElement | null = null;
   private handRightWrist: SVGGElement | null = null;
@@ -741,11 +741,11 @@ export class ReactiveAvatar {
       for (const p of arm.querySelectorAll("#sleeve-stripes-left path")) {
         this.leftSleevePaths.push(p as SVGPathElement);
       }
-      this.leftCuffSoft = arm.querySelector("#sleeve-left-cuff-soft") as SVGGElement | null;
-      this.leftCuffEllipses = this.leftCuffSoft
-        ? ([...this.leftCuffSoft.querySelectorAll("ellipse")] as SVGEllipseElement[])
+      this.leftCuffGroup = arm.querySelector("#sleeve-left-cuff") as SVGGElement | null;
+      this.leftCuffEllipses = this.leftCuffGroup
+        ? ([...this.leftCuffGroup.querySelectorAll("ellipse")] as SVGEllipseElement[])
         : ([...arm.querySelectorAll(":scope > ellipse")] as SVGEllipseElement[]);
-      this.leftCuffSeam = (this.leftCuffSoft ?? arm).querySelector(
+      this.leftCuffSeam = (this.leftCuffGroup ?? arm).querySelector(
         'path[d^="M120 266"]',
       ) as SVGPathElement | null;
     }
@@ -776,16 +776,15 @@ export class ReactiveAvatar {
   }
 
   private setLeftCuffAt(cx: number, cy: number): void {
-    if (!this.leftCuffSoft && !this.leftCuffEllipses.length) this.cacheLeftSleeveGeometry();
-    // Fold/cuff soft detail is authored at home cuff (127,268) — slide the whole group
-    // so curly folds stay above the hand when the sleeve morphs for ASD.
-    if (this.leftCuffSoft) {
+    if (!this.leftCuffGroup && !this.leftCuffEllipses.length) this.cacheLeftSleeveGeometry();
+    // Plain cuff endcap authored at home (127,268) — slide with morphing cuff for ASD.
+    if (this.leftCuffGroup) {
       const dx = cx - HAND_HOME.cx;
       const dy = cy - HAND_HOME.cy;
       if (Math.abs(dx) < 0.05 && Math.abs(dy) < 0.05) {
-        this.leftCuffSoft.removeAttribute("transform");
+        this.leftCuffGroup.removeAttribute("transform");
       } else {
-        this.leftCuffSoft.setAttribute("transform", `translate(${dx.toFixed(1)} ${dy.toFixed(1)})`);
+        this.leftCuffGroup.setAttribute("transform", `translate(${dx.toFixed(1)} ${dy.toFixed(1)})`);
       }
       return;
     }
