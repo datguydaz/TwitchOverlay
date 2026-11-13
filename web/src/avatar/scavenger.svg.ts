@@ -560,40 +560,40 @@ export const scavengerSvg = `
           <g id="hand-left-sit" transform="translate(-128 -220)">
             <g id="arm-left" class="arm-continuous">
               <!-- Match mouse sleeve construction (24/20/14, ±4.0); cuff stays on KB hand -->
-              <path d="M128 220 L114 236 L106 250 L110 260 L118 268" fill="none" stroke="#050507" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-              <path id="sleeve-left-fill" d="M128 220 L114 236 L106 250 L110 260 L118 268" fill="none" stroke="#0e0e0e" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M128 220 L114 236 L106 250 L110 260 L118 268" fill="none" stroke="#181a1e" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+              <path d="M128 220 L123 234 L120 247 L123 257 L127 268" fill="none" stroke="#050507" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+              <path id="sleeve-left-fill" d="M128 220 L123 234 L120 247 L123 257 L127 268" fill="none" stroke="#0e0e0e" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M128 220 L123 234 L120 247 L123 257 L127 268" fill="none" stroke="#181a1e" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
               <g id="sleeve-stripes-left" fill="none" stroke="#e8e2d4" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2.1">
-                <path d="M128 220 L114 236 L106 250 L110 260 L118 268" transform="translate(-4.0 0)"/>
-                <path d="M128 220 L114 236 L106 250 L110 260 L118 268"/>
-                <path d="M128 220 L114 236 L106 250 L110 260 L118 268" transform="translate(4.0 0)"/>
+                <path d="M128 220 L123 234 L120 247 L123 257 L127 268" transform="translate(-4.0 0)"/>
+                <path d="M128 220 L123 234 L120 247 L123 257 L127 268"/>
+                <path d="M128 220 L123 234 L120 247 L123 257 L127 268" transform="translate(4.0 0)"/>
               </g>
               <g id="sleeve-folds-left" fill="none" stroke-linecap="round">
-                <path d="M100 246 Q106 250 112 248" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
-                <path d="M102 252 Q108 256 114 254" stroke="#000" stroke-width="0.85" opacity="0.38"/>
-                <path d="M108 258 Q114 262 118 260" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
+                <path d="M112 246 Q118 250 124 248" stroke="#2a2c30" stroke-width="1.05" opacity="0.5"/>
+                <path d="M114 252 Q120 256 126 254" stroke="#000" stroke-width="0.85" opacity="0.38"/>
+                <path d="M118 258 Q124 262 128 260" stroke="#2a2c30" stroke-width="0.75" opacity="0.32"/>
               </g>
               <g id="sleeve-wear-left" fill="none" stroke-linecap="round" pointer-events="none">
-                <path d="M116 232 L108 238" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
-                <path d="M110 246 L104 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
-                <path d="M106 248 Q110 252 108 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
+                <path d="M124 232 L120 238" stroke="#c8c2b0" stroke-width="0.5" opacity="0.26"/>
+                <path d="M122 246 L118 252" stroke="#5a5040" stroke-width="0.65" opacity="0.32"/>
+                <path d="M120 248 Q124 252 122 256" stroke="#3a3428" stroke-width="1.1" opacity="0.22"/>
                 <!-- fabric scuffs along sleeve (stripes stay readable) -->
-                <path d="M120 228 L112 234" stroke="#3a3c40" stroke-width="0.45" opacity="0.3"/>
-                <path d="M112 242 L106 248" stroke="#1a1c20" stroke-width="0.55" opacity="0.28"/>
-                <path d="M108 258 L114 262" stroke="#4a4c50" stroke-width="0.4" opacity="0.22"/>
+                <path d="M126 228 L122 234" stroke="#3a3c40" stroke-width="0.45" opacity="0.3"/>
+                <path d="M124 242 L120 248" stroke="#1a1c20" stroke-width="0.55" opacity="0.28"/>
+                <path d="M120 258 L126 262" stroke="#4a4c50" stroke-width="0.4" opacity="0.22"/>
                 <!-- stripe chips (dark nicks on cream stripes) -->
-                <path d="M116 240 L118 242 L116 243 Z" fill="#0e0e0e" stroke="none" opacity="0.45"/>
-                <path d="M112 254 L114 256 L111 257 Z" fill="#0e0e0e" stroke="none" opacity="0.4"/>
+                <path d="M122 240 L124 242 L122 243 Z" fill="#0e0e0e" stroke="none" opacity="0.45"/>
+                <path d="M120 254 L122 256 L119 257 Z" fill="#0e0e0e" stroke="none" opacity="0.4"/>
               </g>
-              <ellipse cx="118" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
-              <ellipse cx="118" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
-              <path d="M111 266 H125" stroke="#000" stroke-width="0.55" opacity="0.32"/>
+              <ellipse cx="127" cy="268" rx="7.6" ry="4.1" fill="#121418" stroke="#050505" stroke-width="0.75"/>
+              <ellipse cx="127" cy="267.2" rx="6.1" ry="2.4" fill="none" stroke="#2a2e34" stroke-width="0.65" opacity="0.5"/>
+              <path d="M120 266 H134" stroke="#000" stroke-width="0.55" opacity="0.32"/>
             </g>
-            <path d="M100 264 L138 262 L140 274 L103 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
-            <rect x="106" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
-            <rect x="115" y="271" width="4.4" height="11" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
-            <rect x="124" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
-            <rect x="133" y="273" width="4.4" height="9" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
+            <path d="M109 264 L147 262 L149 274 L112 276 Z" fill="#c4a07a" stroke="#6a4a32" stroke-width="1"/>
+            <rect x="115" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
+            <rect x="124" y="271" width="4.4" height="11" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
+            <rect x="133" y="272" width="4.4" height="10" rx="1.6" fill="#b89068" stroke="#6a4a32" stroke-width="0.55"/>
+            <rect x="142" y="273" width="4.4" height="9" rx="1.6" fill="#c4a07a" stroke="#6a4a32" stroke-width="0.55"/>
           </g>
         </g>
       </g>

@@ -19,7 +19,7 @@ export interface KeySlotPos {
 }
 
 /** Rest / home pose — over home-row F/G cluster (desk-plane, matches hand-left palm). */
-export const HAND_HOME = { cx: 118, cy: 268 };
+export const HAND_HOME = { cx: 127, cy: 268 };
 
 /** Slot centers aligned to keycap rects in scavenger.svg.ts (desk-plane). */
 export const KEY_SLOTS: readonly KeySlotPos[] = [
