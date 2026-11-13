@@ -47,7 +47,11 @@ function applyUltrawide(settings: OverlaySettings): void {
   const stage = qs<HTMLElement>("#uw-stage");
   if (!stage) return;
 
-  const barH = Math.max(64, Math.min(420, uw.barHeight || 180));
+  let barH = Math.max(64, Math.min(420, uw.barHeight || 180));
+  // Smoke mono variant needs taller bars for oversized DATGUYDAZ + OPERATOR ONLINE
+  if (stage.dataset.variant === "smoke-flare") {
+    barH = Math.max(barH, 230);
+  }
   const canvasW = Math.max(1280, uw.canvasWidth || 3440);
   const canvasH = Math.max(720, uw.canvasHeight || 1440);
 

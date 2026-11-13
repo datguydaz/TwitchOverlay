@@ -260,23 +260,31 @@ export class AtmosphereVfx {
       const inBot = p.y >= h - botH && p.y <= h;
       if (!inTop && !inBot) Object.assign(p, this.spawnDust(true));
       const fade = 0.55 + 0.45 * Math.sin(p.life * Math.PI * 2);
+      // ultrawide-smoke variant: mono white/gray dust (no amber)
+      const mono = this.stage.dataset.variant === "smoke-flare";
       if (p.hot) {
         // Occasional hot pop along the ember rail
         const a = Math.min(1, p.a * fade * 1.15);
         ctx.beginPath();
-        ctx.fillStyle = `rgba(255,200,110,${a})`;
+        ctx.fillStyle = mono ? `rgba(255,255,255,${a})` : `rgba(255,200,110,${a})`;
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.fillStyle = `rgba(255,230,160,${a * 0.45})`;
+        ctx.fillStyle = mono
+          ? `rgba(220,220,220,${a * 0.45})`
+          : `rgba(255,230,160,${a * 0.45})`;
         ctx.arc(p.x, p.y, p.r * 2.2, 0, Math.PI * 2);
         ctx.fill();
         if (p.life > 0.55) Object.assign(p, this.spawnDust(true));
       } else {
         ctx.beginPath();
-        ctx.fillStyle = p.ember
-          ? `rgba(200,136,58,${p.a * fade})`
-          : `rgba(170,160,140,${p.a * fade * 0.8})`;
+        ctx.fillStyle = mono
+          ? p.ember
+            ? `rgba(230,230,230,${p.a * fade})`
+            : `rgba(160,160,160,${p.a * fade * 0.8})`
+          : p.ember
+            ? `rgba(200,136,58,${p.a * fade})`
+            : `rgba(170,160,140,${p.a * fade * 0.8})`;
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
       }
