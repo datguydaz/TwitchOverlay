@@ -17,6 +17,8 @@ body.uw-smoke-variant {
 
 #uw-stage[data-variant="smoke-flare"] {
   --uw-bar-h: 180px;
+  /* Fallback until smokeRuinTextures sets exact lip clearance */
+  --smk-lip-clear: 24px;
   --smk-bg: #080a09;
   --smk-steel: #121614;
   --smk-steel-hi: #242a26;
@@ -135,13 +137,16 @@ body.uw-smoke-variant {
   grid-template-columns: minmax(320px, 1fr) minmax(640px, 1.25fr) minmax(320px, 1fr) !important;
 }
 #uw-stage[data-variant="smoke-flare"] .uw-wall-header .uw-side {
-  /* Lift plates above the shallow torn grit (scales with --uw-bar-h) */
-  padding: calc(var(--uw-bar-h) * 0.05) 0 calc(var(--uw-bar-h) * 0.14) !important;
+  /* Lift plates above fat torn lip (into-bar only; stage hole unchanged) */
+  padding: calc(var(--uw-bar-h) * 0.04) 0 max(var(--smk-lip-clear), calc(var(--uw-bar-h) * 0.14)) !important;
   box-sizing: border-box;
 }
 #uw-stage[data-variant="smoke-flare"] .uw-wall-footer.uw-bar-body {
   position: relative;
   z-index: 20;
+  /* Keep footer content clear of the top torn lip on the bottom bar */
+  padding-top: max(var(--smk-lip-clear), calc(var(--uw-bar-h) * 0.1));
+  box-sizing: border-box;
 }
 
 /* Shared absolute layers */
@@ -611,16 +616,22 @@ body.uw-smoke-variant {
   flex-direction: column;
   align-items: center;
   gap: 0;
-  padding: calc(var(--uw-bar-h) * 0.035) 20px calc(var(--uw-bar-h) * 0.015);
+  /* Nudge stack up; reserve fat lip clearance at the bottom */
+  padding:
+    calc(var(--uw-bar-h) * 0.012) 20px
+    max(var(--smk-lip-clear), calc(var(--uw-bar-h) * 0.12));
   overflow: visible;
   position: relative;
   z-index: 22;
+  box-sizing: border-box;
+  height: 100%;
+  justify-content: center;
 }
 #uw-stage[data-variant="smoke-flare"] .smk-nameplate {
   position: relative;
   isolation: isolate;
   margin: 0;
-  padding: calc(var(--uw-bar-h) * 0.015) 18px calc(var(--uw-bar-h) * 0.02);
+  padding: calc(var(--uw-bar-h) * 0.006) 18px calc(var(--uw-bar-h) * 0.006);
   line-height: 0.9;
   overflow: visible;
 }
@@ -678,11 +689,11 @@ body.uw-smoke-variant {
   font-style: italic;
   font-weight: 700;
   font-stretch: condensed;
-  /* As big as bar allows; ~122px @180, ~148px @248, ~82px @120 */
-  font-size: clamp(70px, calc(var(--uw-bar-h) * 0.68), 148px) !important;
+  /* As big as bar allows under lip clearance; ~120px @180, ~148px @248, ~80px @120 */
+  font-size: clamp(68px, calc(var(--uw-bar-h) * 0.665), 148px) !important;
   letter-spacing: 0.03em;
   margin: 0 !important;
-  padding: calc(var(--uw-bar-h) * 0.012) 32px calc(var(--uw-bar-h) * 0.018) 26px;
+  padding: calc(var(--uw-bar-h) * 0.004) 32px calc(var(--uw-bar-h) * 0.006) 26px;
   text-transform: uppercase;
   line-height: 0.86;
   white-space: nowrap;
@@ -806,7 +817,8 @@ body.uw-smoke-variant {
   align-items: center;
   justify-content: center;
   gap: clamp(8px, calc(var(--uw-bar-h) * 0.06), 14px);
-  margin-top: calc(var(--uw-bar-h) * 0.03) !important;
+  /* Tight name→strip gap so the fat lip gets air below the tape */
+  margin-top: max(4px, calc(var(--uw-bar-h) * 0.01)) !important;
   padding: 0 !important;
   border: none !important;
   background: transparent !important;
@@ -823,7 +835,7 @@ body.uw-smoke-variant {
 }
 .smk-tape {
   display: inline-block;
-  padding: calc(var(--uw-bar-h) * 0.028) 18px calc(var(--uw-bar-h) * 0.024);
+  padding: calc(var(--uw-bar-h) * 0.018) 16px calc(var(--uw-bar-h) * 0.014);
   /* Fully opaque plate — protects glyphs from stage/tear */
   background: #2c2822;
   background-image: linear-gradient(180deg, #3e3830 0%, #2c2822 55%, #1a1814 100%);
@@ -1428,13 +1440,13 @@ body.uw-smoke-variant {
   background: radial-gradient(ellipse at 40% 30%, #6a6458, #2a2620 70%);
 }
 
-/* —— Radio chatter ticker (absolute bottom, horizontally centred band) —— */
+/* —— Radio chatter ticker (kept low — clear of bottom-bar top lip) —— */
 .smk-chatter {
   position: absolute;
   left: 50%;
   right: auto;
   top: auto;
-  bottom: calc(var(--uw-bar-h) * 0.07);
+  bottom: calc(var(--uw-bar-h) * 0.06);
   width: 60%;
   max-width: 2064px;
   height: clamp(16px, calc(var(--uw-bar-h) * 0.12), 26px);
@@ -1487,10 +1499,11 @@ body.uw-smoke-variant {
   color: rgba(190, 182, 160, 0.7);
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.85);
 }
-.smk-chrono-tl { left: 28px; top: calc(var(--uw-bar-h) * 0.06); }
-.smk-chrono-tr { right: 28px; top: calc(var(--uw-bar-h) * 0.06); }
-.smk-chrono-bl { left: 28px; bottom: calc(var(--uw-bar-h) * 0.24); }
-.smk-chrono-br { right: 28px; bottom: calc(var(--uw-bar-h) * 0.24); }
+.smk-chrono-tl { left: 28px; top: calc(var(--uw-bar-h) * 0.05); }
+.smk-chrono-tr { right: 28px; top: calc(var(--uw-bar-h) * 0.05); }
+/* Bottom clocks sit low in the bottom bar — well clear of the top torn lip */
+.smk-chrono-bl { left: 28px; bottom: calc(var(--uw-bar-h) * 0.2); }
+.smk-chrono-br { right: 28px; bottom: calc(var(--uw-bar-h) * 0.2); }
 .smk-chrono-label {
   font-size: clamp(7px, calc(var(--uw-bar-h) * 0.045), 9px);
   letter-spacing: 0.28em;

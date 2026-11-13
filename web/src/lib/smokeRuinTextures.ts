@@ -175,9 +175,83 @@ export function resolveSmokeEdgeStyle(stage?: HTMLElement | null): SmokeEdgeStyl
 }
 
 /**
- * Torn-edge lip colour variants (`?edge=`).
- * red = current; steel / rust / phosphor / blackout = alternatives.
- * All stay inside the bar — nothing into the transparent stage.
+ * Mean lip thickness into the bar (not stage).
+ * Kept modest (~original hairline × ~2) so a bevel can read as metal, not a flat paint stripe.
+ */
+export function smokeEdgeStripH(style: SmokeEdgeStyle = "red"): number {
+  if (style === "blackout") return 6.5;
+  if (style === "phosphor") return 5;
+  // Modest bulk (~2× original hairline) — bevel/texture do the work, not a fat flat band
+  return 6;
+}
+
+/** How far UI must stay clear of the torn cut (torn grit + lip + AO + margin). */
+export function smokeEdgeClearPx(
+  tornDepth: number,
+  style: SmokeEdgeStyle = "red",
+): number {
+  const stripH = smokeEdgeStripH(style);
+  return Math.round(tornDepth + stripH + 6);
+}
+
+/** Palette for beveled lip face (steel is authored; others remap hue). */
+function lipPalette(style: SmokeEdgeStyle): {
+  spec: [number, number, number];
+  face: [number, number, number];
+  under: [number, number, number];
+  rust: [number, number, number];
+  ao: [number, number, number];
+} {
+  if (style === "rust") {
+    return {
+      spec: [140, 78, 42],
+      face: [72, 34, 18],
+      under: [36, 16, 10],
+      rust: [96, 40, 16],
+      ao: [8, 4, 3],
+    };
+  }
+  if (style === "red") {
+    return {
+      spec: [150, 48, 32],
+      face: [78, 28, 20],
+      under: [40, 14, 12],
+      rust: [110, 36, 22],
+      ao: [10, 4, 4],
+    };
+  }
+  if (style === "phosphor") {
+    return {
+      spec: [140, 170, 120],
+      face: [48, 68, 46],
+      under: [22, 32, 22],
+      rust: [70, 90, 55],
+      ao: [6, 10, 6],
+    };
+  }
+  if (style === "blackout") {
+    return {
+      spec: [70, 72, 68],
+      face: [22, 24, 22],
+      under: [10, 11, 10],
+      rust: [40, 28, 20],
+      ao: [4, 4, 4],
+    };
+  }
+  // steel — cold bare metal (high tip/under contrast so bevel survives stream downscale)
+  return {
+    spec: [228, 230, 218],
+    face: [78, 82, 76],
+    under: [28, 30, 28],
+    rust: [88, 48, 28],
+    ao: [4, 5, 4],
+  };
+}
+
+/**
+ * Physical torn-edge lip (`?edge=`). Steel is the reference:
+ * bevel (specular → face → under → AO) + fBm steel texture + variable thickness
+ * along the torn outline. Grows into the bar only — stage stays transparent.
  */
 function drawTornRustStrip(
   ctx: CanvasRenderingContext2D,
@@ -188,142 +262,168 @@ function drawTornRustStrip(
   seed: number,
   style: SmokeEdgeStyle = "red",
 ): void {
-  const stripH = style === "blackout" ? 6 : style === "phosphor" ? 4 : 5;
+  const meanH = smokeEdgeStripH(style);
+  const pal = lipPalette(style);
   const img = ctx.createImageData(barW, barH);
   const d = img.data;
+  const into = side === "bottom" ? -1 : 1; // +y toward stage for top-bar bottom edge is -1 into bar
+
   for (let x = 0; x < barW; x++) {
     const depth = depthAt(profile, x, barW, seed, side);
     const edgeY = side === "bottom" ? barH - depth : depth;
-    for (let dy = 0; dy < stripH + 4; dy++) {
-      const y =
-        side === "bottom"
-          ? Math.floor(edgeY - 1 - dy)
-          : Math.floor(edgeY + 1 + dy);
+    // Thickness varies along the tear — never a uniform paint stripe
+    const thickN = fbm(x * 0.011, 0.4, seed + 17, 3);
+    const chipN = fbm(x * 0.07, 1.1, seed + 29, 2);
+    let lipH = meanH * (0.72 + thickN * 0.55) + (chipN - 0.5) * 1.8;
+    // Occasional weld lump / thickened scar
+    const lump = hash2(Math.floor(x / 47), seed, seed + 3);
+    if (lump > 0.82) lipH += 1.2 + (lump - 0.82) * 8;
+    lipH = Math.max(3.2, Math.min(meanH + 4.5, lipH));
+    const aoSpan = 2.5 + thickN * 1.5;
+
+    for (let dy = 0; dy < lipH + aoSpan + 1; dy++) {
+      const y = Math.floor(edgeY + into * (0.35 + dy));
       if (y < 0 || y >= barH) continue;
-      const rustN = fbm(x * 0.05, dy * 0.4, seed + 3, 3);
       const i = (y * barW + x) * 4;
-      const fade = 1 - dy / (stripH + 4);
-      if (dy <= 1) {
-        // Lip hairline — style decides colour
-        if (style === "red") {
-          d[i] = 120;
-          d[i + 1] = 28;
-          d[i + 2] = 18;
-          d[i + 3] = Math.floor(200 * fade);
-        } else if (style === "steel") {
-          // Cold bare-steel + thin bone/grey highlight
-          d[i] = 168 + rustN * 20;
-          d[i + 1] = 170 + rustN * 18;
-          d[i + 2] = 162 + rustN * 16;
-          d[i + 3] = Math.floor(190 * fade);
-        } else if (style === "rust") {
-          // Dark oxidised rust / burnt brown
-          d[i] = 72 + rustN * 28;
-          d[i + 1] = 32 + rustN * 10;
-          d[i + 2] = 16 + rustN * 6;
-          d[i + 3] = Math.floor(210 * fade);
-        } else if (style === "phosphor") {
-          // Dim green-grey CRT line (matches ONLINE #7fae6a family)
-          d[i] = 90 + rustN * 16;
-          d[i + 1] = 130 + rustN * 22;
-          d[i + 2] = 80 + rustN * 14;
-          d[i + 3] = Math.floor(150 * fade);
-        } else {
-          // blackout — almost no colour, raw dark lip
-          d[i] = 18 + rustN * 8;
-          d[i + 1] = 18 + rustN * 7;
-          d[i + 2] = 16 + rustN * 6;
-          d[i + 3] = Math.floor(220 * fade);
+      const t = dy / Math.max(0.001, lipH); // 0 at outer cut → 1 at inner face end
+      // Micro-structure: scratches (anisotropic), pitting, light rust
+      const grit = fbm(x * 0.09, dy * 0.55, seed + 3, 3);
+      const scratch = fbm(x * 0.22, dy * 0.08, seed + 11, 2);
+      const pit = fbm(x * 0.35, dy * 0.4, seed + 19, 2);
+      const rustN = fbm(x * 0.04, dy * 0.25, seed + 41, 3);
+
+      let r: number;
+      let g: number;
+      let b: number;
+      let a: number;
+
+      if (dy <= 0.9) {
+        // Outer specular hairline — thin, hot, follows the tear
+        const k = 0.82 + grit * 0.28 + (scratch - 0.5) * 0.15;
+        r = pal.spec[0] * k;
+        g = pal.spec[1] * k;
+        b = pal.spec[2] * k;
+        a = style === "phosphor" ? 160 : style === "blackout" ? 185 : 230;
+      } else if (t < 1) {
+        // Bevel face: specular tip → mid face → dark under-face (fBm metal, not flat fill)
+        const faceT = Math.min(1, Math.max(0, (t - 0.1) / 0.9));
+        const shade = Math.pow(1 - faceT, 1.55);
+        const underW = Math.pow(faceT, 0.95);
+        r = pal.face[0] * (0.4 + shade * 0.7) + pal.under[0] * underW * 0.75;
+        g = pal.face[1] * (0.4 + shade * 0.7) + pal.under[1] * underW * 0.75;
+        b = pal.face[2] * (0.4 + shade * 0.7) + pal.under[2] * underW * 0.75;
+        // Steel grain / scratches (anisotropic)
+        const grain = (grit - 0.5) * 34 + (scratch - 0.5) * 28;
+        r += grain;
+        g += grain * 0.95;
+        b += grain * 0.85;
+        // Pitting — darker micro-craters
+        if (pit > 0.68) {
+          const dig = (pit - 0.68) * 70;
+          r -= dig;
+          g -= dig;
+          b -= dig * 0.9;
         }
-      } else if (style === "steel" && dy === 2) {
-        // Weld bead under the highlight
-        d[i] = 42 + rustN * 18;
-        d[i + 1] = 44 + rustN * 16;
-        d[i + 2] = 40 + rustN * 14;
-        d[i + 3] = Math.floor(170 * fade);
-      } else if (style === "blackout") {
-        // Hard shadow falloff into the bar
-        d[i] = 6 + rustN * 6;
-        d[i + 1] = 6 + rustN * 5;
-        d[i + 2] = 5 + rustN * 4;
-        d[i + 3] = Math.floor((200 - dy * 18) * fade);
-      } else if (style === "phosphor") {
-        d[i] = 20 + rustN * 8;
-        d[i + 1] = 28 + rustN * 12;
-        d[i + 2] = 18 + rustN * 6;
-        d[i + 3] = Math.floor((90 + rustN * 30) * fade * 0.55);
-      } else if (style === "rust") {
-        d[i] = 52 + rustN * 36;
-        d[i + 1] = 24 + rustN * 12;
-        d[i + 2] = 12 + rustN * 6;
-        d[i + 3] = Math.floor((170 + rustN * 50) * fade);
-      } else if (style === "steel") {
-        d[i] = 28 + rustN * 16;
-        d[i + 1] = 30 + rustN * 15;
-        d[i + 2] = 28 + rustN * 14;
-        d[i + 3] = Math.floor((140 + rustN * 40) * fade);
+        // Sparse light rust / oxidised flecks (never yellow)
+        if (style !== "phosphor" && rustN > 0.6 && grit > 0.5) {
+          const rw = (rustN - 0.6) * 1.7;
+          r = r * (1 - rw) + pal.rust[0] * rw;
+          g = g * (1 - rw) + pal.rust[1] * rw;
+          b = b * (1 - rw) + pal.rust[2] * rw;
+        }
+        // Specular kiss on the outer third of thicker sections
+        if (faceT < 0.32 && lipH > meanH * 0.9 && scratch > 0.5) {
+          r = r * 0.55 + pal.spec[0] * 0.45;
+          g = g * 0.55 + pal.spec[1] * 0.45;
+          b = b * 0.55 + pal.spec[2] * 0.45;
+        }
+        a = style === "phosphor" ? 135 + shade * 45 : 185 + shade * 45;
+        if (style === "blackout") a = 200 + shade * 30;
       } else {
-        // red body wash (current)
-        d[i] = 48 + rustN * 40;
-        d[i + 1] = 24 + rustN * 14;
-        d[i + 2] = 12 + rustN * 6;
-        d[i + 3] = Math.floor((160 + rustN * 60) * fade);
+        // Soft AO where the lip meets the plate — into the bar only
+        const aoT = Math.min(1, (dy - lipH) / aoSpan);
+        const aoA = (1 - aoT) * (1 - aoT);
+        r = pal.ao[0];
+        g = pal.ao[1];
+        b = pal.ao[2];
+        a = (style === "blackout" ? 175 : 145) * aoA * (0.75 + grit * 0.35);
       }
-    }
-    // Sparse flecks — style-tinted; blackout skips coloured flecks
-    if (style !== "blackout" && hash2(x, seed, seed + 9) > 0.92) {
-      const y =
-        side === "bottom"
-          ? Math.floor(edgeY - 3 - hash2(x, 1, seed) * 3)
-          : Math.floor(edgeY + 3 + hash2(x, 1, seed) * 3);
-      if (y >= 0 && y < barH) {
-        const i = (y * barW + x) * 4;
-        if (style === "phosphor") {
-          d[i] = 70;
-          d[i + 1] = 110;
-          d[i + 2] = 65;
-          d[i + 3] = 100;
-        } else if (style === "steel") {
-          d[i] = 140;
-          d[i + 1] = 142;
-          d[i + 2] = 136;
-          d[i + 3] = 110;
-        } else if (style === "rust") {
-          d[i] = 78;
-          d[i + 1] = 30;
-          d[i + 2] = 14;
-          d[i + 3] = 150;
-        } else {
-          d[i] = 90;
-          d[i + 1] = 22;
-          d[i + 2] = 14;
-          d[i + 3] = 140;
-        }
-      }
+
+      d[i] = Math.max(0, Math.min(255, Math.round(r)));
+      d[i + 1] = Math.max(0, Math.min(255, Math.round(g)));
+      d[i + 2] = Math.max(0, Math.min(255, Math.round(b)));
+      d[i + 3] = Math.max(0, Math.min(255, Math.round(a)));
     }
   }
   ctx.putImageData(img, 0, 0);
 
-  // Steel: irregular weld-bead strokes along the lip
-  if (style === "steel") {
-    const rnd = mulberry32(seed + 55);
-    ctx.save();
-    ctx.strokeStyle = "rgba(70, 72, 68, 0.45)";
-    ctx.lineWidth = 1.4;
-    ctx.lineCap = "round";
-    let x = 0;
-    while (x < barW) {
-      const depth = depthAt(profile, x, barW, seed, side);
-      const edgeY = side === "bottom" ? barH - depth : depth;
-      const len = 18 + rnd() * 40;
+  // Lumpy weld beads + occasional rivets along the lip (into the bar)
+  const rnd = mulberry32(seed + 55);
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, barW, barH);
+  ctx.clip();
+  let x = 18 + rnd() * 40;
+  while (x < barW - 18) {
+    const depth = depthAt(profile, x, barW, seed, side);
+    const edgeY = side === "bottom" ? barH - depth : depth;
+    const roll = rnd();
+    if (roll > 0.62) {
+      // Short lumpy weld seam
+      const len = 14 + rnd() * 36;
+      const inset = 2.2 + rnd() * 2.4;
+      const y0 = edgeY + into * inset;
+      ctx.strokeStyle =
+        style === "rust"
+          ? `rgba(70, 32, 16, ${0.4 + rnd() * 0.25})`
+          : style === "red"
+            ? `rgba(60, 18, 14, ${0.4 + rnd() * 0.25})`
+            : style === "phosphor"
+              ? `rgba(40, 60, 38, ${0.35 + rnd() * 0.2})`
+              : `rgba(48, 52, 46, ${0.45 + rnd() * 0.25})`;
+      ctx.lineWidth = 1.3 + rnd() * 1.4;
+      ctx.lineCap = "round";
       ctx.beginPath();
-      ctx.moveTo(x, edgeY + (side === "bottom" ? -2.5 : 2.5));
-      ctx.lineTo(x + len, edgeY + (side === "bottom" ? -2.5 : 2.5) + (rnd() - 0.5) * 1.5);
+      ctx.moveTo(x, y0);
+      let px = x;
+      while (px < x + len) {
+        const step = 3 + rnd() * 4;
+        px += step;
+        ctx.lineTo(px, y0 + into * (rnd() - 0.5) * 2.4);
+      }
       ctx.stroke();
-      x += len + 8 + rnd() * 24;
+      // Specular ridge on the bead
+      if (style === "steel" || style === "blackout") {
+        ctx.strokeStyle = `rgba(170, 172, 162, ${0.18 + rnd() * 0.16})`;
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(x + 1, y0 + into * 0.7);
+        ctx.lineTo(x + len - 1, y0 + into * 0.7);
+        ctx.stroke();
+      }
+      x += len + 20 + rnd() * 50;
+    } else if (roll > 0.48 && style !== "phosphor") {
+      // Rivet / bolt head just inside the lip
+      const inset = 3.2 + rnd() * 2.2;
+      const cy = edgeY + into * inset;
+      const rad = 1.5 + rnd() * 1.1;
+      ctx.fillStyle =
+        style === "rust" || style === "red"
+          ? `rgba(54, 28, 18, ${0.55 + rnd() * 0.25})`
+          : `rgba(40, 44, 40, ${0.6 + rnd() * 0.25})`;
+      ctx.beginPath();
+      ctx.arc(x, cy, rad, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = `rgba(150, 148, 138, ${0.2 + rnd() * 0.2})`;
+      ctx.beginPath();
+      ctx.arc(x - rad * 0.25, cy + into * rad * 0.2, rad * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      x += 28 + rnd() * 70;
+    } else {
+      x += 16 + rnd() * 40;
     }
-    ctx.restore();
   }
+  ctx.restore();
 }
 
 function paintSteelPlate(
@@ -1116,6 +1216,8 @@ function paintEdgeWire(
 ): void {
   const rnd = mulberry32(seed + 2200);
   const emphasize = style === "blackout";
+  // Sit wire just inside the beveled lip (into the bar, never into the stage)
+  const wireInset = emphasize ? 8 : 6.5;
   ctx.save();
   ctx.beginPath();
   ctx.rect(0, 0, barW, barH);
@@ -1131,8 +1233,8 @@ function paintEdgeWire(
     const depth = depthAt(profile, x, barW, seed);
     const y =
       side === "bottom"
-        ? barH - depth - 5 - (fbm(x * 0.01, 1, seed, 2) - 0.5) * 4
-        : depth + 5 + (fbm(x * 0.01, 2, seed, 2) - 0.5) * 4;
+        ? barH - depth - wireInset - (fbm(x * 0.01, 1, seed, 2) - 0.5) * 4
+        : depth + wireInset + (fbm(x * 0.01, 2, seed, 2) - 0.5) * 4;
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   }
@@ -1144,7 +1246,7 @@ function paintEdgeWire(
     if (x > 1300 && x < 2140) continue; // keep clear of name / centre
     const depth = depthAt(profile, x, barW, seed);
     const y =
-      side === "bottom" ? barH - depth - 5 : depth + 5;
+      side === "bottom" ? barH - depth - wireInset : depth + wireInset;
     const dir = side === "bottom" ? -1 : 1;
     ctx.beginPath();
     ctx.strokeStyle = `rgba(36, 38, 34, ${emphasize ? 0.65 + rnd() * 0.25 : 0.45 + rnd() * 0.3})`;
@@ -1276,6 +1378,10 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
   const yScale = BAR_H / DESIGN_H;
   const holeScaleMul = Math.max(0.72, Math.min(1.1, yScale));
   const tornDepth = Math.max(6, Math.round(10 * yScale));
+  const edgeStyleEarly = resolveSmokeEdgeStyle(stage);
+  const lipClear = smokeEdgeClearPx(tornDepth, edgeStyleEarly);
+  stage.style.setProperty("--smk-lip-clear", `${lipClear}px`);
+  stage.dataset.edge = edgeStyleEarly;
 
   // --- Steel plates + fixed static bullet holes (open steel only — clear of UI) ---
   // Design coords are for 248px bars; y/scale remap with current --uw-bar-h.

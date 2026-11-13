@@ -44,7 +44,8 @@ await page.addInitScript(() => {
 });
 
 // Allow Google Fonts so proof matches Streamlabs Oswald (previous proofs aborted fonts).
-const url = `http://127.0.0.1:8787/ultrawide-smoke.html?bar=${BAR}&gloom=${Date.now()}`;
+const EDGE = (process.env.SMOKE_EDGE || "steel").toLowerCase();
+const url = `http://127.0.0.1:8787/ultrawide-smoke.html?bar=${BAR}&edge=${EDGE}&gloom=${Date.now()}`;
 await page.goto(url, { waitUntil: "commit", timeout: 20000 });
 await page.waitForFunction(() => !!document.getElementById("uw-stage"), null, {
   timeout: 10000,
@@ -175,13 +176,26 @@ const dump = await page.evaluate(({ bar, canvasH }) => {
   } catch {
     /* ignore */
   }
+  const lipClearCss = s ? getComputedStyle(s).getPropertyValue("--smk-lip-clear").trim() : "";
+  const lipClearPx = Number.parseFloat(lipClearCss) || 24;
+  const chatterTopClear =
+    chatterBox && bot ? Math.round(chatterBox.top - bot.top) : null;
+  const chronoBot = [...document.querySelectorAll(".smk-chrono-bl, .smk-chrono-br")].map((el) => {
+    const box = el.getBoundingClientRect();
+    return bot ? Math.round(box.top - bot.top) : null;
+  });
   return {
     path: location.pathname,
     variant: s?.dataset.variant,
     textFx: s?.dataset.textFx,
+    edge: s?.dataset.edge || "",
+    lipClearPx,
+    chatterTopClear,
+    chronoBotTopClear: chronoBot,
     sheets,
     hasSmokeCss: sheets.some((x) => /ultrawide-smoke/i.test(x)),
     gapPx: faceBox && opBox ? opBox.top - faceBox.bottom : null,
+    opBottomClear: opBox && top ? Math.round(top.bottom - opBox.bottom) : null,
     opText: op?.textContent || "",
     nameFill: csFace?.webkitTextFillColor || csFace?.color,
     nameFilter: csFace?.filter,
@@ -253,29 +267,54 @@ if (dump.gapPx == null || dump.gapPx < 4) {
 }
 {
   const px = Number.parseFloat(String(dump.nameSize || "0"));
-  const lo = Math.floor(BAR * 0.55);
+  const lo = Math.floor(BAR * 0.52);
   const hi = Math.ceil(Math.min(148, BAR * 0.78));
   if (!(px >= lo && px <= hi + 2)) {
-    console.error(`name size out of range for bar=${BAR} (want ~${Math.round(BAR * 0.68)}px)`, dump.nameSize);
+    console.error(`name size out of range for bar=${BAR} (want ~${Math.round(BAR * 0.665)}px)`, dump.nameSize);
     process.exit(26);
   }
 }
 {
-  // Name + OP must stay fully inside the top bar
+  // Name + OP must stay fully inside the top bar and clear of the fat lip
   const layout = await page.evaluate(() => {
     const face = document.querySelector(".smk-name-face")?.getBoundingClientRect();
     const op = document.querySelector(".smk-op")?.getBoundingClientRect();
+    const s = document.getElementById("uw-stage");
+    const lip = Number.parseFloat(getComputedStyle(s).getPropertyValue("--smk-lip-clear")) || 24;
     return {
       faceTop: face?.top ?? -1,
       faceBottom: face?.bottom ?? -1,
       opTop: op?.top ?? -1,
       opBottom: op?.bottom ?? -1,
+      lip,
     };
   });
-  console.log("nameLayout", JSON.stringify({ ...layout, bar: BAR, gapPx: dump.gapPx }));
-  if (layout.faceTop < 2 || layout.faceBottom > BAR - 2 || layout.opBottom > BAR - 2) {
-    console.error("name/OP overflow top bar", layout);
+  const lip = layout.lip;
+  console.log("nameLayout", JSON.stringify({ ...layout, bar: BAR, gapPx: dump.gapPx, opBottomClear: dump.opBottomClear }));
+  if (layout.faceTop < 2 || layout.faceBottom > BAR - 2 || layout.opBottom > BAR - lip + 2) {
+    console.error("name/OP overflow top bar / lip", layout);
     process.exit(27);
+  }
+  if (dump.opBottomClear == null || dump.opBottomClear < lip - 2) {
+    console.error("OP too close to torn lip", dump.opBottomClear, "need ~", lip);
+    process.exit(28);
+  }
+  if (dump.edge !== EDGE) {
+    console.error("edge mismatch", dump.edge, EDGE);
+    process.exit(29);
+  }
+  // Bottom-bar ticker/clocks must sit below the top torn lip
+  if (dump.chatterTopClear == null || dump.chatterTopClear < lip - 2) {
+    console.error("chatter too close to bottom-bar top lip", dump.chatterTopClear, lip);
+    process.exit(30);
+  }
+  if (
+    !dump.chronoBotTopClear ||
+    dump.chronoBotTopClear.length < 2 ||
+    dump.chronoBotTopClear.some((v) => v == null || v < lip - 2)
+  ) {
+    console.error("bottom clocks too close to top lip", dump.chronoBotTopClear, lip);
+    process.exit(31);
   }
 }
 if (dump.forbidden.some((f) => f.visible)) {
@@ -351,14 +390,17 @@ if (!dump.holeClear || dump.holeClear.length < 6 || dump.holeClear.some((h) => !
   process.exit(24);
 }
 // Plates fully inside bar (positive gap above torn edge)
-if (
-  dump.folBottomGap == null ||
-  dump.subBottomGap == null ||
-  dump.folBottomGap < 20 ||
-  dump.subBottomGap < 20
-) {
-  console.error("plates hang past bar edge", dump.folBottomGap, dump.subBottomGap);
-  process.exit(19);
+{
+  const need = Math.max(20, Math.round((dump.lipClearPx || 24) - 2));
+  if (
+    dump.folBottomGap == null ||
+    dump.subBottomGap == null ||
+    dump.folBottomGap < need ||
+    dump.subBottomGap < need
+  ) {
+    console.error("plates hang into lip zone", dump.folBottomGap, dump.subBottomGap, "need", need);
+    process.exit(19);
+  }
 }
 
 await page.waitForTimeout(300);
@@ -381,6 +423,7 @@ await page.waitForTimeout(100);
 const fullPath = resolve(media, "smoke-gloom-20261113.png");
 const topPath = resolve(media, "smoke-gloom-20261113-top.png");
 const botPath = resolve(media, "smoke-gloom-20261113-bottom.png");
+const closePath = resolve(media, "edge-closeup-20261113.png");
 
 await page.screenshot({ path: fullPath, type: "png", omitBackground: true });
 const top = await page.locator("#uw-top").boundingBox();
@@ -407,6 +450,26 @@ await page.screenshot({
     height: Math.min(H - bot.y + 4, bot.height + 8),
   },
 });
+// 1:1 close-up around DATGUYDAZ + top torn lip (~1200×300)
+{
+  const nameBox = await page.locator(".smk-nameplate").boundingBox();
+  const cx = nameBox ? nameBox.x + nameBox.width / 2 : W / 2;
+  const closeW = 1200;
+  const closeH = 300;
+  const clipX = Math.max(0, Math.min(W - closeW, Math.round(cx - closeW / 2)));
+  const clipY = Math.max(0, Math.round(BAR - 220));
+  await page.screenshot({
+    path: closePath,
+    type: "png",
+    omitBackground: true,
+    clip: {
+      x: clipX,
+      y: clipY,
+      width: closeW,
+      height: Math.min(closeH, H - clipY),
+    },
+  });
+}
 
 const png = PNG.sync.read(readFileSync(fullPath));
 if (png.width !== W || png.height !== H) {
@@ -490,6 +553,7 @@ if (also) {
   copyFileSync(fullPath, resolve(also, "smoke-gloom-20261113.png"));
   copyFileSync(topPath, resolve(also, "smoke-gloom-20261113-top.png"));
   copyFileSync(botPath, resolve(also, "smoke-gloom-20261113-bottom.png"));
+  copyFileSync(closePath, resolve(also, "edge-closeup-20261113.png"));
 }
 
 writeFileSync(
@@ -512,4 +576,5 @@ writeFileSync(
 console.log("wrote", fullPath);
 console.log("wrote", topPath);
 console.log("wrote", botPath);
+console.log("wrote", closePath);
 await browser.close();
