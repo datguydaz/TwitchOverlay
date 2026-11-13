@@ -105,6 +105,11 @@ const dump = await page.evaluate((bar) => {
   const fxStatic = document.querySelectorAll(".smk-fx-static").length;
   const fxScan = document.querySelectorAll(".smk-fx-scan").length;
   const fxDrop = document.querySelectorAll(".smk-fx-dropout").length;
+  const bunkerLights = document.querySelectorAll(".smk-bunker-light").length;
+  const chatter = document.querySelectorAll(".smk-chatter").length;
+  const chrono = document.querySelectorAll(".smk-chrono").length;
+  const chronoLoc = document.querySelector('[data-chrono="loc"]')?.textContent || "";
+  const chronoRaid = document.querySelector('[data-chrono="raid"]')?.textContent || "";
   const edgeStacks = document.querySelectorAll(".smk-edge-stack").length;
   const steel = document.querySelectorAll(".smk-steel").length;
   const hud = document.querySelectorAll(".smk-hud").length;
@@ -148,6 +153,11 @@ const dump = await page.evaluate((bar) => {
     fxStatic,
     fxScan,
     fxDrop,
+    bunkerLights,
+    chatter,
+    chrono,
+    chronoLoc,
+    chronoRaid,
     edgeStacks,
     steel,
     hud,
@@ -216,6 +226,18 @@ if (dump.fxStatic < 2 || dump.fxScan < 2 || dump.fxDrop < 2) {
 if (dump.hasStandby) {
   console.error("STANDBY must not appear");
   process.exit(21);
+}
+if (dump.bunkerLights < 2 || dump.chatter < 1 || dump.chrono < 4) {
+  console.error("missing bunker HUD", {
+    bunkerLights: dump.bunkerLights,
+    chatter: dump.chatter,
+    chrono: dump.chrono,
+  });
+  process.exit(22);
+}
+if (!/^\d{2}:\d{2}:\d{2}$/.test(dump.chronoLoc || "") || !/^\d{2}:\d{2}:\d{2}$/.test(dump.chronoRaid || "")) {
+  console.error("clock/raid format", dump.chronoLoc, dump.chronoRaid);
+  process.exit(23);
 }
 if (/amber|255,\s*200|255,\s*230|ffc|ffe|yellow/i.test(dump.nameFilter || "")) process.exit(12);
 if (dump.followerLeft < 200 || dump.subRight < 200) {

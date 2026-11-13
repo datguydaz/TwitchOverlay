@@ -7,6 +7,7 @@ import { TextLifeVfx } from "../lib/textLifeVfx.ts";
 import { SocialReadoutAnim } from "../lib/socialReadoutAnim.ts";
 import { applySmokeRuinTextures } from "../lib/smokeRuinTextures.ts";
 import { applySmokeBarFx } from "../lib/smokeBarFx.ts";
+import { applySmokeBunkerHud } from "../lib/smokeBunkerHud.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 import type { AtmPreviewKind } from "../../../shared/protocol.ts";
 
@@ -77,6 +78,7 @@ let lastSubscriber = "";
 let bootstrappedSocial = false;
 let smokeRuinCleanup: (() => void) | null = null;
 let smokeBarFxCleanup: (() => void) | null = null;
+let smokeBunkerHudCleanup: (() => void) | null = null;
 let smokeRuinReady = false;
 
 const TEXT_PREVIEW = new Set<AtmPreviewKind>(["text-dip", "text-sweep", "text-op"]);
@@ -203,8 +205,10 @@ function applyUltrawide(settings: OverlaySettings): void {
     if (!smokeRuinReady) {
       smokeRuinCleanup?.();
       smokeBarFxCleanup?.();
+      smokeBunkerHudCleanup?.();
       smokeRuinCleanup = applySmokeRuinTextures(stage);
       smokeBarFxCleanup = applySmokeBarFx(stage);
+      smokeBunkerHudCleanup = applySmokeBunkerHud(stage);
       smokeRuinReady = true;
     }
   }
