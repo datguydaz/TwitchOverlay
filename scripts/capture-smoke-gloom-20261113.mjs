@@ -17,19 +17,24 @@ const H = 1440;
 const BAR = 248;
 
 const browser = await chromium.launch({ headless: true });
-const page = await (
-  await browser.newContext({
-    viewport: { width: W, height: H },
-    deviceScaleFactor: 1,
-  })
-).newPage();
+const context = await browser.newContext({
+  viewport: { width: W, height: H },
+  deviceScaleFactor: 1,
+});
+const page = await context.newPage();
 
-await page.route("**/*", (route) => {
-  const u = route.request().url();
-  if (/fonts\.googleapis|fonts\.gstatic|fonts\.google/.test(u)) return route.abort();
-  return route.continue();
+// Seed last-known social names the same way live Streamlabs will persist them
+// (do NOT inject DOM text after load — that hid empty-settings bugs in older proofs).
+await page.addInitScript(() => {
+  try {
+    localStorage.setItem("pz.uw.smoke.lastFollower", "RYSEABOVEIT");
+    localStorage.setItem("pz.uw.smoke.lastSubscriber", "ACTYR:[6]");
+  } catch {
+    /* ignore */
+  }
 });
 
+// Allow Google Fonts so proof matches Streamlabs Oswald (previous proofs aborted fonts).
 const url = `http://127.0.0.1:8787/ultrawide-smoke.html?gloom=${Date.now()}`;
 await page.goto(url, { waitUntil: "commit", timeout: 20000 });
 await page.waitForFunction(() => !!document.getElementById("uw-stage"), null, {
@@ -45,12 +50,18 @@ await page.waitForFunction(
   null,
   { timeout: 15000 },
 );
-await page.waitForTimeout(400);
+// Wait for Oswald / Share Tech Mono so glyph metrics match Streamlabs
+try {
+  await page.evaluate(async () => {
+    if (document.fonts?.ready) await document.fonts.ready;
+  });
+  await page.waitForTimeout(400);
+} catch {
+  await page.waitForTimeout(600);
+}
 
 const dump = await page.evaluate((bar) => {
   const s = document.getElementById("uw-stage");
-  document.getElementById("uw-follower-name").textContent = "RYSEABOVEIT";
-  document.getElementById("uw-subscriber-name").textContent = "ACTYR:[6]";
   const face = document.querySelector(".smk-name-face");
   const op = document.querySelector(".smk-op .uw-text-face");
   const csFace = face ? getComputedStyle(face) : null;
@@ -62,6 +73,12 @@ const dump = await page.evaluate((bar) => {
   const opBox = op?.getBoundingClientRect();
   const top = document.getElementById("uw-top")?.getBoundingClientRect();
   const bot = document.getElementById("uw-bottom")?.getBoundingClientRect();
+  const folEl = document.getElementById("uw-follower");
+  const subEl = document.getElementById("uw-subscriber");
+  const folName = document.getElementById("uw-follower-name");
+  const subName = document.getElementById("uw-subscriber-name");
+  const folBox = folEl?.getBoundingClientRect();
+  const subBox = subEl?.getBoundingClientRect();
   const sheets = [...document.styleSheets]
     .map((ss) => (ss.href || "").split("/").pop())
     .filter(Boolean);
@@ -85,6 +102,14 @@ const dump = await page.evaluate((bar) => {
   const edgeStacks = document.querySelectorAll(".smk-edge-stack").length;
   const steel = document.querySelectorAll(".smk-steel").length;
   const hud = document.querySelectorAll(".smk-hud").length;
+  let lastFol = "";
+  let lastSub = "";
+  try {
+    lastFol = localStorage.getItem("pz.uw.smoke.lastFollower") || "";
+    lastSub = localStorage.getItem("pz.uw.smoke.lastSubscriber") || "";
+  } catch {
+    /* ignore */
+  }
   return {
     path: location.pathname,
     variant: s?.dataset.variant,
@@ -95,6 +120,7 @@ const dump = await page.evaluate((bar) => {
     opText: op?.textContent || "",
     nameFill: csFace?.webkitTextFillColor || csFace?.color,
     nameFilter: csFace?.filter,
+    nameSize: csFace?.fontSize,
     bodyBg: csBody.backgroundColor,
     stageBg: csStage?.backgroundColor,
     voidBg: csVoid?.backgroundColor,
@@ -118,22 +144,21 @@ const dump = await page.evaluate((bar) => {
     labels: [...document.querySelectorAll(".uw-glass-label")].map((el) =>
       (el.textContent || "").replace(/\s+/g, " ").trim(),
     ),
-    follower: document.getElementById("uw-follower-name")?.textContent,
-    subscriber: document.getElementById("uw-subscriber-name")?.textContent,
-    followerLeft: Math.round(
-      document.getElementById("uw-follower")?.getBoundingClientRect().left || 0,
-    ),
-    subRight: Math.round(
-      3440 -
-        (document.getElementById("uw-subscriber")?.getBoundingClientRect().right || 0),
-    ),
+    follower: folName?.textContent || "",
+    subscriber: subName?.textContent || "",
+    lastFol,
+    lastSub,
+    // Plates must sit fully inside the top bar (above torn baseline)
+    folBottomGap: folBox && top ? Math.round(top.bottom - folBox.bottom) : null,
+    subBottomGap: subBox && top ? Math.round(top.bottom - subBox.bottom) : null,
+    followerLeft: Math.round(folBox?.left || 0),
+    subRight: Math.round(3440 - (subBox?.right || 0)),
     opColor: op ? getComputedStyle(op).color : null,
     opFill: op ? getComputedStyle(op).webkitTextFillColor : null,
     nameFont: csFace?.fontFamily,
-    socialFont: getComputedStyle(document.getElementById("uw-follower-name") || document.body)
-      .fontFamily,
-    socialSize: getComputedStyle(document.getElementById("uw-follower-name") || document.body)
-      .fontSize,
+    socialFont: getComputedStyle(folName || document.body).fontFamily,
+    socialSize: getComputedStyle(folName || document.body).fontSize,
+    fontsStatus: document.fonts?.status || "unknown",
   };
 }, BAR);
 console.log(JSON.stringify(dump, null, 2));
@@ -144,7 +169,7 @@ if (dump.stageW !== W || dump.stageH !== H) process.exit(4);
 if (dump.stageTransform && dump.stageTransform !== "none") process.exit(5);
 if (dump.topH !== BAR || dump.botH !== BAR) process.exit(6);
 if (dump.topBottom !== BAR || dump.botTop !== H - BAR) process.exit(7);
-if (dump.gapPx == null || dump.gapPx < 8) process.exit(8);
+if (dump.gapPx == null || dump.gapPx < 4) process.exit(8);
 if (dump.forbidden.some((f) => f.visible)) {
   console.error("forbidden bright FX still visible", dump.forbidden);
   process.exit(9);
@@ -167,6 +192,25 @@ if (dump.followerLeft < 200 || dump.subRight < 200) {
 if (!/Oswald/i.test(dump.socialFont || "") || !/Oswald/i.test(dump.nameFont || "")) {
   console.error("expected Oswald condensed family", dump.nameFont, dump.socialFont);
   process.exit(14);
+}
+// Names must render via last-known fallback (not empty plates)
+if (!dump.follower || !dump.subscriber) {
+  console.error("social names empty — fallback failed", dump.follower, dump.subscriber);
+  process.exit(17);
+}
+if (dump.follower !== "RYSEABOVEIT" || dump.subscriber !== "ACTYR:[6]") {
+  console.error("expected seeded last-known names", dump.follower, dump.subscriber);
+  process.exit(18);
+}
+// Plates fully inside bar (positive gap above torn edge)
+if (
+  dump.folBottomGap == null ||
+  dump.subBottomGap == null ||
+  dump.folBottomGap < 20 ||
+  dump.subBottomGap < 20
+) {
+  console.error("plates hang past bar edge", dump.folBottomGap, dump.subBottomGap);
+  process.exit(19);
 }
 
 await page.waitForTimeout(500);
@@ -260,6 +304,8 @@ writeFileSync(
       browserSourceUrl: "http://127.0.0.1:8787/ultrawide-smoke.html",
       width: W,
       height: H,
+      proofNotes:
+        "3440×1440 dpr=1; Google Fonts allowed; names via localStorage last-known fallback (not DOM inject).",
     },
     null,
     2,

@@ -19,6 +19,48 @@ function displayName(raw: string | undefined): string {
   return t;
 }
 
+const LS_LAST_FOLLOWER = "pz.uw.smoke.lastFollower";
+const LS_LAST_SUBSCRIBER = "pz.uw.smoke.lastSubscriber";
+
+function readStoredName(key: string): string {
+  try {
+    return displayName(localStorage.getItem(key) || "");
+  } catch {
+    return "";
+  }
+}
+
+function writeStoredName(key: string, name: string): void {
+  if (!name) return;
+  try {
+    localStorage.setItem(key, name);
+  } catch {
+    /* private mode / blocked storage */
+  }
+}
+
+/**
+ * Live social name with last-known fallback.
+ * Empty settings (scrubbed samples / no Twitch event yet) must not blank the plates —
+ * Streamlabs Browser Source often polls empty until EventSub writes a real name.
+ */
+function resolveSocialName(
+  incoming: string | undefined,
+  memory: string,
+  lsKey: string,
+  smokeFixed: boolean,
+): string {
+  const next = displayName(incoming);
+  if (next) {
+    writeStoredName(lsKey, next);
+    return next;
+  }
+  if (memory) return memory;
+  const stored = readStoredName(lsKey);
+  if (stored) return stored;
+  return smokeFixed ? "STANDBY" : "";
+}
+
 function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
   const apply = () => {
     const sx = window.innerWidth / width;
@@ -135,8 +177,18 @@ function applyUltrawide(settings: OverlaySettings): void {
   const subscriber = qs<HTMLElement>("#uw-subscriber");
   const followerName = qs<HTMLElement>("#uw-follower-name");
   const subscriberName = qs<HTMLElement>("#uw-subscriber-name");
-  const nextFol = displayName(social.latestFollower ?? social.latestFollowerSample);
-  const nextSub = displayName(social.latestSubscriber ?? social.latestSubscriberSample);
+  const nextFol = resolveSocialName(
+    social.latestFollower ?? social.latestFollowerSample,
+    lastFollower,
+    LS_LAST_FOLLOWER,
+    smokeFixed,
+  );
+  const nextSub = resolveSocialName(
+    social.latestSubscriber ?? social.latestSubscriberSample,
+    lastSubscriber,
+    LS_LAST_SUBSCRIBER,
+    smokeFixed,
+  );
 
   if (follower) follower.hidden = !social.showFollower;
   if (subscriber) subscriber.hidden = !social.showSubscriber;
@@ -162,7 +214,7 @@ function applyUltrawide(settings: OverlaySettings): void {
   if (!socialAnim) socialAnim = new SocialReadoutAnim(stage, reduced);
   else socialAnim.setReducedMotion(reduced);
 
-  // First load: set names quietly. Later changes: queue smoked-glass event anim.
+  // First load: set names quietly (never leave plates blank on smoke). Later: anim on change.
   if (!bootstrappedSocial) {
     if (followerName) followerName.textContent = nextFol;
     if (subscriberName) subscriberName.textContent = nextSub;

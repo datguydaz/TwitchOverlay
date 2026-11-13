@@ -59,42 +59,49 @@ function makeCanvas(w: number, h: number): HTMLCanvasElement {
   return c;
 }
 
-/** Irregular torn-edge profile: y offsets in px from the flat edge inward.
- *  Low sample count + large depth swings → visible non-repeating breaks (not a saw). */
+/**
+ * Shallow torn-edge profile: one consistent baseline across the full width,
+ * with only small irregular grit chips — no deep side bites / center steps.
+ */
 function buildTornProfile(
   _width: number,
   maxDepth: number,
   seed: number,
-  samples = 64,
+  samples = 96,
 ): Float32Array {
   const rnd = mulberry32(seed);
   const profile = new Float32Array(samples + 1);
+  // Tight baseline (~70% of maxDepth) so L/C/R share one edge; grit is ±small only
+  const baseline = maxDepth * 0.7;
   for (let i = 0; i <= samples; i++) {
     const t = i / samples;
-    const nLo = fbm(t * 3.2, 0.15, seed, 4);
-    const nMid = fbm(t * 9.5, 0.8, seed + 3, 3);
-    let d = maxDepth * (0.14 + nLo * 0.5 + nMid * 0.22 + (rnd() - 0.5) * 0.1);
-    // Sparse deep bites / shallow shelves — irregular, not a periodic saw
-    if (nMid > 0.68 && rnd() < 0.4) d += maxDepth * (0.3 + rnd() * 0.55);
-    if (nLo < 0.32 && rnd() < 0.35) d = maxDepth * (0.06 + rnd() * 0.14);
-    if (rnd() < 0.08) d += maxDepth * (0.15 + rnd() * 0.35);
-    profile[i] = Math.max(maxDepth * 0.08, Math.min(maxDepth, d));
+    const nLo = fbm(t * 6, 0.2, seed, 3);
+    const nMid = fbm(t * 18, 0.7, seed + 3, 2);
+    // Tiny grit only — amplitude capped so no visible shelf/step across width
+    let d = baseline + (nLo - 0.5) * maxDepth * 0.16 + (nMid - 0.5) * maxDepth * 0.1;
+    if (rnd() < 0.1) d += maxDepth * (0.05 + rnd() * 0.1);
+    if (rnd() < 0.08) d -= maxDepth * (0.04 + rnd() * 0.08);
+    profile[i] = Math.max(maxDepth * 0.45, Math.min(maxDepth, d));
   }
-  // Mild smooth so segments aren't perfect zigzags, but keep big variation
+  // Heavy smooth → continuous baseline (no stepped L/R vs centre)
   const copy = profile.slice();
-  for (let i = 1; i < samples; i++) {
-    profile[i] = copy[i - 1] * 0.2 + copy[i] * 0.6 + copy[i + 1] * 0.2;
+  for (let pass = 0; pass < 2; pass++) {
+    const src = profile.slice();
+    for (let i = 1; i < samples; i++) {
+      profile[i] = src[i - 1] * 0.3 + src[i] * 0.4 + src[i + 1] * 0.3;
+    }
   }
+  void copy;
   return profile;
 }
 
-/** Sample profile at pixel x with high-freq chip noise (no polygonal teeth). */
+/** Sample profile at pixel x with fine chip noise (no center-depth cap / no big steps). */
 function depthAt(
   profile: Float32Array,
   x: number,
   barW: number,
   seed: number,
-  side?: EdgeSide,
+  _side?: EdgeSide,
 ): number {
   const n = profile.length - 1;
   const t = (x / Math.max(1, barW - 1)) * n;
@@ -103,19 +110,15 @@ function depthAt(
   const a = profile[Math.max(0, Math.min(n, i))];
   const b = profile[Math.max(0, Math.min(n, i + 1))];
   const base = a + (b - a) * f;
-  const chip = (fbm(x * 0.35, 2.2, seed, 2) - 0.5) * 7;
-  const micro = (hash2(x, seed, seed) - 0.5) * 3.5;
-  let depth = Math.max(2, base + chip + micro);
-  // Keep top-bar center shallow so OPERATOR ONLINE dog-tag stays intact
-  if (side === "bottom") {
-    const nx = x / barW;
-    if (nx > 0.28 && nx < 0.72) {
-      const center = 1 - Math.abs(nx - 0.5) / 0.22;
-      const cap = 10 + (1 - Math.max(0, center)) * 8;
-      depth = Math.min(depth, cap);
-    }
-  }
-  return depth;
+  const chip = (fbm(x * 0.55, 2.2, seed, 2) - 0.5) * 1.6;
+  const micro = (hash2(x, seed, seed) - 0.5) * 0.9;
+  return Math.max(2.5, Math.min(maxDepthSafe(profile), base + chip + micro));
+}
+
+function maxDepthSafe(profile: Float32Array): number {
+  let m = 0;
+  for (let i = 0; i < profile.length; i++) m = Math.max(m, profile[i]);
+  return Math.max(8, m + 1.5);
 }
 
 /** Alpha mask: opaque bar with irregular torn edge (raster, not clip-path). */
@@ -317,41 +320,31 @@ function paintSmokeWisps(
   const d = img.data;
 
   if (heavy) {
-    // Bottom bar: discrete soft vertical columns rising from the floor — not domain-warped marble
-    const rnd = mulberry32(seed + Math.floor(t * 3));
-    const wisps: { x: number; w0: number; h0: number; lean: number; a: number }[] = [];
-    for (let i = 0; i < 9; i++) {
-      wisps.push({
-        x: (0.06 + rnd() * 0.88) * w + Math.sin(t * 0.4 + i) * 8,
-        w0: 18 + rnd() * 28,
-        h0: h * (0.45 + rnd() * 0.5),
-        lean: (rnd() - 0.5) * 0.35,
-        a: 0.4 + rnd() * 0.35,
-      });
-    }
+    // Bottom bar: low dark smoke drifting horizontally — no vertical shafts / spotlights
+    const density = 0.72;
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
-        let a = 0;
-        const rise = y / h; // denser near floor (high y), fades toward stage (y→0)
-        for (const wp of wisps) {
-          const cy = h - wp.h0 * 0.15; // rooted near bottom
-          const yy = (cy - y) / wp.h0;
-          if (yy < -0.15 || yy > 1.15) continue;
-          const cx = wp.x + (1 - yy) * wp.lean * wp.h0 * 0.35;
-          const xw = wp.w0 * (0.55 + yy * 0.7); // wider near top as it dissipates
-          const dx = (x - cx) / Math.max(1, xw);
-          const dy = yy;
-          const soft = Math.exp(-dx * dx * 2.8 - dy * dy * 1.1);
-          const noise = 0.75 + fbm(x * 0.02 + iNoise(wp.x), y * 0.03, seed, 2) * 0.35;
-          a += soft * wp.a * rise * noise;
-        }
-        if (a < 0.04) continue;
+        // Drift along X over time; keep smoke in the lower ~60% of the bar
+        const warpX = fbm(x * 0.0025 + t * 0.045, y * 0.009, seed, 3);
+        const warpY = fbm(x * 0.0016, y * 0.007 + t * 0.01, seed + 7, 2);
+        const nx = x * 0.004 + warpX * 3.5 + t * 0.07;
+        const ny = y * 0.014 + warpY * 1.2;
+        const n = fbm(nx, ny, seed + 19, 4);
+        const ridge = 1 - Math.abs(n * 2 - 1);
+        // Broad horizontal sheets (not thin vertical ridges)
+        const sheet = Math.pow(Math.max(0, ridge - 0.36) / 0.64, 1.8);
+        const band = Math.max(0, Math.min(1, (y / h - 0.22) / 0.6));
+        const floorBias = Math.pow(band, 1.15);
+        let a = sheet * floorBias * density;
+        if (a < 0.1) continue;
+        a = (a - 0.1) * 1.05;
         const i = (y * w + x) * 4;
-        const v = 52 + a * 40;
-        d[i] = v * 0.88;
-        d[i + 1] = v * 0.93;
-        d[i + 2] = v;
-        d[i + 3] = Math.min(130, a * 170);
+        // Cool charcoal gray — dark haze, not lit beams
+        const v = 36 + ridge * 28;
+        d[i] = v * 0.78;
+        d[i + 1] = v * 0.82;
+        d[i + 2] = v * 0.86;
+        d[i + 3] = Math.min(120, a * 155);
       }
     }
     ctx.putImageData(img, 0, 0);
@@ -383,10 +376,6 @@ function paintSmokeWisps(
     }
   }
   ctx.putImageData(img, 0, 0);
-}
-
-function iNoise(v: number): number {
-  return ((v * 0.01) % 17) + 1;
 }
 
 function paintBloodSplatter(
@@ -557,9 +546,9 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     paintSteelPlate(ctx, BAR_W, BAR_H, seed, quiet);
   }
 
-  // --- Irregular torn edges + rust strip following profile ---
-  const topProfile = buildTornProfile(BAR_W, 58, 404);
-  const botProfile = buildTornProfile(BAR_W, 58, 808);
+  // --- Shallow consistent torn edges (small grit only; plates stay inside bar) ---
+  const topProfile = buildTornProfile(BAR_W, 10, 404);
+  const botProfile = buildTornProfile(BAR_W, 10, 808);
 
   for (const [bar, profile, side, seed] of [
     [top, topProfile, "bottom", 501] as const,
