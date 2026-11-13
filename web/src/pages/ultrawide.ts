@@ -118,6 +118,9 @@ let smokeBarPropsCleanup: (() => void) | null = null;
 let smokeRuinReady = false;
 let lastSmokeBarH = 0;
 let lastSmokeEdge: SmokeEdgeStyle | "" = "";
+let lastSmokeNames: SmokeNamesStyle | "" = "";
+
+export type SmokeNamesStyle = "terminal" | "stencil" | "condensed" | "oswald";
 
 /** Smoke page only: `?bar=` tunes letterbox height (120–248). Default 180. */
 function resolveSmokeBarH(): number {
@@ -131,6 +134,43 @@ function resolveSmokeBarH(): number {
     /* ignore */
   }
   return 180;
+}
+
+/**
+ * `?names=` — follower/subscriber name font only.
+ * Unset → current look (Oswald + greenish). Explicit oswald → bone.
+ */
+function resolveSmokeNamesStyle(): SmokeNamesStyle | "" {
+  try {
+    const raw = (new URLSearchParams(location.search).get("names") || "").toLowerCase();
+    if (raw === "terminal" || raw === "stencil" || raw === "condensed" || raw === "oswald") {
+      return raw;
+    }
+  } catch {
+    /* ignore */
+  }
+  return "";
+}
+
+/** Shrink name glyphs so long handles still fit inside the radio screen. */
+function fitSocialNameFonts(stage: HTMLElement): void {
+  for (const id of ["uw-follower-name", "uw-subscriber-name"]) {
+    const el = stage.querySelector(`#${id}`) as HTMLElement | null;
+    if (!el) continue;
+    const parent = el.parentElement;
+    if (!parent) continue;
+    el.style.fontSize = "";
+    const base = Number.parseFloat(getComputedStyle(el).fontSize) || 28;
+    let size = base;
+    const min = Math.max(13, base * 0.42);
+    const maxW = Math.max(40, parent.clientWidth - 12);
+    // Binary-ish shrink — keep type-in readable
+    let guard = 0;
+    while (el.scrollWidth > maxW && size > min && guard++ < 60) {
+      size -= 0.75;
+      el.style.fontSize = `${size}px`;
+    }
+  }
 }
 
 const TEXT_PREVIEW = new Set<AtmPreviewKind>(["text-dip", "text-sweep", "text-op"]);
@@ -262,6 +302,9 @@ function applyUltrawide(settings: OverlaySettings): void {
     stage.dataset.barH = String(barH);
     const edgeStyle = resolveSmokeEdgeStyle(stage);
     stage.dataset.edge = edgeStyle;
+    const namesStyle = resolveSmokeNamesStyle();
+    if (namesStyle) stage.dataset.names = namesStyle;
+    else delete stage.dataset.names;
     if (!smokeRuinReady || lastSmokeBarH !== barH || lastSmokeEdge !== edgeStyle) {
       smokeRuinCleanup?.();
       smokeBarFxCleanup?.();
@@ -275,6 +318,18 @@ function applyUltrawide(settings: OverlaySettings): void {
       lastSmokeBarH = barH;
       lastSmokeEdge = edgeStyle;
     }
+    if (lastSmokeNames !== namesStyle) {
+      lastSmokeNames = namesStyle;
+      // Re-fit after font family swap
+      void (async () => {
+        try {
+          if (document.fonts?.ready) await document.fonts.ready;
+        } catch {
+          /* ignore */
+        }
+        fitSocialNameFonts(stage);
+      })();
+    }
   }
 
   if (!socialAnim) socialAnim = new SocialReadoutAnim(stage, reduced);
@@ -285,6 +340,16 @@ function applyUltrawide(settings: OverlaySettings): void {
     if (followerName) followerName.textContent = nextFol;
     if (subscriberName) subscriberName.textContent = nextSub;
     bootstrappedSocial = true;
+    if (smokeFixed) {
+      void (async () => {
+        try {
+          if (document.fonts?.ready) await document.fonts.ready;
+        } catch {
+          /* ignore */
+        }
+        fitSocialNameFonts(stage);
+      })();
+    }
   } else {
     if (nextFol && nextFol !== lastFollower) {
       socialAnim.enqueue("follow", nextFol);

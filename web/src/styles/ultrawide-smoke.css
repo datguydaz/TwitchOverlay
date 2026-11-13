@@ -1104,6 +1104,9 @@ body.uw-smoke-variant {
   );
   mix-blend-mode: screen;
 }
+/* Follower / subscriber NAMES only — labels stay Share Tech Mono.
+   Default (no ?names=): current Oswald + greenish CRT fill.
+   ?names=terminal|stencil|condensed|oswald picks an alternate. */
 #uw-stage[data-variant="smoke-flare"] .uw-glass-name,
 #uw-stage[data-variant="smoke-flare"] #uw-follower-name,
 #uw-stage[data-variant="smoke-flare"] #uw-subscriber-name,
@@ -1111,6 +1114,7 @@ body.uw-smoke-variant {
 #uw-stage[data-variant="smoke-flare"] #uw-subscriber .uw-glass-name {
   position: relative;
   z-index: 4;
+  display: block;
   color: #c8d2b4 !important;
   font-family: "Oswald", "Impact", "Arial Narrow", sans-serif !important;
   font-style: normal !important;
@@ -1126,11 +1130,72 @@ body.uw-smoke-variant {
   -webkit-text-fill-color: #c8d2b4 !important;
   white-space: nowrap !important;
   line-height: 1.05 !important;
-  width: auto !important;
-  max-width: none !important;
-  overflow: visible !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
   text-overflow: clip !important;
   animation: smk-radio-flicker 6.8s steps(1, end) infinite;
+}
+/* phosphor mono — matches ONLINE */
+#uw-stage[data-variant="smoke-flare"][data-names="terminal"] .uw-glass-name,
+#uw-stage[data-variant="smoke-flare"][data-names="terminal"] #uw-follower-name,
+#uw-stage[data-variant="smoke-flare"][data-names="terminal"] #uw-subscriber-name {
+  font-family: "JetBrains Mono", "Share Tech Mono", "Consolas", monospace !important;
+  font-weight: 800 !important;
+  font-stretch: normal !important;
+  font-size: clamp(20px, calc(var(--uw-bar-h) * 0.175), 36px) !important;
+  letter-spacing: 0.04em !important;
+  color: #9fc48a !important;
+  -webkit-text-fill-color: #9fc48a !important;
+  text-shadow:
+    0 0 10px rgba(120, 170, 90, 0.45),
+    0 0 22px rgba(90, 140, 70, 0.22),
+    0 1px 0 rgba(0, 0, 0, 0.9) !important;
+}
+/* stencil — bone like DATGUYDAZ */
+#uw-stage[data-variant="smoke-flare"][data-names="stencil"] .uw-glass-name,
+#uw-stage[data-variant="smoke-flare"][data-names="stencil"] #uw-follower-name,
+#uw-stage[data-variant="smoke-flare"][data-names="stencil"] #uw-subscriber-name {
+  font-family: "Saira Stencil One", "Black Ops One", "Impact", sans-serif !important;
+  font-weight: 400 !important;
+  font-stretch: normal !important;
+  font-size: clamp(22px, calc(var(--uw-bar-h) * 0.2), 42px) !important;
+  letter-spacing: 0.06em !important;
+  color: #ebe4d4 !important;
+  -webkit-text-fill-color: #ebe4d4 !important;
+  text-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.9),
+    0 0 12px rgba(90, 18, 12, 0.28) !important;
+}
+/* condensed display — bone */
+#uw-stage[data-variant="smoke-flare"][data-names="condensed"] .uw-glass-name,
+#uw-stage[data-variant="smoke-flare"][data-names="condensed"] #uw-follower-name,
+#uw-stage[data-variant="smoke-flare"][data-names="condensed"] #uw-subscriber-name {
+  font-family: "Bebas Neue", "Oswald", "Arial Narrow", sans-serif !important;
+  font-weight: 400 !important;
+  font-stretch: normal !important;
+  font-size: clamp(28px, calc(var(--uw-bar-h) * 0.26), 52px) !important;
+  letter-spacing: 0.08em !important;
+  color: #ebe4d4 !important;
+  -webkit-text-fill-color: #ebe4d4 !important;
+  text-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(90, 18, 12, 0.22) !important;
+}
+/* Oswald Bold — bone (explicit pick; unset keeps current greenish) */
+#uw-stage[data-variant="smoke-flare"][data-names="oswald"] .uw-glass-name,
+#uw-stage[data-variant="smoke-flare"][data-names="oswald"] #uw-follower-name,
+#uw-stage[data-variant="smoke-flare"][data-names="oswald"] #uw-subscriber-name {
+  font-family: "Oswald", "Impact", "Arial Narrow", sans-serif !important;
+  font-weight: 700 !important;
+  font-stretch: condensed !important;
+  font-size: clamp(26px, calc(var(--uw-bar-h) * 0.22), 46px) !important;
+  letter-spacing: 0.05em !important;
+  color: #ebe4d4 !important;
+  -webkit-text-fill-color: #ebe4d4 !important;
+  text-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(90, 18, 12, 0.22) !important;
 }
 @keyframes smk-radio-flicker {
   0%, 100% { opacity: 0.96; filter: none; }

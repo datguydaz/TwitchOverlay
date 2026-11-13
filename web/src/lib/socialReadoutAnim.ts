@@ -171,6 +171,7 @@ export class SocialReadoutAnim {
       nameEl.textContent = built;
       await this.wait(22 + Math.floor(Math.random() * 28));
     }
+    this.fitName(nameEl);
 
     el.dataset.socialFx = "new";
     badge?.classList.add("on");
@@ -183,6 +184,23 @@ export class SocialReadoutAnim {
     badge?.classList.remove("on");
     if (job.restoreTo !== undefined) {
       nameEl.textContent = job.restoreTo;
+    }
+    this.fitName(nameEl);
+  }
+
+  /** Shrink long handles to the radio-screen width (preserves ?names= style). */
+  private fitName(nameEl: HTMLElement): void {
+    const parent = nameEl.parentElement;
+    if (!parent) return;
+    nameEl.style.fontSize = "";
+    const base = Number.parseFloat(getComputedStyle(nameEl).fontSize) || 28;
+    let size = base;
+    const min = Math.max(13, base * 0.42);
+    const maxW = Math.max(40, parent.clientWidth - 12);
+    let guard = 0;
+    while (nameEl.scrollWidth > maxW && size > min && guard++ < 60) {
+      size -= 0.75;
+      nameEl.style.fontSize = `${size}px`;
     }
   }
 
