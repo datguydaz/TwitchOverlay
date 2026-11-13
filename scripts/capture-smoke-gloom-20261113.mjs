@@ -115,6 +115,28 @@ const dump = await page.evaluate((bar) => {
   const chrono = document.querySelectorAll(".smk-chrono").length;
   const chronoLoc = document.querySelector('[data-chrono="loc"]')?.textContent || "";
   const chronoRaid = document.querySelector('[data-chrono="raid"]')?.textContent || "";
+  const nameBox = document.querySelector(".smk-nameplate")?.getBoundingClientRect();
+  const opTagBox = document.querySelector(".smk-op")?.getBoundingClientRect();
+  // Expected bullet-hole centres (must sit in open steel)
+  const holes = [
+    { bar: "top", x: 2380, y: 105 },
+    { bar: "bot", x: 1100, y: 1192 + 95 },
+  ];
+  const holeClear = holes.map((h) => {
+    const hits = [];
+    for (const [label, box] of [
+      ["follower", folBox],
+      ["subscriber", subBox],
+      ["name", nameBox],
+      ["op", opTagBox],
+    ]) {
+      if (!box) continue;
+      if (h.x >= box.left - 24 && h.x <= box.right + 24 && h.y >= box.top - 24 && h.y <= box.bottom + 24) {
+        hits.push(label);
+      }
+    }
+    return { ...h, hits, clear: hits.length === 0 };
+  });
   const edgeStacks = document.querySelectorAll(".smk-edge-stack").length;
   const steel = document.querySelectorAll(".smk-steel").length;
   const hud = document.querySelectorAll(".smk-hud").length;
@@ -164,6 +186,7 @@ const dump = await page.evaluate((bar) => {
     chrono,
     chronoLoc,
     chronoRaid,
+    holeClear,
     edgeStacks,
     steel,
     hud,
@@ -266,6 +289,10 @@ if (dump.follower !== "RYSEABOVEIT" || dump.subscriber !== "ACTYR:[6]") {
   console.error("expected seeded last-known names", dump.follower, dump.subscriber);
   process.exit(18);
 }
+if (!dump.holeClear || dump.holeClear.some((h) => !h.clear)) {
+  console.error("bullet holes overlap UI", dump.holeClear);
+  process.exit(24);
+}
 // Plates fully inside bar (positive gap above torn edge)
 if (
   dump.folBottomGap == null ||
@@ -367,6 +394,35 @@ console.log("transparency", JSON.stringify(transparency, null, 2));
 if (opaque > 0 || stageOpaque > 0) {
   console.error("STAGE NOT FULLY TRANSPARENT");
   process.exit(16);
+}
+
+// Verify bullet-hole cores are visible (near-black opaque pixels at expected centres)
+const holePts = [
+  { x: 2380, y: 105, label: "top" },
+  { x: 1100, y: H - BAR + 95, label: "bot" },
+];
+const holeVis = [];
+for (const h of holePts) {
+  let dark = 0;
+  let checked = 0;
+  for (let dy = -4; dy <= 4; dy++) {
+    for (let dx = -4; dx <= 4; dx++) {
+      const xi = Math.round(h.x + dx);
+      const yi = Math.round(h.y + dy);
+      if (xi < 0 || yi < 0 || xi >= W || yi >= H) continue;
+      const i = (png.width * yi + xi) << 2;
+      const a = png.data[i + 3];
+      const v = (png.data[i] + png.data[i + 1] + png.data[i + 2]) / 3;
+      checked++;
+      if (a > 180 && v < 28) dark++;
+    }
+  }
+  holeVis.push({ ...h, dark, checked, visible: dark >= 6 });
+}
+console.log("bulletHoles", JSON.stringify(holeVis, null, 2));
+if (holeVis.some((h) => !h.visible)) {
+  console.error("bullet holes not visible in proof", holeVis);
+  process.exit(25);
 }
 
 if (also) {

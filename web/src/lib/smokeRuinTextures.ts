@@ -591,12 +591,12 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
   const BAR_W = 3440;
   const BAR_H = 248;
 
-  // --- Steel plates + static bullet holes (off-centre, clear of text) ---
+  // --- Steel plates + static bullet holes (open steel only — clear of UI) ---
   for (const [bar, seed, quiet, holes] of [
-    // Top: near right terminal (~between name and subscriber plate)
-    [top, 101, false, [{ x: 2680, y: 118, seed: 4401, scale: 1.05 }]] as const,
-    // Bottom: left of centre
-    [bot, 202, true, [{ x: 1320, y: 132, seed: 4402, scale: 0.95 }]] as const,
+    // Top: between DATGUYDAZ / OP tag and right subscriber terminal
+    [top, 101, false, [{ x: 2380, y: 105, seed: 4401, scale: 1.1 }]] as const,
+    // Bottom: left of centre, above chatter band (y mid-upper so ticker at bottom doesn't cover)
+    [bot, 202, true, [{ x: 1100, y: 95, seed: 4402, scale: 1.05 }]] as const,
   ]) {
     const steelHost = bar.querySelector(".smk-steel") as HTMLElement | null;
     if (!steelHost) continue;
