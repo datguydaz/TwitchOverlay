@@ -1,6 +1,6 @@
 /* Bunker gloom — ultrawide-smoke.html only.
-   Match gloom-ref-1/2/3: inset labels, bone distressed name, visible OP+red rules,
-   clear grey smoke in bars, corner blood, hairline+chevron. Stage hole stays clean. */
+   Wispy cool-grey smoke, organic corner blood, upright readable social names,
+   unclipped bone DATGUYDAZ. Stage hole fully transparent. */
 
 html.uw-smoke-html,
 body.uw-smoke-variant {
@@ -17,11 +17,10 @@ body.uw-smoke-variant {
 #uw-stage[data-variant="smoke-flare"] {
   --uw-bar-h: 248px;
   --smk-bg: #050505;
-  --smk-bone: #e4dfd0;
+  --smk-bone: #e8e2d4;
   --smk-bone-mid: #c8c2b0;
   --smk-bone-dim: #b0aa9a;
-  --smk-hair: rgba(210, 204, 190, 0.55);
-  --smk-blood: #6b1e16;
+  --smk-hair: rgba(200, 204, 210, 0.5);
   --smk-blood-hot: #8a2a1e;
   --font-nameplate: "Oswald", "Impact", "Arial Narrow", sans-serif;
   --font-op: "Share Tech Mono", "Consolas", monospace;
@@ -43,7 +42,7 @@ body.uw-smoke-variant {
   min-height: var(--uw-bar-h);
   overflow: hidden !important;
   isolation: isolate;
-  contain: paint;
+  /* no contain:paint — it was clipping italic name glyph overhangs (Z) */
 }
 
 #uw-stage[data-variant="smoke-flare"] .uw-bar,
@@ -87,7 +86,6 @@ body.uw-smoke-variant {
   );
 }
 
-/* Kill bright leftovers */
 #uw-stage[data-variant="smoke-flare"] .uw-stencil .uw-text-glow,
 #uw-stage[data-variant="smoke-flare"] .uw-name-crt,
 #uw-stage[data-variant="smoke-flare"] .uw-op-readout .uw-text-glow,
@@ -116,7 +114,9 @@ body.uw-smoke-variant {
 #uw-stage[data-variant="smoke-flare"] .uw-divider-rail,
 #uw-stage[data-variant="smoke-flare"] .uw-header-rail,
 #uw-stage[data-variant="smoke-flare"] .uw-footer-rail,
-#uw-stage[data-variant="smoke-flare"] .uw-grime {
+#uw-stage[data-variant="smoke-flare"] .uw-grime,
+#uw-stage[data-variant="smoke-flare"] .smk-gloom-smoke,
+#uw-stage[data-variant="smoke-flare"] .smk-name-scratch {
   display: none !important;
 }
 
@@ -126,7 +126,6 @@ body.uw-smoke-variant {
   text-shadow: none !important;
 }
 
-/* —— Inset social columns ~200px from canvas edges —— */
 #uw-stage[data-variant="smoke-flare"] .uw-wall-header.uw-bar-body {
   padding: 0 220px !important;
   gap: 48px !important;
@@ -137,11 +136,9 @@ body.uw-smoke-variant {
   box-sizing: border-box;
 }
 
-/* —— Layers —— */
 .smk-gloom-base,
-.smk-gloom-smoke,
+.smk-wisps,
 .smk-corner-blood,
-.smk-name-scratch,
 .smk-hairline,
 .smk-chevron,
 .smk-label-hair,
@@ -157,175 +154,174 @@ body.uw-smoke-variant {
   background: #050505;
 }
 
-/* Faint but clearly visible grey smoke (ref level) */
-.smk-gloom-smoke {
+/* —— Cool-grey wisps: thin sharp tendrils, black between, no brown smear —— */
+.smk-wisps {
+  inset: 0;
   z-index: 1;
+  overflow: hidden;
+}
+.smk-wisps > i {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  /* Cool neutral grey only — B slightly above R to kill beige cast */
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(142, 150, 162, 0.55) 18%,
+    rgba(158, 166, 178, 0.7) 48%,
+    rgba(138, 146, 160, 0.4) 78%,
+    transparent 100%
+  );
+  filter: blur(0.55px);
   mix-blend-mode: screen;
+  opacity: 0.55;
+  border-radius: 50% / 80%;
+  height: 10px;
 }
-.smk-gloom-smoke.center {
-  left: 16%;
-  right: 16%;
-  top: -8%;
-  bottom: 0%;
-  opacity: 1;
-  filter: blur(10px) contrast(1.15);
-  background:
-    radial-gradient(ellipse 70% 80% at 50% 38%, rgba(220, 214, 200, 0.5), transparent 62%),
-    radial-gradient(ellipse 40% 55% at 35% 55%, rgba(180, 174, 160, 0.38), transparent 65%),
-    radial-gradient(ellipse 38% 50% at 68% 45%, rgba(170, 164, 150, 0.34), transparent 66%),
-    url("/textures/bunker/soot-vent.png");
-  background-size: auto, auto, auto, 900px 280px;
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
-  background-position: center, center, center, center 20%;
-  background-blend-mode: screen, screen, screen, soft-light;
+.smk-wisps:not(.bot) > i.w1 {
+  left: 41%;
+  top: 36%;
+  width: 220px;
+  height: 9px;
+  transform: rotate(-14deg) skewX(-18deg);
 }
-.smk-gloom-smoke.left {
-  left: 1%;
-  width: 32%;
-  top: 8%;
-  bottom: 12%;
-  opacity: 0.8;
-  filter: blur(12px) contrast(1.1);
-  background:
-    radial-gradient(ellipse at 28% 55%, rgba(190, 184, 170, 0.4), transparent 65%),
-    url("/textures/bunker/soot-plate.png");
-  background-size: auto, 420px 200px;
-  background-blend-mode: screen, soft-light;
+.smk-wisps:not(.bot) > i.w2 {
+  left: 50%;
+  top: 48%;
+  width: 260px;
+  height: 8px;
+  transform: rotate(8deg) skewX(14deg);
+  opacity: 0.42;
 }
-.smk-gloom-smoke.right {
-  right: 1%;
-  width: 32%;
-  top: 6%;
-  bottom: 18%;
-  opacity: 0.8;
-  filter: blur(12px) contrast(1.1);
-  background:
-    radial-gradient(ellipse at 72% 48%, rgba(190, 184, 170, 0.4), transparent 65%),
-    url("/textures/bunker/soot-plate.png");
-  background-size: auto, 420px 200px;
-  background-blend-mode: screen, soft-light;
+.smk-wisps:not(.bot) > i.w3 {
+  left: 46%;
+  top: 24%;
+  width: 110px;
+  height: 7px;
+  transform: rotate(-26deg) skewX(-8deg);
+  opacity: 0.38;
 }
-.smk-gloom-smoke.bot {
-  left: 2%;
-  right: 2%;
-  top: 5%;
-  bottom: -10%;
-  opacity: 1;
-  filter: blur(11px) contrast(1.15);
-  background:
-    radial-gradient(ellipse 100% 80% at 50% 68%, rgba(215, 208, 194, 0.48), transparent 68%),
-    radial-gradient(ellipse 40% 50% at 20% 50%, rgba(170, 164, 150, 0.36), transparent 65%),
-    radial-gradient(ellipse 40% 50% at 85% 48%, rgba(170, 164, 150, 0.34), transparent 65%),
-    url("/textures/bunker/soot-vent.png");
-  background-size: auto, auto, auto, 1100px 260px;
-  background-position: center, center, center, center bottom;
-  background-blend-mode: screen, screen, screen, soft-light;
+.smk-wisps:not(.bot) > i.w4 {
+  left: 57%;
+  top: 58%;
+  width: 150px;
+  height: 8px;
+  transform: rotate(11deg) skewX(10deg);
+  opacity: 0.4;
 }
-.smk-gloom-smoke.bot.b {
-  left: 28%;
-  right: 4%;
-  top: 18%;
-  opacity: 0.85;
-  filter: blur(13px) contrast(1.1);
-  background:
-    radial-gradient(ellipse at 55% 40%, rgba(195, 188, 174, 0.42), transparent 62%),
-    url("/textures/bunker/soot-plate.png");
-  background-size: auto, 500px 220px;
-  background-blend-mode: screen, soft-light;
+.smk-wisps:not(.bot) > i.w5 {
+  left: 38%;
+  top: 54%;
+  width: 95px;
+  height: 6px;
+  transform: rotate(-5deg);
+  opacity: 0.32;
+}
+.smk-wisps.bot > i.w1 {
+  left: 12%;
+  top: 52%;
+  width: 240px;
+  height: 9px;
+  transform: rotate(-6deg) skewX(-16deg);
+}
+.smk-wisps.bot > i.w2 {
+  left: 32%;
+  top: 60%;
+  width: 180px;
+  height: 7px;
+  transform: rotate(10deg) skewX(12deg);
+  opacity: 0.4;
+}
+.smk-wisps.bot > i.w3 {
+  left: 48%;
+  top: 46%;
+  width: 280px;
+  height: 10px;
+  transform: rotate(-4deg) skewX(10deg);
+  opacity: 0.48;
+}
+.smk-wisps.bot > i.w4 {
+  left: 66%;
+  top: 62%;
+  width: 170px;
+  height: 8px;
+  transform: rotate(12deg) skewX(8deg);
+  opacity: 0.36;
+}
+.smk-wisps.bot > i.w5 {
+  left: 78%;
+  top: 52%;
+  width: 200px;
+  height: 9px;
+  transform: rotate(-10deg) skewX(-12deg);
+  opacity: 0.44;
+}
+.smk-wisps.bot > i.w6 {
+  left: 22%;
+  top: 66%;
+  width: 120px;
+  height: 6px;
+  transform: rotate(4deg);
+  opacity: 0.28;
 }
 
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-gloom-smoke.center {
-  animation: smk-smoke-crawl 30s ease-in-out infinite alternate;
+#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-wisps:not(.bot) > i.w2 {
+  animation: smk-wisp-drift 28s ease-in-out infinite alternate;
 }
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-gloom-smoke.bot.a {
-  animation: smk-smoke-crawl 36s ease-in-out 2s infinite alternate-reverse;
+#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-wisps.bot > i.w3 {
+  animation: smk-wisp-drift 34s ease-in-out 3s infinite alternate-reverse;
 }
-@keyframes smk-smoke-crawl {
+@keyframes smk-wisp-drift {
   from {
-    transform: translate3d(-1.2%, 1%, 0);
-    opacity: 0.78;
+    opacity: 0.28;
   }
   to {
-    transform: translate3d(1.6%, -1.2%, 0);
-    opacity: 1;
+    opacity: 0.52;
   }
 }
 
-/* Visible dark blood-red corner grunge (refs 1 & 3) */
+/* Organic corner blood — SVG splatters/droplets, soft edge fade, no boxes/stripes */
 .smk-corner-blood {
   z-index: 2;
-  width: 380px;
-  height: 220px;
-  opacity: 1;
-  mix-blend-mode: screen;
-  filter: contrast(1.25) saturate(1.1);
+  width: 300px;
+  height: 170px;
+  opacity: 0.92;
+  overflow: visible;
+  background: none !important;
+  mix-blend-mode: normal;
+}
+.smk-corner-blood svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 .smk-corner-blood.tl {
   left: 0;
   top: 0;
-  background:
-    url("/textures/bunker/corrosion.png"),
-    url("/textures/bunker/water-streaks.png"),
-    radial-gradient(ellipse 95% 85% at 0% 0%, rgba(130, 30, 20, 0.95), transparent 50%),
-    radial-gradient(ellipse 50% 45% at 20% 25%, rgba(160, 42, 28, 0.7), transparent 55%);
-  background-size: 320px 200px, 280px 180px, auto, auto;
-  background-position: left top, left top, center, center;
-  background-blend-mode: color-dodge, multiply, screen, screen;
-  filter: contrast(1.3) sepia(0.35) hue-rotate(-15deg) saturate(1.6);
+  -webkit-mask-image: radial-gradient(ellipse 95% 95% at 8% 10%, #000 35%, transparent 78%);
+  mask-image: radial-gradient(ellipse 95% 95% at 8% 10%, #000 35%, transparent 78%);
 }
 .smk-corner-blood.tr {
   right: 0;
   top: 0;
-  background:
-    url("/textures/bunker/corrosion.png"),
-    url("/textures/bunker/water-streaks.png"),
-    radial-gradient(ellipse 95% 85% at 100% 0%, rgba(130, 30, 20, 1), transparent 50%),
-    radial-gradient(ellipse 55% 50% at 80% 28%, rgba(160, 42, 28, 0.75), transparent 55%);
-  background-size: 320px 200px, 280px 180px, auto, auto;
-  background-position: right top, right top, center, center;
-  background-blend-mode: color-dodge, multiply, screen, screen;
-  filter: contrast(1.3) sepia(0.35) hue-rotate(-15deg) saturate(1.6);
+  -webkit-mask-image: radial-gradient(ellipse 95% 95% at 92% 10%, #000 35%, transparent 78%);
+  mask-image: radial-gradient(ellipse 95% 95% at 92% 10%, #000 35%, transparent 78%);
 }
 .smk-corner-blood.bl {
   left: 0;
   bottom: 0;
-  background:
-    url("/textures/bunker/corrosion.png"),
-    url("/textures/bunker/water-streaks.png"),
-    radial-gradient(ellipse 95% 85% at 0% 100%, rgba(130, 30, 20, 0.95), transparent 50%),
-    radial-gradient(ellipse 50% 45% at 22% 72%, rgba(160, 42, 28, 0.65), transparent 55%);
-  background-size: 320px 200px, 280px 180px, auto, auto;
-  background-position: left bottom, left bottom, center, center;
-  background-blend-mode: color-dodge, multiply, screen, screen;
-  filter: contrast(1.3) sepia(0.35) hue-rotate(-15deg) saturate(1.6);
+  -webkit-mask-image: radial-gradient(ellipse 95% 95% at 8% 90%, #000 35%, transparent 78%);
+  mask-image: radial-gradient(ellipse 95% 95% at 8% 90%, #000 35%, transparent 78%);
 }
 .smk-corner-blood.br {
   right: 0;
   bottom: 0;
-  background:
-    url("/textures/bunker/corrosion.png"),
-    url("/textures/bunker/water-streaks.png"),
-    radial-gradient(ellipse 95% 85% at 100% 100%, rgba(130, 30, 20, 1), transparent 50%),
-    radial-gradient(ellipse 50% 45% at 78% 70%, rgba(160, 42, 28, 0.7), transparent 55%);
-  background-size: 320px 200px, 280px 180px, auto, auto;
-  background-position: right bottom, right bottom, center, center;
-  background-blend-mode: color-dodge, multiply, screen, screen;
-  filter: contrast(1.3) sepia(0.35) hue-rotate(-15deg) saturate(1.6);
+  -webkit-mask-image: radial-gradient(ellipse 95% 95% at 92% 90%, #000 35%, transparent 78%);
+  mask-image: radial-gradient(ellipse 95% 95% at 92% 90%, #000 35%, transparent 78%);
 }
 
-.smk-name-scratch {
-  left: 36%;
-  top: 14%;
-  width: 14%;
-  height: 32%;
-  z-index: 2;
-  opacity: 0.35;
-  background:
-    linear-gradient(105deg, transparent 38%, rgba(228, 223, 208, 0.22) 39%, transparent 40.5%),
-    linear-gradient(98deg, transparent 52%, rgba(228, 223, 208, 0.14) 53%, transparent 54.5%);
-}
-
-/* Hairline with soft highlight + chevron (fully inside bar) */
 .smk-hairline {
   left: 0;
   right: 0;
@@ -335,94 +331,80 @@ body.uw-smoke-variant {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(180, 174, 160, 0.25) 6%,
-    rgba(220, 214, 200, 0.7) 48%,
-    rgba(220, 214, 200, 0.85) 50%,
-    rgba(220, 214, 200, 0.7) 52%,
-    rgba(180, 174, 160, 0.25) 94%,
+    rgba(170, 176, 184, 0.28) 8%,
+    rgba(200, 206, 214, 0.75) 50%,
+    rgba(170, 176, 184, 0.28) 92%,
     transparent 100%
   );
-  box-shadow:
-    0 0 6px rgba(200, 194, 180, 0.25),
-    0 -1px 0 rgba(107, 30, 22, 0.15);
+  box-shadow: 0 0 5px rgba(180, 186, 194, 0.2);
 }
 .smk-hairline.foot {
   top: 0;
   bottom: auto;
-  box-shadow:
-    0 0 6px rgba(200, 194, 180, 0.22),
-    0 1px 0 rgba(107, 30, 22, 0.12);
 }
 
 .smk-chevron {
   left: 50%;
   bottom: 0;
   z-index: 11;
-  width: 20px;
-  height: 10px;
+  width: 18px;
+  height: 9px;
   transform: translateX(-50%);
-  background: linear-gradient(180deg, rgba(210, 204, 190, 0.55), rgba(180, 174, 160, 0.25));
+  background: linear-gradient(180deg, rgba(190, 196, 204, 0.55), rgba(150, 156, 164, 0.2));
   clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 
-/* —— Distressed bone name (refs) —— */
+/* —— DATGUYDAZ: bone, distressed, no clip / no stray mark —— */
 #uw-stage[data-variant="smoke-flare"] .uw-id-block {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
-  padding: 6px 8px 0;
+  padding: 6px 16px 0;
+  overflow: visible;
 }
 #uw-stage[data-variant="smoke-flare"] .smk-nameplate {
   position: relative;
   isolation: isolate;
   margin: 0;
-  padding: 0 0 2px;
-  line-height: 0.86;
+  padding: 0 12px 4px;
+  line-height: 0.9;
+  overflow: visible;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-stencil {
+  overflow: visible !important;
 }
 #uw-stage[data-variant="smoke-flare"] .smk-name-face {
   position: relative;
   z-index: 2;
+  display: inline-block;
   font-family: "Oswald", "Impact", "Arial Narrow", sans-serif !important;
   font-style: italic;
   font-weight: 700;
   font-stretch: condensed;
-  font-size: clamp(82px, calc(var(--uw-bar-h) * 0.5), 128px) !important;
-  letter-spacing: 0.01em;
-  margin-right: -0.01em;
+  font-size: clamp(78px, calc(var(--uw-bar-h) * 0.48), 120px) !important;
+  letter-spacing: 0.03em;
+  margin: 0 !important;
+  /* Extra side padding so italic D/Z overhangs aren't clipped by background-clip */
+  padding: 0 18px 0 14px;
   text-transform: uppercase;
-  line-height: 0.86;
+  line-height: 0.92;
   white-space: nowrap;
-  /* Worn bone lettering — readable off-white, light grit only */
-  color: #efe9dc !important;
-  background: linear-gradient(
-    180deg,
-    #f7f2e6 0%,
-    #e8e1d0 45%,
-    #d4ccb8 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.9));
-  opacity: 1;
+  overflow: visible;
+  /* Solid bone fill — background-clip:text was cutting the Z and leaving a tick by D */
+  color: #ebe4d4 !important;
+  -webkit-text-fill-color: #ebe4d4 !important;
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.85);
+  filter: none;
+  opacity: 0.96;
 }
 .smk-name-distress {
-  inset: 8% 0 12%;
-  z-index: 3;
-  /* Thin scratch streaks only — do NOT blanket-multiply or the name goes black */
-  background:
-    linear-gradient(108deg, transparent 30%, rgba(0, 0, 0, 0.55) 31%, transparent 32.2%),
-    linear-gradient(96deg, transparent 48%, rgba(0, 0, 0, 0.4) 49%, transparent 50.2%),
-    linear-gradient(114deg, transparent 62%, rgba(255, 255, 255, 0.18) 63%, transparent 64%),
-    linear-gradient(100deg, transparent 74%, rgba(0, 0, 0, 0.45) 75%, transparent 76.2%),
-    linear-gradient(118deg, transparent 84%, rgba(0, 0, 0, 0.35) 85%, transparent 86%);
-  mix-blend-mode: soft-light;
-  opacity: 0.85;
-  pointer-events: none;
+  display: none !important; /* was causing stray marks / muddy scratches over the name */
 }
 
-/* OPERATOR ONLINE — legible bone + visible dark-red rules */
 #uw-stage[data-variant="smoke-flare"] .smk-op {
   position: relative;
   display: inline-flex !important;
@@ -434,34 +416,32 @@ body.uw-smoke-variant {
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
-  font-size: 20px !important;
-  letter-spacing: 0.55em !important;
-  text-indent: 0.55em;
+  font-size: 18px !important;
+  letter-spacing: 0.5em !important;
+  text-indent: 0.5em;
   opacity: 1;
 }
 #uw-stage[data-variant="smoke-flare"] .smk-op .uw-text-face {
-  color: #f5f0e4 !important;
+  color: #f0ebe0 !important;
   font-family: "Share Tech Mono", "Consolas", monospace !important;
   font-weight: 700;
   letter-spacing: inherit !important;
-  text-shadow: 0 0 3px rgba(245, 240, 228, 0.55) !important;
-  -webkit-text-fill-color: #f5f0e4 !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: #f0ebe0 !important;
   position: relative;
   z-index: 1;
-  opacity: 1;
 }
 .smk-op-rule {
   position: relative !important;
   display: block;
-  width: 84px;
+  width: 72px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #9a3224 15%, #9a3224 85%, transparent);
-  opacity: 1;
+  background: linear-gradient(90deg, transparent, #8a2a1e 20%, #8a2a1e 80%, transparent);
+  opacity: 0.95;
   flex: 0 0 auto;
-  box-shadow: 0 0 6px rgba(154, 50, 36, 0.55);
 }
 
-/* Social: spaced label + hairline + condensed Oswald name */
+/* Social names: upright condensed, bone, readable size */
 #uw-stage[data-variant="smoke-flare"] .smk-social {
   display: flex;
   flex-direction: column;
@@ -477,9 +457,8 @@ body.uw-smoke-variant {
   align-items: flex-end;
 }
 #uw-stage[data-variant="smoke-flare"] .uw-glass-label {
-  position: relative;
   color: var(--smk-bone-mid);
-  letter-spacing: 0.32em;
+  letter-spacing: 0.3em;
   font-size: 13px;
   opacity: 0.88;
   font-family: "Share Tech Mono", "Consolas", monospace;
@@ -493,11 +472,10 @@ body.uw-smoke-variant {
 .smk-label-hair {
   position: relative !important;
   display: block;
-  width: 88px;
+  width: 96px;
   height: 1px;
-  background: rgba(228, 223, 208, 0.65);
+  background: rgba(220, 224, 230, 0.55);
   flex: 0 0 auto;
-  box-shadow: 0 0 4px rgba(228, 223, 208, 0.15);
 }
 #uw-stage[data-variant="smoke-flare"] .uw-side-right .smk-label-hair {
   align-self: flex-end;
@@ -514,19 +492,28 @@ body.uw-smoke-variant {
   margin: 0 !important;
   min-height: 0 !important;
 }
-#uw-stage[data-variant="smoke-flare"] .uw-glass-name {
-  color: var(--smk-bone) !important;
+#uw-stage[data-variant="smoke-flare"] .uw-glass-name,
+#uw-stage[data-variant="smoke-flare"] #uw-follower-name,
+#uw-stage[data-variant="smoke-flare"] #uw-subscriber-name,
+#uw-stage[data-variant="smoke-flare"] #uw-follower .uw-glass-name,
+#uw-stage[data-variant="smoke-flare"] #uw-subscriber .uw-glass-name {
+  color: #ebe5d6 !important;
   font-family: "Oswald", "Impact", "Arial Narrow", sans-serif !important;
-  font-style: italic;
-  font-weight: 600;
-  font-stretch: condensed;
-  font-size: clamp(26px, calc(var(--uw-bar-h) * 0.145), 38px) !important;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  opacity: 0.94;
+  font-style: normal !important;
+  font-weight: 600 !important;
+  font-stretch: condensed !important;
+  font-size: 54px !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  opacity: 0.96 !important;
   text-shadow: none !important;
-  -webkit-text-fill-color: var(--smk-bone);
-  white-space: nowrap;
+  -webkit-text-fill-color: #ebe5d6 !important;
+  white-space: nowrap !important;
+  line-height: 1.15 !important;
+  width: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
 }
 #uw-stage[data-variant="smoke-flare"] .uw-glass-ind,
 #uw-stage[data-variant="smoke-flare"] .uw-readout-fixture,
@@ -535,35 +522,8 @@ body.uw-smoke-variant {
   display: none !important;
 }
 
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-nameplate {
-  animation: smk-name-flicker 16s steps(1, end) infinite;
-}
-@keyframes smk-name-flicker {
-  0%,
-  86%,
-  100% {
-    opacity: 1;
-    filter: none;
-  }
-  87% {
-    opacity: 0.72;
-    filter: brightness(0.75);
-  }
-  88% {
-    opacity: 1;
-    filter: none;
-  }
-  89% {
-    opacity: 0.85;
-  }
-  90% {
-    opacity: 1;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  #uw-stage[data-variant="smoke-flare"] .smk-gloom-smoke,
-  #uw-stage[data-variant="smoke-flare"] .smk-nameplate {
+  #uw-stage[data-variant="smoke-flare"] .smk-wisps > i {
     animation: none !important;
   }
 }

@@ -20,12 +20,61 @@
       <div class="uw-bar uw-bar-top" id="uw-top" data-edge="top">
         <!-- FX strictly inside bar; overflow:hidden + contain:paint -->
         <div class="smk-gloom-base" aria-hidden="true"></div>
-        <div class="smk-gloom-smoke center" aria-hidden="true"></div>
-        <div class="smk-gloom-smoke left" aria-hidden="true"></div>
-        <div class="smk-gloom-smoke right" aria-hidden="true"></div>
-        <div class="smk-corner-blood tl" aria-hidden="true"></div>
-        <div class="smk-corner-blood tr" aria-hidden="true"></div>
-        <div class="smk-name-scratch" aria-hidden="true"></div>
+        <div class="smk-wisps" aria-hidden="true">
+          <i class="w1"></i><i class="w2"></i><i class="w3"></i><i class="w4"></i><i class="w5"></i>
+        </div>
+        <div class="smk-corner-blood tl" aria-hidden="true">
+          <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet">
+            <g fill="#6e1c14" fill-opacity="0.92">
+              <path d="M0 0 C42 6 58 28 52 58 C46 88 22 102 0 110 Z"/>
+              <path d="M8 0 C38 2 62 18 78 42 C92 62 96 86 70 98 C48 108 28 92 18 70 C10 52 14 28 8 0 Z"/>
+              <path d="M48 12 C68 8 92 22 98 44 C104 66 88 78 70 72 C52 66 44 42 48 12 Z"/>
+              <ellipse cx="118" cy="28" rx="7" ry="5" transform="rotate(-28 118 28)"/>
+              <ellipse cx="132" cy="48" rx="4" ry="3"/>
+              <ellipse cx="96" cy="78" rx="5" ry="3.5" transform="rotate(18 96 78)"/>
+              <ellipse cx="64" cy="108" rx="3.5" ry="2.5"/>
+              <ellipse cx="148" cy="18" rx="3" ry="2"/>
+              <path d="M72 54 C88 58 102 72 106 90 C108 102 96 108 88 98 C80 88 74 70 72 54 Z" fill-opacity="0.7"/>
+            </g>
+            <g fill="#4a120e" fill-opacity="0.75">
+              <path d="M0 0 C28 18 34 48 20 78 C10 96 0 104 0 104 Z"/>
+              <ellipse cx="108" cy="62" rx="2.5" ry="2"/>
+              <ellipse cx="140" cy="36" rx="2" ry="1.5"/>
+            </g>
+            <g fill="none" stroke="#5a1812" stroke-opacity="0.85" stroke-linecap="round">
+              <path d="M30 8 C50 22 70 48 82 78" stroke-width="2.2"/>
+              <path d="M12 20 C32 40 42 70 50 102" stroke-width="1.6"/>
+              <path d="M44 6 C66 18 90 36 112 44" stroke-width="1.4"/>
+              <path d="M60 36 C76 52 88 70 94 92" stroke-width="1.1"/>
+            </g>
+          </svg>
+        </div>
+        <div class="smk-corner-blood tr" aria-hidden="true">
+          <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMaxYMin meet">
+            <g fill="#6e1c14" fill-opacity="0.92">
+              <path d="M280 0 C238 6 222 28 228 58 C234 88 258 102 280 110 Z"/>
+              <path d="M272 0 C242 2 218 18 202 42 C188 62 184 86 210 98 C232 108 252 92 262 70 C270 52 266 28 272 0 Z"/>
+              <path d="M232 12 C212 8 188 22 182 44 C176 66 192 78 210 72 C228 66 236 42 232 12 Z"/>
+              <ellipse cx="162" cy="28" rx="7" ry="5" transform="rotate(28 162 28)"/>
+              <ellipse cx="148" cy="48" rx="4" ry="3"/>
+              <ellipse cx="184" cy="78" rx="5" ry="3.5" transform="rotate(-18 184 78)"/>
+              <ellipse cx="216" cy="108" rx="3.5" ry="2.5"/>
+              <ellipse cx="132" cy="18" rx="3" ry="2"/>
+              <path d="M208 54 C192 58 178 72 174 90 C172 102 184 108 192 98 C200 88 206 70 208 54 Z" fill-opacity="0.7"/>
+            </g>
+            <g fill="#4a120e" fill-opacity="0.75">
+              <path d="M280 0 C252 18 246 48 260 78 C270 96 280 104 280 104 Z"/>
+              <ellipse cx="172" cy="62" rx="2.5" ry="2"/>
+              <ellipse cx="140" cy="36" rx="2" ry="1.5"/>
+            </g>
+            <g fill="none" stroke="#5a1812" stroke-opacity="0.85" stroke-linecap="round">
+              <path d="M250 8 C230 22 210 48 198 78" stroke-width="2.2"/>
+              <path d="M268 20 C248 40 238 70 230 102" stroke-width="1.6"/>
+              <path d="M236 6 C214 18 190 36 168 44" stroke-width="1.4"/>
+              <path d="M220 36 C204 52 192 70 186 92" stroke-width="1.1"/>
+            </g>
+          </svg>
+        </div>
 
         <div class="uw-bar-body uw-wall-header">
           <div class="uw-side" id="uw-follower-slot">
@@ -80,10 +129,55 @@
       <div class="uw-bar uw-bar-bottom" id="uw-bottom" data-edge="bottom">
         <div class="smk-hairline foot" aria-hidden="true"></div>
         <div class="smk-gloom-base" aria-hidden="true"></div>
-        <div class="smk-gloom-smoke bot a" aria-hidden="true"></div>
-        <div class="smk-gloom-smoke bot b" aria-hidden="true"></div>
-        <div class="smk-corner-blood bl" aria-hidden="true"></div>
-        <div class="smk-corner-blood br" aria-hidden="true"></div>
+        <div class="smk-wisps bot" aria-hidden="true">
+          <i class="w1"></i><i class="w2"></i><i class="w3"></i><i class="w4"></i><i class="w5"></i><i class="w6"></i>
+        </div>
+        <div class="smk-corner-blood bl" aria-hidden="true">
+          <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMax meet">
+            <g fill="#6e1c14" fill-opacity="0.9">
+              <path d="M0 160 C42 154 58 132 52 102 C46 72 22 58 0 50 Z"/>
+              <path d="M8 160 C38 158 62 142 78 118 C92 98 96 74 70 62 C48 52 28 68 18 90 C10 108 14 132 8 160 Z"/>
+              <path d="M48 148 C68 152 92 138 98 116 C104 94 88 82 70 88 C52 94 44 118 48 148 Z"/>
+              <ellipse cx="118" cy="132" rx="7" ry="5" transform="rotate(28 118 132)"/>
+              <ellipse cx="132" cy="112" rx="4" ry="3"/>
+              <ellipse cx="96" cy="82" rx="5" ry="3.5" transform="rotate(-18 96 82)"/>
+              <ellipse cx="64" cy="52" rx="3.5" ry="2.5"/>
+              <ellipse cx="148" cy="142" rx="3" ry="2"/>
+            </g>
+            <g fill="#4a120e" fill-opacity="0.72">
+              <path d="M0 160 C28 142 34 112 20 82 C10 64 0 56 0 56 Z"/>
+              <ellipse cx="108" cy="98" rx="2.5" ry="2"/>
+            </g>
+            <g fill="none" stroke="#5a1812" stroke-opacity="0.8" stroke-linecap="round">
+              <path d="M28 152 C50 136 70 112 82 84" stroke-width="2"/>
+              <path d="M10 140 C30 118 42 90 48 62" stroke-width="1.5"/>
+              <path d="M46 154 C70 140 96 124 118 116" stroke-width="1.3"/>
+            </g>
+          </svg>
+        </div>
+        <div class="smk-corner-blood br" aria-hidden="true">
+          <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMaxYMax meet">
+            <g fill="#6e1c14" fill-opacity="0.9">
+              <path d="M280 160 C238 154 222 132 228 102 C234 72 258 58 280 50 Z"/>
+              <path d="M272 160 C242 158 218 142 202 118 C188 98 184 74 210 62 C232 52 252 68 262 90 C270 108 266 132 272 160 Z"/>
+              <path d="M232 148 C212 152 188 138 182 116 C176 94 192 82 210 88 C228 94 236 118 232 148 Z"/>
+              <ellipse cx="162" cy="132" rx="7" ry="5" transform="rotate(-28 162 132)"/>
+              <ellipse cx="148" cy="112" rx="4" ry="3"/>
+              <ellipse cx="184" cy="82" rx="5" ry="3.5" transform="rotate(18 184 82)"/>
+              <ellipse cx="216" cy="52" rx="3.5" ry="2.5"/>
+              <ellipse cx="132" cy="142" rx="3" ry="2"/>
+            </g>
+            <g fill="#4a120e" fill-opacity="0.72">
+              <path d="M280 160 C252 142 246 112 260 82 C270 64 280 56 280 56 Z"/>
+              <ellipse cx="172" cy="98" rx="2.5" ry="2"/>
+            </g>
+            <g fill="none" stroke="#5a1812" stroke-opacity="0.8" stroke-linecap="round">
+              <path d="M252 152 C230 136 210 112 198 84" stroke-width="2"/>
+              <path d="M270 140 C250 118 238 90 232 62" stroke-width="1.5"/>
+              <path d="M234 154 C210 140 184 124 162 116" stroke-width="1.3"/>
+            </g>
+          </svg>
+        </div>
         <div class="uw-bar-body uw-wall-footer">
           <div class="uw-side"></div>
           <div class="uw-center"></div>
