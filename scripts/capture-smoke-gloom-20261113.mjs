@@ -234,7 +234,35 @@ if (dump.stageW !== W || dump.stageH !== H) process.exit(4);
 if (dump.stageTransform && dump.stageTransform !== "none") process.exit(5);
 if (dump.topH !== BAR || dump.botH !== BAR) process.exit(6);
 if (dump.topBottom !== BAR || dump.botTop !== H - BAR) process.exit(7);
-if (dump.gapPx == null || dump.gapPx < 4) process.exit(8);
+if (dump.gapPx == null || dump.gapPx < 8) {
+  console.error("name/OP gap too tight", dump.gapPx);
+  process.exit(8);
+}
+{
+  const px = Number.parseFloat(String(dump.nameSize || "0"));
+  if (!(px >= 140 && px <= 160)) {
+    console.error("name size out of range (want ~148px)", dump.nameSize);
+    process.exit(26);
+  }
+}
+{
+  // Name + OP must stay fully inside the top bar
+  const layout = await page.evaluate(() => {
+    const face = document.querySelector(".smk-name-face")?.getBoundingClientRect();
+    const op = document.querySelector(".smk-op")?.getBoundingClientRect();
+    return {
+      faceTop: face?.top ?? -1,
+      faceBottom: face?.bottom ?? -1,
+      opTop: op?.top ?? -1,
+      opBottom: op?.bottom ?? -1,
+    };
+  });
+  console.log("nameLayout", JSON.stringify({ ...layout, bar: BAR, gapPx: dump.gapPx }));
+  if (layout.faceTop < 2 || layout.faceBottom > BAR - 2 || layout.opBottom > BAR - 2) {
+    console.error("name/OP overflow top bar", layout);
+    process.exit(27);
+  }
+}
 if (dump.forbidden.some((f) => f.visible)) {
   console.error("forbidden bright FX still visible", dump.forbidden);
   process.exit(9);
