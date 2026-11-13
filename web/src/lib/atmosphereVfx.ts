@@ -263,15 +263,15 @@ export class AtmosphereVfx {
       // ultrawide-smoke variant: mono white/gray dust (no amber)
       const mono = this.stage.dataset.variant === "smoke-flare";
       if (p.hot) {
-        // Occasional hot pop along the ember rail
-        const a = Math.min(1, p.a * fade * 1.15);
+        // Occasional hot pop along the ember rail (gloom: dim olive/rust only)
+        const a = Math.min(1, p.a * fade * (mono ? 0.35 : 1.15));
         ctx.beginPath();
-        ctx.fillStyle = mono ? `rgba(255,255,255,${a})` : `rgba(255,200,110,${a})`;
+        ctx.fillStyle = mono ? `rgba(90,95,80,${a})` : `rgba(255,200,110,${a})`;
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
         ctx.fillStyle = mono
-          ? `rgba(220,220,220,${a * 0.45})`
+          ? `rgba(74,52,40,${a * 0.35})`
           : `rgba(255,230,160,${a * 0.45})`;
         ctx.arc(p.x, p.y, p.r * 2.2, 0, Math.PI * 2);
         ctx.fill();
@@ -280,8 +280,8 @@ export class AtmosphereVfx {
         ctx.beginPath();
         ctx.fillStyle = mono
           ? p.ember
-            ? `rgba(230,230,230,${p.a * fade})`
-            : `rgba(160,160,160,${p.a * fade * 0.8})`
+            ? `rgba(74,80,68,${p.a * fade * 0.45})`
+            : `rgba(42,44,38,${p.a * fade * 0.35})`
           : p.ember
             ? `rgba(200,136,58,${p.a * fade})`
             : `rgba(170,160,140,${p.a * fade * 0.8})`;

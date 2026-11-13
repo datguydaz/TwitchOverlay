@@ -1,6 +1,6 @@
-/* Rich Streamlabs-inspired VARIANT — mono B/W + red only.
-   ultrawide-smoke.html exclusively. Arms restore / ultrawide.html untouched.
-   Streamlabs Browser Source: fixed 3440×1440, transparent void, no scroll/scale. */
+/* Bunker gloom — ultrawide-smoke.html only.
+   Target: 3 user refs (near-black, bone name, hairline+chevron, corner blood, sparse smoke).
+   Streamlabs 3440×1440. ZERO VFX in stage y 248–1192. */
 
 html.uw-smoke-html,
 body.uw-smoke-variant {
@@ -16,17 +16,17 @@ body.uw-smoke-variant {
 
 #uw-stage[data-variant="smoke-flare"] {
   --uw-bar-h: 248px;
-  --uw-bone: #f4f4f4;
-  --uw-bone-dim: #b0b0b0;
-  --uw-amber: #c41e2a; /* remapped — never yellow */
-  --uw-flare: #ffffff;
-  --uw-flare-hot: #ffffff;
-  --uw-rail: #ffffff;
-  --uw-red: #c41e2a;
-  --uw-red-hot: #ff2a2a;
+  --smk-bg: #050505;
+  --smk-char: #0a0a0a;
+  --smk-bone: #c8c4b8;
+  --smk-bone-dim: #9a968a;
+  --smk-mute: #6a665c;
+  --smk-hair: rgba(160, 156, 148, 0.35);
+  --smk-blood: #4a1510;
+  --smk-blood-mid: #5c1c14;
+  --smk-smoke: rgba(140, 138, 130, 0.11);
   --font-nameplate: "Oswald", "Impact", "Arial Narrow", sans-serif;
   --font-op: "Share Tech Mono", "Consolas", monospace;
-  --font-display: "Oswald", sans-serif;
   position: absolute !important;
   left: 0 !important;
   top: 0 !important;
@@ -43,792 +43,15 @@ body.uw-smoke-variant {
 #uw-stage[data-variant="smoke-flare"] .uw-bar-bottom {
   height: var(--uw-bar-h) !important;
   min-height: var(--uw-bar-h);
-  overflow: hidden;
+  overflow: hidden !important;
+  isolation: isolate;
+  contain: paint;
 }
 
 #uw-stage[data-variant="smoke-flare"] .uw-bar,
 #uw-stage[data-variant="smoke-flare"] .uw-bar-bottom {
-  color: #f4f4f4;
-  background: #050505;
-}
-
-/* Kill ALL amber/yellow name lamps / breathe / CRT on this variant */
-#uw-stage[data-variant="smoke-flare"] .uw-stencil .uw-text-glow,
-#uw-stage[data-variant="smoke-flare"] .uw-name-crt,
-#uw-stage[data-variant="smoke-flare"] .uw-op-readout .uw-text-glow,
-#uw-stage[data-variant="smoke-flare"] .uw-op-fixture {
-  display: none !important;
-}
-#uw-stage[data-variant="smoke-flare"] .uw-stencil .uw-text-face,
-#uw-stage[data-variant="smoke-flare"] .uw-stencil .smk-name-face {
-  animation: none !important;
-  text-shadow: none !important;
-  filter: none !important;
-}
-
-#uw-stage[data-variant="smoke-flare"] .uw-smoke-depth,
-#uw-stage[data-variant="smoke-flare"] .uw-bar-haze,
-#uw-stage[data-variant="smoke-flare"] .uw-header-drift,
-#uw-stage[data-variant="smoke-flare"] .uw-footer-drift {
-  display: block !important;
-}
-
-/* —— Layered smoke / lightning wisps —— */
-#uw-stage[data-variant="smoke-flare"] .uw-smoke-depth {
-  opacity: 1;
-  filter: blur(1.2px);
-  background:
-    radial-gradient(ellipse 90% 140% at 15% 120%, rgba(190, 190, 190, 0.2), transparent 68%),
-    radial-gradient(ellipse 80% 130% at 85% 115%, rgba(150, 150, 150, 0.18), transparent 70%),
-    radial-gradient(ellipse 70% 100% at 50% -10%, rgba(80, 80, 80, 0.35), transparent 72%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.6), transparent 16%, transparent 84%, rgba(0, 0, 0, 0.6));
-}
-
-#uw-stage[data-variant="smoke-flare"] .uw-bar-haze-header,
-#uw-stage[data-variant="smoke-flare"] .uw-bar-haze-footer {
-  opacity: 0.9;
-  filter: blur(14px);
-  background:
-    radial-gradient(ellipse 55% 120% at 10% 85%, rgba(230, 230, 230, 0.14), transparent 72%),
-    radial-gradient(ellipse 55% 120% at 90% 80%, rgba(210, 210, 210, 0.14), transparent 72%),
-    radial-gradient(ellipse 60% 90% at 50% 130%, rgba(140, 140, 140, 0.12), transparent 70%);
-  animation: uw-haze-drift 14s ease-in-out infinite alternate;
-}
-
-.smk-layer {
-  position: absolute;
-  inset: -10% -5%;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0;
-}
-.smk-wave {
-  background:
-    radial-gradient(ellipse 40% 60% at 20% 70%, rgba(255, 255, 255, 0.1), transparent 70%),
-    radial-gradient(ellipse 50% 50% at 70% 40%, rgba(200, 200, 200, 0.08), transparent 72%);
-  filter: blur(22px);
-  mix-blend-mode: screen;
-}
-.smk-bolt {
-  background:
-    linear-gradient(118deg, transparent 42%, rgba(255, 255, 255, 0.22) 48%, transparent 54%),
-    linear-gradient(102deg, transparent 60%, rgba(220, 220, 220, 0.12) 64%, transparent 68%);
-  filter: blur(1.5px);
-  mix-blend-mode: screen;
-  opacity: 0;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-wave.a {
-  animation: smk-wave-drift 18s ease-in-out infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-wave.b {
-  animation: smk-wave-drift 22s ease-in-out 4s infinite reverse;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-wave.c {
-  animation: smk-wave-drift 16s ease-in-out 1s infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-wave.d {
-  animation: smk-wave-drift 20s ease-in-out 6s infinite reverse;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-bolt.a {
-  animation: smk-bolt-crackle 7.5s steps(1, end) infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-bolt.b {
-  animation: smk-bolt-crackle 9.2s steps(1, end) 3.1s infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-bolt.c {
-  animation: smk-bolt-crackle 8.4s steps(1, end) 1.8s infinite;
-}
-
-@keyframes smk-wave-drift {
-  0%,
-  100% {
-    opacity: 0.15;
-    transform: translate3d(-2%, 4%, 0) scale(1);
-  }
-  50% {
-    opacity: 0.45;
-    transform: translate3d(3%, -3%, 0) scale(1.08);
-  }
-}
-@keyframes smk-bolt-crackle {
-  0%,
-  86%,
-  100% {
-    opacity: 0;
-  }
-  88% {
-    opacity: 0.55;
-  }
-  90% {
-    opacity: 0.1;
-  }
-  92% {
-    opacity: 0.7;
-  }
-  94% {
-    opacity: 0;
-  }
-}
-
-.uw-smoke-wisp {
-  position: absolute;
-  pointer-events: none;
-  z-index: 1;
-  border-radius: 50%;
-  filter: blur(22px);
-  mix-blend-mode: screen;
-  opacity: 0;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.32), transparent 70%);
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-smoke-wisp.w1 {
-  left: 6%;
-  bottom: -22%;
-  width: 460px;
-  height: 170px;
-  animation: uw-smoke-wisp-rise 12s ease-in-out infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-smoke-wisp.w2 {
-  left: 40%;
-  bottom: -28%;
-  width: 560px;
-  height: 190px;
-  animation: uw-smoke-wisp-rise 15s ease-in-out 2.8s infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-smoke-wisp.w3 {
-  right: 4%;
-  bottom: -18%;
-  width: 400px;
-  height: 160px;
-  animation: uw-smoke-wisp-rise 13s ease-in-out 5.2s infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-smoke-wisp.w4 {
-  left: 18%;
-  top: -26%;
-  width: 500px;
-  height: 180px;
-  animation: uw-smoke-wisp-fall 14s ease-in-out infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-smoke-wisp.w5 {
-  right: 12%;
-  top: -20%;
-  width: 420px;
-  height: 160px;
-  animation: uw-smoke-wisp-fall 16s ease-in-out 3.4s infinite;
-}
-@keyframes uw-smoke-wisp-rise {
-  0%,
-  100% {
-    opacity: 0;
-    transform: translate3d(0, 20px, 0) scale(0.92);
-  }
-  40% {
-    opacity: 0.5;
-  }
-  60% {
-    opacity: 0.3;
-    transform: translate3d(14px, -30px, 0) scale(1.1);
-  }
-}
-@keyframes uw-smoke-wisp-fall {
-  0%,
-  100% {
-    opacity: 0;
-    transform: translate3d(0, -16px, 0) scale(0.94);
-  }
-  40% {
-    opacity: 0.45;
-  }
-  60% {
-    opacity: 0.25;
-    transform: translate3d(-12px, 24px, 0) scale(1.1);
-  }
-}
-
-/* Starfield dust — bottom bar */
-.smk-starfield {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background-image:
-    radial-gradient(1.5px 1.5px at 8% 30%, rgba(255, 255, 255, 0.7), transparent),
-    radial-gradient(1px 1px at 18% 70%, rgba(230, 230, 230, 0.55), transparent),
-    radial-gradient(1.5px 1.5px at 28% 22%, rgba(255, 255, 255, 0.45), transparent),
-    radial-gradient(1px 1px at 38% 58%, rgba(200, 200, 200, 0.5), transparent),
-    radial-gradient(2px 2px at 48% 40%, rgba(255, 255, 255, 0.35), transparent),
-    radial-gradient(1px 1px at 58% 75%, rgba(220, 220, 220, 0.55), transparent),
-    radial-gradient(1.5px 1.5px at 68% 28%, rgba(255, 255, 255, 0.5), transparent),
-    radial-gradient(1px 1px at 78% 62%, rgba(200, 200, 200, 0.45), transparent),
-    radial-gradient(1.5px 1.5px at 88% 35%, rgba(255, 255, 255, 0.6), transparent),
-    radial-gradient(1px 1px at 94% 80%, rgba(220, 220, 220, 0.4), transparent);
-  opacity: 0.55;
-  animation: smk-star-twinkle 5.5s ease-in-out infinite alternate;
-}
-@keyframes smk-star-twinkle {
-  from {
-    opacity: 0.35;
-  }
-  to {
-    opacity: 0.7;
-  }
-}
-
-/* Red corner crack / ember glow */
-.smk-corner-crack {
-  position: absolute;
-  width: 180px;
-  height: 120px;
-  z-index: 2;
-  pointer-events: none;
-  opacity: 0.55;
-  mix-blend-mode: screen;
-}
-.smk-corner-crack.tl {
-  left: 0;
-  top: 0;
-  background:
-    radial-gradient(ellipse at 0% 0%, rgba(196, 30, 42, 0.55), transparent 70%),
-    linear-gradient(135deg, rgba(255, 60, 60, 0.25), transparent 45%);
-  animation: smk-crack-pulse 6.5s ease-in-out infinite;
-}
-.smk-corner-crack.tr {
-  right: 0;
-  top: 0;
-  background:
-    radial-gradient(ellipse at 100% 0%, rgba(196, 30, 42, 0.5), transparent 70%),
-    linear-gradient(225deg, rgba(255, 60, 60, 0.22), transparent 45%);
-  animation: smk-crack-pulse 7.2s ease-in-out 1.4s infinite;
-}
-.smk-corner-crack.bl {
-  left: 0;
-  bottom: 0;
-  background:
-    radial-gradient(ellipse at 0% 100%, rgba(196, 30, 42, 0.45), transparent 70%),
-    linear-gradient(45deg, rgba(255, 60, 60, 0.2), transparent 45%);
-  animation: smk-crack-pulse 6.8s ease-in-out 0.8s infinite;
-}
-.smk-corner-crack.br {
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(ellipse at 100% 100%, rgba(196, 30, 42, 0.45), transparent 70%),
-    linear-gradient(315deg, rgba(255, 60, 60, 0.2), transparent 45%);
-  animation: smk-crack-pulse 7.5s ease-in-out 2s infinite;
-}
-@keyframes smk-crack-pulse {
-  0%,
-  100% {
-    opacity: 0.35;
-    filter: brightness(0.9);
-  }
-  50% {
-    opacity: 0.75;
-    filter: brightness(1.25);
-  }
-}
-
-/* Vertical light blades at outer edges */
-.smk-blade {
-  position: absolute;
-  top: 8%;
-  bottom: 12%;
-  width: 3px;
-  z-index: 5;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    rgba(255, 255, 255, 0.15) 20%,
-    rgba(255, 255, 255, 0.85) 50%,
-    rgba(255, 255, 255, 0.15) 80%,
-    transparent
-  );
-  box-shadow:
-    0 0 10px rgba(255, 255, 255, 0.45),
-    0 0 24px rgba(196, 30, 42, 0.25);
-  opacity: 0.65;
-}
-.smk-blade.left {
-  left: 10px;
-}
-.smk-blade.right {
-  right: 10px;
-}
-.smk-blade.bot {
-  top: 14%;
-  bottom: 10%;
-  opacity: 0.45;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-blade {
-  animation: smk-blade-shimmer 4.8s ease-in-out infinite;
-}
-@keyframes smk-blade-shimmer {
-  0%,
-  100% {
-    opacity: 0.4;
-    filter: brightness(0.85);
-  }
-  50% {
-    opacity: 0.85;
-    filter: brightness(1.3);
-  }
-}
-
-/* —— Nameplate: metallic distressed italic + slash —— */
-#uw-stage[data-variant="smoke-flare"] .uw-id-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  padding: 2px 8px 0;
-}
-#uw-stage[data-variant="smoke-flare"] .smk-nameplate {
-  position: relative;
-  isolation: isolate;
-  margin: 0;
-  padding: 0 0 6px;
-  line-height: 0.88;
-}
-#uw-stage[data-variant="smoke-flare"] .smk-name-face,
-#uw-stage[data-variant="smoke-flare"] .smk-name-metal {
-  font-family: "Oswald", "Impact", "Arial Narrow", sans-serif;
-  font-style: italic;
-  font-weight: 700;
-  font-size: clamp(72px, calc(var(--uw-bar-h) * 0.46), 118px) !important;
-  letter-spacing: 0.04em;
-  margin-right: -0.04em;
-  text-transform: uppercase;
-  line-height: 0.88;
-  white-space: nowrap;
-}
-#uw-stage[data-variant="smoke-flare"] .smk-name-face {
-  position: relative;
-  z-index: 2;
-  color: #f7f7f7 !important;
-  background: linear-gradient(180deg, #ffffff 0%, #d8d8d8 42%, #9a9a9a 78%, #ececec 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  /* Mono metallic — NO amber/yellow glow */
-  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.85)) drop-shadow(0 0 1px rgba(255, 255, 255, 0.35));
-}
-#uw-stage[data-variant="smoke-flare"] .smk-name-metal {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 1;
-  color: transparent;
-  -webkit-text-stroke: 1.1px rgba(255, 255, 255, 0.35);
-  opacity: 0.55;
-  transform: translate(1.5px, 1.5px);
-  pointer-events: none;
-}
-.smk-name-slash {
-  position: absolute;
-  left: 6%;
-  right: 4%;
-  top: 48%;
-  height: 3px;
-  z-index: 3;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.15) 10%,
-    rgba(255, 255, 255, 0.85) 45%,
-    rgba(196, 30, 42, 0.65) 55%,
-    rgba(255, 255, 255, 0.35) 75%,
-    transparent
-  );
-  transform: rotate(-7deg) skewX(-12deg);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
-  mix-blend-mode: screen;
-}
-.smk-name-distress {
-  position: absolute;
-  inset: 12% -2% 18%;
-  z-index: 4;
-  pointer-events: none;
-  background:
-    linear-gradient(108deg, transparent 36%, rgba(0, 0, 0, 0.55) 37%, transparent 38%),
-    linear-gradient(98deg, transparent 52%, rgba(0, 0, 0, 0.4) 53%, transparent 54%),
-    linear-gradient(115deg, transparent 68%, rgba(255, 255, 255, 0.25) 69%, transparent 70%),
-    linear-gradient(92deg, transparent 78%, rgba(0, 0, 0, 0.35) 79%, transparent 80%);
-  mix-blend-mode: multiply;
-  opacity: 0.9;
-}
-
-/* OPERATOR ONLINE — spaced letters, clean gap under name (no overlap) */
-#uw-stage[data-variant="smoke-flare"] .smk-op {
-  margin-top: 18px !important;
-  padding: 7px 18px 7px 18px !important;
-  gap: 0 !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  background: rgba(0, 0, 0, 0.82) !important;
-  box-shadow:
-    0 0 0 1px rgba(196, 30, 42, 0.4),
-    inset 0 0 12px rgba(255, 255, 255, 0.04) !important;
-  font-size: clamp(15px, calc(var(--uw-bar-h) * 0.085), 22px) !important;
-  letter-spacing: 0.42em !important;
-  text-indent: 0.42em;
-}
-#uw-stage[data-variant="smoke-flare"] .smk-op .uw-text-face {
-  color: #f0f0f0 !important;
-  font-family: "Share Tech Mono", "Consolas", monospace !important;
-  font-weight: 600;
-  letter-spacing: inherit !important;
-  text-shadow: none !important;
-}
-
-/* Social labels + red ticks */
-#uw-stage[data-variant="smoke-flare"] .uw-glass-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #e8e8e8;
-  letter-spacing: 0.2em;
-  font-size: 0.72em;
-  opacity: 0.92;
-  font-family: "Share Tech Mono", "Consolas", monospace;
-}
-.smk-label-tick {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  background: var(--uw-red-hot);
-  box-shadow: 0 0 6px rgba(255, 42, 42, 0.8);
-  flex: 0 0 auto;
-}
-#uw-stage[data-variant="smoke-flare"] .uw-side-right .uw-glass-label {
-  flex-direction: row;
-}
-#uw-stage[data-variant="smoke-flare"] .uw-glass-well {
-  background: rgba(0, 0, 0, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  box-shadow:
-    0 0 0 1px rgba(196, 30, 42, 0.3),
-    inset 0 0 16px rgba(255, 255, 255, 0.03);
-}
-#uw-stage[data-variant="smoke-flare"] .uw-glass-name {
-  color: #fff;
-  font-family: "Oswald", sans-serif;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-#uw-stage[data-variant="smoke-flare"] .uw-glass-ind {
-  background: var(--uw-red) !important;
-  box-shadow: 0 0 6px rgba(196, 30, 42, 0.85) !important;
-}
-#uw-stage[data-variant="smoke-flare"] .uw-glass-glow {
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.06), transparent 70%) !important;
-}
-
-/* —— Double rails + flares + bloom into stage —— */
-.smk-rail-pack {
-  overflow: visible !important;
-}
-.smk-rail-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  z-index: 7;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.35) 8%,
-    rgba(255, 255, 255, 0.95) 50%,
-    rgba(255, 255, 255, 0.35) 92%,
-    transparent
-  );
-}
-.smk-rail-line.outer {
-  bottom: 0;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
-}
-.smk-rail-line.inner {
-  bottom: 4px;
-  opacity: 0.45;
-}
-.smk-rail-line.outer.foot {
-  top: 0;
-  bottom: auto;
-}
-.smk-rail-line.inner.foot {
-  top: 4px;
-  bottom: auto;
-}
-
-.uw-divider-rail {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  z-index: 8;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.25) 6%,
-    rgba(255, 255, 255, 0.98) 50%,
-    rgba(255, 255, 255, 0.25) 94%,
-    transparent 100%
-  );
-  box-shadow:
-    0 0 12px rgba(255, 255, 255, 0.5),
-    0 0 28px rgba(255, 255, 255, 0.22);
-}
-.uw-divider-rail-footer {
-  top: 0;
-  bottom: auto;
-}
-
-#uw-stage[data-variant="smoke-flare"] .uw-header-rail-glow,
-#uw-stage[data-variant="smoke-flare"] .uw-footer-rail-glow {
-  height: 3px;
-  opacity: 0.9;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3) 12%,
-    rgba(255, 255, 255, 0.95) 50%,
-    rgba(255, 255, 255, 0.3) 88%,
-    transparent
-  ) !important;
-  box-shadow: 0 0 22px rgba(255, 255, 255, 0.4) !important;
-}
-
-#uw-stage[data-variant="smoke-flare"] .uw-seam,
-#uw-stage[data-variant="smoke-flare"] .uw-seam-bottom,
-#uw-stage[data-variant="smoke-flare"] .uw-seam-top {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent) !important;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-}
-
-/* Chevron / notch at bottom-center of top bar */
-.smk-chevron {
-  position: absolute;
-  left: 50%;
-  bottom: -14px;
-  z-index: 12;
-  width: 28px;
-  height: 14px;
-  transform: translateX(-50%);
-  pointer-events: none;
-  background: #050505;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
-}
-.smk-chevron::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 1px;
-  width: 18px;
-  height: 9px;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), transparent);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-}
-
-/* Lens flares — bright white points + bloom into stage */
-.uw-lens-flare {
-  position: absolute;
-  z-index: 10;
-  pointer-events: none;
-  height: 2px;
-  border-radius: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.25) 28%,
-    rgba(255, 255, 255, 1) 50%,
-    rgba(255, 255, 255, 0.25) 72%,
-    transparent
-  );
-  box-shadow:
-    0 0 8px rgba(255, 255, 255, 0.9),
-    0 0 22px rgba(255, 255, 255, 0.45) !important;
-  opacity: 0.7;
-  mix-blend-mode: screen;
-}
-.uw-lens-flare::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 11px;
-  height: 11px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, #fff 0%, rgba(220, 220, 220, 0.5) 40%, transparent 72%) !important;
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.85) !important;
-}
-.uw-lens-flare.f1 {
-  left: 14%;
-  bottom: 0;
-  width: 200px;
-}
-.uw-lens-flare.f2 {
-  left: 46%;
-  bottom: 0;
-  width: 300px;
-  opacity: 0.85;
-}
-.uw-lens-flare.f3 {
-  left: 70%;
-  bottom: 0;
-  width: 190px;
-}
-.uw-lens-flare.f4 {
-  left: 88%;
-  bottom: 0;
-  width: 130px;
-}
-.uw-lens-flare.f5 {
-  left: 16%;
-  top: 0;
-  width: 210px;
-}
-.uw-lens-flare.f6 {
-  left: 50%;
-  top: 0;
-  width: 320px;
-  opacity: 0.85;
-}
-.uw-lens-flare.f7 {
-  left: 78%;
-  top: 0;
-  width: 180px;
-}
-
-.smk-flare-bloom {
-  position: absolute;
-  z-index: 6;
-  width: 120px;
-  height: 70px;
-  pointer-events: none;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.35), transparent 70%);
-  filter: blur(10px);
-  mix-blend-mode: screen;
-  opacity: 0.45;
-}
-/* Bloom bleeds slightly into the gameplay stage */
-.smk-flare-bloom.b1 {
-  left: 12%;
-  bottom: -36px;
-}
-.smk-flare-bloom.b2 {
-  left: 46%;
-  bottom: -42px;
-  width: 160px;
-  height: 80px;
-}
-.smk-flare-bloom.b3 {
-  left: 78%;
-  bottom: -34px;
-}
-.smk-flare-bloom.b4 {
-  left: 18%;
-  top: -36px;
-}
-.smk-flare-bloom.b5 {
-  left: 52%;
-  top: -42px;
-  width: 170px;
-  height: 85px;
-}
-
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-lens-flare.f1 {
-  animation: uw-flare-breathe 5.2s ease-in-out infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-lens-flare.f2 {
-  animation: uw-flare-breathe 6s ease-in-out 1.1s infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-lens-flare.f3 {
-  animation: uw-flare-breathe 5.6s ease-in-out 2.2s infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-lens-flare.f4 {
-  animation: uw-flare-breathe 6.8s ease-in-out 0.7s infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-lens-flare.f5 {
-  animation: uw-flare-breathe 5.4s ease-in-out 0.4s infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-lens-flare.f6 {
-  animation: uw-flare-breathe 6.4s ease-in-out 1.6s infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-lens-flare.f7 {
-  animation: uw-flare-breathe 5.8s ease-in-out 2.8s infinite;
-}
-#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-flare-bloom {
-  animation: smk-bloom-pulse 5.5s ease-in-out infinite;
-}
-@keyframes uw-flare-breathe {
-  0%,
-  100% {
-    opacity: 0.4;
-    filter: brightness(0.9);
-    transform: scaleX(0.92);
-  }
-  50% {
-    opacity: 0.95;
-    filter: brightness(1.35);
-    transform: scaleX(1.06);
-  }
-}
-@keyframes smk-bloom-pulse {
-  0%,
-  100% {
-    opacity: 0.25;
-  }
-  50% {
-    opacity: 0.55;
-  }
-}
-
-/* Mono dust / embers / pops / sparks (no amber) */
-#uw-stage[data-variant="smoke-flare"] .uw-header-ember,
-#uw-stage[data-variant="smoke-flare"] .uw-footer-ember {
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.95),
-    rgba(180, 180, 180, 0.35) 55%,
-    transparent 75%
-  ) !important;
-  box-shadow: 0 0 11px rgba(255, 255, 255, 0.55) !important;
-}
-#uw-stage[data-variant="smoke-flare"] .uw-footer-drift,
-#uw-stage[data-variant="smoke-flare"] .uw-header-drift {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.28), transparent 72%) !important;
-}
-#uw-stage[data-variant="smoke-flare"] .uw-footer-rail-pop {
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 1),
-    rgba(200, 200, 200, 0.4) 50%,
-    transparent 72%
-  ) !important;
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.75) !important;
-}
-#uw-stage[data-variant="smoke-flare"] .uw-atm-sparks i {
-  background: #fff !important;
-  box-shadow: 0 0 6px rgba(220, 220, 220, 0.85) !important;
-}
-#uw-stage[data-variant="smoke-flare"] .uw-atm-dust-shared {
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.08), transparent 70%) !important;
-  filter: grayscale(1) !important;
-}
-#uw-stage[data-variant="smoke-flare"] .uw-footer-ticker,
-#uw-stage[data-variant="smoke-flare"] .uw-footer-scan,
-#uw-stage[data-variant="smoke-flare"] .uw-header-scan,
-#uw-stage[data-variant="smoke-flare"] .uw-footer-stutter {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent) !important;
-  box-shadow: none !important;
-  filter: grayscale(1) !important;
+  color: var(--smk-bone-dim);
+  background: var(--smk-bg);
 }
 
 .uw-smoke-void {
@@ -838,19 +61,425 @@ body.uw-smoke-variant {
   top: var(--uw-bar-h);
   bottom: var(--uw-bar-h);
   pointer-events: none;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Dust canvas: no fill; mask so nothing can paint the hole */
+#uw-stage[data-variant="smoke-flare"] .uw-atm-dust-shared {
+  background: transparent !important;
+  filter: none !important;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 var(--uw-bar-h),
+    transparent var(--uw-bar-h),
+    transparent calc(100% - var(--uw-bar-h)),
+    #000 calc(100% - var(--uw-bar-h)),
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 var(--uw-bar-h),
+    transparent var(--uw-bar-h),
+    transparent calc(100% - var(--uw-bar-h)),
+    #000 calc(100% - var(--uw-bar-h)),
+    #000 100%
+  );
+}
+
+/* Kill bright / busy leftovers */
+#uw-stage[data-variant="smoke-flare"] .uw-stencil .uw-text-glow,
+#uw-stage[data-variant="smoke-flare"] .uw-name-crt,
+#uw-stage[data-variant="smoke-flare"] .uw-op-readout .uw-text-glow,
+#uw-stage[data-variant="smoke-flare"] .uw-op-fixture,
+#uw-stage[data-variant="smoke-flare"] .uw-lens-flare,
+#uw-stage[data-variant="smoke-flare"] .smk-flare-bloom,
+#uw-stage[data-variant="smoke-flare"] .smk-starfield,
+#uw-stage[data-variant="smoke-flare"] .smk-blade,
+#uw-stage[data-variant="smoke-flare"] .smk-name-slash,
+#uw-stage[data-variant="smoke-flare"] .uw-header-rail-glow,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-rail-glow,
+#uw-stage[data-variant="smoke-flare"] .uw-header-ember,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-ember,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-rail-pop,
+#uw-stage[data-variant="smoke-flare"] .uw-atm-sparks,
+#uw-stage[data-variant="smoke-flare"] .uw-smoke-depth,
+#uw-stage[data-variant="smoke-flare"] .uw-bar-haze,
+#uw-stage[data-variant="smoke-flare"] .uw-smoke-wisp,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-drift,
+#uw-stage[data-variant="smoke-flare"] .uw-header-drift,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-ticker,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-scan,
+#uw-stage[data-variant="smoke-flare"] .uw-header-scan,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-stutter,
+#uw-stage[data-variant="smoke-flare"] .uw-seam,
+#uw-stage[data-variant="smoke-flare"] .uw-divider-rail,
+#uw-stage[data-variant="smoke-flare"] .uw-header-rail,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-rail,
+#uw-stage[data-variant="smoke-flare"] .uw-grime {
+  display: none !important;
+}
+
+#uw-stage[data-variant="smoke-flare"] .uw-stencil .uw-text-face,
+#uw-stage[data-variant="smoke-flare"] .uw-stencil .smk-name-face {
+  animation: none !important;
+  text-shadow: none !important;
+}
+
+/* —— Layers —— */
+.smk-gloom-base,
+.smk-gloom-smoke,
+.smk-corner-blood,
+.smk-name-scratch,
+.smk-hairline,
+.smk-chevron,
+.smk-label-hair,
+.smk-op-rule,
+.smk-name-distress {
+  position: absolute;
+  pointer-events: none;
+}
+
+.smk-gloom-base {
+  inset: 0;
+  z-index: 0;
+  background: #050505;
+}
+
+/* Faint dim grey smoke — low opacity, around name + bottom */
+.smk-gloom-smoke {
+  z-index: 1;
+  filter: blur(26px);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  background: radial-gradient(ellipse at center, var(--smk-smoke), transparent 70%);
+}
+.smk-gloom-smoke.center {
+  left: 28%;
+  right: 28%;
+  top: 8%;
+  bottom: 18%;
+  background: radial-gradient(ellipse 70% 80% at 50% 45%, rgba(150, 148, 140, 0.16), transparent 72%);
+}
+.smk-gloom-smoke.left {
+  left: 2%;
+  width: 22%;
+  top: 20%;
+  bottom: 25%;
+  opacity: 0.28;
+  background: radial-gradient(ellipse at 40% 60%, rgba(120, 118, 110, 0.1), transparent 70%);
+}
+.smk-gloom-smoke.right {
+  right: 2%;
+  width: 22%;
+  top: 15%;
+  bottom: 30%;
+  opacity: 0.28;
+  background: radial-gradient(ellipse at 60% 50%, rgba(120, 118, 110, 0.1), transparent 70%);
+}
+.smk-gloom-smoke.bot {
+  left: 8%;
+  right: 8%;
+  top: 20%;
+  bottom: -10%;
+  opacity: 0.5;
+  background: radial-gradient(ellipse 90% 70% at 50% 70%, rgba(130, 128, 120, 0.14), transparent 75%);
+}
+.smk-gloom-smoke.bot.b {
+  left: 40%;
+  right: 5%;
+  opacity: 0.35;
+  background: radial-gradient(ellipse at 70% 40%, rgba(110, 108, 100, 0.12), transparent 70%);
+}
+
+#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-gloom-smoke.center {
+  animation: smk-smoke-crawl 32s ease-in-out infinite alternate;
+}
+#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-gloom-smoke.bot.a {
+  animation: smk-smoke-crawl 38s ease-in-out 3s infinite alternate-reverse;
+}
+@keyframes smk-smoke-crawl {
+  from {
+    transform: translate3d(-1%, 1%, 0);
+    opacity: 0.4;
+  }
+  to {
+    transform: translate3d(1.5%, -1%, 0);
+    opacity: 0.62;
+  }
+}
+
+/* Dark blood-red grunge — far corners only */
+.smk-corner-blood {
+  z-index: 2;
+  width: 160px;
+  height: 110px;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+.smk-corner-blood.tl {
+  left: 0;
+  top: 0;
+  background:
+    radial-gradient(ellipse at 8% 12%, rgba(74, 21, 16, 0.7), transparent 55%),
+    radial-gradient(ellipse at 25% 5%, rgba(92, 28, 20, 0.35), transparent 40%);
+}
+.smk-corner-blood.tr {
+  right: 0;
+  top: 0;
+  background:
+    radial-gradient(ellipse at 92% 10%, rgba(74, 21, 16, 0.75), transparent 55%),
+    radial-gradient(ellipse at 78% 28%, rgba(92, 28, 20, 0.4), transparent 42%);
+}
+.smk-corner-blood.bl {
+  left: 0;
+  bottom: 0;
+  background: radial-gradient(ellipse at 10% 88%, rgba(74, 21, 16, 0.65), transparent 55%);
+}
+.smk-corner-blood.br {
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(ellipse at 90% 85%, rgba(74, 21, 16, 0.7), transparent 55%);
+}
+
+.smk-name-scratch {
+  left: 38%;
+  top: 18%;
+  width: 12%;
+  height: 28%;
+  z-index: 2;
+  opacity: 0.25;
+  background:
+    linear-gradient(105deg, transparent 40%, rgba(200, 196, 184, 0.15) 41%, transparent 42%),
+    linear-gradient(98deg, transparent 55%, rgba(200, 196, 184, 0.1) 56%, transparent 57%);
+}
+
+/* Hairline divider — tip of chevron flush with bar edge (no stage paint) */
+.smk-hairline {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  z-index: 10;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--smk-hair) 8%,
+    rgba(160, 156, 148, 0.5) 50%,
+    var(--smk-hair) 92%,
+    transparent 100%
+  );
+  box-shadow: none !important;
+}
+.smk-hairline.foot {
+  top: 0;
+  bottom: auto;
+}
+
+.smk-chevron {
+  left: 50%;
+  bottom: 0;
+  z-index: 11;
+  width: 18px;
+  height: 9px;
+  transform: translateX(-50%);
   background: transparent;
-  overflow: visible;
+  border-left: 1px solid rgba(160, 156, 148, 0.45);
+  border-right: 1px solid rgba(160, 156, 148, 0.45);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  box-sizing: border-box;
+  background: linear-gradient(
+    180deg,
+    rgba(160, 156, 148, 0.35),
+    rgba(160, 156, 148, 0.15)
+  );
+  /* Kept entirely inside the bar via overflow:hidden on .uw-bar */
+}
+
+/* —— Name: distressed bone / condensed —— */
+#uw-stage[data-variant="smoke-flare"] .uw-id-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 8px 8px 0;
+}
+#uw-stage[data-variant="smoke-flare"] .smk-nameplate {
+  position: relative;
+  isolation: isolate;
+  margin: 0;
+  padding: 0 0 4px;
+  line-height: 0.86;
+}
+#uw-stage[data-variant="smoke-flare"] .smk-name-face {
+  position: relative;
+  z-index: 2;
+  font-family: "Oswald", "Impact", "Arial Narrow", sans-serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(78px, calc(var(--uw-bar-h) * 0.48), 122px) !important;
+  letter-spacing: 0.02em;
+  margin-right: -0.02em;
+  text-transform: uppercase;
+  line-height: 0.86;
+  white-space: nowrap;
+  color: var(--smk-bone) !important;
+  background: linear-gradient(180deg, #d4d0c4 0%, #b0ac9e 45%, #8a8678 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.85)) contrast(1.05) brightness(0.92);
+  opacity: 0.92;
+}
+.smk-name-distress {
+  inset: 8% -2% 14%;
+  z-index: 3;
+  background:
+    linear-gradient(108deg, transparent 32%, rgba(0, 0, 0, 0.4) 33%, transparent 34.5%),
+    linear-gradient(95deg, transparent 48%, rgba(0, 0, 0, 0.3) 49%, transparent 50.5%),
+    linear-gradient(112deg, transparent 64%, rgba(255, 255, 255, 0.08) 65%, transparent 66%),
+    linear-gradient(100deg, transparent 78%, rgba(0, 0, 0, 0.35) 79%, transparent 80.5%);
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+
+/* OPERATOR ONLINE — tiny spaced caps + thin dark-red rules */
+#uw-stage[data-variant="smoke-flare"] .smk-op {
+  position: relative;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 14px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: clamp(11px, calc(var(--uw-bar-h) * 0.055), 15px) !important;
+  letter-spacing: 0.48em !important;
+  text-indent: 0.48em;
+  opacity: 0.78;
+}
+#uw-stage[data-variant="smoke-flare"] .smk-op .uw-text-face {
+  color: var(--smk-bone-dim) !important;
+  font-family: "Share Tech Mono", "Consolas", monospace !important;
+  font-weight: 500;
+  letter-spacing: inherit !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--smk-bone-dim);
+  position: relative;
+  z-index: 1;
+}
+.smk-op-rule {
+  position: relative !important;
+  display: block;
+  width: 56px;
+  height: 1px;
+  background: var(--smk-blood-mid);
+  opacity: 0.75;
+  flex: 0 0 auto;
+}
+
+/* Social: spaced label + hairline + plain readable name (no box/glow) */
+#uw-stage[data-variant="smoke-flare"] .smk-social {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-side-right .smk-social {
+  align-items: flex-end;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-glass-label {
+  position: relative;
+  color: var(--smk-bone-dim);
+  letter-spacing: 0.28em;
+  font-size: 0.68em;
+  opacity: 0.75;
+  font-family: "Share Tech Mono", "Consolas", monospace;
+  text-transform: uppercase;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+.smk-label-hair {
+  position: relative !important;
+  display: block;
+  width: 72px;
+  height: 1px;
+  background: rgba(200, 196, 184, 0.45);
+  flex: 0 0 auto;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-side-right .smk-label-hair {
+  align-self: flex-end;
+}
+
+#uw-stage[data-variant="smoke-flare"] .smk-name-plain,
+#uw-stage[data-variant="smoke-flare"] .uw-glass-well {
+  position: relative;
+  display: block;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-glass-name {
+  color: var(--smk-bone);
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: clamp(22px, calc(var(--uw-bar-h) * 0.13), 34px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.9;
+  text-shadow: none !important;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-glass-ind,
+#uw-stage[data-variant="smoke-flare"] .uw-readout-fixture,
+#uw-stage[data-variant="smoke-flare"] .uw-glass-glow,
+#uw-stage[data-variant="smoke-flare"] .uw-glass-scan {
+  display: none !important;
+}
+
+/* Dying-bulb flicker — rare, subtle */
+#uw-stage[data-variant="smoke-flare"][data-atm="on"] .smk-nameplate {
+  animation: smk-name-flicker 16s steps(1, end) infinite;
+}
+@keyframes smk-name-flicker {
+  0%,
+  86%,
+  100% {
+    opacity: 1;
+    filter: none;
+  }
+  87% {
+    opacity: 0.7;
+    filter: brightness(0.75);
+  }
+  88% {
+    opacity: 1;
+    filter: none;
+  }
+  89% {
+    opacity: 0.82;
+  }
+  90% {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #uw-stage[data-variant="smoke-flare"] .uw-smoke-wisp,
-  #uw-stage[data-variant="smoke-flare"] .uw-lens-flare,
-  #uw-stage[data-variant="smoke-flare"] .smk-layer,
-  #uw-stage[data-variant="smoke-flare"] .smk-blade,
-  #uw-stage[data-variant="smoke-flare"] .smk-flare-bloom,
-  #uw-stage[data-variant="smoke-flare"] .smk-starfield,
-  #uw-stage[data-variant="smoke-flare"] .smk-corner-crack {
+  #uw-stage[data-variant="smoke-flare"] .smk-gloom-smoke,
+  #uw-stage[data-variant="smoke-flare"] .smk-nameplate {
     animation: none !important;
-    opacity: 0.45;
   }
 }
