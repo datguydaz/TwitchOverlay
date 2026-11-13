@@ -541,14 +541,17 @@ body.uw-smoke-variant {
   display: none !important;
 }
 
-/* Noise-based blood splatter canvases — no round blob SVGs */
+/* Noise-based blood — soft hint on 1–2 corners only */
 .smk-corner-blood {
   z-index: 11;
-  width: 360px;
-  height: 200px;
-  opacity: 1;
+  width: 280px;
+  height: 150px;
+  opacity: 0.55;
   overflow: hidden;
   background: none !important;
+}
+.smk-corner-blood.smk-blood-soft {
+  opacity: 0.5;
 }
 .smk-corner-blood svg {
   display: none !important;

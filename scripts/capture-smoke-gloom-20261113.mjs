@@ -45,7 +45,8 @@ await page.waitForTimeout(900);
 await page.waitForFunction(
   () =>
     document.querySelectorAll("canvas.smk-steel-canvas").length >= 2 &&
-    document.querySelectorAll("canvas.smk-blood-canvas").length >= 4 &&
+    document.querySelectorAll("canvas.smk-blood-canvas").length >= 1 &&
+    document.querySelectorAll("canvas.smk-blood-canvas").length <= 2 &&
     document.querySelectorAll("canvas.smk-wisp-canvas").length === 0 &&
     document.querySelectorAll(".smk-wisps").length === 0,
   null,
@@ -98,7 +99,11 @@ const dump = await page.evaluate((bar) => {
     }),
   }));
   const opRules = document.querySelectorAll(".smk-op-rule").length;
-  const blood = document.querySelectorAll(".smk-corner-blood").length;
+  const blood = [...document.querySelectorAll(".smk-corner-blood")].filter((el) => {
+    const cs = getComputedStyle(el);
+    return cs.display !== "none" && Number(cs.opacity) > 0.05;
+  }).length;
+  const bloodCanvas = document.querySelectorAll("canvas.smk-blood-canvas").length;
   const plates = document.querySelectorAll(".smk-plate").length;
   const crates = document.querySelectorAll(".smk-crate").length;
   const radioScreens = document.querySelectorAll(".smk-radio-screen").length;
@@ -147,6 +152,7 @@ const dump = await page.evaluate((bar) => {
     barExpected: bar,
     opRules,
     bloodCorners: blood,
+    bloodCanvas,
     plates,
     crates,
     radioScreens,
@@ -196,7 +202,10 @@ if (dump.forbidden.some((f) => f.visible)) {
   console.error("forbidden bright FX still visible", dump.forbidden);
   process.exit(9);
 }
-if (dump.opRules < 2 || dump.bloodCorners < 4) process.exit(10);
+if (dump.opRules < 2 || dump.bloodCorners < 1 || dump.bloodCorners > 2 || dump.bloodCanvas < 1 || dump.bloodCanvas > 2) {
+  console.error("blood corners should be 1–2 hints", dump.bloodCorners, dump.bloodCanvas);
+  process.exit(10);
+}
 if (
   dump.plates < 2 ||
   dump.crates < 2 ||

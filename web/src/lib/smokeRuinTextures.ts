@@ -307,6 +307,7 @@ function paintSteelPlate(
   ctx.restore();
 }
 
+/** Reduced corner blood — ~half coverage/opacity vs original. */
 function paintBloodSplatter(
   ctx: CanvasRenderingContext2D,
   w: number,
@@ -321,42 +322,40 @@ function paintBloodSplatter(
   const dirX = corner.includes("r") ? -1 : 1;
   const dirY = corner.includes("b") ? -1 : 1;
 
-  // Sparse noise spray (thresholded) + rust bleed — no soft round wash
   const img = ctx.createImageData(w, h);
   const d = img.data;
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const lx = corner.includes("r") ? w - x : x;
       const ly = corner.includes("b") ? h - y : y;
-      const dist = Math.hypot(lx * 1.1, ly) / Math.hypot(w, h);
+      // Tighter falloff → less coverage
+      const dist = Math.hypot(lx * 1.25, ly * 1.15) / Math.hypot(w * 0.72, h * 0.72);
       const n = fbm(x * 0.07, y * 0.07, seed, 5);
       const spray = fbm(x * 0.18, y * 0.18, seed + 19, 2);
-      const fall = Math.max(0, 1 - dist * 1.35);
-      // Hard speckles, not a filled blob
+      const fall = Math.max(0, 1 - dist * 1.55);
       let a = 0;
-      if (fall > 0.15 && n > 0.58 && spray > 0.42) a = (n - 0.58) * fall * 3.2;
-      if (fall > 0.45 && n > 0.48) a = Math.max(a, (n - 0.48) * fall * 1.4);
-      if (a <= 0.05) continue;
+      if (fall > 0.28 && n > 0.66 && spray > 0.5) a = (n - 0.66) * fall * 2.2;
+      if (fall > 0.55 && n > 0.58) a = Math.max(a, (n - 0.58) * fall * 0.9);
+      if (a <= 0.08) continue;
       const i = (y * w + x) * 4;
-      const rust = spray > 0.6;
-      d[i] = rust ? 78 : 105;
-      d[i + 1] = rust ? 34 : 20;
-      d[i + 2] = rust ? 16 : 14;
-      d[i + 3] = Math.min(235, a * 255);
+      const rust = spray > 0.65;
+      d[i] = rust ? 72 : 95;
+      d[i + 1] = rust ? 30 : 18;
+      d[i + 2] = rust ? 14 : 12;
+      d[i + 3] = Math.min(120, a * 140); // ~half opacity
     }
   }
   ctx.putImageData(img, 0, 0);
 
   ctx.save();
-  // Irregular droplet islands (noise-warped, elongated — never circles)
-  for (let drop = 0; drop < 70; drop++) {
+  for (let drop = 0; drop < 28; drop++) {
     const reach = rnd();
-    const cx = ox + dirX * (4 + rnd() * w * (0.12 + reach * 0.75));
-    const cy = oy + dirY * (4 + rnd() * h * (0.1 + reach * 0.7));
-    const radX = 1 + rnd() * (reach < 0.3 ? 16 : 4.5);
-    const radY = radX * (0.35 + rnd() * 0.9);
+    const cx = ox + dirX * (4 + rnd() * w * (0.08 + reach * 0.45));
+    const cy = oy + dirY * (4 + rnd() * h * (0.08 + reach * 0.4));
+    const radX = 1 + rnd() * (reach < 0.35 ? 10 : 3.2);
+    const radY = radX * (0.35 + rnd() * 0.85);
     ctx.beginPath();
-    const verts = 8 + Math.floor(rnd() * 7);
+    const verts = 7 + Math.floor(rnd() * 5);
     for (let v = 0; v < verts; v++) {
       const a = (v / verts) * Math.PI * 2 + rnd() * 0.2;
       const warp = 0.35 + fbm(cx * 0.08 + Math.cos(a) * 2, cy * 0.08 + Math.sin(a) * 2, seed + drop, 3);
@@ -366,53 +365,185 @@ function paintBloodSplatter(
       else ctx.lineTo(px, py);
     }
     ctx.closePath();
-    ctx.fillStyle = `rgba(${55 + rnd() * 45}, ${12 + rnd() * 14}, ${8 + rnd() * 10}, ${0.65 + rnd() * 0.35})`;
+    ctx.fillStyle = `rgba(${50 + rnd() * 35}, ${10 + rnd() * 12}, ${8 + rnd() * 8}, ${0.28 + rnd() * 0.22})`;
     ctx.fill();
   }
 
-  // Drips
-  for (let drip = 0; drip < 16; drip++) {
-    const x = ox + dirX * (15 + rnd() * w * 0.6);
-    const y0 = oy + dirY * (8 + rnd() * 50);
-    const len = 22 + rnd() * 85;
+  for (let drip = 0; drip < 6; drip++) {
+    const x = ox + dirX * (12 + rnd() * w * 0.35);
+    const y0 = oy + dirY * (6 + rnd() * 28);
+    const len = 14 + rnd() * 40;
     ctx.beginPath();
-    ctx.strokeStyle = `rgba(${55 + rnd() * 35}, 14, 10, ${0.5 + rnd() * 0.4})`;
-    ctx.lineWidth = 0.8 + rnd() * 2.4;
+    ctx.strokeStyle = `rgba(${50 + rnd() * 28}, 12, 9, ${0.22 + rnd() * 0.22})`;
+    ctx.lineWidth = 0.6 + rnd() * 1.4;
     ctx.lineCap = "round";
     let y = y0;
     let xw = x;
     ctx.moveTo(xw, y);
-    const steps = 7 + Math.floor(rnd() * 6);
+    const steps = 5 + Math.floor(rnd() * 4);
     for (let s = 0; s < steps; s++) {
       y += dirY * (len / steps);
-      xw += (rnd() - 0.5) * 4;
+      xw += (rnd() - 0.5) * 3;
       ctx.lineTo(xw, y);
     }
     ctx.stroke();
   }
 
-  // Crack tendrils
-  for (let c = 0; c < 10; c++) {
-    let x = ox + dirX * (3 + rnd() * 35);
-    let y = oy + dirY * (3 + rnd() * 30);
+  for (let c = 0; c < 4; c++) {
+    let x = ox + dirX * (3 + rnd() * 22);
+    let y = oy + dirY * (3 + rnd() * 18);
     ctx.beginPath();
-    ctx.strokeStyle = `rgba(45, 10, 8, ${0.6 + rnd() * 0.35})`;
-    ctx.lineWidth = 0.9 + rnd() * 1.8;
+    ctx.strokeStyle = `rgba(40, 10, 8, ${0.28 + rnd() * 0.22})`;
+    ctx.lineWidth = 0.7 + rnd() * 1.1;
     ctx.moveTo(x, y);
-    const segs = 12 + Math.floor(rnd() * 12);
+    const segs = 6 + Math.floor(rnd() * 6);
     for (let s = 0; s < segs; s++) {
-      x += dirX * (5 + rnd() * 15) + (rnd() - 0.5) * 10;
-      y += dirY * (3 + rnd() * 13) + (rnd() - 0.5) * 7;
+      x += dirX * (4 + rnd() * 10) + (rnd() - 0.5) * 7;
+      y += dirY * (2 + rnd() * 8) + (rnd() - 0.5) * 5;
       ctx.lineTo(x, y);
-      if (rnd() < 0.2) {
-        // tiny branch
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + (rnd() - 0.5) * 18, y + dirY * (4 + rnd() * 12));
-        ctx.moveTo(x, y);
-      }
     }
     ctx.stroke();
   }
+  ctx.restore();
+}
+
+/**
+ * Realistic static bullet hole: dark puncture, outward-bent metal petals,
+ * radial micro-cracks, scorch + paint chip, rim highlight.
+ */
+function paintBulletHole(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  seed: number,
+  scale = 1,
+): void {
+  const rnd = mulberry32(seed);
+  const holeR = (5.5 + rnd() * 2.2) * scale;
+  const petalR = holeR * (2.1 + rnd() * 0.5);
+
+  ctx.save();
+
+  // Scorch / paint chip ring
+  const scorch = ctx.createRadialGradient(cx, cy, holeR * 0.6, cx, cy, petalR * 1.55);
+  scorch.addColorStop(0, "rgba(8, 6, 5, 0.55)");
+  scorch.addColorStop(0.35, "rgba(42, 28, 18, 0.4)");
+  scorch.addColorStop(0.65, "rgba(70, 48, 28, 0.18)");
+  scorch.addColorStop(1, "transparent");
+  ctx.fillStyle = scorch;
+  ctx.beginPath();
+  ctx.arc(cx, cy, petalR * 1.55, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Paint chips (irregular flakes around rim)
+  for (let i = 0; i < 14; i++) {
+    const ang = rnd() * Math.PI * 2;
+    const dist = holeR * (1.1 + rnd() * 1.6);
+    const px = cx + Math.cos(ang) * dist;
+    const py = cy + Math.sin(ang) * dist * 0.9;
+    const rw = 1.2 + rnd() * 3.5;
+    const rh = 0.8 + rnd() * 2.2;
+    ctx.beginPath();
+    for (let v = 0; v < 6; v++) {
+      const a = ang + (v / 6) * Math.PI * 2;
+      const rr = (v % 2 === 0 ? rw : rh) * (0.7 + fbm(px * 0.1 + v, py * 0.1, seed + i, 2));
+      const qx = px + Math.cos(a) * rr;
+      const qy = py + Math.sin(a) * rr;
+      if (v === 0) ctx.moveTo(qx, qy);
+      else ctx.lineTo(qx, qy);
+    }
+    ctx.closePath();
+    ctx.fillStyle = `rgba(${18 + rnd() * 22}, ${14 + rnd() * 14}, ${10 + rnd() * 10}, ${0.45 + rnd() * 0.35})`;
+    ctx.fill();
+  }
+
+  // Outward-bent metal petals
+  const petals = 7 + Math.floor(rnd() * 3);
+  for (let p = 0; p < petals; p++) {
+    const ang = (p / petals) * Math.PI * 2 + (rnd() - 0.5) * 0.35;
+    const len = petalR * (0.75 + rnd() * 0.45);
+    const spread = 0.28 + rnd() * 0.22;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(ang - spread) * holeR * 0.85, cy + Math.sin(ang - spread) * holeR * 0.85);
+    const mid = len * (0.55 + rnd() * 0.25);
+    const tipX = cx + Math.cos(ang) * len;
+    const tipY = cy + Math.sin(ang) * len + (rnd() - 0.5) * 2;
+    const c1x = cx + Math.cos(ang - spread * 0.4) * mid;
+    const c1y = cy + Math.sin(ang - spread * 0.4) * mid - 1.5 * scale;
+    ctx.quadraticCurveTo(c1x, c1y, tipX, tipY);
+    ctx.quadraticCurveTo(
+      cx + Math.cos(ang + spread * 0.4) * mid,
+      cy + Math.sin(ang + spread * 0.4) * mid - 1.2 * scale,
+      cx + Math.cos(ang + spread) * holeR * 0.85,
+      cy + Math.sin(ang + spread) * holeR * 0.85,
+    );
+    ctx.closePath();
+    // Raised metal face (lighter) + underside shadow
+    const g = ctx.createLinearGradient(
+      cx,
+      cy,
+      tipX,
+      tipY,
+    );
+    g.addColorStop(0, "rgba(12, 10, 8, 0.95)");
+    g.addColorStop(0.45, `rgba(${55 + rnd() * 25}, ${48 + rnd() * 18}, ${40 + rnd() * 14}, 0.85)`);
+    g.addColorStop(1, `rgba(${28 + rnd() * 16}, ${24 + rnd() * 12}, ${20 + rnd() * 10}, 0.7)`);
+    ctx.fillStyle = g;
+    ctx.fill();
+    // Rim highlight on petal edge
+    ctx.strokeStyle = `rgba(${140 + rnd() * 40}, ${130 + rnd() * 30}, ${110 + rnd() * 25}, ${0.22 + rnd() * 0.2})`;
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+  }
+
+  // Radial micro-cracks
+  for (let k = 0; k < 9; k++) {
+    const ang = rnd() * Math.PI * 2;
+    let x = cx + Math.cos(ang) * holeR * 0.9;
+    let y = cy + Math.sin(ang) * holeR * 0.9;
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(6, 5, 4, ${0.35 + rnd() * 0.35})`;
+    ctx.lineWidth = 0.45 + rnd() * 0.55;
+    ctx.moveTo(x, y);
+    const segs = 4 + Math.floor(rnd() * 4);
+    for (let s = 0; s < segs; s++) {
+      x += Math.cos(ang + (rnd() - 0.5) * 0.5) * (3 + rnd() * 7) * scale;
+      y += Math.sin(ang + (rnd() - 0.5) * 0.5) * (3 + rnd() * 7) * scale;
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  // Dark puncture core
+  const core = ctx.createRadialGradient(cx - holeR * 0.2, cy - holeR * 0.25, 0, cx, cy, holeR);
+  core.addColorStop(0, "rgba(0, 0, 0, 1)");
+  core.addColorStop(0.55, "rgba(6, 5, 4, 0.98)");
+  core.addColorStop(0.85, "rgba(18, 14, 10, 0.9)");
+  core.addColorStop(1, "rgba(40, 32, 24, 0.55)");
+  ctx.beginPath();
+  ctx.fillStyle = core;
+  for (let a = 0; a < Math.PI * 2; a += 0.4) {
+    const rr = holeR * (0.85 + fbm(Math.cos(a) * 3 + seed, Math.sin(a) * 3, seed, 2) * 0.28);
+    const px = cx + Math.cos(a) * rr;
+    const py = cy + Math.sin(a) * rr * 0.92;
+    if (a === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fill();
+
+  // Specular edge highlight (lit rim)
+  ctx.beginPath();
+  ctx.strokeStyle = "rgba(190, 180, 155, 0.35)";
+  ctx.lineWidth = 1.1;
+  ctx.arc(cx - holeR * 0.15, cy - holeR * 0.2, holeR * 0.95, -2.4, -0.4);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.strokeStyle = "rgba(40, 36, 30, 0.55)";
+  ctx.lineWidth = 1;
+  ctx.arc(cx + holeR * 0.1, cy + holeR * 0.15, holeR * 0.9, 0.5, 2.6);
+  ctx.stroke();
+
   ctx.restore();
 }
 
@@ -460,10 +591,12 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
   const BAR_W = 3440;
   const BAR_H = 248;
 
-  // --- Steel plates ---
-  for (const [bar, seed, quiet] of [
-    [top, 101, false] as const,
-    [bot, 202, true] as const,
+  // --- Steel plates + static bullet holes (off-centre, clear of text) ---
+  for (const [bar, seed, quiet, holes] of [
+    // Top: near right terminal (~between name and subscriber plate)
+    [top, 101, false, [{ x: 2680, y: 118, seed: 4401, scale: 1.05 }]] as const,
+    // Bottom: left of centre
+    [bot, 202, true, [{ x: 1320, y: 132, seed: 4402, scale: 0.95 }]] as const,
   ]) {
     const steelHost = bar.querySelector(".smk-steel") as HTMLElement | null;
     if (!steelHost) continue;
@@ -473,6 +606,9 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     c.height = BAR_H;
     const ctx = c.getContext("2d")!;
     paintSteelPlate(ctx, BAR_W, BAR_H, seed, quiet);
+    for (const h of holes) {
+      paintBulletHole(ctx, h.x, h.y, h.seed, h.scale);
+    }
   }
 
   // --- Shallow consistent torn edges (small grit only; plates stay inside bar) ---
@@ -515,7 +651,8 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
 
   // Smoke / haze / wisp layers removed — user choosing next FX options
 
-  // --- Corner blood ---
+  // --- Corner blood: keep a hint on 2 corners only (tl + br), reduced ---
+  const keepBlood = new Set(["tl", "br"]);
   const corners: Array<["tl" | "tr" | "bl" | "br", HTMLElement, number]> = [];
   top.querySelectorAll(".smk-corner-blood").forEach((el, i) => {
     const corner = el.classList.contains("tr") ? "tr" : "tl";
@@ -527,10 +664,16 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
   });
   for (const [corner, host, seed] of corners) {
     host.innerHTML = "";
+    if (!keepBlood.has(corner)) {
+      host.style.display = "none";
+      continue;
+    }
+    host.style.display = "";
+    host.classList.add("smk-blood-soft");
     const c = ensureLayer(host, "smk-blood-canvas");
-    c.width = 360;
-    c.height = 200;
-    paintBloodSplatter(c.getContext("2d")!, 360, 200, seed, corner);
+    c.width = 280;
+    c.height = 150;
+    paintBloodSplatter(c.getContext("2d")!, 280, 150, seed, corner);
   }
 
   // --- Name erosion + spray ---
