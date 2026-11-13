@@ -1,41 +1,31 @@
-/* Streamlabs-inspired smoke + lens-flare letterbox VARIANT.
-   Loaded only by ultrawide-smoke.html — does not change ultrawide.html. */
+/* Streamlabs-inspired VARIANT — mono black/white + red accents.
+   Loaded only by ultrawide-smoke.html. Does not change ultrawide.html / arms bars. */
 
 body.uw-smoke-variant {
-  background: #070706;
+  background: #000;
 }
 
 #uw-stage[data-variant="smoke-flare"] {
-  --uw-charcoal: #161513;
-  --uw-charcoal-deep: #0c0b0a;
-  --uw-smoke: rgba(170, 150, 120, 0.14);
-  --uw-flare: #e8b56a;
-  --uw-flare-hot: #ffe6b0;
-  --uw-rail: #c8883a;
+  --uw-bone: #f2f2f2;
+  --uw-bone-dim: #b8b8b8;
+  --uw-amber: #c41e2a; /* remap accent tokens → red for shared base rules */
+  --uw-flare: #ffffff;
+  --uw-flare-hot: #ffffff;
+  --uw-rail: #ffffff;
+  --uw-red: #c41e2a;
+  --uw-red-hot: #ff3b3b;
+  --font-nameplate: "Oswald", "Impact", "Arial Narrow", sans-serif;
+  --font-op: "Share Tech Mono", "Consolas", monospace;
+  --font-display: "Oswald", sans-serif;
 }
 
-/* Dark charcoal bars (not pure black) */
-#uw-stage[data-variant="smoke-flare"] .uw-bar {
-  background: linear-gradient(
-    180deg,
-    #1a1816 0%,
-    #141210 38%,
-    #100f0d 72%,
-    #0b0a09 100%
-  );
-}
-
+/* Pure black bars */
+#uw-stage[data-variant="smoke-flare"] .uw-bar,
 #uw-stage[data-variant="smoke-flare"] .uw-bar-bottom {
-  background: linear-gradient(
-    0deg,
-    #1a1816 0%,
-    #141210 38%,
-    #100f0d 72%,
-    #0b0a09 100%
-  );
+  color: #f2f2f2;
+  background: #000;
 }
 
-/* Force smoke / haze layers visible on this variant (even if base ever hides them) */
 #uw-stage[data-variant="smoke-flare"] .uw-smoke-depth,
 #uw-stage[data-variant="smoke-flare"] .uw-bar-haze,
 #uw-stage[data-variant="smoke-flare"] .uw-header-drift,
@@ -43,43 +33,37 @@ body.uw-smoke-variant {
   display: block !important;
 }
 
+/* Gray/white wispy smoke (no amber cast) */
 #uw-stage[data-variant="smoke-flare"] .uw-smoke-depth {
   opacity: 1;
+  filter: blur(1.4px);
   background:
-    radial-gradient(ellipse 90% 140% at 18% 110%, rgba(90, 78, 62, 0.35), transparent 68%),
-    radial-gradient(ellipse 80% 130% at 82% 120%, rgba(70, 60, 48, 0.3), transparent 70%),
-    radial-gradient(ellipse 70% 100% at 50% 0%, rgba(45, 40, 34, 0.4), transparent 72%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.35), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.35));
-  filter: blur(1.2px);
+    radial-gradient(ellipse 90% 140% at 18% 110%, rgba(180, 180, 180, 0.22), transparent 68%),
+    radial-gradient(ellipse 80% 130% at 82% 120%, rgba(140, 140, 140, 0.2), transparent 70%),
+    radial-gradient(ellipse 70% 100% at 50% 0%, rgba(90, 90, 90, 0.28), transparent 72%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.55), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.55));
 }
 
-#uw-stage[data-variant="smoke-flare"] .uw-bar-haze-header {
-  opacity: 0.9;
-  filter: blur(10px);
-  background:
-    radial-gradient(ellipse 52% 110% at 12% 80%, rgba(140, 118, 88, 0.18), transparent 72%),
-    radial-gradient(ellipse 52% 110% at 88% 75%, rgba(140, 118, 88, 0.18), transparent 72%),
-    radial-gradient(ellipse 55% 90% at 50% 120%, rgba(100, 82, 60, 0.14), transparent 70%);
-}
-
+#uw-stage[data-variant="smoke-flare"] .uw-bar-haze-header,
 #uw-stage[data-variant="smoke-flare"] .uw-bar-haze-footer {
-  opacity: 0.95;
+  opacity: 0.85;
   filter: blur(12px);
   background:
-    radial-gradient(ellipse 70% 130% at 40% 40%, rgba(150, 125, 95, 0.2), transparent 74%),
-    radial-gradient(ellipse 50% 100% at 78% 55%, rgba(110, 90, 70, 0.16), transparent 72%);
+    radial-gradient(ellipse 52% 110% at 12% 80%, rgba(220, 220, 220, 0.12), transparent 72%),
+    radial-gradient(ellipse 52% 110% at 88% 75%, rgba(200, 200, 200, 0.12), transparent 72%),
+    radial-gradient(ellipse 55% 90% at 50% 120%, rgba(160, 160, 160, 0.1), transparent 70%);
+  animation: uw-haze-drift 12s ease-in-out infinite alternate;
 }
 
-/* Extra wispy smoke plumes */
 .uw-smoke-wisp {
   position: absolute;
   pointer-events: none;
   z-index: 1;
   border-radius: 50%;
-  filter: blur(18px);
-  mix-blend-mode: soft-light;
+  filter: blur(20px);
+  mix-blend-mode: screen;
   opacity: 0;
-  background: radial-gradient(ellipse at center, rgba(190, 165, 130, 0.45), transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.28), transparent 70%);
 }
 
 #uw-stage[data-variant="smoke-flare"][data-atm="on"] .uw-smoke-wisp.w1 {
@@ -125,14 +109,13 @@ body.uw-smoke-variant {
     transform: translate3d(0, 18px, 0) scale(0.92);
   }
   35% {
-    opacity: 0.55;
+    opacity: 0.45;
   }
   55% {
-    opacity: 0.35;
+    opacity: 0.28;
     transform: translate3d(12px, -28px, 0) scale(1.08);
   }
 }
-
 @keyframes uw-smoke-wisp-fall {
   0%,
   100% {
@@ -140,15 +123,15 @@ body.uw-smoke-variant {
     transform: translate3d(0, -14px, 0) scale(0.94);
   }
   40% {
-    opacity: 0.5;
+    opacity: 0.4;
   }
   60% {
-    opacity: 0.28;
+    opacity: 0.22;
     transform: translate3d(-10px, 22px, 0) scale(1.1);
   }
 }
 
-/* Divider rails — thin glowing amber lines along bar edges */
+/* White divider rails */
 .uw-divider-rail {
   position: absolute;
   left: 0;
@@ -160,48 +143,55 @@ body.uw-smoke-variant {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(200, 136, 58, 0.15) 6%,
-    rgba(232, 181, 106, 0.95) 50%,
-    rgba(200, 136, 58, 0.18) 94%,
+    rgba(255, 255, 255, 0.2) 6%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.22) 94%,
     transparent 100%
   );
   box-shadow:
-    0 0 10px rgba(232, 181, 106, 0.55),
-    0 0 28px rgba(200, 136, 58, 0.35),
-    0 -6px 24px rgba(200, 136, 58, 0.18);
+    0 0 10px rgba(255, 255, 255, 0.45),
+    0 0 28px rgba(255, 255, 255, 0.2),
+    0 -4px 18px rgba(196, 30, 42, 0.18);
 }
-
 .uw-divider-rail-footer {
   top: 0;
   bottom: auto;
   box-shadow:
-    0 0 10px rgba(232, 181, 106, 0.55),
-    0 0 28px rgba(200, 136, 58, 0.35),
-    0 6px 24px rgba(200, 136, 58, 0.18);
+    0 0 10px rgba(255, 255, 255, 0.45),
+    0 0 28px rgba(255, 255, 255, 0.2),
+    0 4px 18px rgba(196, 30, 42, 0.18);
 }
 
-#uw-stage[data-variant="smoke-flare"] .uw-header-rail-glow {
-  height: 6px;
-  opacity: 0.92;
+#uw-stage[data-variant="smoke-flare"] .uw-header-rail-glow,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-rail-glow {
+  height: 3px;
+  opacity: 0.95;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(200, 136, 58, 0.28) 8%,
-    rgba(255, 210, 140, 0.85) 50%,
-    rgba(200, 136, 58, 0.3) 90%,
+    rgba(255, 255, 255, 0.25) 8%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.28) 90%,
     transparent 100%
   );
   box-shadow:
-    0 0 26px rgba(232, 181, 106, 0.55),
-    0 -10px 40px rgba(200, 136, 58, 0.28);
+    0 0 18px rgba(255, 255, 255, 0.4),
+    0 0 36px rgba(196, 30, 42, 0.22);
 }
 
-#uw-stage[data-variant="smoke-flare"] .uw-footer-rail-glow {
-  height: 6px;
-  opacity: 0.9;
+#uw-stage[data-variant="smoke-flare"] .uw-seam,
+#uw-stage[data-variant="smoke-flare"] .uw-seam-bottom,
+#uw-stage[data-variant="smoke-flare"] .uw-seam-top {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  ) !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
 }
 
-/* Anamorphic lens flares along the rails */
+/* White anamorphic lens flares + red hot-spots */
 .uw-lens-flare {
   position: absolute;
   z-index: 8;
@@ -211,32 +201,30 @@ body.uw-smoke-variant {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 230, 176, 0.15) 30%,
-    rgba(255, 240, 210, 0.95) 50%,
-    rgba(255, 230, 176, 0.15) 70%,
+    rgba(255, 255, 255, 0.2) 30%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.2) 70%,
     transparent
   );
   box-shadow:
-    0 0 6px rgba(255, 230, 176, 0.85),
-    0 0 18px rgba(232, 181, 106, 0.65),
-    0 0 42px rgba(200, 136, 58, 0.35);
-  opacity: 0.55;
+    0 0 6px rgba(255, 255, 255, 0.85),
+    0 0 18px rgba(255, 255, 255, 0.45),
+    0 0 32px rgba(196, 30, 42, 0.35);
+  opacity: 0.6;
   mix-blend-mode: screen;
 }
-
 .uw-lens-flare::before {
   content: "";
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 245, 220, 0.95), rgba(232, 181, 106, 0.35) 45%, transparent 70%);
-  box-shadow: 0 0 14px rgba(255, 230, 176, 0.8);
+  background: radial-gradient(circle, #fff 0%, rgba(196, 30, 42, 0.85) 42%, transparent 72%);
+  box-shadow: 0 0 14px rgba(255, 59, 59, 0.75);
 }
-
 .uw-lens-flare.f1 {
   left: 12%;
   bottom: 0;
@@ -246,7 +234,7 @@ body.uw-smoke-variant {
   left: 48%;
   bottom: 0;
   width: 280px;
-  opacity: 0.7;
+  opacity: 0.75;
 }
 .uw-lens-flare.f3 {
   left: 72%;
@@ -306,29 +294,127 @@ body.uw-smoke-variant {
     transform: scaleX(0.92);
   }
   50% {
-    opacity: 0.85;
-    filter: brightness(1.25);
+    opacity: 0.9;
+    filter: brightness(1.3);
     transform: scaleX(1.05);
   }
 }
 
-/* Social labels a touch more Streamlabs-like */
-#uw-stage[data-variant="smoke-flare"] .uw-glass-label {
-  letter-spacing: 0.14em;
-  font-size: 0.78em;
-  opacity: 0.88;
+/* Embers → small red sparks */
+#uw-stage[data-variant="smoke-flare"] .uw-header-ember,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-ember {
+  background: radial-gradient(circle, rgba(255, 80, 80, 0.95), rgba(196, 30, 42, 0.3) 58%, transparent 75%);
+  box-shadow: 0 0 11px rgba(196, 30, 42, 0.75);
+}
+#uw-stage[data-variant="smoke-flare"] .uw-footer-drift,
+#uw-stage[data-variant="smoke-flare"] .uw-header-drift {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22), transparent 72%);
 }
 
-#uw-stage[data-variant="smoke-flare"] .uw-glass-well {
-  box-shadow:
-    0 0 0 1px rgba(200, 136, 58, 0.35),
-    0 0 18px rgba(200, 136, 58, 0.12);
+/* —— Distressed italic DATGUYDAZ —— */
+#uw-stage[data-variant="smoke-flare"] .uw-stencil {
+  position: relative;
+  filter: contrast(1.15);
 }
-
 #uw-stage[data-variant="smoke-flare"] .uw-stencil .uw-text-face {
+  font-family: "Oswald", "Impact", "Arial Narrow", sans-serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.15em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
   text-shadow:
-    0 0 18px rgba(232, 181, 106, 0.25),
-    0 2px 0 rgba(0, 0, 0, 0.55);
+    1px 0 0 rgba(196, 30, 42, 0.55),
+    -1px 0 0 rgba(0, 0, 0, 0.8),
+    0 2px 0 rgba(0, 0, 0, 0.65),
+    0 0 22px rgba(255, 255, 255, 0.12);
+  -webkit-text-stroke: 0.4px rgba(0, 0, 0, 0.35);
+}
+#uw-stage[data-variant="smoke-flare"] .uw-stencil .uw-text-glow {
+  opacity: 0.35;
+  filter: blur(6px);
+  color: #fff;
+}
+/* Scratch / distress overlays on the name */
+#uw-stage[data-variant="smoke-flare"] .uw-stencil::after {
+  content: "";
+  position: absolute;
+  inset: 18% -2% 22% -2%;
+  pointer-events: none;
+  background:
+    linear-gradient(105deg, transparent 40%, rgba(0, 0, 0, 0.55) 41%, transparent 42%),
+    linear-gradient(98deg, transparent 58%, rgba(0, 0, 0, 0.45) 59%, transparent 60%),
+    linear-gradient(112deg, transparent 72%, rgba(255, 255, 255, 0.2) 73%, transparent 74%);
+  mix-blend-mode: multiply;
+  opacity: 0.85;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-name-crt {
+  display: none !important;
+}
+
+/* OPERATOR ONLINE — mono white + red LED */
+#uw-stage[data-variant="smoke-flare"] .uw-op-readout {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.72);
+  box-shadow:
+    0 0 0 1px rgba(196, 30, 42, 0.45),
+    0 0 14px rgba(196, 30, 42, 0.15);
+}
+#uw-stage[data-variant="smoke-flare"] .uw-op-readout .uw-text-face {
+  color: #f2f2f2;
+  font-family: "Share Tech Mono", "Consolas", monospace;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-op-led {
+  background: var(--uw-red-hot) !important;
+  box-shadow: 0 0 8px rgba(255, 59, 59, 0.9) !important;
+}
+
+/* Social — white wells, red accents */
+#uw-stage[data-variant="smoke-flare"] .uw-glass-label {
+  color: #e8e8e8;
+  letter-spacing: 0.16em;
+  font-size: 0.78em;
+  opacity: 0.9;
+  font-family: "Share Tech Mono", "Consolas", monospace;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-glass-well {
+  background: rgba(0, 0, 0, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(196, 30, 42, 0.35),
+    inset 0 0 18px rgba(255, 255, 255, 0.04);
+}
+#uw-stage[data-variant="smoke-flare"] .uw-glass-name {
+  color: #fff;
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-glass-ind {
+  background: var(--uw-red) !important;
+  box-shadow: 0 0 6px rgba(196, 30, 42, 0.8) !important;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-glass-glow {
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.08), transparent 70%) !important;
+}
+
+/* Kill amber tickers / pops → white/red */
+#uw-stage[data-variant="smoke-flare"] .uw-footer-ticker,
+#uw-stage[data-variant="smoke-flare"] .uw-footer-scan,
+#uw-stage[data-variant="smoke-flare"] .uw-header-scan {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent) !important;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-footer-rail-pop {
+  background: radial-gradient(circle, rgba(255, 80, 80, 0.9), transparent 70%) !important;
+  box-shadow: 0 0 10px rgba(196, 30, 42, 0.6) !important;
+}
+#uw-stage[data-variant="smoke-flare"] .uw-atm-sparks i {
+  background: #fff !important;
+  box-shadow: 0 0 6px rgba(196, 30, 42, 0.7) !important;
 }
 
 .uw-smoke-void {
