@@ -55,19 +55,19 @@ export const scavengerSvg = `
       <stop offset="45%" stop-color="#000" stop-opacity="0"/>
       <stop offset="100%" stop-color="#000" stop-opacity="0.4"/>
     </linearGradient>
-    <!-- Battered olive steel workbench -->
+    <!-- Battered charcoal/soot steel workbench (desk may deviate from olive for bar match) -->
     <linearGradient id="deskTopGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3e4436"/>
-      <stop offset="35%" stop-color="#2a3024"/>
-      <stop offset="100%" stop-color="#141810"/>
+      <stop offset="0%" stop-color="#525250"/>
+      <stop offset="35%" stop-color="#2e2e2c"/>
+      <stop offset="100%" stop-color="#121211"/>
     </linearGradient>
     <linearGradient id="deskEdgeGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2e3428"/>
-      <stop offset="100%" stop-color="#0a0c08"/>
+      <stop offset="0%" stop-color="#2c2c2a"/>
+      <stop offset="100%" stop-color="#080808"/>
     </linearGradient>
     <linearGradient id="deskGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#32382c"/>
-      <stop offset="100%" stop-color="#121410"/>
+      <stop offset="0%" stop-color="#3a3a38"/>
+      <stop offset="100%" stop-color="#121211"/>
     </linearGradient>
     <linearGradient id="oliveFrag" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#6a6640"/>
@@ -376,46 +376,46 @@ export const scavengerSvg = `
 
     <!--
       DESK after torso/head: body stays BEHIND the table.
-      Battered olive steel workbench — NO gold/glow strip, no big legs/scenery.
+      Battered charcoal/soot steel workbench — NO gold/glow strip, no big legs/scenery.
       KB/mouse/hands paint AFTER this so they sit ON the surface.
     -->
     <g id="desk">
-      <path id="desk-top" d="M12 256 H388 L372 290 H28 Z" fill="url(#deskTopGrad)" stroke="#4a5240" stroke-width="1.3"/>
+      <path id="desk-top" d="M12 256 H388 L372 290 H28 Z" fill="url(#deskTopGrad)" stroke="#6a6a68" stroke-width="1.3"/>
       <!-- Reinforced lip / apron (compact) -->
-      <path id="desk-apron" d="M28 290 H372 L364 308 H36 Z" fill="url(#deskEdgeGrad)" stroke="#1a1c18" stroke-width="1.15"/>
-      <path d="M30 292 H370" stroke="#5a6350" stroke-width="1" opacity="0.35"/>
-      <path d="M36 308 H364" stroke="#050605" stroke-width="1.2" opacity="0.55"/>
+      <path id="desk-apron" d="M28 290 H372 L364 308 H36 Z" fill="url(#deskEdgeGrad)" stroke="#1a1a1a" stroke-width="1.15"/>
+      <path d="M30 292 H370" stroke="#7a7a78" stroke-width="1" opacity="0.35"/>
+      <path d="M36 308 H364" stroke="#050505" stroke-width="1.2" opacity="0.55"/>
       <!-- Chipped front edge -->
-      <path d="M70 290 L78 288 L86 290 L94 287 L104 290" fill="none" stroke="#0a0c08" stroke-width="1.1" opacity="0.55"/>
-      <path d="M300 290 L312 287 L322 290" fill="none" stroke="#0a0c08" stroke-width="1" opacity="0.45"/>
+      <path d="M70 290 L78 288 L86 290 L94 287 L104 290" fill="none" stroke="#0a0a0a" stroke-width="1.1" opacity="0.55"/>
+      <path d="M300 290 L312 287 L322 290" fill="none" stroke="#0a0a0a" stroke-width="1" opacity="0.45"/>
       <!-- Corner bolts -->
-      <g id="desk-bolts" fill="#1a1c18" stroke="#4a5044" stroke-width="0.45">
-        <circle cx="34" cy="262" r="2.4"/><circle cx="34" cy="262" r="1.1" fill="#2a2e28" stroke="none"/>
-        <circle cx="366" cy="262" r="2.4"/><circle cx="366" cy="262" r="1.1" fill="#2a2e28" stroke="none"/>
-        <circle cx="42" cy="286" r="2.1"/><circle cx="42" cy="286" r="0.95" fill="#2a2e28" stroke="none"/>
-        <circle cx="358" cy="286" r="2.1"/><circle cx="358" cy="286" r="0.95" fill="#2a2e28" stroke="none"/>
+      <g id="desk-bolts" fill="#1a1a1a" stroke="#4e4e4e" stroke-width="0.45">
+        <circle cx="34" cy="262" r="2.4"/><circle cx="34" cy="262" r="1.1" fill="#2a2a2a" stroke="none"/>
+        <circle cx="366" cy="262" r="2.4"/><circle cx="366" cy="262" r="1.1" fill="#2a2a2a" stroke="none"/>
+        <circle cx="42" cy="286" r="2.1"/><circle cx="42" cy="286" r="0.95" fill="#2a2a2a" stroke="none"/>
+        <circle cx="358" cy="286" r="2.1"/><circle cx="358" cy="286" r="0.95" fill="#2a2a2a" stroke="none"/>
       </g>
-      <path d="M18 258 H382" stroke="#6b7355" stroke-width="0.9" opacity="0.28"/>
+      <path d="M18 258 H382" stroke="#8a8a88" stroke-width="0.9" opacity="0.28"/>
       <g id="desk-grain" fill="none" stroke-linecap="butt" opacity="0.34">
-        <path d="M24 262 H376" stroke="#0e100e" stroke-width="0.5"/>
-        <path d="M28 268 H372" stroke="#3a4234" stroke-width="0.38"/>
-        <path d="M32 274 H368" stroke="#121410" stroke-width="0.42"/>
-        <path d="M36 280 H364" stroke="#4a5346" stroke-width="0.32"/>
-        <path d="M40 285 H360" stroke="#1a1c18" stroke-width="0.38"/>
+        <path d="M24 262 H376" stroke="#0e0e0e" stroke-width="0.5"/>
+        <path d="M28 268 H372" stroke="#3c3c3c" stroke-width="0.38"/>
+        <path d="M32 274 H368" stroke="#121212" stroke-width="0.42"/>
+        <path d="M36 280 H364" stroke="#4c4c4c" stroke-width="0.32"/>
+        <path d="M40 285 H360" stroke="#1a1a1a" stroke-width="0.38"/>
       </g>
       <g id="desk-wear" fill="none" stroke-linecap="round">
-        <path d="M96 268 Q118 272 132 266 Q148 263 168 270" stroke="#050605" stroke-width="1.15" opacity="0.65"/>
-        <path d="M118 267 L126 274" stroke="#0a0c0a" stroke-width="0.8" opacity="0.5"/>
-        <path d="M250 264 Q268 270 286 266" stroke="#1a1c18" stroke-width="0.95" opacity="0.48"/>
-        <path d="M300 274 L322 282" stroke="#0e100e" stroke-width="0.8" opacity="0.42"/>
-        <path d="M78 282 Q92 286 108 281" stroke="#121410" stroke-width="0.7" opacity="0.38"/>
-        <path d="M22 260 L34 266" stroke="#050605" stroke-width="0.7" opacity="0.45"/>
-        <path d="M378 260 L366 268" stroke="#050605" stroke-width="0.65" opacity="0.4"/>
+        <path d="M96 268 Q118 272 132 266 Q148 263 168 270" stroke="#050505" stroke-width="1.15" opacity="0.65"/>
+        <path d="M118 267 L126 274" stroke="#0a0a0a" stroke-width="0.8" opacity="0.5"/>
+        <path d="M250 264 Q268 270 286 266" stroke="#1a1a1a" stroke-width="0.95" opacity="0.48"/>
+        <path d="M300 274 L322 282" stroke="#0e0e0e" stroke-width="0.8" opacity="0.42"/>
+        <path d="M78 282 Q92 286 108 281" stroke="#121212" stroke-width="0.7" opacity="0.38"/>
+        <path d="M22 260 L34 266" stroke="#050505" stroke-width="0.7" opacity="0.45"/>
+        <path d="M378 260 L366 268" stroke="#050505" stroke-width="0.65" opacity="0.4"/>
       </g>
       <!-- Faded inventory stencil + restrained dried blood (outside corner) -->
-      <g id="desk-stencil" opacity="0.28" fill="none" stroke="#8a9060" stroke-width="0.55">
+      <g id="desk-stencil" opacity="0.28" fill="none" stroke="#8a8a88" stroke-width="0.55">
         <rect x="318" y="270" width="38" height="12" rx="0.6"/>
-        <text x="337" y="278.5" fill="#8a9060" stroke="none" font-family="ui-monospace, Consolas, monospace" font-size="4.2" text-anchor="middle" opacity="0.9">INV-04</text>
+        <text x="337" y="278.5" fill="#8a8a88" stroke="none" font-family="ui-monospace, Consolas, monospace" font-size="4.2" text-anchor="middle" opacity="0.9">INV-04</text>
       </g>
       <g id="desk-blood" opacity="0.42">
         <path d="M352 278 C358 282 364 286 360 288 C354 286 350 282 352 278 Z" fill="#3a1212"/>
@@ -519,13 +519,13 @@ export const scavengerSvg = `
       </g>
     </g>
 
-    <!-- Faded dark olive fabric pad + worn charcoal wired mouse (same contact geometry) -->
+    <!-- Faded charcoal fabric pad + worn charcoal wired mouse (same contact geometry; pad matches desk) -->
     <g id="prop-mousepad">
-      <rect x="288" y="264" width="56" height="26" rx="2.2" fill="#2a2e22" stroke="#1a1c18" stroke-width="0.55" opacity="0.95"/>
-      <rect x="291" y="266.5" width="50" height="21" rx="1.2" fill="#1e2218" opacity="0.55"/>
-      <path d="M290 266 Q300 268 310 265" fill="none" stroke="#3a3e30" stroke-width="0.55" opacity="0.4"/>
-      <path d="M320 286 Q330 284 340 287" fill="none" stroke="#121410" stroke-width="0.7" opacity="0.45"/>
-      <path d="M292 288 L298 286" stroke="#0a0c08" stroke-width="0.8" opacity="0.4"/>
+      <rect x="288" y="264" width="56" height="26" rx="2.2" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="0.55" opacity="0.95"/>
+      <rect x="291" y="266.5" width="50" height="21" rx="1.2" fill="#1e1e1e" opacity="0.55"/>
+      <path d="M290 266 Q300 268 310 265" fill="none" stroke="#3c3c3c" stroke-width="0.55" opacity="0.4"/>
+      <path d="M320 286 Q330 284 340 287" fill="none" stroke="#121212" stroke-width="0.7" opacity="0.45"/>
+      <path d="M292 288 L298 286" stroke="#0a0a0a" stroke-width="0.8" opacity="0.4"/>
     </g>
     <g id="prop-mouse">
       <!-- short curved cable back (static) -->
