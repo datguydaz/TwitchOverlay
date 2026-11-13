@@ -9,15 +9,15 @@ export const scavengerSvg = `
 <svg viewBox="0 0 1200 1020" width="1200" height="1020" xmlns="http://www.w3.org/2000/svg" aria-label="Zone scavenger avatar" role="img" shape-rendering="geometricPrecision">
   <g id="avatar-draw" transform="scale(3)">
   <defs>
-    <!-- Olive/tan plate carrier (literal photo — warmer drab, not pure green) -->
+    <!-- Darker olive/tan plate carrier (drab warmth kept; deeper to match charcoal bars) -->
     <linearGradient id="armorOlive" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#8a8668"/>
-      <stop offset="35%" stop-color="#6a664c"/>
-      <stop offset="100%" stop-color="#3e3c2e"/>
+      <stop offset="0%" stop-color="#5c5842"/>
+      <stop offset="35%" stop-color="#3e3c2c"/>
+      <stop offset="100%" stop-color="#1c1a12"/>
     </linearGradient>
     <linearGradient id="collarPad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#7a7658"/>
-      <stop offset="100%" stop-color="#4a4836"/>
+      <stop offset="0%" stop-color="#4a4634"/>
+      <stop offset="100%" stop-color="#28261c"/>
     </linearGradient>
     <!-- Dark navy/black tracksuit -->
     <linearGradient id="suitDark" x1="0" y1="0" x2="0" y2="1">
@@ -173,7 +173,7 @@ export const scavengerSvg = `
         <path d="M256 196 Q248 204 252 216" stroke="#5a5844" stroke-width="0.55" opacity="0.32"/>
         <path d="M152 178 Q158 182 154 188" stroke="#5a5844" stroke-width="1.1" opacity="0.28"/>
         <path d="M248 184 Q254 190 250 196" stroke="#4a4836" stroke-width="0.9" opacity="0.22"/>
-        <circle cx="160" cy="210" r="2.2" fill="#3a3828" opacity="0.2"/>
+        <circle cx="160" cy="210" r="2.2" fill="#2a281c" opacity="0.2"/>
         <!-- restrained fabric dirt / edge scuffs (surface only) -->
         <path d="M150 170 Q154 176 152 182" stroke="#2a2818" stroke-width="1.4" opacity="0.18"/>
         <path d="M248 172 Q252 178 250 186" stroke="#1a1810" stroke-width="1.2" opacity="0.16"/>
@@ -181,16 +181,16 @@ export const scavengerSvg = `
         <path d="M230 150 L236 154" stroke="#b8b498" stroke-width="0.35" opacity="0.24"/>
         <path d="M158 200 L166 206" stroke="#0a0c08" stroke-width="0.55" opacity="0.22"/>
         <path d="M234 204 L242 210" stroke="#121410" stroke-width="0.5" opacity="0.2"/>
-        <circle cx="242" cy="198" r="2.8" fill="#2a281c" opacity="0.16"/>
-        <circle cx="170" cy="214" r="1.8" fill="#1a1810" opacity="0.14"/>
+        <circle cx="242" cy="198" r="2.8" fill="#1a1810" opacity="0.16"/>
+        <circle cx="170" cy="214" r="1.8" fill="#12100c" opacity="0.14"/>
         <!-- sparse dried blood fleck near left strap (not gore) -->
         <path d="M156 154 Q158 158 157 162" stroke="#3a1212" stroke-width="0.9" opacity="0.28"/>
         <circle cx="155" cy="160" r="0.65" fill="#2e1010" opacity="0.32"/>
       </g>
       <!-- Fabric chest patch — readable at overlay size, clear of pouches -->
       <g id="chest-killa">
-        <rect x="172" y="160" width="56" height="16" rx="1.6" fill="#3a3828" stroke="#1a1810" stroke-width="0.75" opacity="0.95"/>
-        <rect x="173.5" y="161.4" width="53" height="13" rx="1.1" fill="#2a281c" opacity="0.55"/>
+        <rect x="172" y="160" width="56" height="16" rx="1.6" fill="#2a281c" stroke="#1a1810" stroke-width="0.75" opacity="0.95"/>
+        <rect x="173.5" y="161.4" width="53" height="13" rx="1.1" fill="#1a1810" opacity="0.55"/>
         <text id="chest-killa-main" x="200" y="172.6" fill="#f2ece0" font-family="Arial Black, Impact, 'Arial Narrow', sans-serif" font-weight="800" font-size="11" text-anchor="middle" letter-spacing="1.4" opacity="0.98">KILLA</text>
       </g>
       <!-- Compact shaded pouches (below patch) -->
