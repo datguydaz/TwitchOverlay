@@ -110,6 +110,18 @@ const dump = await page.evaluate((bar) => {
     ),
     follower: document.getElementById("uw-follower-name")?.textContent,
     subscriber: document.getElementById("uw-subscriber-name")?.textContent,
+    followerLeft: Math.round(
+      document.getElementById("uw-follower")?.getBoundingClientRect().left || 0,
+    ),
+    subRight: Math.round(
+      3440 -
+        (document.getElementById("uw-subscriber")?.getBoundingClientRect().right || 0),
+    ),
+    opColor: op ? getComputedStyle(op).color : null,
+    opFill: op ? getComputedStyle(op).webkitTextFillColor : null,
+    nameFont: csFace?.fontFamily,
+    socialFont: getComputedStyle(document.getElementById("uw-follower-name") || document.body)
+      .fontFamily,
   };
 }, BAR);
 console.log(JSON.stringify(dump, null, 2));
@@ -132,6 +144,14 @@ if (dump.chevronBottom != null && dump.chevronBottom > BAR + 1) {
 }
 if (dump.opRules < 2 || dump.labelHairs < 2 || dump.bloodCorners < 4) process.exit(12);
 if (/amber|255,\s*200|255,\s*230|ffc|ffe/i.test(dump.nameFilter || "")) process.exit(13);
+if (dump.followerLeft < 200 || dump.subRight < 200) {
+  console.error("social not inset enough", dump.followerLeft, dump.subRight);
+  process.exit(14);
+}
+if (!/Oswald/i.test(dump.socialFont || "") || !/Oswald/i.test(dump.nameFont || "")) {
+  console.error("expected Oswald condensed family", dump.nameFont, dump.socialFont);
+  process.exit(15);
+}
 
 await page.waitForTimeout(400);
 const fullPath = resolve(media, "smoke-gloom-20261113.png");
