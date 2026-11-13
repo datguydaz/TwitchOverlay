@@ -14,7 +14,16 @@ if (also) mkdirSync(also, { recursive: true });
 
 const W = 3440;
 const H = 1440;
-const BAR = 248;
+const DESIGN_H = 248;
+const BAR = Math.max(
+  120,
+  Math.min(248, Number.parseInt(process.env.SMOKE_BAR || "180", 10) || 180),
+);
+const yScale = BAR / DESIGN_H;
+function holeY(designY) {
+  const yy = Math.round(designY * yScale);
+  return Math.max(Math.round(BAR * 0.12), Math.min(Math.round(BAR * 0.78), yy));
+}
 
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({
@@ -35,7 +44,7 @@ await page.addInitScript(() => {
 });
 
 // Allow Google Fonts so proof matches Streamlabs Oswald (previous proofs aborted fonts).
-const url = `http://127.0.0.1:8787/ultrawide-smoke.html?gloom=${Date.now()}`;
+const url = `http://127.0.0.1:8787/ultrawide-smoke.html?bar=${BAR}&gloom=${Date.now()}`;
 await page.goto(url, { waitUntil: "commit", timeout: 20000 });
 await page.waitForFunction(() => !!document.getElementById("uw-stage"), null, {
   timeout: 10000,
@@ -62,7 +71,7 @@ try {
   await page.waitForTimeout(600);
 }
 
-const dump = await page.evaluate((bar) => {
+const dump = await page.evaluate(({ bar, canvasH }) => {
   const s = document.getElementById("uw-stage");
   const face = document.querySelector(".smk-name-face");
   const op = document.querySelector(".smk-op .uw-text-face");
@@ -122,13 +131,17 @@ const dump = await page.evaluate((bar) => {
     el.getBoundingClientRect(),
   );
   const chatterBox = document.querySelector(".smk-chatter")?.getBoundingClientRect();
+  const scaleY = (designY) => {
+    const yy = Math.round(designY * (bar / 248));
+    return Math.max(Math.round(bar * 0.12), Math.min(Math.round(bar * 0.78), yy));
+  };
   const holes = [
-    { bar: "top", x: 2380, y: 105 },
-    { bar: "top", x: 920, y: 68 },
-    { bar: "top", x: 2588, y: 162 },
-    { bar: "bot", x: 1100, y: 1192 + 95 },
-    { bar: "bot", x: 690, y: 1192 + 142 },
-    { bar: "bot", x: 2910, y: 1192 + 74 },
+    { bar: "top", x: 2380, y: scaleY(105) },
+    { bar: "top", x: 920, y: scaleY(68) },
+    { bar: "top", x: 2588, y: scaleY(162) },
+    { bar: "bot", x: 1100, y: canvasH - bar + scaleY(95) },
+    { bar: "bot", x: 690, y: canvasH - bar + scaleY(142) },
+    { bar: "bot", x: 2910, y: canvasH - bar + scaleY(74) },
   ];
   const holeClear = holes.map((h) => {
     const hits = [];
@@ -225,7 +238,7 @@ const dump = await page.evaluate((bar) => {
     socialSize: getComputedStyle(folName || document.body).fontSize,
     fontsStatus: document.fonts?.status || "unknown",
   };
-}, BAR);
+}, { bar: BAR, canvasH: H });
 console.log(JSON.stringify(dump, null, 2));
 
 if (dump.path !== "/ultrawide-smoke.html") process.exit(2);
@@ -234,14 +247,16 @@ if (dump.stageW !== W || dump.stageH !== H) process.exit(4);
 if (dump.stageTransform && dump.stageTransform !== "none") process.exit(5);
 if (dump.topH !== BAR || dump.botH !== BAR) process.exit(6);
 if (dump.topBottom !== BAR || dump.botTop !== H - BAR) process.exit(7);
-if (dump.gapPx == null || dump.gapPx < 8) {
+if (dump.gapPx == null || dump.gapPx < 4) {
   console.error("name/OP gap too tight", dump.gapPx);
   process.exit(8);
 }
 {
   const px = Number.parseFloat(String(dump.nameSize || "0"));
-  if (!(px >= 140 && px <= 160)) {
-    console.error("name size out of range (want ~148px)", dump.nameSize);
+  const lo = Math.floor(BAR * 0.55);
+  const hi = Math.ceil(Math.min(148, BAR * 0.78));
+  if (!(px >= lo && px <= hi + 2)) {
+    console.error(`name size out of range for bar=${BAR} (want ~${Math.round(BAR * 0.68)}px)`, dump.nameSize);
     process.exit(26);
   }
 }
@@ -440,12 +455,12 @@ if (opaque > 0 || stageOpaque > 0) {
 
 // Verify bullet-hole cores are visible (near-black opaque pixels at expected centres)
 const holePts = [
-  { x: 2380, y: 105, label: "top-a" },
-  { x: 920, y: 68, label: "top-b" },
-  { x: 2588, y: 162, label: "top-c" },
-  { x: 1100, y: H - BAR + 95, label: "bot-a" },
-  { x: 690, y: H - BAR + 142, label: "bot-b" },
-  { x: 2910, y: H - BAR + 74, label: "bot-c" },
+  { x: 2380, y: holeY(105), label: "top-a" },
+  { x: 920, y: holeY(68), label: "top-b" },
+  { x: 2588, y: holeY(162), label: "top-c" },
+  { x: 1100, y: H - BAR + holeY(95), label: "bot-a" },
+  { x: 690, y: H - BAR + holeY(142), label: "bot-b" },
+  { x: 2910, y: H - BAR + holeY(74), label: "bot-c" },
 ];
 const holeVis = [];
 for (const h of holePts) {

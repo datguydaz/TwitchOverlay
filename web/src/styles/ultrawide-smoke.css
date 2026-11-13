@@ -1,6 +1,7 @@
 /* Tarkov ruin — ultrawide-smoke.html only.
    Scarred steel bars, heavy distress, ash/embers, readable bone names.
-   Stage hole (y 248–1192) fully transparent. Dark only — no yellow / no bright flares. */
+   Stage hole (y bar–1440-bar) fully transparent. Default bars 180px; ?bar= 120–248.
+   Dark only — no yellow / no bright flares. */
 
 html.uw-smoke-html,
 body.uw-smoke-variant {
@@ -15,7 +16,7 @@ body.uw-smoke-variant {
 }
 
 #uw-stage[data-variant="smoke-flare"] {
-  --uw-bar-h: 248px;
+  --uw-bar-h: 180px;
   --smk-bg: #0a0a0a;
   --smk-steel: #161412;
   --smk-steel-hi: #2a2622;
@@ -134,8 +135,8 @@ body.uw-smoke-variant {
   grid-template-columns: minmax(320px, 1fr) minmax(640px, 1.25fr) minmax(320px, 1fr) !important;
 }
 #uw-stage[data-variant="smoke-flare"] .uw-wall-header .uw-side {
-  /* Lift plates above the shallow torn grit (bottom pad = clearance) */
-  padding: 14px 0 48px !important;
+  /* Lift plates above the shallow torn grit (scales with --uw-bar-h) */
+  padding: calc(var(--uw-bar-h) * 0.05) 0 calc(var(--uw-bar-h) * 0.14) !important;
   box-sizing: border-box;
 }
 #uw-stage[data-variant="smoke-flare"] .uw-wall-footer.uw-bar-body {
@@ -544,8 +545,10 @@ body.uw-smoke-variant {
 /* Noise-based blood — soft hint on 1–2 corners only */
 .smk-corner-blood {
   z-index: 11;
-  width: 280px;
-  height: 150px;
+  width: calc(var(--uw-bar-h) * 1.15);
+  height: calc(var(--uw-bar-h) * 0.62);
+  max-width: 280px;
+  max-height: 150px;
   opacity: 0.55;
   overflow: hidden;
   background: none !important;
@@ -569,9 +572,9 @@ body.uw-smoke-variant {
 /* Burnt scorch behind name */
 .smk-name-scorch {
   left: 50%;
-  top: 20%;
-  width: 920px;
-  height: 160px;
+  top: 16%;
+  width: min(920px, 55vw);
+  height: calc(var(--uw-bar-h) * 0.72);
   transform: translateX(-50%);
   z-index: 12;
   background:
@@ -587,7 +590,7 @@ body.uw-smoke-variant {
   flex-direction: column;
   align-items: center;
   gap: 0;
-  padding: 10px 20px 6px;
+  padding: calc(var(--uw-bar-h) * 0.035) 20px calc(var(--uw-bar-h) * 0.015);
   overflow: visible;
   position: relative;
   z-index: 22;
@@ -596,7 +599,7 @@ body.uw-smoke-variant {
   position: relative;
   isolation: isolate;
   margin: 0;
-  padding: 6px 18px 8px;
+  padding: calc(var(--uw-bar-h) * 0.015) 18px calc(var(--uw-bar-h) * 0.02);
   line-height: 0.9;
   overflow: visible;
 }
@@ -620,8 +623,8 @@ body.uw-smoke-variant {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 1080px;
-  height: 200px;
+  width: min(1080px, 70%);
+  height: calc(var(--uw-bar-h) * 0.9);
   transform: translate(-50%, -54%);
   z-index: 2;
   pointer-events: none;
@@ -636,11 +639,11 @@ body.uw-smoke-variant {
   font-style: italic;
   font-weight: 700;
   font-stretch: condensed;
-  /* ~148px at 248 bar — bigger stamp, still clear of torn edge + OP */
-  font-size: clamp(104px, calc(var(--uw-bar-h) * 0.6), 148px) !important;
+  /* As big as bar allows; ~122px @180, ~148px @248, ~82px @120 */
+  font-size: clamp(70px, calc(var(--uw-bar-h) * 0.68), 148px) !important;
   letter-spacing: 0.03em;
   margin: 0 !important;
-  padding: 4px 32px 6px 26px;
+  padding: calc(var(--uw-bar-h) * 0.012) 32px calc(var(--uw-bar-h) * 0.018) 26px;
   text-transform: uppercase;
   line-height: 0.86;
   white-space: nowrap;
@@ -763,13 +766,13 @@ body.uw-smoke-variant {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  margin-top: 10px !important;
+  gap: clamp(8px, calc(var(--uw-bar-h) * 0.06), 14px);
+  margin-top: calc(var(--uw-bar-h) * 0.03) !important;
   padding: 0 !important;
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
-  font-size: 17px !important;
+  font-size: clamp(11px, calc(var(--uw-bar-h) * 0.085), 17px) !important;
   letter-spacing: 0.36em !important;
   text-indent: 0.36em;
   opacity: 1;
@@ -781,7 +784,7 @@ body.uw-smoke-variant {
 }
 .smk-tape {
   display: inline-block;
-  padding: 8px 22px 7px;
+  padding: calc(var(--uw-bar-h) * 0.028) 18px calc(var(--uw-bar-h) * 0.024);
   /* Fully opaque plate — protects glyphs from stage/tear */
   background: #2c2822;
   background-image: linear-gradient(180deg, #3e3830 0%, #2c2822 55%, #1a1814 100%);
@@ -881,9 +884,9 @@ body.uw-smoke-variant {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 10px 16px 10px;
-  min-width: 300px;
+  gap: clamp(2px, calc(var(--uw-bar-h) * 0.02), 5px);
+  padding: calc(var(--uw-bar-h) * 0.035) 14px calc(var(--uw-bar-h) * 0.03);
+  min-width: clamp(220px, calc(var(--uw-bar-h) * 1.5), 300px);
   background:
     linear-gradient(168deg, #2e2922 0%, #1a1713 42%, #0e0c0a 100%),
     repeating-linear-gradient(90deg, transparent 0 28px, rgba(0, 0, 0, 0.18) 28px 29px);
@@ -962,7 +965,7 @@ body.uw-smoke-variant {
 #uw-stage[data-variant="smoke-flare"] .uw-glass-label {
   color: rgba(170, 162, 142, 0.88);
   letter-spacing: 0.26em;
-  font-size: 11px;
+  font-size: clamp(8px, calc(var(--uw-bar-h) * 0.055), 11px);
   opacity: 0.95;
   font-family: "Share Tech Mono", "Consolas", monospace;
   text-transform: uppercase;
@@ -1001,9 +1004,9 @@ body.uw-smoke-variant {
   position: relative;
   z-index: 2;
   display: block;
-  padding: 6px 10px 5px !important;
+  padding: calc(var(--uw-bar-h) * 0.022) 10px calc(var(--uw-bar-h) * 0.018) !important;
   margin: 0 !important;
-  min-height: 52px !important;
+  min-height: clamp(28px, calc(var(--uw-bar-h) * 0.24), 52px) !important;
   background:
     linear-gradient(180deg, rgba(18, 22, 16, 0.92), rgba(8, 10, 8, 0.96)) !important;
   border: 1px solid rgba(48, 56, 42, 0.65) !important;
@@ -1062,7 +1065,7 @@ body.uw-smoke-variant {
   font-style: normal !important;
   font-weight: 700 !important;
   font-stretch: condensed !important;
-  font-size: 46px !important;
+  font-size: clamp(26px, calc(var(--uw-bar-h) * 0.22), 46px) !important;
   letter-spacing: 0.05em !important;
   text-transform: uppercase !important;
   opacity: 0.96 !important;
@@ -1313,14 +1316,14 @@ body.uw-smoke-variant {
   left: 50%;
   top: 0;
   width: 1px;
-  height: 28px;
+  height: calc(var(--uw-bar-h) * 0.12);
   margin-left: -0.5px;
   background: linear-gradient(180deg, rgba(40, 36, 30, 0.9), rgba(70, 62, 50, 0.5));
 }
 .smk-bulb {
   position: absolute;
   left: 50%;
-  top: 24px;
+  top: calc(var(--uw-bar-h) * 0.1);
   width: 10px;
   height: 14px;
   margin-left: -5px;
@@ -1332,9 +1335,9 @@ body.uw-smoke-variant {
 .smk-bulb-glow {
   position: absolute;
   left: 50%;
-  top: 10px;
-  width: 380px;
-  height: 220px;
+  top: calc(var(--uw-bar-h) * 0.04);
+  width: min(380px, 28%);
+  height: min(220px, calc(var(--uw-bar-h) * 1.05));
   margin-left: -190px;
   background: radial-gradient(
     ellipse 55% 50% at 50% 18%,
@@ -1392,10 +1395,10 @@ body.uw-smoke-variant {
   left: 50%;
   right: auto;
   top: auto;
-  bottom: 18px;
+  bottom: calc(var(--uw-bar-h) * 0.07);
   width: 60%;
   max-width: 2064px;
-  height: 26px;
+  height: clamp(16px, calc(var(--uw-bar-h) * 0.12), 26px);
   margin: 0;
   transform: translateX(-50%);
   overflow: hidden;
@@ -1417,7 +1420,7 @@ body.uw-smoke-variant {
   flex: 0 0 auto;
   padding-right: 0;
   font-family: "Share Tech Mono", "Consolas", monospace;
-  font-size: 15px;
+  font-size: clamp(10px, calc(var(--uw-bar-h) * 0.07), 15px);
   letter-spacing: 0.18em;
   line-height: 1.2;
   text-transform: uppercase;
@@ -1445,17 +1448,17 @@ body.uw-smoke-variant {
   color: rgba(190, 182, 160, 0.7);
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.85);
 }
-.smk-chrono-tl { left: 28px; top: 14px; }
-.smk-chrono-tr { right: 28px; top: 14px; }
-.smk-chrono-bl { left: 28px; bottom: 52px; }
-.smk-chrono-br { right: 28px; bottom: 52px; }
+.smk-chrono-tl { left: 28px; top: calc(var(--uw-bar-h) * 0.06); }
+.smk-chrono-tr { right: 28px; top: calc(var(--uw-bar-h) * 0.06); }
+.smk-chrono-bl { left: 28px; bottom: calc(var(--uw-bar-h) * 0.24); }
+.smk-chrono-br { right: 28px; bottom: calc(var(--uw-bar-h) * 0.24); }
 .smk-chrono-label {
-  font-size: 9px;
+  font-size: clamp(7px, calc(var(--uw-bar-h) * 0.045), 9px);
   letter-spacing: 0.28em;
   color: rgba(140, 48, 32, 0.75);
 }
 .smk-chrono-val {
-  font-size: 13px;
+  font-size: clamp(10px, calc(var(--uw-bar-h) * 0.065), 13px);
   letter-spacing: 0.14em;
   font-variant-numeric: tabular-nums;
 }

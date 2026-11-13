@@ -110,6 +110,21 @@ let smokeRuinCleanup: (() => void) | null = null;
 let smokeBarFxCleanup: (() => void) | null = null;
 let smokeBunkerHudCleanup: (() => void) | null = null;
 let smokeRuinReady = false;
+let lastSmokeBarH = 0;
+
+/** Smoke page only: `?bar=` tunes letterbox height (120–248). Default 180. */
+function resolveSmokeBarH(): number {
+  try {
+    const raw = new URLSearchParams(location.search).get("bar");
+    if (raw != null && raw !== "") {
+      const n = Number.parseFloat(raw);
+      if (Number.isFinite(n)) return Math.round(Math.max(120, Math.min(248, n)));
+    }
+  } catch {
+    /* ignore */
+  }
+  return 180;
+}
 
 const TEXT_PREVIEW = new Set<AtmPreviewKind>(["text-dip", "text-sweep", "text-op"]);
 
@@ -124,9 +139,9 @@ function applyUltrawide(settings: OverlaySettings): void {
 
   let barH = Math.max(64, Math.min(420, uw.barHeight || 180));
   const smokeFixed = stage.dataset.variant === "smoke-flare";
-  // Smoke mono variant needs taller bars for oversized DATGUYDAZ + OPERATOR ONLINE
+  // Smoke page: default 180; optional ?bar= (120–248) for Streamlabs tuning
   if (smokeFixed) {
-    barH = Math.max(barH, 248);
+    barH = resolveSmokeBarH();
   }
   // Streamlabs Browser Source smoke page: always exact 3440×1440 (no window scaling)
   const canvasW = smokeFixed ? 3440 : Math.max(1280, uw.canvasWidth || 3440);
@@ -237,7 +252,8 @@ function applyUltrawide(settings: OverlaySettings): void {
   // Smoke mono: kill lamp/amber text-life after TextLifeVfx may flip dataset on
   if (smokeFixed) {
     stage.dataset.textFx = "off";
-    if (!smokeRuinReady) {
+    stage.dataset.barH = String(barH);
+    if (!smokeRuinReady || lastSmokeBarH !== barH) {
       smokeRuinCleanup?.();
       smokeBarFxCleanup?.();
       smokeBunkerHudCleanup?.();
@@ -245,6 +261,7 @@ function applyUltrawide(settings: OverlaySettings): void {
       smokeBarFxCleanup = applySmokeBarFx(stage);
       smokeBunkerHudCleanup = applySmokeBunkerHud(stage);
       smokeRuinReady = true;
+      lastSmokeBarH = barH;
     }
   }
 

@@ -584,16 +584,30 @@ function ensureLayer(parent: HTMLElement, className: string): HTMLCanvasElement 
   return el;
 }
 
+function resolveSmokeBarPx(stage: HTMLElement, top: HTMLElement): number {
+  const fromBox = Math.round(top.getBoundingClientRect().height || 0);
+  const fromCss = Number.parseFloat(
+    getComputedStyle(stage).getPropertyValue("--uw-bar-h") || "",
+  );
+  const fromData = Number.parseFloat(stage.dataset.barH || "");
+  const h = fromBox || (Number.isFinite(fromCss) ? Math.round(fromCss) : 0) || fromData || 180;
+  return Math.max(120, Math.min(248, Math.round(h)));
+}
+
 export function applySmokeRuinTextures(stage: HTMLElement): () => void {
   const top = stage.querySelector("#uw-top") as HTMLElement | null;
   const bot = stage.querySelector("#uw-bottom") as HTMLElement | null;
   if (!top || !bot) return () => {};
 
   const BAR_W = 3440;
-  const BAR_H = 248;
+  const DESIGN_H = 248;
+  const BAR_H = resolveSmokeBarPx(stage, top);
+  const yScale = BAR_H / DESIGN_H;
+  const holeScaleMul = Math.max(0.72, Math.min(1.1, yScale));
+  const tornDepth = Math.max(6, Math.round(10 * yScale));
 
   // --- Steel plates + fixed static bullet holes (open steel only — clear of UI) ---
-  // Keep y away from torn edges (~y 20–190) and bottom ticker (~y > 200).
+  // Design coords are for 248px bars; y/scale remap with current --uw-bar-h.
   // Top gaps: left of name (~700–1150), right of name/OP (~2250–2750). Avoid clocks/plates.
   type Hole = { x: number; y: number; seed: number; scale: number; rot: number };
   const topHoles: Hole[] = [
@@ -619,13 +633,19 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     const ctx = c.getContext("2d")!;
     paintSteelPlate(ctx, BAR_W, BAR_H, seed, quiet);
     for (const h of holes) {
-      paintBulletHole(ctx, h.x, h.y, h.seed, h.scale, h.rot);
+      const yy = Math.round(h.y * yScale);
+      // Keep cores away from torn grit (~8% edges) and chatter band on bottom
+      const yClamped = Math.max(
+        Math.round(BAR_H * 0.12),
+        Math.min(Math.round(BAR_H * 0.78), yy),
+      );
+      paintBulletHole(ctx, h.x, yClamped, h.seed, h.scale * holeScaleMul, h.rot);
     }
   }
 
   // --- Shallow consistent torn edges (small grit only; plates stay inside bar) ---
-  const topProfile = buildTornProfile(BAR_W, 10, 404);
-  const botProfile = buildTornProfile(BAR_W, 10, 808);
+  const topProfile = buildTornProfile(BAR_W, tornDepth, 404);
+  const botProfile = buildTornProfile(BAR_W, tornDepth, 808);
 
   for (const [bar, profile, side, seed] of [
     [top, topProfile, "bottom", 501] as const,
@@ -683,9 +703,11 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     host.style.display = "";
     host.classList.add("smk-blood-soft");
     const c = ensureLayer(host, "smk-blood-canvas");
-    c.width = 280;
-    c.height = 150;
-    paintBloodSplatter(c.getContext("2d")!, 280, 150, seed, corner);
+    const bw = Math.round(280 * Math.max(0.7, yScale));
+    const bh = Math.round(150 * Math.max(0.7, yScale));
+    c.width = bw;
+    c.height = bh;
+    paintBloodSplatter(c.getContext("2d")!, bw, bh, seed, corner);
   }
 
   // --- Name erosion + spray ---
