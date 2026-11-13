@@ -1,6 +1,7 @@
 /**
- * Live bar props for ultrawide-smoke: cables, duct/masking tape, terminal glass grit,
- * corner warning lamps, dog tags, and rare power surge. All stay inside bars.
+ * Live bar props for ultrawide-smoke: cables, tape, terminal glass, lamps, dog tags,
+ * caged bulb companions (moth), fan, gauges, drips, cobwebs/debris, rat, surge.
+ * Everything stays inside the bars.
  */
 
 type Timer = number;
@@ -29,7 +30,6 @@ function decorateTerminals(stage: HTMLElement): void {
       glass.innerHTML =
         '<i class="smk-radio-grime"></i><i class="smk-radio-spider"></i><i class="smk-radio-deadpx"></i><i class="smk-radio-burn"></i>';
       screen.appendChild(glass);
-      // Spider crack only on one terminal corner
       if (idx === 0) glass.classList.add("smk-has-spider");
     }
   });
@@ -103,6 +103,91 @@ function mountDogTags(top: HTMLElement): void {
   );
 }
 
+/** Fan, gauges, cobwebs, debris, drip, moth, rat hosts — sparse open-steel placements. */
+function mountAmbientLife(top: HTMLElement, bot: HTMLElement): void {
+  // Vent fan — top bar, open steel left of name (clear of follower plate)
+  ensure(
+    top,
+    ":scope > .smk-vent",
+    `<div class="smk-vent" aria-hidden="true">
+      <span class="smk-vent-grille"></span>
+      <span class="smk-vent-blades"><i></i><i></i><i></i><i></i></span>
+      <span class="smk-vent-flick"></span>
+    </div>`,
+  );
+
+  // Analog gauges — top open gap + bottom open gap
+  ensure(
+    top,
+    ":scope > .smk-gauge.smk-gauge-psi",
+    `<div class="smk-gauge smk-gauge-psi" aria-hidden="true">
+      <span class="smk-gauge-face"></span>
+      <span class="smk-gauge-needle"></span>
+      <span class="smk-gauge-label">PSI</span>
+    </div>`,
+  );
+  ensure(
+    bot,
+    ":scope > .smk-gauge.smk-gauge-rad",
+    `<div class="smk-gauge smk-gauge-rad" aria-hidden="true">
+      <span class="smk-gauge-face"></span>
+      <span class="smk-gauge-needle"></span>
+      <span class="smk-gauge-label">RAD</span>
+    </div>`,
+  );
+
+  // Cobwebs — one corner each bar (away from warn lamps slightly inset)
+  ensure(top, ":scope > .smk-cobweb.smk-cobweb-tr", `<div class="smk-cobweb smk-cobweb-tr" aria-hidden="true"></div>`);
+  ensure(bot, ":scope > .smk-cobweb.smk-cobweb-bl", `<div class="smk-cobweb smk-cobweb-bl" aria-hidden="true"></div>`);
+
+  // Cracked concrete chunks at bar ends
+  for (const [bar, side] of [
+    [top, "left"],
+    [top, "right"],
+    [bot, "left"],
+    [bot, "right"],
+  ] as const) {
+    ensure(
+      bar,
+      `:scope > .smk-debris.smk-debris-${side}`,
+      `<div class="smk-debris smk-debris-${side}" aria-hidden="true"><i></i><i></i><i></i></div>`,
+    );
+  }
+
+  // Water drip cycle on top bar
+  ensure(
+    top,
+    ":scope > .smk-drip",
+    `<div class="smk-drip" aria-hidden="true">
+      <span class="smk-drip-bead"></span>
+      <span class="smk-drip-fall"></span>
+      <span class="smk-drip-splash"></span>
+    </div>`,
+  );
+
+  // Moth near caged bulb
+  ensure(
+    top,
+    ":scope > .smk-moth",
+    `<div class="smk-moth" aria-hidden="true"><i></i></div>`,
+  );
+
+  // Rat runner on bottom bar
+  ensure(
+    bot,
+    ":scope > .smk-rat",
+    `<div class="smk-rat" aria-hidden="true">
+      <span class="smk-rat-body"></span>
+      <span class="smk-rat-head"></span>
+      <span class="smk-rat-tail"></span>
+      <span class="smk-rat-leg a"></span>
+      <span class="smk-rat-leg b"></span>
+      <span class="smk-rat-leg c"></span>
+      <span class="smk-rat-leg d"></span>
+    </div>`,
+  );
+}
+
 export function applySmokeBarProps(stage: HTMLElement): () => void {
   const top = stage.querySelector("#uw-top") as HTMLElement | null;
   const bot = stage.querySelector("#uw-bottom") as HTMLElement | null;
@@ -112,6 +197,7 @@ export function applySmokeBarProps(stage: HTMLElement): () => void {
   mountCables(stage);
   mountWarnLamps(top, bot);
   mountDogTags(top);
+  mountAmbientLife(top, bot);
 
   const reduced =
     typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -126,7 +212,18 @@ export function applySmokeBarProps(stage: HTMLElement): () => void {
     timers.push(id);
   };
 
-  // Rare corner lamp blink — mostly dead
+  // Gauge needle twitch
+  const needles = stage.querySelectorAll<HTMLElement>(".smk-gauge-needle");
+  const twitchGauges = () => {
+    if (dead || reduced) return;
+    needles.forEach((n) => {
+      const deg = -28 + Math.random() * 56;
+      n.style.transform = `rotate(${deg}deg)`;
+    });
+    later(twitchGauges, rand(700, 2200));
+  };
+
+  // Rare corner lamp blink
   const lamps = stage.querySelectorAll<HTMLElement>(".smk-warn-lamp");
   const scheduleLamp = () => {
     if (dead || reduced) return;
@@ -144,7 +241,45 @@ export function applySmokeBarProps(stage: HTMLElement): () => void {
     later(scheduleLamp, rand(6000, 16000));
   };
 
-  // Power surge: every ~3–6 min (or ?surge=1 once soon)
+  // Water drip pulse
+  const drip = top.querySelector(".smk-drip") as HTMLElement | null;
+  const scheduleDrip = () => {
+    if (dead || reduced || !drip) return;
+    drip.classList.remove("smk-drip-run");
+    // restart animation
+    void drip.offsetWidth;
+    drip.classList.add("smk-drip-run");
+    later(scheduleDrip, rand(7000, 14000));
+  };
+
+  // Moth occasional flutter burst
+  const moth = top.querySelector(".smk-moth") as HTMLElement | null;
+  const scheduleMoth = () => {
+    if (dead || reduced || !moth) return;
+    moth.classList.add("smk-moth-on");
+    later(() => moth.classList.remove("smk-moth-on"), rand(2800, 5200));
+    later(scheduleMoth, rand(9000, 22000));
+  };
+
+  // Rat scurry every ~2–5 min
+  const rat = bot.querySelector(".smk-rat") as HTMLElement | null;
+  const runRat = () => {
+    if (dead || !rat) return;
+    const dir = Math.random() > 0.5 ? "ltr" : "rtl";
+    rat.classList.remove("smk-rat-run-ltr", "smk-rat-run-rtl");
+    void rat.offsetWidth;
+    rat.classList.add(dir === "ltr" ? "smk-rat-run-ltr" : "smk-rat-run-rtl");
+    later(() => rat.classList.remove("smk-rat-run-ltr", "smk-rat-run-rtl"), 3200);
+  };
+  const scheduleRat = () => {
+    if (dead || reduced) return;
+    later(() => {
+      runRat();
+      scheduleRat();
+    }, rand(120000, 300000));
+  };
+
+  // Power surge
   const runSurge = () => {
     if (dead) return;
     stage.classList.add("smk-surge-flare");
@@ -162,7 +297,6 @@ export function applySmokeBarProps(stage: HTMLElement): () => void {
       }, 280);
     }, 180);
   };
-
   const scheduleSurge = () => {
     if (dead || reduced) return;
     later(() => {
@@ -173,10 +307,17 @@ export function applySmokeBarProps(stage: HTMLElement): () => void {
 
   if (!reduced) {
     later(scheduleLamp, rand(4000, 9000));
+    later(twitchGauges, 400);
+    later(scheduleDrip, rand(2500, 5000));
+    later(scheduleMoth, rand(3000, 7000));
+    later(scheduleRat, rand(120000, 300000));
     try {
-      const force = new URLSearchParams(location.search).get("surge");
-      if (force === "1" || force === "true") {
+      const params = new URLSearchParams(location.search);
+      if (params.get("surge") === "1" || params.get("surge") === "true") {
         later(runSurge, 900);
+      }
+      if (params.get("rat") === "1" || params.get("rat") === "true") {
+        later(runRat, 1100);
       }
     } catch {
       /* ignore */
@@ -191,5 +332,8 @@ export function applySmokeBarProps(stage: HTMLElement): () => void {
     lamps.forEach((l) => l.classList.remove("smk-warn-on"));
     top.classList.remove("smk-fx-on-sparks");
     bot.classList.remove("smk-fx-on-sparks");
+    drip?.classList.remove("smk-drip-run");
+    moth?.classList.remove("smk-moth-on");
+    rat?.classList.remove("smk-rat-run-ltr", "smk-rat-run-rtl");
   };
 }

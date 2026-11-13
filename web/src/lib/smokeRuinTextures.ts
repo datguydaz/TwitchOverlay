@@ -1288,6 +1288,15 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
       nameplate.insertBefore(helm, nameFace);
     }
 
+    // Bullet graze across one letter (3rd glyph ≈ "T" in DATGUYDAZ) — bare metal scratch
+    let graze = nameplate.querySelector(".smk-name-graze") as HTMLElement | null;
+    if (!graze) {
+      graze = document.createElement("span");
+      graze.className = "smk-name-graze";
+      graze.setAttribute("aria-hidden", "true");
+      nameplate.appendChild(graze);
+    }
+
     let spray = nameplate.querySelector("canvas.smk-spray-canvas") as HTMLCanvasElement | null;
     if (!spray) {
       spray = document.createElement("canvas");

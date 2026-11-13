@@ -441,9 +441,14 @@ body.uw-smoke-variant {
   z-index: 9;
   overflow: hidden;
   pointer-events: none;
-  /* Soft vignette so motes read under bulb, not over name/terminals */
-  mask-image: radial-gradient(ellipse 42% 70% at 50% 35%, #000 0%, #000 55%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 42% 70% at 50% 35%, #000 0%, #000 55%, transparent 100%);
+  /* Soft vignette so motes read under caged corner bulb, not over name/terminals */
+  mask-image: radial-gradient(ellipse 38% 70% at 12% 35%, #000 0%, #000 50%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 38% 70% at 12% 35%, #000 0%, #000 50%, transparent 100%);
+}
+#uw-bottom .smk-ash,
+#uw-bottom .smk-dust {
+  mask-image: radial-gradient(ellipse 36% 65% at 72% 40%, #000 0%, #000 45%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 36% 65% at 72% 40%, #000 0%, #000 45%, transparent 100%);
 }
 .smk-ash > i,
 .smk-embers > i,
@@ -1329,25 +1334,68 @@ body.uw-smoke-variant {
   pointer-events: none;
   z-index: 7;
   animation: smk-bulb-sway 7.5s ease-in-out infinite;
+  overflow: hidden;
+}
+/* Caged fixture in top-left corner — glow originates here */
+.smk-bunker-light-corner {
+  left: 3.2%;
+  width: min(340px, 22%);
+  transform: none;
+  transform-origin: 18% 0;
+  animation-name: smk-bulb-sway-corner;
 }
 .smk-bunker-light-faint {
-  width: 320px;
-  opacity: 0.45;
+  left: 72%;
+  width: 260px;
+  opacity: 0.35;
   animation-duration: 9.5s;
   animation-direction: reverse;
+  transform: none;
+  transform-origin: 50% 0;
 }
 .smk-bulb-cord {
   position: absolute;
-  left: 50%;
+  left: 18%;
   top: 0;
   width: 1px;
-  height: calc(var(--uw-bar-h) * 0.12);
+  height: calc(var(--uw-bar-h) * 0.1);
   margin-left: -0.5px;
   background: linear-gradient(180deg, rgba(40, 36, 30, 0.9), rgba(70, 62, 50, 0.5));
 }
-.smk-bulb {
+.smk-bunker-light-faint .smk-bulb-cord { left: 50%; }
+.smk-bulb-cage {
+  position: absolute;
+  left: 18%;
+  top: calc(var(--uw-bar-h) * 0.07);
+  width: 22px;
+  height: 26px;
+  margin-left: -11px;
+  border: 1px solid rgba(70, 66, 58, 0.65);
+  border-radius: 45% 45% 40% 40%;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.55);
+  z-index: 2;
+}
+.smk-bulb-cage > i {
   position: absolute;
   left: 50%;
+  top: 2px;
+  bottom: 2px;
+  width: 1px;
+  margin-left: -0.5px;
+  background: rgba(90, 84, 72, 0.55);
+}
+.smk-bulb-cage > i:nth-child(1) { transform: rotate(-50deg); }
+.smk-bulb-cage > i:nth-child(2) { transform: rotate(-25deg); }
+.smk-bulb-cage > i:nth-child(3) { transform: rotate(0deg); }
+.smk-bulb-cage > i:nth-child(4) { transform: rotate(25deg); }
+.smk-bulb-cage > i:nth-child(5) { transform: rotate(50deg); }
+.smk-bulb-cage > i:nth-child(6) {
+  left: 3px; right: 3px; top: 55%; height: 1px; width: auto; margin: 0;
+  background: rgba(90, 84, 72, 0.45);
+}
+.smk-bulb {
+  position: absolute;
+  left: 18%;
   top: calc(var(--uw-bar-h) * 0.1);
   width: 10px;
   height: 14px;
@@ -1355,23 +1403,34 @@ body.uw-smoke-variant {
   border-radius: 40% 40% 45% 45%;
   background: radial-gradient(ellipse at 40% 30%, #d8d0bc, #8a8270 55%, #3a342c 100%);
   box-shadow: 0 0 6px rgba(180, 170, 140, 0.25);
-  opacity: 0.55;
+  opacity: 0.7;
+  z-index: 1;
 }
+.smk-bunker-light-faint .smk-bulb { left: 50%; }
 .smk-bulb-glow {
   position: absolute;
-  left: 50%;
+  left: 18%;
   top: calc(var(--uw-bar-h) * 0.04);
-  width: min(380px, 28%);
-  height: min(220px, calc(var(--uw-bar-h) * 1.05));
-  margin-left: -190px;
+  width: min(320px, 95%);
+  height: min(200px, calc(var(--uw-bar-h) * 1.05));
+  margin-left: -40px;
   background: radial-gradient(
-    ellipse 55% 50% at 50% 18%,
-    rgba(210, 200, 175, 0.16) 0%,
-    rgba(160, 148, 120, 0.07) 35%,
+    ellipse 55% 50% at 18% 18%,
+    rgba(210, 200, 175, 0.18) 0%,
+    rgba(160, 148, 120, 0.08) 35%,
     transparent 70%
   );
   mix-blend-mode: soft-light;
-  opacity: 0.85;
+  opacity: 0.9;
+}
+.smk-bunker-light-faint .smk-bulb-glow {
+  left: 50%;
+  margin-left: -140px;
+  background: radial-gradient(
+    ellipse 55% 50% at 50% 18%,
+    rgba(210, 200, 175, 0.12) 0%,
+    transparent 70%
+  );
 }
 .smk-bulb-pass {
   position: absolute;
@@ -1395,6 +1454,10 @@ body.uw-smoke-variant {
 @keyframes smk-bulb-sway {
   0%, 100% { transform: translateX(-50%) rotate(-2.2deg); }
   50% { transform: translateX(-50%) rotate(2.4deg); }
+}
+@keyframes smk-bulb-sway-corner {
+  0%, 100% { transform: rotate(-2.4deg); }
+  50% { transform: rotate(2.6deg); }
 }
 @keyframes smk-bulb-pass {
   0%, 100% { transform: translateX(-8%); opacity: 0.45; }
@@ -1717,6 +1780,348 @@ body.uw-smoke-variant {
   75% { transform: translate(-0.5px, 0); }
 }
 
+/* —— Name bullet graze (bare metal across one letter) —— */
+.smk-name-graze {
+  position: absolute;
+  left: 38%;
+  top: 28%;
+  width: 9%;
+  height: 48%;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    linear-gradient(118deg, transparent 40%, rgba(150, 148, 138, 0.55) 46%, rgba(90, 88, 80, 0.35) 52%, transparent 60%),
+    linear-gradient(112deg, transparent 44%, rgba(40, 38, 34, 0.5) 50%, transparent 56%);
+  mix-blend-mode: soft-light;
+  opacity: 0.85;
+  filter: blur(0.2px);
+}
+
+/* —— Vent fan (open steel, left of name) —— */
+.smk-vent {
+  position: absolute;
+  left: 26%;
+  top: 18%;
+  width: calc(var(--uw-bar-h) * 0.42);
+  height: calc(var(--uw-bar-h) * 0.42);
+  max-width: 72px;
+  max-height: 72px;
+  z-index: 11;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.smk-vent-grille {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(50, 54, 48, 0.7);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.65);
+  background:
+    repeating-conic-gradient(from 0deg, transparent 0 8deg, rgba(20, 22, 18, 0.35) 8deg 10deg);
+}
+.smk-vent-blades {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  animation: smk-vent-spin 4.8s linear infinite;
+}
+.smk-vent-blades > i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42%;
+  height: 28%;
+  margin-left: -8%;
+  margin-top: -14%;
+  background: linear-gradient(90deg, rgba(30, 34, 30, 0.75), rgba(70, 74, 66, 0.35));
+  transform-origin: 0 50%;
+  border-radius: 40% 10% 10% 40%;
+}
+.smk-vent-blades > i:nth-child(1) { transform: rotate(0deg); }
+.smk-vent-blades > i:nth-child(2) { transform: rotate(90deg); }
+.smk-vent-blades > i:nth-child(3) { transform: rotate(180deg); }
+.smk-vent-blades > i:nth-child(4) { transform: rotate(270deg); }
+.smk-vent-flick {
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180, 175, 155, 0.08), transparent 70%);
+  animation: smk-vent-flick 3.6s ease-in-out infinite;
+  mix-blend-mode: soft-light;
+}
+@keyframes smk-vent-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes smk-vent-flick {
+  0%, 100% { opacity: 0.35; }
+  40% { opacity: 0.7; }
+  55% { opacity: 0.25; }
+  70% { opacity: 0.6; }
+}
+
+/* —— Analog gauges —— */
+.smk-gauge {
+  position: absolute;
+  z-index: 11;
+  width: calc(var(--uw-bar-h) * 0.34);
+  height: calc(var(--uw-bar-h) * 0.34);
+  max-width: 58px;
+  max-height: 58px;
+  pointer-events: none;
+  opacity: 0.72;
+}
+.smk-gauge-psi { left: 70%; top: 22%; }
+.smk-gauge-rad { left: 22%; top: 28%; }
+.smk-gauge-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 40% 35%, #2a2e28, #121410 70%),
+    repeating-conic-gradient(from -120deg, rgba(160, 150, 130, 0.25) 0 2deg, transparent 2deg 18deg);
+  border: 1px solid rgba(70, 66, 56, 0.7);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.7);
+}
+.smk-gauge-needle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 38%;
+  height: 2px;
+  margin-top: -1px;
+  background: linear-gradient(90deg, rgba(140, 40, 28, 0.9), rgba(40, 20, 16, 0.8));
+  transform-origin: 0 50%;
+  transform: rotate(-12deg);
+  transition: transform 0.35s ease-out;
+}
+.smk-gauge-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18%;
+  text-align: center;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 6px;
+  letter-spacing: 0.12em;
+  color: rgba(150, 140, 120, 0.55);
+}
+
+/* —— Cobwebs + concrete debris —— */
+.smk-cobweb {
+  position: absolute;
+  width: calc(var(--uw-bar-h) * 0.55);
+  height: calc(var(--uw-bar-h) * 0.4);
+  max-width: 90px;
+  max-height: 70px;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.28;
+  background:
+    linear-gradient(135deg, rgba(180, 180, 170, 0.35) 0%, transparent 40%),
+    repeating-linear-gradient(25deg, transparent 0 6px, rgba(160, 160, 150, 0.12) 6px 7px),
+    repeating-linear-gradient(70deg, transparent 0 8px, rgba(150, 150, 140, 0.1) 8px 9px);
+  filter: blur(0.3px);
+}
+.smk-cobweb-tr { right: 48px; top: 2px; transform: scaleX(-1); }
+.smk-cobweb-bl { left: 40px; bottom: 8px; }
+.smk-debris {
+  position: absolute;
+  bottom: 4px;
+  width: 70px;
+  height: 22px;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.smk-debris-left { left: 4px; }
+.smk-debris-right { right: 4px; }
+.smk-debris > i {
+  position: absolute;
+  bottom: 0;
+  display: block;
+  background: linear-gradient(160deg, #3a3a34, #1a1a16);
+  box-shadow: inset 0 1px 0 rgba(90, 88, 80, 0.2);
+}
+.smk-debris > i:nth-child(1) { left: 4px; width: 22px; height: 10px; clip-path: polygon(0 40%, 20% 0, 100% 20%, 80% 100%, 10% 100%); }
+.smk-debris > i:nth-child(2) { left: 24px; width: 16px; height: 7px; clip-path: polygon(10% 0, 100% 30%, 70% 100%, 0 80%); }
+.smk-debris > i:nth-child(3) { left: 40px; width: 20px; height: 9px; clip-path: polygon(0 50%, 40% 0, 100% 40%, 60% 100%); }
+
+/* —— Water drip (forms, falls, splashes on rivet line — stays in bar) —— */
+.smk-drip {
+  position: absolute;
+  left: 48%;
+  top: 6%;
+  width: 12px;
+  height: 78%;
+  z-index: 13;
+  pointer-events: none;
+  opacity: 0;
+}
+.smk-drip-run { opacity: 1; }
+.smk-drip-bead {
+  position: absolute;
+  left: 4px;
+  top: 0;
+  width: 4px;
+  height: 5px;
+  border-radius: 40%;
+  background: rgba(150, 160, 155, 0.45);
+  opacity: 0;
+}
+.smk-drip-fall {
+  position: absolute;
+  left: 5px;
+  top: 0;
+  width: 2px;
+  height: 6px;
+  border-radius: 40%;
+  background: rgba(160, 170, 165, 0.5);
+  opacity: 0;
+}
+.smk-drip-splash {
+  position: absolute;
+  left: 1px;
+  bottom: 8%;
+  width: 10px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(160, 170, 165, 0.4), transparent 70%);
+  opacity: 0;
+}
+.smk-drip-run .smk-drip-bead { animation: smk-drip-bead 1.1s ease-in forwards; }
+.smk-drip-run .smk-drip-fall { animation: smk-drip-fall 0.55s ease-in 1.05s forwards; }
+.smk-drip-run .smk-drip-splash { animation: smk-drip-splash 0.35s ease-out 1.55s forwards; }
+@keyframes smk-drip-bead {
+  0% { opacity: 0; transform: scale(0.4); }
+  40% { opacity: 0.7; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.1) translateY(2px); }
+}
+@keyframes smk-drip-fall {
+  0% { opacity: 0.7; top: 8%; }
+  100% { opacity: 0.5; top: 78%; }
+}
+@keyframes smk-drip-splash {
+  0% { opacity: 0.6; transform: scaleX(0.4); }
+  100% { opacity: 0; transform: scaleX(1.6); }
+}
+
+/* —— Moth near caged bulb —— */
+.smk-moth {
+  position: absolute;
+  left: 5%;
+  top: 20%;
+  width: 10px;
+  height: 8px;
+  z-index: 15;
+  pointer-events: none;
+  opacity: 0;
+}
+.smk-moth > i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse 40% 55% at 30% 50%, rgba(40, 38, 34, 0.85), transparent 70%),
+    radial-gradient(ellipse 40% 55% at 70% 50%, rgba(40, 38, 34, 0.85), transparent 70%),
+    radial-gradient(circle at 50% 50%, rgba(28, 26, 22, 0.9) 0 1.5px, transparent 1.7px);
+}
+.smk-moth-on {
+  opacity: 0.75;
+  animation: smk-moth-flight 3.6s ease-in-out;
+}
+@keyframes smk-moth-flight {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(18px, -6px) rotate(12deg); }
+  45% { transform: translate(36px, 8px) rotate(-8deg); }
+  70% { transform: translate(12px, 14px) rotate(6deg); }
+  100% { transform: translate(28px, -2px) rotate(-4deg); }
+}
+
+/* —— Rat silhouette run (bottom bar only) —— */
+.smk-rat {
+  position: absolute;
+  left: -80px;
+  bottom: 18%;
+  width: 42px;
+  height: 16px;
+  z-index: 16;
+  pointer-events: none;
+  opacity: 0;
+}
+.smk-rat-body {
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  width: 22px;
+  height: 9px;
+  border-radius: 40% 45% 40% 40%;
+  background: #0c0c0c;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+.smk-rat-head {
+  position: absolute;
+  left: 26px;
+  top: 3px;
+  width: 10px;
+  height: 8px;
+  border-radius: 45% 55% 40% 40%;
+  background: #0a0a0a;
+}
+.smk-rat-tail {
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 12px;
+  height: 2px;
+  border-radius: 40%;
+  background: #0a0a0a;
+  transform-origin: 100% 50%;
+}
+.smk-rat-leg {
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  height: 5px;
+  background: #080808;
+  border-radius: 30%;
+}
+.smk-rat-leg.a { left: 12px; }
+.smk-rat-leg.b { left: 18px; }
+.smk-rat-leg.c { left: 24px; }
+.smk-rat-leg.d { left: 30px; }
+.smk-rat-run-ltr {
+  opacity: 1;
+  animation: smk-rat-ltr 3s linear forwards;
+}
+.smk-rat-run-rtl {
+  opacity: 1;
+  animation: smk-rat-rtl 3s linear forwards;
+}
+.smk-rat-run-ltr .smk-rat-leg,
+.smk-rat-run-rtl .smk-rat-leg {
+  animation: smk-rat-legs 0.22s steps(2, end) infinite;
+}
+.smk-rat-run-ltr .smk-rat-tail,
+.smk-rat-run-rtl .smk-rat-tail {
+  animation: smk-rat-tail 0.28s ease-in-out infinite;
+}
+@keyframes smk-rat-ltr {
+  0% { left: -60px; transform: scaleX(1); }
+  100% { left: 102%; transform: scaleX(1); }
+}
+@keyframes smk-rat-rtl {
+  0% { left: 102%; transform: scaleX(-1); }
+  100% { left: -60px; transform: scaleX(-1); }
+}
+@keyframes smk-rat-legs {
+  0% { transform: rotate(-18deg); }
+  100% { transform: rotate(18deg); }
+}
+@keyframes smk-rat-tail {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(10deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .smk-wisps > i,
   .smk-ash > i,
@@ -1738,6 +2143,10 @@ body.uw-smoke-variant {
   .smk-op-online,
   .smk-op-dot,
   .smk-dogtags,
+  .smk-vent-blades,
+  .smk-vent-flick,
+  .smk-moth,
+  .smk-rat,
   #uw-stage[data-variant="smoke-flare"] .uw-glass-name {
     animation: none !important;
   }
