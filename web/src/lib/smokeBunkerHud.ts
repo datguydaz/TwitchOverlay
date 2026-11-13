@@ -77,11 +77,8 @@ export function applySmokeBunkerHud(stage: HTMLElement): () => void {
   ensureEl(
     top,
     ":scope > .smk-bunker-light",
-    `<div class="smk-bunker-light smk-bunker-light-main smk-bunker-light-corner" aria-hidden="true">
+    `<div class="smk-bunker-light smk-bunker-light-main" aria-hidden="true">
       <span class="smk-bulb-cord"></span>
-      <span class="smk-bulb-cage" aria-hidden="true">
-        <i></i><i></i><i></i><i></i><i></i><i></i>
-      </span>
       <span class="smk-bulb"></span>
       <span class="smk-bulb-glow"></span>
       <span class="smk-bulb-pass"></span>
