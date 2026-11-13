@@ -433,8 +433,12 @@ body.uw-smoke-variant {
   width: 100%;
   height: 100%;
   mix-blend-mode: screen;
-  opacity: 0.9;
+  opacity: 0.75;
   image-rendering: auto;
+}
+.smk-wisps.bot .smk-wisp-canvas {
+  opacity: 0.7;
+  filter: blur(0.8px);
 }
 
 /* Ash + dim orange-red embers (sparse, dark) */
@@ -580,7 +584,7 @@ body.uw-smoke-variant {
   flex-direction: column;
   align-items: center;
   gap: 0;
-  padding: 4px 20px 0;
+  padding: 2px 20px 0;
   overflow: visible;
   position: relative;
   z-index: 22;
@@ -589,7 +593,7 @@ body.uw-smoke-variant {
   position: relative;
   isolation: isolate;
   margin: 0;
-  padding: 0 16px 6px;
+  padding: 0 16px 2px;
   line-height: 0.9;
   overflow: visible;
 }
@@ -627,7 +631,7 @@ body.uw-smoke-variant {
   font-style: italic;
   font-weight: 700;
   font-stretch: condensed;
-  font-size: clamp(86px, calc(var(--uw-bar-h) * 0.52), 128px) !important;
+  font-size: clamp(74px, calc(var(--uw-bar-h) * 0.42), 104px) !important;
   letter-spacing: 0.04em;
   margin: 0 !important;
   padding: 0 28px 0 22px;
@@ -664,51 +668,65 @@ body.uw-smoke-variant {
   display: none !important;
 }
 
-/* OPERATOR ONLINE — stencil dog-tag / tape */
+/* OPERATOR ONLINE — solid dog-tag (no erosion / no torn-edge bite) */
 #uw-stage[data-variant="smoke-flare"] .smk-op {
   position: relative;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-top: 14px !important;
+  gap: 14px;
+  margin-top: 4px !important;
   padding: 0 !important;
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
-  font-size: 17px !important;
-  letter-spacing: 0.42em !important;
-  text-indent: 0.42em;
+  font-size: 18px !important;
+  letter-spacing: 0.38em !important;
+  text-indent: 0.38em;
   opacity: 1;
+  z-index: 30;
+  /* Never inherit bar erosion masks */
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  filter: none !important;
 }
 .smk-tape {
   display: inline-block;
-  padding: 6px 18px 5px;
-  background:
-    linear-gradient(180deg, #3a342c 0%, #2a2620 50%, #1e1a16 100%);
-  border: 1px solid rgba(90, 80, 64, 0.45);
+  padding: 8px 22px 7px;
+  /* Fully opaque plate — protects glyphs from stage/tear */
+  background: #2c2822;
+  background-image: linear-gradient(180deg, #3e3830 0%, #2c2822 55%, #1a1814 100%);
+  border: 1px solid rgba(120, 108, 88, 0.65);
   box-shadow:
-    inset 0 1px 0 rgba(140, 130, 110, 0.15),
-    0 2px 4px rgba(0, 0, 0, 0.6);
-  transform: rotate(-0.6deg);
+    inset 0 1px 0 rgba(180, 168, 140, 0.22),
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 3px 8px rgba(0, 0, 0, 0.75);
+  transform: rotate(-0.4deg);
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  opacity: 1 !important;
+  filter: none !important;
   animation: smk-tape-flicker 6.5s steps(1, end) infinite;
 }
 @keyframes smk-tape-flicker {
-  0%, 90%, 100% { opacity: 1; filter: brightness(1); }
-  91% { opacity: 0.7; filter: brightness(0.75); }
-  92% { opacity: 1; filter: brightness(1); }
-  97% { opacity: 0.85; filter: brightness(0.9); }
-  98% { opacity: 1; }
+  0%, 90%, 100% { opacity: 1; filter: none; }
+  91% { opacity: 0.92; filter: none; }
+  92% { opacity: 1; filter: none; }
+  97% { opacity: 0.95; filter: none; }
+  98% { opacity: 1; filter: none; }
 }
 #uw-stage[data-variant="smoke-flare"] .smk-op .uw-text-face {
-  color: #e8e0d0 !important;
+  color: #f2ebe0 !important;
   font-family: "Share Tech Mono", "Consolas", monospace !important;
   font-weight: 700;
   letter-spacing: inherit !important;
-  text-shadow: none !important;
-  -webkit-text-fill-color: #e8e0d0 !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.85) !important;
+  -webkit-text-fill-color: #f2ebe0 !important;
   position: relative;
   z-index: 1;
+  opacity: 1 !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
 }
 .smk-op-rule {
   position: relative !important;

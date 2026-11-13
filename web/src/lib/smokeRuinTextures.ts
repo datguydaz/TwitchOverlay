@@ -89,7 +89,13 @@ function buildTornProfile(
 }
 
 /** Sample profile at pixel x with high-freq chip noise (no polygonal teeth). */
-function depthAt(profile: Float32Array, x: number, barW: number, seed: number): number {
+function depthAt(
+  profile: Float32Array,
+  x: number,
+  barW: number,
+  seed: number,
+  side?: EdgeSide,
+): number {
   const n = profile.length - 1;
   const t = (x / Math.max(1, barW - 1)) * n;
   const i = Math.floor(t);
@@ -99,7 +105,17 @@ function depthAt(profile: Float32Array, x: number, barW: number, seed: number): 
   const base = a + (b - a) * f;
   const chip = (fbm(x * 0.35, 2.2, seed, 2) - 0.5) * 7;
   const micro = (hash2(x, seed, seed) - 0.5) * 3.5;
-  return Math.max(2, base + chip + micro);
+  let depth = Math.max(2, base + chip + micro);
+  // Keep top-bar center shallow so OPERATOR ONLINE dog-tag stays intact
+  if (side === "bottom") {
+    const nx = x / barW;
+    if (nx > 0.28 && nx < 0.72) {
+      const center = 1 - Math.abs(nx - 0.5) / 0.22;
+      const cap = 10 + (1 - Math.max(0, center)) * 8;
+      depth = Math.min(depth, cap);
+    }
+  }
+  return depth;
 }
 
 /** Alpha mask: opaque bar with irregular torn edge (raster, not clip-path). */
@@ -115,7 +131,7 @@ function buildTornMask(
   const img = ctx.createImageData(barW, barH);
   const d = img.data;
   for (let x = 0; x < barW; x++) {
-    const depth = depthAt(profile, x, barW, seed);
+    const depth = depthAt(profile, x, barW, seed, side);
     for (let y = 0; y < barH; y++) {
       const i = (y * barW + x) * 4;
       let keep = true;
@@ -148,7 +164,7 @@ function drawTornRustStrip(
   const img = ctx.createImageData(barW, barH);
   const d = img.data;
   for (let x = 0; x < barW; x++) {
-    const depth = depthAt(profile, x, barW, seed);
+    const depth = depthAt(profile, x, barW, seed, side);
     const edgeY = side === "bottom" ? barH - depth : depth;
     for (let dy = 0; dy < stripH + 4; dy++) {
       const y =
@@ -190,33 +206,45 @@ function drawTornRustStrip(
   ctx.putImageData(img, 0, 0);
 }
 
-function paintSteelPlate(ctx: CanvasRenderingContext2D, w: number, h: number, seed: number): void {
+function paintSteelPlate(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  seed: number,
+  quiet = false,
+): void {
   const img = ctx.createImageData(w, h);
   const d = img.data;
+  // quiet=true (bottom bar): lower-frequency, lower-contrast — avoids marble/oil look under wisps
+  const fN = quiet ? 0.003 : 0.012;
+  const fG = quiet ? 0.012 : 0.06;
+  const fS = quiet ? 0.0015 : 0.004;
+  const fR = quiet ? 0.006 : 0.02;
+  const amp = quiet ? 0.28 : 1;
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const i = (y * w + x) * 4;
-      const n = fbm(x * 0.012, y * 0.04, seed, 5);
-      const grit = fbm(x * 0.06, y * 0.09, seed + 11, 3);
-      const soot = fbm(x * 0.004, y * 0.02, seed + 23, 4);
-      const rustN = fbm(x * 0.02, y * 0.03, seed + 41, 4);
+      const n = fbm(x * fN, y * (quiet ? 0.02 : 0.04), seed, quiet ? 3 : 5);
+      const grit = fbm(x * fG, y * (quiet ? 0.04 : 0.09), seed + 11, quiet ? 2 : 3);
+      const soot = fbm(x * fS, y * (quiet ? 0.012 : 0.02), seed + 23, 3);
+      const rustN = fbm(x * fR, y * (quiet ? 0.015 : 0.03), seed + 41, 3);
       // Base steel charcoal
-      let r = 18 + n * 22;
-      let g = 16 + n * 18;
-      let b = 14 + n * 14;
+      let r = 16 + n * 18 * amp;
+      let g = 14 + n * 15 * amp;
+      let b = 12 + n * 12 * amp;
       // Grime
-      r -= grit * 10;
-      g -= grit * 9;
-      b -= grit * 8;
+      r -= grit * 8 * amp;
+      g -= grit * 7 * amp;
+      b -= grit * 6 * amp;
       // Soot darkening toward edges / bottomish
       const edge = Math.min(x / w, 1 - x / w, y / h, 1 - y / h);
-      const sootAmt = soot * (0.35 + (1 - edge) * 0.5);
+      const sootAmt = soot * (0.35 + (1 - edge) * 0.5) * (quiet ? 0.7 : 1);
       r *= 1 - sootAmt * 0.55;
       g *= 1 - sootAmt * 0.55;
       b *= 1 - sootAmt * 0.55;
       // Localized rust patches — sparse, cool-dark (not a warm beige wash)
-      if (rustN > 0.72 && grit > 0.55) {
-        const k = Math.min(0.55, (rustN - 0.72) * 2.8);
+      if (rustN > (quiet ? 0.8 : 0.72) && grit > (quiet ? 0.65 : 0.55)) {
+        const k = Math.min(quiet ? 0.35 : 0.55, (rustN - 0.72) * 2.8);
         r = r * (1 - k) + (58 + grit * 18) * k;
         g = g * (1 - k) + (28 + grit * 8) * k;
         b = b * (1 - k) + (16 + grit * 4) * k;
@@ -287,34 +315,78 @@ function paintSmokeWisps(
   ctx.clearRect(0, 0, w, h);
   const img = ctx.createImageData(w, h);
   const d = img.data;
-  const density = heavy ? 0.7 : 0.45;
+
+  if (heavy) {
+    // Bottom bar: discrete soft vertical columns rising from the floor — not domain-warped marble
+    const rnd = mulberry32(seed + Math.floor(t * 3));
+    const wisps: { x: number; w0: number; h0: number; lean: number; a: number }[] = [];
+    for (let i = 0; i < 9; i++) {
+      wisps.push({
+        x: (0.06 + rnd() * 0.88) * w + Math.sin(t * 0.4 + i) * 8,
+        w0: 18 + rnd() * 28,
+        h0: h * (0.45 + rnd() * 0.5),
+        lean: (rnd() - 0.5) * 0.35,
+        a: 0.4 + rnd() * 0.35,
+      });
+    }
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        let a = 0;
+        const rise = y / h; // denser near floor (high y), fades toward stage (y→0)
+        for (const wp of wisps) {
+          const cy = h - wp.h0 * 0.15; // rooted near bottom
+          const yy = (cy - y) / wp.h0;
+          if (yy < -0.15 || yy > 1.15) continue;
+          const cx = wp.x + (1 - yy) * wp.lean * wp.h0 * 0.35;
+          const xw = wp.w0 * (0.55 + yy * 0.7); // wider near top as it dissipates
+          const dx = (x - cx) / Math.max(1, xw);
+          const dy = yy;
+          const soft = Math.exp(-dx * dx * 2.8 - dy * dy * 1.1);
+          const noise = 0.75 + fbm(x * 0.02 + iNoise(wp.x), y * 0.03, seed, 2) * 0.35;
+          a += soft * wp.a * rise * noise;
+        }
+        if (a < 0.04) continue;
+        const i = (y * w + x) * 4;
+        const v = 52 + a * 40;
+        d[i] = v * 0.88;
+        d[i + 1] = v * 0.93;
+        d[i + 2] = v;
+        d[i + 3] = Math.min(130, a * 170);
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return;
+  }
+
+  // Top bar: light sparse tendrils (low warp)
+  const density = 0.3;
+  const warpAmp = 2.0;
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
-      // Domain-warped ridge noise → thin curling dark-grey wisps
-      const warpX = fbm(x * 0.01 + t * 0.04, y * 0.025, seed, 3);
-      const warpY = fbm(x * 0.007, y * 0.018 + t * 0.03, seed + 5, 3);
-      const nx = x * 0.014 + warpX * 5.5;
-      const ny = y * 0.045 + warpY * 4 + t * 0.05;
-      const n = fbm(nx, ny, seed + 17, 5);
+      const warpX = fbm(x * 0.0035 + t * 0.015, y * 0.008, seed, 2);
+      const warpY = fbm(x * 0.0025, y * 0.006 + t * 0.012, seed + 5, 2);
+      const nx = x * 0.006 + warpX * warpAmp;
+      const ny = y * 0.028 + warpY * (warpAmp * 0.7) + t * 0.025;
+      const n = fbm(nx, ny, seed + 17, 4);
       const ridge = 1 - Math.abs(n * 2 - 1);
-      const tendril = Math.pow(Math.max(0, ridge - 0.35) / 0.65, heavy ? 1.6 : 2.4);
-      const band = heavy
-        ? Math.max(0, 1 - Math.abs(y / h - 0.58) * 2.1)
-        : Math.max(0, 1 - Math.abs(y / h - 0.4) * 2.4);
+      const tendril = Math.pow(Math.max(0, ridge - 0.48) / 0.52, 3.2);
+      const band = Math.max(0, 1 - Math.abs(y / h - 0.38) * 2.6);
       let a = tendril * band * density;
-      // Hard crush → black between wisps (no muddy fill)
-      if (a < 0.18) continue;
-      a = (a - 0.18) * 1.5;
+      if (a < 0.22) continue;
+      a = (a - 0.22) * 1.15;
       const i = (y * w + x) * 4;
-      // Cool dark grey only (B slightly above R)
-      const v = 55 + ridge * 55;
+      const v = 48 + ridge * 38;
       d[i] = v * 0.88;
       d[i + 1] = v * 0.93;
       d[i + 2] = v;
-      d[i + 3] = Math.min(160, a * 200);
+      d[i + 3] = Math.min(110, a * 150);
     }
   }
   ctx.putImageData(img, 0, 0);
+}
+
+function iNoise(v: number): number {
+  return ((v * 0.01) % 17) + 1;
 }
 
 function paintBloodSplatter(
@@ -471,9 +543,9 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
   const BAR_H = 248;
 
   // --- Steel plates ---
-  for (const [bar, seed] of [
-    [top, 101] as const,
-    [bot, 202] as const,
+  for (const [bar, seed, quiet] of [
+    [top, 101, false] as const,
+    [bot, 202, true] as const,
   ]) {
     const steelHost = bar.querySelector(".smk-steel") as HTMLElement | null;
     if (!steelHost) continue;
@@ -482,7 +554,7 @@ export function applySmokeRuinTextures(stage: HTMLElement): () => void {
     c.width = BAR_W;
     c.height = BAR_H;
     const ctx = c.getContext("2d")!;
-    paintSteelPlate(ctx, BAR_W, BAR_H, seed);
+    paintSteelPlate(ctx, BAR_W, BAR_H, seed, quiet);
   }
 
   // --- Irregular torn edges + rust strip following profile ---
