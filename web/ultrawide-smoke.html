@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ultrawide Smoke / Flare Variant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@500;600;700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/fonts.css" />
+    <link rel="stylesheet" href="/src/styles/zone.css" />
+    <!-- Current letterbox stays at ultrawide.html — this page is a Streamlabs-inspired variant. -->
+    <link rel="stylesheet" href="/src/styles/ultrawide.css" />
+    <link rel="stylesheet" href="/src/styles/ultrawide-smoke.css" />
+  </head>
+  <body class="uw-smoke-variant">
+    <div id="uw-stage" data-atm="on" data-vfx="on" data-text-fx="on" data-variant="smoke-flare">
+      <div class="uw-bar uw-bar-top" id="uw-top" data-edge="top">
+        <div class="uw-smoke-depth" aria-hidden="true"></div>
+        <div class="uw-smoke-wisp w1" aria-hidden="true"></div>
+        <div class="uw-smoke-wisp w2" aria-hidden="true"></div>
+        <div class="uw-smoke-wisp w3" aria-hidden="true"></div>
+        <div class="uw-bar-haze uw-bar-haze-header" aria-hidden="true"></div>
+        <div class="uw-grime" aria-hidden="true">
+          <i class="uw-scratch a"></i>
+          <i class="uw-scratch b"></i>
+        </div>
+        <div class="uw-bar-body uw-wall-header">
+          <div class="uw-side" id="uw-follower-slot">
+            <aside class="uw-readout uw-social-inbar" id="uw-follower" data-social="follow">
+              <div class="uw-glass-label">LATEST FOLLOWER</div>
+              <div class="uw-glass-well">
+                <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
+                <span class="uw-glass-scan" aria-hidden="true"></span>
+                <span class="uw-glass-glow" aria-hidden="true"></span>
+                <span class="uw-glass-name" id="uw-follower-name"></span>
+              </div>
+            </aside>
+          </div>
+
+          <div class="uw-center">
+            <div class="uw-id-block" id="uw-top-text">
+              <div class="uw-stencil" data-text-fx="id">
+                <span class="uw-text-glow" aria-hidden="true"></span>
+                <span class="uw-text-face" data-streamer-name>datguydaz</span>
+                <span class="uw-name-crt" aria-hidden="true"></span>
+              </div>
+              <div class="uw-op-readout" data-text-fx="op">
+                <span class="uw-op-fixture" aria-hidden="true"><i class="uw-op-led"></i></span>
+                <span class="uw-text-glow" aria-hidden="true"></span>
+                <span class="uw-text-face" id="uw-operator-suffix">OPERATOR ONLINE</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="uw-side uw-side-right" id="uw-subscriber-slot">
+            <aside class="uw-readout uw-social-inbar" id="uw-subscriber" data-social="sub">
+              <div class="uw-glass-label">LATEST SUBSCRIBER</div>
+              <div class="uw-glass-well">
+                <span class="uw-readout-fixture" aria-hidden="true"><i class="uw-glass-ind"></i></span>
+                <span class="uw-glass-scan" aria-hidden="true"></span>
+                <span class="uw-glass-glow" aria-hidden="true"></span>
+                <span class="uw-glass-name" id="uw-subscriber-name"></span>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        <div class="uw-header-rail" aria-hidden="true">
+          <span class="uw-header-rail-glow"></span>
+          <span class="uw-divider-rail"></span>
+          <span class="uw-lens-flare f1"></span>
+          <span class="uw-lens-flare f2"></span>
+          <span class="uw-lens-flare f3"></span>
+          <span class="uw-lens-flare f4"></span>
+          <span class="uw-header-scan s-a"></span>
+          <span class="uw-header-scan s-b"></span>
+          <span class="uw-header-ember e1"></span>
+          <span class="uw-header-ember e2"></span>
+          <span class="uw-header-ember e3"></span>
+          <span class="uw-header-ember e4"></span>
+          <span class="uw-header-drift a"></span>
+          <span class="uw-header-drift b"></span>
+        </div>
+        <div class="uw-seam uw-seam-bottom" aria-hidden="true"></div>
+        <div class="uw-atm-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+
+      <!-- Transparent gameplay void — avatar can be a separate OBS source or composited -->
+      <div class="uw-smoke-void" aria-hidden="true"></div>
+
+      <div class="uw-bar uw-bar-bottom" id="uw-bottom" data-edge="bottom">
+        <div class="uw-seam uw-seam-top" aria-hidden="true"></div>
+        <div class="uw-smoke-depth" aria-hidden="true"></div>
+        <div class="uw-smoke-wisp w4" aria-hidden="true"></div>
+        <div class="uw-smoke-wisp w5" aria-hidden="true"></div>
+        <div class="uw-bar-haze uw-bar-haze-footer" aria-hidden="true"></div>
+        <div class="uw-footer-rail" aria-hidden="true">
+          <span class="uw-footer-rail-glow"></span>
+          <span class="uw-divider-rail uw-divider-rail-footer"></span>
+          <span class="uw-lens-flare f5"></span>
+          <span class="uw-lens-flare f6"></span>
+          <span class="uw-lens-flare f7"></span>
+          <span class="uw-footer-ticker t-a"></span>
+          <span class="uw-footer-ticker t-b"></span>
+          <span class="uw-footer-stutter"></span>
+          <span class="uw-footer-scan s-a"></span>
+          <span class="uw-footer-scan s-b"></span>
+          <span class="uw-footer-rail-pop p1"></span>
+          <span class="uw-footer-rail-pop p2"></span>
+          <span class="uw-footer-rail-pop p3"></span>
+          <span class="uw-footer-rail-pop p4"></span>
+          <span class="uw-footer-rail-pop p5"></span>
+        </div>
+        <div class="uw-grime" aria-hidden="true">
+          <i class="uw-scratch c"></i>
+        </div>
+        <div class="uw-bar-body uw-wall-footer">
+          <div class="uw-side">
+            <div class="uw-footer-vent" aria-hidden="true">
+              <div class="uw-vent-face"><i></i><i></i><i></i></div>
+              <span class="uw-vent-wisp"></span>
+            </div>
+          </div>
+          <div class="uw-center uw-footer-atm" aria-hidden="true">
+            <span class="uw-footer-drift a"></span>
+            <span class="uw-footer-drift b"></span>
+            <span class="uw-footer-drift c"></span>
+            <span class="uw-footer-ember e1"></span>
+            <span class="uw-footer-ember e2"></span>
+            <span class="uw-footer-ember e3"></span>
+            <span class="uw-footer-ember e4"></span>
+            <span class="uw-footer-ember e5"></span>
+            <span class="uw-footer-ember e6"></span>
+          </div>
+          <div class="uw-side uw-side-right" aria-hidden="true"></div>
+        </div>
+        <div class="uw-atm-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+    <!-- Same live bindings / settings / WS as current ultrawide -->
+    <script type="module" src="/src/pages/ultrawide.ts"></script>
+  </body>
+</html>

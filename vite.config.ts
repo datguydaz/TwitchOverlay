@@ -15,6 +15,7 @@ export default defineConfig({
         ending: resolve(__dirname, "web/ending.html"),
         avatar: resolve(__dirname, "web/avatar.html"),
         ultrawide: resolve(__dirname, "web/ultrawide.html"),
+        "ultrawide-smoke": resolve(__dirname, "web/ultrawide-smoke.html"),
         "ultrawide-top": resolve(__dirname, "web/ultrawide-top.html"),
         "ultrawide-bottom": resolve(__dirname, "web/ultrawide-bottom.html"),
         dashboard: resolve(__dirname, "web/dashboard.html"),
