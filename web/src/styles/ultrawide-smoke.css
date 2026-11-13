@@ -724,7 +724,11 @@ body.uw-smoke-variant {
   97% { opacity: 0.95; filter: none; }
   98% { opacity: 1; filter: none; }
 }
-#uw-stage[data-variant="smoke-flare"] .smk-op .uw-text-face {
+#uw-stage[data-variant="smoke-flare"] .smk-op .uw-text-face,
+#uw-stage[data-variant="smoke-flare"] .smk-op-line {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.35em;
   color: #f2ebe0 !important;
   font-family: "Share Tech Mono", "Consolas", monospace !important;
   font-weight: 700;
@@ -736,6 +740,37 @@ body.uw-smoke-variant {
   opacity: 1 !important;
   -webkit-mask-image: none !important;
   mask-image: none !important;
+}
+.smk-op-left {
+  color: #f2ebe0 !important;
+  -webkit-text-fill-color: #f2ebe0 !important;
+}
+.smk-op-online {
+  color: #7fae6a !important;
+  -webkit-text-fill-color: #7fae6a !important;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.85),
+    0 0 8px rgba(90, 120, 70, 0.28) !important;
+  animation: smk-online-pulse 3.6s ease-in-out infinite;
+}
+.smk-op-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: 0 0.1em;
+  background: #7fae6a;
+  box-shadow: 0 0 5px rgba(100, 140, 80, 0.45);
+  flex: 0 0 auto;
+  animation: smk-online-dot 3.6s ease-in-out infinite;
+}
+@keyframes smk-online-pulse {
+  0%, 100% { opacity: 0.78; filter: brightness(0.92); }
+  50% { opacity: 1; filter: brightness(1.08); }
+}
+@keyframes smk-online-dot {
+  0%, 100% { opacity: 0.55; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 .smk-op-rule {
   position: relative !important;
@@ -1271,22 +1306,28 @@ body.uw-smoke-variant {
   background: radial-gradient(ellipse at 40% 30%, #6a6458, #2a2620 70%);
 }
 
-/* —— Radio chatter ticker (bottom bar) —— */
+/* —— Radio chatter ticker (bottom bar, vertically centred) —— */
 .smk-chatter {
   position: absolute;
-  left: 180px;
-  right: 180px;
-  bottom: 28px;
-  height: 18px;
+  left: 200px;
+  right: 200px;
+  top: 50%;
+  bottom: auto;
+  height: 26px;
+  margin: 0;
+  transform: translateY(-50%);
   overflow: hidden;
   z-index: 21;
   pointer-events: none;
+  display: flex;
+  align-items: center;
   mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
 .smk-chatter-track {
   display: flex;
   width: max-content;
+  align-items: center;
   animation: smk-chatter-scroll 90s linear infinite;
   will-change: transform;
 }
@@ -1294,12 +1335,15 @@ body.uw-smoke-variant {
   flex: 0 0 auto;
   padding-right: 0;
   font-family: "Share Tech Mono", "Consolas", monospace;
-  font-size: 11px;
-  letter-spacing: 0.22em;
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  line-height: 1.2;
   text-transform: uppercase;
-  color: rgba(180, 172, 150, 0.38);
+  color: rgba(198, 190, 168, 0.55);
   white-space: nowrap;
-  text-shadow: 0 0 6px rgba(90, 20, 14, 0.15);
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.75),
+    0 0 8px rgba(90, 20, 14, 0.12);
 }
 @keyframes smk-chatter-scroll {
   0% { transform: translateX(0); }
@@ -1356,6 +1400,8 @@ body.uw-smoke-variant {
   .smk-bunker-light,
   .smk-bulb-pass,
   .smk-chatter-track,
+  .smk-op-online,
+  .smk-op-dot,
   #uw-stage[data-variant="smoke-flare"] .uw-glass-name {
     animation: none !important;
   }

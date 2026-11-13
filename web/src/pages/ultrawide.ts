@@ -59,6 +59,36 @@ function resolveSocialName(
   return readStoredName(lsKey);
 }
 
+/** Smoke dog-tag: keep OPERATOR bone, ONLINE muted green + status dot. */
+function applySmokeOperatorLine(host: HTMLElement, line: string): void {
+  let left = host.querySelector<HTMLElement>(".smk-op-left");
+  let online = host.querySelector<HTMLElement>(".smk-op-online");
+  let dot = host.querySelector<HTMLElement>(".smk-op-dot");
+  if (!left || !online) {
+    host.innerHTML =
+      '<span class="smk-op-left"></span><i class="smk-op-dot" aria-hidden="true"></i><span class="smk-op-online"></span>';
+    left = host.querySelector(".smk-op-left");
+    online = host.querySelector(".smk-op-online");
+    dot = host.querySelector(".smk-op-dot");
+  }
+  if (!left || !online) {
+    host.textContent = line;
+    return;
+  }
+  const m = /^(.*)\s+(ONLINE)\s*$/i.exec(line);
+  if (m) {
+    left.textContent = m[1];
+    online.textContent = "ONLINE";
+    online.hidden = false;
+    if (dot) dot.hidden = false;
+  } else {
+    left.textContent = line;
+    online.textContent = "";
+    online.hidden = true;
+    if (dot) dot.hidden = true;
+  }
+}
+
 function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
   const apply = () => {
     const sx = window.innerWidth / width;
@@ -153,8 +183,13 @@ function applyUltrawide(settings: OverlaySettings): void {
       if (utility) utility.hidden = false;
       if (legacyTitle) legacyTitle.hidden = true;
       if (opSuffix) {
-        opSuffix.textContent =
+        const line =
           (uw.operatorLine || "OPERATOR ONLINE").trim() || "OPERATOR ONLINE";
+        if (smokeFixed) {
+          applySmokeOperatorLine(opSuffix, line);
+        } else {
+          opSuffix.textContent = line;
+        }
       }
     } else {
       if (nameEl) nameEl.hidden = true;
