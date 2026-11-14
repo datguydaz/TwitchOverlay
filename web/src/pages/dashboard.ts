@@ -15,10 +15,8 @@ import type {
   OverlaySettings,
   SfxEventSettings,
   SfxPreset,
-  FollowEventScene,
-  SubEventScene,
 } from "../../../shared/settings.ts";
-import { DEFAULT_SFX_EVENT, DEFAULT_EVENT_SCENES } from "../../../shared/settings.ts";
+import { DEFAULT_SFX_EVENT } from "../../../shared/settings.ts";
 import type { StatusMessage } from "../../../shared/protocol.ts";
 
 type CustomSoundMeta = {
@@ -146,7 +144,6 @@ function fillForm(s: OverlaySettings): void {
     s.textEffects.reducedMotion;
 
   fillSfxForm(s);
-  fillEventScenesForm(s);
 
   for (const key of Object.keys(s.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);
@@ -294,7 +291,6 @@ function readForm(): OverlaySettings {
   }
 
   next.sfx = readSfxForm();
-  next.eventScenes = readEventScenesForm();
 
   {
     const intensityRaw = (
@@ -452,28 +448,6 @@ function fillSfxEventForm(
     layerEl.disabled = !isOneshot;
   }
   renderSfxPool(`sfx${prefix}Pool`, ev.pool || [], ev.preset === "random");
-}
-
-function fillEventScenesForm(s: OverlaySettings): void {
-  const fol = document.getElementById("eventSceneFollow") as HTMLSelectElement | null;
-  const sub = document.getElementById("eventSceneSub") as HTMLSelectElement | null;
-  const cfg = s.eventScenes || DEFAULT_EVENT_SCENES;
-  if (fol) fol.value = cfg.follow || "telex";
-  if (sub) sub.value = cfg.sub || "airdrop";
-}
-
-function readEventScenesForm(): OverlaySettings["eventScenes"] {
-  const folRaw = (
-    (document.getElementById("eventSceneFollow") as HTMLSelectElement | null)?.value || "telex"
-  ).toLowerCase();
-  const subRaw = (
-    (document.getElementById("eventSceneSub") as HTMLSelectElement | null)?.value || "airdrop"
-  ).toLowerCase();
-  const follow: FollowEventScene =
-    folRaw === "dogtag" || folRaw === "classic" ? folRaw : "telex";
-  const sub: SubEventScene =
-    subRaw === "lockdown" || subRaw === "classic" ? subRaw : "airdrop";
-  return { follow, sub };
 }
 
 function fillSfxForm(s: OverlaySettings): void {

@@ -6,7 +6,6 @@ import { AtmosphereVfx } from "../lib/atmosphereVfx.ts";
 import { TextLifeVfx } from "../lib/textLifeVfx.ts";
 import { SocialReadoutAnim } from "../lib/socialReadoutAnim.ts";
 import { createBunkerSfx } from "../lib/bunkerSfx.ts";
-import { createEventScenePlayer, type EventScenePlayer } from "../lib/eventScenes.ts";
 import {
   applySmokeRuinTextures,
   resolveSmokeEdgeStyle,
@@ -16,7 +15,6 @@ import { applySmokeBarFx } from "../lib/smokeBarFx.ts";
 import { applySmokeBunkerHud } from "../lib/smokeBunkerHud.ts";
 import { applySmokeBarProps } from "../lib/smokeBarProps.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
-import { DEFAULT_EVENT_SCENES } from "../../../shared/settings.ts";
 import type { AtmPreviewKind } from "../../../shared/protocol.ts";
 
 function qs<T extends HTMLElement>(sel: string): T | null {
@@ -111,12 +109,10 @@ function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
 let atm: AtmosphereVfx | null = null;
 let textFx: TextLifeVfx | null = null;
 let socialAnim: SocialReadoutAnim | null = null;
-let eventScenes: EventScenePlayer | null = null;
 const bunkerSfx = createBunkerSfx();
 let lastFollower = "";
 let lastSubscriber = "";
 let bootstrappedSocial = false;
-let urlSceneParamsApplied = false;
 let smokeRuinCleanup: (() => void) | null = null;
 let smokeBarFxCleanup: (() => void) | null = null;
 let smokeBunkerHudCleanup: (() => void) | null = null;
@@ -347,25 +343,14 @@ function applyUltrawide(settings: OverlaySettings): void {
     },
   );
 
-  if (!eventScenes) {
-    eventScenes = createEventScenePlayer(stage, {
-      onTypeChar: (kind, ch) => bunkerSfx.onTypeChar(kind, ch),
-      onTypeDone: (kind) => bunkerSfx.onTypeDone(kind),
-      onSceneCue: (cue, kind) => bunkerSfx.playSceneCue(cue, kind),
-    });
-  }
-  eventScenes.applyConfig(settings.eventScenes || DEFAULT_EVENT_SCENES);
-
   if (!socialAnim) {
     socialAnim = new SocialReadoutAnim(stage, reduced, {
       onEventStart: (kind) => bunkerSfx.playEventStart(kind),
       onTypeChar: (kind, ch) => bunkerSfx.onTypeChar(kind, ch),
       onTypeDone: (kind) => bunkerSfx.onTypeDone(kind),
     });
-    socialAnim.setScenePlayer(eventScenes);
   } else {
     socialAnim.setReducedMotion(reduced);
-    socialAnim.setScenePlayer(eventScenes);
   }
 
   // First load: set names quietly (never leave plates blank on smoke). Later: anim on change.
@@ -464,11 +449,6 @@ async function main(): Promise<void> {
   await refreshCustomSounds();
   applyCssVars(settings);
   applyUltrawide(settings);
-
-  if (!urlSceneParamsApplied && eventScenes) {
-    eventScenes.applyUrlParams(params);
-    urlSceneParamsApplied = true;
-  }
 
   const refresh = async () => {
     settings = await fetchSettings();

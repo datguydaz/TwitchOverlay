@@ -133,32 +133,6 @@
           <button type="button" class="btn" data-atm-preview="follow">Demo follow event</button>
           <button type="button" class="btn" data-atm-preview="sub">Demo sub event</button>
         </div>
-
-        <h3>Event scenes (ultrawide-smoke bars)</h3>
-        <p class="hint">Mini Tarkov narratives inside the 180px bars. Defaults: <strong>telex</strong> (follow) + <strong>airdrop</strong> (sub). Classic = previous plate type-in. URL: <code>?followfx=telex|dogtag|classic</code>, <code>?subfx=airdrop|lockdown|classic</code>, <code>?demo=follow|sub</code>.</p>
-        <div class="sfx-event-grid">
-          <fieldset class="sfx-event">
-            <legend>Follow scene</legend>
-            <label>Concept
-              <select id="eventSceneFollow">
-                <option value="telex">Telex / receipt printer</option>
-                <option value="dogtag">Dog tag + chain</option>
-                <option value="classic">Classic type-in</option>
-              </select>
-            </label>
-          </fieldset>
-          <fieldset class="sfx-event">
-            <legend>Sub scene</legend>
-            <label>Concept
-              <select id="eventSceneSub">
-                <option value="airdrop">Airdrop + flare</option>
-                <option value="lockdown">Lockdown shutters</option>
-                <option value="classic">Classic type-in</option>
-              </select>
-            </label>
-          </fieldset>
-        </div>
-
         <h3>Event sounds (ultrawide-smoke)</h3>
         <p class="hint">Plays only on real new events (same moment as type-in / NEW). Default is a mechanical <strong>typewriter</strong> (clack per character). In Streamlabs/OBS Browser Source, enable <strong>Control audio via OBS</strong>. URL: <code>?sfx=0</code> mute, <code>?vol=0..1</code>.</p>
         <label class="inline"><input id="sfxEnabled" type="checkbox" /> Enable event SFX (master)</label>
