@@ -172,11 +172,19 @@ See [`companion/README.md`](./companion/README.md) for `uiohook-napi` details, U
 
 Dashboard persists settings via `PUT /api/settings` to `data/settings.json` (server-side so every OBS browser source can read the same values). Modules: visibility, position (`x`/`y`), scale. Avatar intensity + lights. Countdown + scene copy.
 
-## Twitch & Kick
+## Twitch & Kick / Streamlabs events
 
-Visual overlay works on either platform. Live follower/sub/donation integrations are **not** implemented. Dashboard **Sample** alerts are labelled `SAMPLE // NOT LIVE`.
+Visual overlay works on either platform. **Follow + subscription** can update the ultrawide-smoke plates via the **Streamlabs Socket API** bridge (server-side).
 
-To add real events later: run a local bridge that holds Twitch EventSub / Kick credentials and pushes normalized alerts over the existing localhost WebSocket. Keep secrets out of browser/overlay code.
+1. Copy `.env.example` → `.env.local`
+2. Paste your **Socket API Token** from [Streamlabs API Settings](https://streamlabs.com/dashboard#/settings/api-settings) as `STREAMLABS_SOCKET_TOKEN=…`
+3. Restart `npm run preview` (or `npm start`)
+4. Dashboard → **Events: connected**
+5. Streamlabs → test a Follow / Subscription alert, or get a real follow — the Browser Source at `http://127.0.0.1:8787/ultrawide-smoke.html` should type-in the name + NEW flash
+
+The token never goes in the Browser Source URL. Without a token the overlay still works; Events stays **not configured**. Dashboard **Sample** buttons remain preview-only (they do not save names).
+
+Raids / bits / donations / live ticker text are not wired yet. Twitch EventSub remains a possible future alternative.
 
 ## Performance
 

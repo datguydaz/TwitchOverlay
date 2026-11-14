@@ -328,6 +328,21 @@ function updateStatus(msg: StatusMessage): void {
   if (msg.lastInputAt) lastInputAt = msg.lastInputAt;
   const li = document.getElementById("last-input");
   if (li) li.textContent = `Last input: ${formatLastInput(lastInputAt)}`;
+  const ev = document.getElementById("events-status");
+  if (ev) {
+    const st = msg.eventsStatus || "not_configured";
+    const label =
+      st === "connected"
+        ? "connected"
+        : st === "connecting"
+          ? "connecting…"
+          : st === "disconnected"
+            ? "disconnected"
+            : "not configured";
+    ev.textContent = `Events: ${label}${
+      msg.eventsDetail && st !== "connected" ? ` (${msg.eventsDetail})` : ""
+    }`;
+  }
 }
 
 async function syncMicCapture(): Promise<void> {

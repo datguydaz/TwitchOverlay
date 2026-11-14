@@ -85,6 +85,13 @@ export interface PongMessage {
   type: "pong";
 }
 
+/** Streamlabs Socket API bridge (server-side only). */
+export type EventsBridgeStatus =
+  | "not_configured"
+  | "connecting"
+  | "connected"
+  | "disconnected";
+
 export interface StatusMessage {
   type: "status";
   capturePaused: boolean;
@@ -93,6 +100,9 @@ export interface StatusMessage {
   /** Epoch ms of last companion/test input, or null */
   lastInputAt: number | null;
   demoModeHint: string;
+  /** Live follow/sub bridge via Streamlabs Socket API */
+  eventsStatus?: EventsBridgeStatus;
+  eventsDetail?: string;
 }
 
 export interface SettingsUpdatedMessage {

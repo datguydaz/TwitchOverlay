@@ -11,6 +11,7 @@ import {
   LOCAL_ORIGIN_RE,
   type ClientRole,
   type ClientToServerMessage,
+  type EventsBridgeStatus,
   type InputMessage,
   type ServerToClientMessage,
 } from "../shared/protocol.ts";
@@ -19,9 +20,12 @@ import {
   mergeSettings,
   type OverlaySettings,
 } from "../shared/settings.ts";
+import { loadEnvFiles } from "./loadEnv.ts";
+import { createStreamlabsBridge } from "./streamlabsBridge.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
+loadEnvFiles(ROOT);
 const DATA_DIR = join(ROOT, "data");
 const SETTINGS_PATH = join(DATA_DIR, "settings.json");
 const TOKEN_PATH = join(DATA_DIR, "local-token.txt");
@@ -60,6 +64,9 @@ const localToken = loadOrCreateToken();
 let settings = loadSettings();
 let capturePaused = false;
 let lastInputAt: number | null = null;
+let eventsStatus: EventsBridgeStatus = "not_configured";
+let eventsDetail = "";
+let lastEventsAt: number | null = null;
 
 interface SockMeta {
   role: ClientRole | null;
@@ -92,10 +99,31 @@ app.get("/api/health", (_req, res) => {
     capturePaused,
     companionConnected,
     lastInputAt,
+    eventsStatus,
+    eventsDetail: eventsDetail || undefined,
+    lastEventsAt,
     overlayClients: wss
       ? [...wss.clients].filter((c) => meta.get(c)?.role === "overlay" && meta.get(c)?.authed)
           .length
       : 0,
+  });
+});
+
+/** Loopback-only: inject a Streamlabs-shaped payload (for tests / dry runs). */
+app.post("/api/events/mock", (req, res) => {
+  const host = req.hostname;
+  if (host !== "127.0.0.1" && host !== "localhost") {
+    res.status(403).json({ error: "loopback only" });
+    return;
+  }
+  const ok = streamlabsBridge.ingestRaw(req.body);
+  res.json({
+    ok,
+    eventsStatus,
+    social: {
+      latestFollower: settings.social.latestFollower,
+      latestSubscriber: settings.social.latestSubscriber,
+    },
   });
 });
 
@@ -198,8 +226,47 @@ function statusPayload(): ServerToClientMessage {
     lastInputAt,
     demoModeHint:
       "Demo mode is dashboard-local only and never reports as a live companion connection.",
+    eventsStatus,
+    eventsDetail: eventsDetail || undefined,
   };
 }
+
+const streamlabsBridge = createStreamlabsBridge(
+  process.env.STREAMLABS_SOCKET_TOKEN || "",
+  {
+    onStatus(status, detail) {
+      eventsStatus = status;
+      eventsDetail = detail || "";
+      broadcastStatus();
+    },
+    applySocial(patch, metaInfo) {
+      const next = mergeSettings({
+        social: {
+          ...settings.social,
+          ...(patch.latestFollower != null
+            ? { latestFollower: patch.latestFollower }
+            : {}),
+          ...(patch.latestSubscriber != null
+            ? { latestSubscriber: patch.latestSubscriber }
+            : {}),
+        },
+      });
+      const folChanged =
+        patch.latestFollower != null &&
+        patch.latestFollower !== settings.social.latestFollower;
+      const subChanged =
+        patch.latestSubscriber != null &&
+        patch.latestSubscriber !== settings.social.latestSubscriber;
+      if (!folChanged && !subChanged) return;
+      settings = next;
+      saveSettings(settings);
+      lastEventsAt = Date.now();
+      // Overlay refresh on settings-updated runs smoke type-in / NEW for changed names
+      broadcast({ type: "settings-updated" });
+      void metaInfo;
+    },
+  },
+);
 
 function broadcastStatus(): void {
   broadcast(statusPayload());
@@ -396,4 +463,5 @@ server.listen(PORT, "127.0.0.1", () => {
   if (!existsSync(DIST_DIR)) {
     console.log("Tip: npm run dev  → Vite :5173 proxies /api and /ws here");
   }
+  streamlabsBridge.start();
 });

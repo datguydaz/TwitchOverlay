@@ -202,8 +202,9 @@
         <label>Mouse follow smooth <input id="mouseFollowSmooth" type="range" min="0" max="0.95" step="0.05" title="Lerp smoothing — higher is slower and softer" /></label>
         <div class="status-block">
           <p id="conn-status">Companion: unknown</p>
+          <p id="events-status">Events: …</p>
           <p id="last-input">Last input: —</p>
-          <p class="hint">Demo preview is local to this page and never reports as a live companion. Streamlabs must use <code>http://127.0.0.1:8787/…</code> with companion running.</p>
+          <p class="hint">Demo preview is local to this page and never reports as a live companion. Streamlabs must use <code>http://127.0.0.1:8787/…</code> with companion running. Live follow/sub needs <code>STREAMLABS_SOCKET_TOKEN</code> in <code>.env.local</code> (see <code>.env.example</code>).</p>
         </div>
         <div class="btn-row">
           <button type="button" id="btn-demo-toggle" class="btn">Enable demo preview</button>
@@ -238,7 +239,7 @@
 
       <section class="dash-panel">
         <h2>Sample alerts (preview only)</h2>
-        <p class="hint">Visual samples — Twitch/Kick live events are NOT connected.</p>
+        <p class="hint">Local visual samples — they do not write saved names. Live follow/sub uses the Streamlabs Socket API bridge when configured.</p>
         <div class="btn-row">
           <button type="button" class="btn" data-sample="follow">Sample follow</button>
           <button type="button" class="btn" data-sample="sub">Sample sub</button>
@@ -246,8 +247,8 @@
         </div>
         <div id="sample-rail" class="events-rail"></div>
         <div class="integrations">
-          <h3>Future integrations</h3>
-          <p>Twitch EventSub / Kick events require app credentials stored only on a future local bridge — never in browser overlay code. See README.</p>
+          <h3>Streamlabs events</h3>
+          <p>Put your Socket API token in <code>.env.local</code> as <code>STREAMLABS_SOCKET_TOKEN=…</code> (never in the Browser Source URL). Restart <code>npm run preview</code>. Dashboard shows <strong>Events: connected</strong> when the bridge is up. Follow + sub (incl. resub/gift) update the ultrawide-smoke plates.</p>
         </div>
       </section>
     </main>
