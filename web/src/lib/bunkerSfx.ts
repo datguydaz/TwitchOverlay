@@ -168,6 +168,22 @@ export class BunkerSfx {
     });
   }
 
+  /** Softer backspace / delete click during typo correction. */
+  onBackspace(kind: BunkerSfxKind): void {
+    if (!this.typing[kind]) return;
+    const master = this.effectiveMasterVolume;
+    if (master <= 0.001) return;
+    const cfg = this.eventConfig(kind);
+    const vol = master * clamp01(cfg.volume, 1) * 0.32;
+    if (vol <= 0.001) return;
+    void this.unlock().then((ok) => {
+      if (!ok && !this.ctx) return;
+      const ctx = this.ensureCtx();
+      if (!ctx || ctx.state !== "running" || !this.master) return;
+      this.playBackspace(ctx, this.master, ctx.currentTime, vol);
+    });
+  }
+
   /** Carriage return + bell at end of type-in. */
   onTypeDone(kind: BunkerSfxKind): void {
     if (!this.typing[kind]) return;
@@ -280,6 +296,29 @@ export class BunkerSfx {
     g.connect(dest);
     src.start(t0);
     src.stop(t0 + dur + 0.04);
+  }
+
+  private playBackspace(
+    ctx: AudioContext,
+    dest: GainNode,
+    t0: number,
+    vol: number,
+  ): void {
+    const bus = ctx.createGain();
+    bus.gain.value = vol * rand(0.85, 1.1);
+    bus.connect(dest);
+    this.noiseSource(ctx, bus, t0, rand(0.018, 0.03), 0.22, "bandpass", rand(900, 1400), 1.4);
+    const osc = ctx.createOscillator();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(rand(55, 75), t0);
+    osc.frequency.exponentialRampToValueAtTime(32, t0 + 0.04);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.1, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.045);
+    osc.connect(g);
+    g.connect(bus);
+    osc.start(t0);
+    osc.stop(t0 + 0.05);
   }
 
   /** Mechanical typewriter key — noise strike + low mechanism, not a beep. */

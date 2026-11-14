@@ -16,7 +16,7 @@ import type {
   SfxEventSettings,
   SfxPreset,
 } from "../../../shared/settings.ts";
-import { DEFAULT_SFX_EVENT } from "../../../shared/settings.ts";
+import { DEFAULT_SFX_EVENT, DEFAULT_OPERATOR_TYPOS } from "../../../shared/settings.ts";
 import type { StatusMessage } from "../../../shared/protocol.ts";
 
 type CustomSoundMeta = {
@@ -144,6 +144,7 @@ function fillForm(s: OverlaySettings): void {
     s.textEffects.reducedMotion;
 
   fillSfxForm(s);
+  fillOperatorTyposForm(s);
 
   for (const key of Object.keys(s.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);
@@ -291,6 +292,7 @@ function readForm(): OverlaySettings {
   }
 
   next.sfx = readSfxForm();
+  next.operatorTypos = readOperatorTyposForm();
 
   {
     const intensityRaw = (
@@ -448,6 +450,32 @@ function fillSfxEventForm(
     layerEl.disabled = !isOneshot;
   }
   renderSfxPool(`sfx${prefix}Pool`, ev.pool || [], ev.preset === "random");
+}
+
+function syncOperatorTyposChanceLabel(): void {
+  const el = document.getElementById("operator-typos-chance-label");
+  const input = document.getElementById("operatorTyposChance") as HTMLInputElement | null;
+  if (!el || !input) return;
+  const pct = Math.round(clamp01Form(Number(input.value), 0.7) * 100);
+  el.textContent = `Chance: ${pct}%`;
+}
+
+function fillOperatorTyposForm(s: OverlaySettings): void {
+  const en = document.getElementById("operatorTyposEnabled") as HTMLInputElement | null;
+  const ch = document.getElementById("operatorTyposChance") as HTMLInputElement | null;
+  const cfg = s.operatorTypos || DEFAULT_OPERATOR_TYPOS;
+  if (en) en.checked = cfg.enabled !== false;
+  if (ch) ch.value = String(clamp01Form(cfg.chance, 0.7));
+  syncOperatorTyposChanceLabel();
+}
+
+function readOperatorTyposForm(): OverlaySettings["operatorTypos"] {
+  const en = document.getElementById("operatorTyposEnabled") as HTMLInputElement | null;
+  const ch = document.getElementById("operatorTyposChance") as HTMLInputElement | null;
+  return {
+    enabled: en ? en.checked : true,
+    chance: clamp01Form(Number(ch?.value ?? 0.7), 0.7),
+  };
 }
 
 function fillSfxForm(s: OverlaySettings): void {
@@ -967,6 +995,9 @@ async function main(): Promise<void> {
     });
   });
 
+  document.getElementById("operatorTyposChance")?.addEventListener("input", () => {
+    syncOperatorTyposChanceLabel();
+  });
   document.getElementById("sfxVolume")?.addEventListener("input", () => {
     syncSfxVolLabel();
     syncDashSfxEngine();

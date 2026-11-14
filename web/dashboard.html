@@ -133,6 +133,11 @@
           <button type="button" class="btn" data-atm-preview="follow">Demo follow event</button>
           <button type="button" class="btn" data-atm-preview="sub">Demo sub event</button>
         </div>
+        <h3>Operator typos</h3>
+        <p class="hint">Slower human type-in with an occasional wrong-first gag (adjacent key / transpose / silly wrong word), then backspace and retype. Demos always show a typo when enabled. URL: <code>?typos=0</code> / <code>?typos=1</code>.</p>
+        <label class="inline"><input id="operatorTyposEnabled" type="checkbox" /> Operator typos</label>
+        <label>Typo chance <input id="operatorTyposChance" type="range" min="0" max="1" step="0.05" /></label>
+        <p class="hint" id="operator-typos-chance-label">Chance: 70%</p>
         <h3>Event sounds (ultrawide-smoke)</h3>
         <p class="hint">Plays only on real new events (same moment as type-in / NEW). Default is a mechanical <strong>typewriter</strong> (clack per character). In Streamlabs/OBS Browser Source, enable <strong>Control audio via OBS</strong>. URL: <code>?sfx=0</code> mute, <code>?vol=0..1</code>.</p>
         <label class="inline"><input id="sfxEnabled" type="checkbox" /> Enable event SFX (master)</label>

@@ -15,6 +15,7 @@ import { applySmokeBarFx } from "../lib/smokeBarFx.ts";
 import { applySmokeBunkerHud } from "../lib/smokeBunkerHud.ts";
 import { applySmokeBarProps } from "../lib/smokeBarProps.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
+import { DEFAULT_OPERATOR_TYPOS } from "../../../shared/settings.ts";
 import type { AtmPreviewKind } from "../../../shared/protocol.ts";
 
 function qs<T extends HTMLElement>(sel: string): T | null {
@@ -113,6 +114,7 @@ const bunkerSfx = createBunkerSfx();
 let lastFollower = "";
 let lastSubscriber = "";
 let bootstrappedSocial = false;
+let urlTypoParamsApplied = false;
 let smokeRuinCleanup: (() => void) | null = null;
 let smokeBarFxCleanup: (() => void) | null = null;
 let smokeBunkerHudCleanup: (() => void) | null = null;
@@ -347,11 +349,13 @@ function applyUltrawide(settings: OverlaySettings): void {
     socialAnim = new SocialReadoutAnim(stage, reduced, {
       onEventStart: (kind) => bunkerSfx.playEventStart(kind),
       onTypeChar: (kind, ch) => bunkerSfx.onTypeChar(kind, ch),
+      onBackspace: (kind) => bunkerSfx.onBackspace(kind),
       onTypeDone: (kind) => bunkerSfx.onTypeDone(kind),
     });
   } else {
     socialAnim.setReducedMotion(reduced);
   }
+  socialAnim.setTypoConfig(settings.operatorTypos || DEFAULT_OPERATOR_TYPOS);
 
   // First load: set names quietly (never leave plates blank on smoke). Later: anim on change.
   if (!bootstrappedSocial) {
@@ -449,6 +453,11 @@ async function main(): Promise<void> {
   await refreshCustomSounds();
   applyCssVars(settings);
   applyUltrawide(settings);
+
+  if (!urlTypoParamsApplied && socialAnim) {
+    socialAnim.applyUrlParams(params);
+    urlTypoParamsApplied = true;
+  }
 
   const refresh = async () => {
     settings = await fetchSettings();

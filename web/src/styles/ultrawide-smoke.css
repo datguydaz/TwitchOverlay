@@ -1594,6 +1594,11 @@ body.uw-smoke-variant {
   box-shadow: 0 0 8px rgba(120, 160, 90, 0.55);
   animation: smk-type-cursor-blink 0.42s steps(1, end) infinite;
 }
+#uw-follower[data-social-fx="type"][data-typo="hesitate"] .uw-glass-name::after {
+  animation-duration: 0.28s;
+  background: rgba(220, 230, 180, 1);
+  box-shadow: 0 0 10px rgba(160, 200, 110, 0.75);
+}
 #uw-follower.smk-spark-tick[data-social-fx="type"] .smk-type-spark {
   opacity: 1;
   animation: smk-cursor-spark 0.18s ease-out 1;
@@ -1680,6 +1685,11 @@ body.uw-smoke-variant {
   background: rgba(210, 90, 70, 0.9);
   box-shadow: 0 0 10px rgba(160, 40, 32, 0.55);
   animation: smk-type-cursor-blink 0.36s steps(1, end) infinite;
+}
+#uw-subscriber[data-social-fx="type"][data-typo="hesitate"] .uw-glass-name::after {
+  animation-duration: 0.24s;
+  background: rgba(255, 140, 110, 1);
+  box-shadow: 0 0 12px rgba(220, 60, 40, 0.8);
 }
 #uw-subscriber[data-social-fx="type"] .uw-glass-name,
 #uw-subscriber[data-social-fx="new"] .uw-glass-name {

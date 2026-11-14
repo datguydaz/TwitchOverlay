@@ -122,6 +122,19 @@ export const DEFAULT_SFX_EVENT: SfxEventSettings = {
   volume: 1,
 };
 
+/** Comedic operator typos during follow/sub type-in. */
+export interface OperatorTypoSettings {
+  /** Master enable — URL `?typos=0` forces off, `?typos=1` forces on. */
+  enabled: boolean;
+  /** Chance 0..1 when enabled (default 0.7). Long names skip. */
+  chance: number;
+}
+
+export const DEFAULT_OPERATOR_TYPOS: OperatorTypoSettings = {
+  enabled: true,
+  chance: 0.7,
+};
+
 export interface ChatSettings {
   enabled: boolean;
   /** Auto Zone Ops trash-talk on a timer. */
@@ -217,6 +230,7 @@ export interface OverlaySettings {
   atmosphere: AtmosphereSettings;
   textEffects: TextEffectsSettings;
   sfx: SfxSettings;
+  operatorTypos: OperatorTypoSettings;
   demoModeDefault: boolean;
 }
 
@@ -304,6 +318,7 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     follow: { ...DEFAULT_SFX_EVENT },
     sub: { ...DEFAULT_SFX_EVENT },
   },
+  operatorTypos: { ...DEFAULT_OPERATOR_TYPOS },
   demoModeDefault: false,
 };
 
@@ -462,6 +477,14 @@ export function mergeSettings(
         volume: Number.isFinite(vol) ? Math.max(0, Math.min(1, vol)) : 0.6,
         follow: mergeEvent(partial.sfx?.follow ?? s.follow, DEFAULT_SFX_EVENT),
         sub: mergeEvent(partial.sfx?.sub ?? s.sub, DEFAULT_SFX_EVENT),
+      };
+    })(),
+    operatorTypos: (() => {
+      const t = { ...base.operatorTypos, ...partial.operatorTypos };
+      const ch = Number(t.chance);
+      return {
+        enabled: t.enabled !== false,
+        chance: Number.isFinite(ch) ? Math.max(0, Math.min(1, ch)) : 0.7,
       };
     })(),
   };
