@@ -151,30 +151,38 @@ export class BunkerSfx {
     });
   }
 
-  /** One key clack — call from type-in loop. */
-  onTypeChar(kind: BunkerSfxKind, char: string): void {
+  /** One key clack — call from type-in loop. `hard` = rage smash (louder). */
+  onTypeChar(kind: BunkerSfxKind, char: string, opts?: { hard?: boolean }): void {
     if (!this.typing[kind]) return;
     const master = this.effectiveMasterVolume;
     if (master <= 0.001) return;
     const cfg = this.eventConfig(kind);
-    const vol = master * clamp01(cfg.volume, 1) * 0.55;
+    const hard = !!opts?.hard;
+    const vol = master * clamp01(cfg.volume, 1) * (hard ? 0.92 : 0.55);
     if (vol <= 0.001) return;
     void this.unlock().then((ok) => {
       if (!ok && !this.ctx) return;
       const ctx = this.ensureCtx();
       if (!ctx || ctx.state !== "running" || !this.master) return;
-      const soft = char === " " || char === "-" || char === "_";
-      this.playTypeClack(ctx, this.master, ctx.currentTime, vol * (soft ? 0.55 : 1), soft);
+      const soft = !hard && (char === " " || char === "-" || char === "_");
+      this.playTypeClack(
+        ctx,
+        this.master,
+        ctx.currentTime,
+        vol * (soft ? 0.55 : hard ? 1.15 : 1),
+        soft,
+        hard,
+      );
     });
   }
 
   /** Softer backspace / delete click during typo correction. */
-  onBackspace(kind: BunkerSfxKind): void {
+  onBackspace(kind: BunkerSfxKind, opts?: { fast?: boolean }): void {
     if (!this.typing[kind]) return;
     const master = this.effectiveMasterVolume;
     if (master <= 0.001) return;
     const cfg = this.eventConfig(kind);
-    const vol = master * clamp01(cfg.volume, 1) * 0.32;
+    const vol = master * clamp01(cfg.volume, 1) * (opts?.fast ? 0.22 : 0.32);
     if (vol <= 0.001) return;
     void this.unlock().then((ok) => {
       if (!ok && !this.ctx) return;
@@ -328,36 +336,49 @@ export class BunkerSfx {
     t0: number,
     vol: number,
     soft: boolean,
+    hard = false,
   ): void {
     const bus = ctx.createGain();
     bus.gain.value = vol * rand(0.75, 1.15);
     bus.connect(dest);
 
-    const strikeDur = soft ? rand(0.012, 0.022) : rand(0.016, 0.032);
-    const strikeFreq = soft ? rand(1800, 2600) : rand(2200, 3800);
+    const strikeDur = soft
+      ? rand(0.012, 0.022)
+      : hard
+        ? rand(0.022, 0.04)
+        : rand(0.016, 0.032);
+    const strikeFreq = soft
+      ? rand(1800, 2600)
+      : hard
+        ? rand(1600, 3200)
+        : rand(2200, 3800);
     this.noiseSource(
       ctx,
       bus,
       t0,
       strikeDur,
-      soft ? 0.22 : 0.38,
+      soft ? 0.22 : hard ? 0.55 : 0.38,
       "bandpass",
       strikeFreq,
       rand(1.6, 3.2),
     );
     // Body / linkage thud
     const osc = ctx.createOscillator();
-    osc.type = "triangle";
-    const f0 = soft ? rand(70, 95) : rand(85, 130);
+    osc.type = hard ? "square" : "triangle";
+    const f0 = soft ? rand(70, 95) : hard ? rand(95, 160) : rand(85, 130);
     osc.frequency.setValueAtTime(f0, t0);
     osc.frequency.exponentialRampToValueAtTime(f0 * 0.55, t0 + 0.04);
     const g = ctx.createGain();
-    g.gain.setValueAtTime(soft ? 0.12 : 0.2, t0);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + rand(0.035, 0.055));
-    osc.connect(g);
+    g.gain.setValueAtTime(soft ? 0.12 : hard ? 0.32 : 0.2, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + rand(0.035, hard ? 0.07 : 0.055));
+    const lp = ctx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = hard ? 2200 : 4000;
+    osc.connect(lp);
+    lp.connect(g);
     g.connect(bus);
     osc.start(t0);
-    osc.stop(t0 + 0.06);
+    osc.stop(t0 + (hard ? 0.08 : 0.06));
   }
 
   private playTypeBell(

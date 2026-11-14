@@ -4,22 +4,25 @@
  * Demo previews never overwrite stored names.
  */
 
-import type { OperatorTypoSettings } from "../../../shared/settings.ts";
+import type { OperatorTypoSettings, SubTypoStyle } from "../../../shared/settings.ts";
 import { DEFAULT_OPERATOR_TYPOS } from "../../../shared/settings.ts";
 import {
+  makeRagePlan,
   makeWrongName,
   nameTooLongForTypo,
 } from "./operatorTypos.ts";
 
 export type SocialKind = "follow" | "sub";
 
+export type TypeCharOpts = { hard?: boolean };
+
 export type SocialReadoutAnimHooks = {
   /** Fired once when a follow/sub anim actually starts (type-in/NEW path). */
   onEventStart?: (kind: SocialKind) => void;
   /** Each character during smoke type-in (for typewriter SFX). */
-  onTypeChar?: (kind: SocialKind, char: string) => void;
+  onTypeChar?: (kind: SocialKind, char: string, opts?: TypeCharOpts) => void;
   /** Soft backspace click during typo correction. */
-  onBackspace?: (kind: SocialKind) => void;
+  onBackspace?: (kind: SocialKind, opts?: { fast?: boolean }) => void;
   /** After correct type-in finishes (carriage-return / bell). */
   onTypeDone?: (kind: SocialKind) => void;
 };
@@ -31,11 +34,13 @@ type Job = {
   restoreTo?: string;
   /** Labeled demos force a typo when typos are enabled (so demos show the gag). */
   forceTypo?: boolean;
+  /** Sub demos force rage when typos enabled. */
+  forceRage?: boolean;
 };
 
 const SCRAMBLE = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#@$%&*";
-/** Whole smoke event soft cap (intro + type + NEW + settle). */
-const TOTAL_CAP_MS = 5000;
+/** Whole smoke event soft cap (intro + type + NEW + settle). Rage needs ~6.5s. */
+const TOTAL_CAP_MS = 6500;
 
 function scrambleChar(): string {
   return SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)] || "#";
@@ -75,9 +80,13 @@ export class SocialReadoutAnim {
   }
 
   setTypoConfig(cfg: OperatorTypoSettings): void {
+    const styleRaw = String(cfg.subStyle || "mixed").toLowerCase();
+    const subStyle: SubTypoStyle =
+      styleRaw === "rage" || styleRaw === "normal" ? styleRaw : "mixed";
     this.typoCfg = {
       enabled: cfg.enabled !== false,
       chance: Math.max(0, Math.min(1, Number(cfg.chance) || 0)),
+      subStyle,
     };
   }
 
@@ -112,11 +121,14 @@ export class SocialReadoutAnim {
     const nameEl = this.nameEl(kind);
     if (!el || !nameEl) return;
     const restoreTo = nameEl.textContent || "";
+    const typosOn = this.typosEnabled();
     this.queue.push({
       kind,
       name: sampleName,
       restoreTo,
-      forceTypo: this.typosEnabled(),
+      forceTypo: typosOn,
+      // ?demo=sub always shows rage when typos are on
+      forceRage: typosOn && kind === "sub",
     });
     void this.kick();
   }
@@ -261,21 +273,32 @@ export class SocialReadoutAnim {
     return isSub ? randMs(70, 110) : randMs(55, 95);
   }
 
+  /** Prefer rage for sub when style says so (~60% in mixed). */
+  private wantSubRage(job: Job): boolean {
+    if (job.kind !== "sub") return false;
+    if (job.forceRage) return true;
+    const style = this.typoCfg.subStyle || "mixed";
+    if (style === "rage") return true;
+    if (style === "normal") return false;
+    return Math.random() < 0.6;
+  }
+
   /**
    * Smoke type-in:
    * Follow — acquire → tune → type (± typo) → NEW → settle.
-   * Sub — surge+CRT → decrypt type (± typo, more dramatic) → stamp/NEW → settle.
+   * Sub — surge+CRT → type (± normal typo or rage smash) → stamp/NEW → settle.
    */
   private async playSmoke(job: Job, el: HTMLElement, nameEl: HTMLElement): Promise<void> {
     const t0 = performance.now();
     const badge = this.newBadge(job.kind);
     const ghost = this.ghostEl(job.kind);
     const isSub = job.kind === "sub";
-    let newMs = isSub ? 720 : 320;
-    let settleMs = isSub ? 620 : 360;
+    let newMs = isSub ? 640 : 320;
+    let settleMs = isSub ? 520 : 360;
 
     nameEl.textContent = "";
     nameEl.style.opacity = "";
+    nameEl.style.fontSize = "";
     if (ghost) {
       ghost.textContent = "";
       ghost.classList.remove("on");
@@ -285,9 +308,9 @@ export class SocialReadoutAnim {
       this.setStageSurge(true);
       this.stage.dataset.helmFlash = "1";
       el.dataset.socialFx = "surge";
-      await this.wait(280);
+      await this.wait(260);
       el.dataset.socialFx = "crt";
-      await this.wait(150);
+      await this.wait(140);
       delete this.stage.dataset.helmFlash;
     } else {
       el.dataset.socialFx = "acquire";
@@ -299,35 +322,45 @@ export class SocialReadoutAnim {
     el.dataset.socialFx = "type";
 
     const doTypo = this.shouldTypo(job);
-    const plan = doTypo ? makeWrongName(job.name, { dramatic: isSub }) : null;
+    let didTypo = false;
 
-    if (plan) {
-      await this.typeString(job.kind, el, nameEl, ghost, plan.wrong, {
-        decrypt: isSub,
-        // Sub: slightly longer wrong stretch feel via slower chars already
-      });
-
-      // Hesitation — cursor blinks on type phase
-      el.dataset.typo = "hesitate";
-      if (isSub && Math.random() < 0.65) {
-        const base = nameEl.textContent || "";
-        nameEl.textContent = `${base}...`;
-        await this.wait(randMs(280, 420));
-        nameEl.textContent = base;
-        await this.wait(randMs(220, 380));
-      } else {
-        await this.wait(isSub ? randMs(520, 780) : randMs(400, 700));
+    if (doTypo && isSub && this.wantSubRage(job)) {
+      const rage = makeRagePlan(job.name);
+      if (rage) {
+        didTypo = true;
+        await this.playRage(job.kind, el, nameEl, ghost, rage.prefix, rage.smash);
       }
-      delete el.dataset.typo;
-
-      // Backspace wrong text
-      await this.backspaceAll(job.kind, el, nameEl, ghost, isSub);
-      await this.wait(randMs(80, 160));
     }
 
-    // Correct name (bell only after this)
+    if (doTypo && !didTypo) {
+      const plan = makeWrongName(job.name, { dramatic: isSub });
+      if (plan) {
+        didTypo = true;
+        await this.typeString(job.kind, el, nameEl, ghost, plan.wrong, {
+          decrypt: isSub,
+        });
+
+        el.dataset.typo = "hesitate";
+        if (isSub && Math.random() < 0.65) {
+          const base = nameEl.textContent || "";
+          nameEl.textContent = `${base}...`;
+          await this.wait(randMs(280, 420));
+          nameEl.textContent = base;
+          await this.wait(randMs(220, 380));
+        } else {
+          await this.wait(isSub ? randMs(520, 780) : randMs(400, 700));
+        }
+        delete el.dataset.typo;
+
+        await this.backspaceAll(job.kind, el, nameEl, ghost, isSub, false);
+        await this.wait(randMs(80, 160));
+      }
+    }
+
+    // Correct name — carefully after rage; bell only after this
     await this.typeString(job.kind, el, nameEl, ghost, job.name, {
-      decrypt: isSub && !plan, // decrypt flash only if we didn't already typo
+      decrypt: isSub && !didTypo,
+      careful: didTypo && isSub,
     });
 
     this.hooks.onTypeDone?.(job.kind);
@@ -337,11 +370,10 @@ export class SocialReadoutAnim {
       ghost.classList.add("on");
     }
 
-    // Soft-trim outro if we're near the 5s cap
     const used = performance.now() - t0;
     const remain = TOTAL_CAP_MS - used;
     if (remain < newMs + settleMs) {
-      const scale = Math.max(0.35, remain / Math.max(1, newMs + settleMs));
+      const scale = Math.max(0.3, remain / Math.max(1, newMs + settleMs));
       newMs = Math.floor(newMs * scale);
       settleMs = Math.floor(settleMs * scale);
     }
@@ -352,14 +384,15 @@ export class SocialReadoutAnim {
       el.dataset.typeMark = "1";
       el.classList.add("smk-stamp-slam");
     }
-    await this.wait(Math.max(180, newMs));
+    await this.wait(Math.max(160, newMs));
     el.classList.remove("smk-stamp-slam", "smk-spark-tick");
 
     el.dataset.socialFx = "settle";
-    await this.wait(Math.max(160, settleMs));
+    await this.wait(Math.max(140, settleMs));
 
     delete el.dataset.socialFx;
     delete el.dataset.typo;
+    delete el.dataset.rageBurst;
     badge?.classList.remove("on");
     if (ghost) {
       ghost.classList.remove("on");
@@ -390,20 +423,65 @@ export class SocialReadoutAnim {
     this.fitName(nameEl);
   }
 
+  /** Sub rage: prefix → frantic smash → stop → fast wipe → composed pause. */
+  private async playRage(
+    kind: SocialKind,
+    el: HTMLElement,
+    nameEl: HTMLElement,
+    ghost: HTMLElement | null,
+    prefix: string,
+    smash: string,
+  ): Promise<void> {
+    el.dataset.typo = "rage";
+    // Prefix carefully (correct letters)
+    await this.typeString(kind, el, nameEl, ghost, prefix, {
+      decrypt: false,
+      careful: true,
+    });
+
+    // Frantic keysmash — hard clacks + escalating shake
+    const chars = [...smash];
+    let built = nameEl.textContent || "";
+    for (let i = 0; i < chars.length; i++) {
+      const ch = chars[i]!;
+      built += ch;
+      nameEl.textContent = built;
+      this.hooks.onTypeChar?.(kind, ch, { hard: true });
+      const burst = 1 + Math.min(3, Math.floor(i / 4));
+      el.dataset.rageBurst = String(burst);
+      el.classList.remove("smk-spark-tick");
+      void el.offsetWidth;
+      el.classList.add("smk-spark-tick");
+      await this.wait(randMs(35, 60));
+    }
+
+    // Dead stop — cursor blinks
+    el.dataset.typo = "rage-stop";
+    delete el.dataset.rageBurst;
+    await this.wait(randMs(600, 900));
+
+    // Fast accelerating backspace wipe
+    el.dataset.typo = "rage-wipe";
+    await this.backspaceAll(kind, el, nameEl, ghost, true, true);
+    delete el.dataset.typo;
+
+    // Composed pause before careful retype
+    el.dataset.typo = "hesitate";
+    await this.wait(randMs(220, 380));
+    delete el.dataset.typo;
+  }
+
   private async typeString(
     kind: SocialKind,
     el: HTMLElement,
     nameEl: HTMLElement,
     ghost: HTMLElement | null,
     text: string,
-    opts: { decrypt?: boolean },
+    opts: { decrypt?: boolean; careful?: boolean; hard?: boolean },
   ): Promise<void> {
     const isSub = kind === "sub";
     const chars = [...text];
     let built = nameEl.textContent || "";
-    // If starting fresh, built should be empty — callers clear first
-    if (!built) built = "";
-    // When continuing after backspace, built is ""
     for (let i = 0; i < chars.length; i++) {
       const ch = chars[i]!;
       if (opts.decrypt) {
@@ -420,11 +498,19 @@ export class SocialReadoutAnim {
       }
       built += ch;
       nameEl.textContent = built;
-      this.hooks.onTypeChar?.(kind, ch);
+      this.hooks.onTypeChar?.(kind, ch, { hard: !!opts.hard });
       el.classList.remove("smk-spark-tick");
       void el.offsetWidth;
       el.classList.add("smk-spark-tick");
-      await this.wait(this.charDelay(i, chars.length, isSub));
+      if (opts.careful) {
+        let ms = randMs(130, 190);
+        if (i >= chars.length - 2 && chars.length >= 3) ms += randMs(90, 160);
+        await this.wait(ms);
+      } else if (opts.hard) {
+        await this.wait(randMs(35, 60));
+      } else {
+        await this.wait(this.charDelay(i, chars.length, isSub));
+      }
     }
   }
 
@@ -434,8 +520,11 @@ export class SocialReadoutAnim {
     nameEl: HTMLElement,
     ghost: HTMLElement | null,
     isSub: boolean,
+    accelerating: boolean,
   ): Promise<void> {
     let built = nameEl.textContent || "";
+    let step = 0;
+    const total = built.length;
     while (built.length) {
       built = built.slice(0, -1);
       nameEl.textContent = built;
@@ -443,11 +532,19 @@ export class SocialReadoutAnim {
         ghost.textContent = built;
         if (!built) ghost.classList.remove("on");
       }
-      this.hooks.onBackspace?.(kind);
+      this.hooks.onBackspace?.(kind, { fast: accelerating });
       el.classList.remove("smk-spark-tick");
       void el.offsetWidth;
       el.classList.add("smk-spark-tick");
-      await this.wait(this.backspaceDelay(isSub));
+      if (accelerating) {
+        // Start ~55ms, ramp down to ~12ms
+        const t = total <= 1 ? 1 : step / (total - 1);
+        const ms = Math.max(12, Math.round(55 - t * 43));
+        await this.wait(ms);
+      } else {
+        await this.wait(this.backspaceDelay(isSub));
+      }
+      step += 1;
     }
     nameEl.textContent = "";
     if (ghost) {

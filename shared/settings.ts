@@ -122,17 +122,26 @@ export const DEFAULT_SFX_EVENT: SfxEventSettings = {
   volume: 1,
 };
 
+/** Subscriber typo flavour when operator typos fire. Follows always use normal typos. */
+export type SubTypoStyle = "rage" | "normal" | "mixed";
+
 /** Comedic operator typos during follow/sub type-in. */
 export interface OperatorTypoSettings {
   /** Master enable — URL `?typos=0` forces off, `?typos=1` forces on. */
   enabled: boolean;
   /** Chance 0..1 when enabled (default 0.7). Long names skip. */
   chance: number;
+  /**
+   * Sub only: rage keysmash / normal typo / mixed (~60% rage).
+   * Default mixed. Follows ignore this.
+   */
+  subStyle: SubTypoStyle;
 }
 
 export const DEFAULT_OPERATOR_TYPOS: OperatorTypoSettings = {
   enabled: true,
   chance: 0.7,
+  subStyle: "mixed",
 };
 
 export interface ChatSettings {
@@ -482,9 +491,13 @@ export function mergeSettings(
     operatorTypos: (() => {
       const t = { ...base.operatorTypos, ...partial.operatorTypos };
       const ch = Number(t.chance);
+      const styleRaw = String(t.subStyle || "mixed").toLowerCase();
+      const subStyle: SubTypoStyle =
+        styleRaw === "rage" || styleRaw === "normal" ? styleRaw : "mixed";
       return {
         enabled: t.enabled !== false,
         chance: Number.isFinite(ch) ? Math.max(0, Math.min(1, ch)) : 0.7,
+        subStyle,
       };
     })(),
   };

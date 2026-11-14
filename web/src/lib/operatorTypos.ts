@@ -123,7 +123,21 @@ const BLOCKED = [
   "terror",
 ];
 
-export type TypoKind = "adjacent" | "transpose" | "wrongword";
+export type TypoKind = "adjacent" | "transpose" | "wrongword" | "rage";
+
+/** Home-row-ish clusters for realistic keysmash (lowercase only). */
+const HOME_ROW = "asdfghjkl";
+const HOME_NEAR: Record<string, string> = {
+  a: "asqwsz",
+  s: "asdfwezx",
+  d: "sdfgerxc",
+  f: "dfgbrtcv",
+  g: "fghtyvb",
+  h: "ghjyubn",
+  j: "hjkunim",
+  k: "jklio",
+  l: "klop",
+};
 
 export function isBlockedText(raw: string): boolean {
   const s = String(raw || "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -236,4 +250,45 @@ export function nameTooLongForTypo(name: string): boolean {
   const n = String(name || "").trim().length;
   // ~140ms/char * (wrong+correct) + pauses ≈ over budget past ~12–14
   return n > 12 || n < 4;
+}
+
+function generateKeysmash(len: number): string | null {
+  for (let attempt = 0; attempt < 12; attempt++) {
+    let cur = HOME_ROW[Math.floor(Math.random() * HOME_ROW.length)]!;
+    let out = cur;
+    while (out.length < len) {
+      const near = HOME_NEAR[cur] || HOME_ROW;
+      // Mostly wander neighbours; occasional jump so it doesn't look like a word
+      if (Math.random() < 0.18) {
+        cur = HOME_ROW[Math.floor(Math.random() * HOME_ROW.length)]!;
+      } else {
+        cur = near[Math.floor(Math.random() * near.length)]!;
+      }
+      out += cur;
+    }
+    if (!isBlockedText(out) && !/[aeiou]{4,}/i.test(out)) return out;
+  }
+  // Last-resort safe smash (manually vetted gibberish)
+  const safe = "rfkikmfeavmjfdkla";
+  return isBlockedText(safe) ? null : safe.slice(0, len);
+}
+
+/**
+ * Sub rage: first 1–3 correct letters + frantic lowercase keysmash (12–20).
+ */
+export function makeRagePlan(correct: string): {
+  prefix: string;
+  smash: string;
+  kind: "rage";
+} | null {
+  const name = String(correct || "").trim();
+  if (name.length < 3 || isBlockedText(name)) return null;
+  const keep = Math.min(name.length, 1 + Math.floor(Math.random() * 3)); // 1–3
+  const prefix = name.slice(0, keep);
+  const smashLen = 12 + Math.floor(Math.random() * 9); // 12–20
+  const smash = generateKeysmash(smashLen);
+  if (!smash) return null;
+  const full = prefix + smash;
+  if (isBlockedText(full)) return null;
+  return { prefix, smash, kind: "rage" };
 }

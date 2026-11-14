@@ -348,8 +348,8 @@ function applyUltrawide(settings: OverlaySettings): void {
   if (!socialAnim) {
     socialAnim = new SocialReadoutAnim(stage, reduced, {
       onEventStart: (kind) => bunkerSfx.playEventStart(kind),
-      onTypeChar: (kind, ch) => bunkerSfx.onTypeChar(kind, ch),
-      onBackspace: (kind) => bunkerSfx.onBackspace(kind),
+      onTypeChar: (kind, ch, opts) => bunkerSfx.onTypeChar(kind, ch, opts),
+      onBackspace: (kind, opts) => bunkerSfx.onBackspace(kind, opts),
       onTypeDone: (kind) => bunkerSfx.onTypeDone(kind),
     });
   } else {

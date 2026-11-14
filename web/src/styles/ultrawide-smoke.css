@@ -1691,6 +1691,67 @@ body.uw-smoke-variant {
   background: rgba(255, 140, 110, 1);
   box-shadow: 0 0 12px rgba(220, 60, 40, 0.8);
 }
+
+/* Sub rage keysmash — plate-local only; glass clips overflow */
+#uw-subscriber[data-typo="rage"],
+#uw-subscriber[data-typo="rage-stop"],
+#uw-subscriber[data-typo="rage-wipe"] {
+  z-index: 5;
+}
+#uw-subscriber[data-typo="rage"] .smk-radio-screen,
+#uw-subscriber[data-typo="rage-stop"] .smk-radio-screen,
+#uw-subscriber[data-typo="rage-wipe"] .smk-radio-screen {
+  overflow: hidden !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(180, 40, 28, 0.55),
+    inset 0 0 18px rgba(140, 20, 14, 0.35);
+}
+#uw-subscriber[data-typo="rage"] .uw-glass-name,
+#uw-subscriber[data-typo="rage-stop"] .uw-glass-name,
+#uw-subscriber[data-typo="rage-wipe"] .uw-glass-name {
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  max-width: 100%;
+}
+#uw-subscriber[data-typo="rage"] {
+  animation: smk-rage-shake 0.09s linear infinite;
+}
+#uw-subscriber[data-typo="rage"][data-rage-burst="2"] {
+  animation-duration: 0.07s;
+}
+#uw-subscriber[data-typo="rage"][data-rage-burst="3"] {
+  animation-duration: 0.055s;
+}
+#uw-subscriber[data-typo="rage"][data-rage-burst="4"] {
+  animation-duration: 0.045s;
+}
+#uw-subscriber[data-typo="rage"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(160, 24, 16, 0.18);
+  mix-blend-mode: screen;
+  animation: smk-rage-flash 0.14s steps(2) infinite;
+  z-index: 6;
+}
+#uw-subscriber[data-typo="rage-stop"] .uw-glass-name::after {
+  animation-duration: 0.22s;
+  background: rgba(255, 120, 90, 1);
+}
+@keyframes smk-rage-shake {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-1.5px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, -1.5px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes smk-rage-flash {
+  0% { opacity: 0.15; }
+  50% { opacity: 0.55; }
+  100% { opacity: 0.2; }
+}
 #uw-subscriber[data-social-fx="type"] .uw-glass-name,
 #uw-subscriber[data-social-fx="new"] .uw-glass-name {
   animation: smk-sub-chroma 0.16s steps(2, end) infinite !important;

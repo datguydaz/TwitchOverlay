@@ -463,18 +463,26 @@ function syncOperatorTyposChanceLabel(): void {
 function fillOperatorTyposForm(s: OverlaySettings): void {
   const en = document.getElementById("operatorTyposEnabled") as HTMLInputElement | null;
   const ch = document.getElementById("operatorTyposChance") as HTMLInputElement | null;
+  const style = document.getElementById("operatorTyposSubStyle") as HTMLSelectElement | null;
   const cfg = s.operatorTypos || DEFAULT_OPERATOR_TYPOS;
   if (en) en.checked = cfg.enabled !== false;
   if (ch) ch.value = String(clamp01Form(cfg.chance, 0.7));
+  if (style) {
+    const v = cfg.subStyle || "mixed";
+    style.value = v === "rage" || v === "normal" ? v : "mixed";
+  }
   syncOperatorTyposChanceLabel();
 }
 
 function readOperatorTyposForm(): OverlaySettings["operatorTypos"] {
   const en = document.getElementById("operatorTyposEnabled") as HTMLInputElement | null;
   const ch = document.getElementById("operatorTyposChance") as HTMLInputElement | null;
+  const style = document.getElementById("operatorTyposSubStyle") as HTMLSelectElement | null;
+  const raw = (style?.value || "mixed").toLowerCase();
   return {
     enabled: en ? en.checked : true,
     chance: clamp01Form(Number(ch?.value ?? 0.7), 0.7),
+    subStyle: raw === "rage" || raw === "normal" ? raw : "mixed",
   };
 }
 
