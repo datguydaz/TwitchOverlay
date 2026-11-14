@@ -465,6 +465,11 @@ async function main(): Promise<void> {
   if (preview) {
     window.setTimeout(() => routePreview(preview), 400);
   }
+  // ?demo=follow|sub — full type-in + VFX preview without overwriting saved names
+  const demo = (params.get("demo") || "").trim().toLowerCase();
+  if (demo === "follow" || demo === "sub") {
+    window.setTimeout(() => routePreview(demo), 500);
+  }
 
   const proto = location.protocol === "https:" ? "wss" : "ws";
   try {

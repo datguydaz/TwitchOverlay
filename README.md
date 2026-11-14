@@ -191,6 +191,7 @@ Default is a mechanical **typewriter** (key clack per type-in character + carria
 - Dashboard: master mute/volume, separate Follow / Sub pickers (None, Typewriter, Radio, Hatch, Random from my list, or a custom upload), per-event volume, optional typewriter layer under oneshots
 - Upload custom mp3/wav/ogg (max 2 MB) → stored in local `data/sounds/` (gitignored)
 - **Test follow sound** / **Test sub sound** preview the current selection (no name overwrite)
+- Type-in plate VFX: follow = CRT sweep; sub = red lamp + chromatic glitch + stamp. Preview: `?demo=follow` / `?demo=sub` (or dashboard Demo follow/sub)
 - URL: `?sfx=0` mute, `?vol=0..1` (default 0.6)
 - In Streamlabs/OBS Browser Source, tick **Control audio via OBS** so the source shows in the mixer
 

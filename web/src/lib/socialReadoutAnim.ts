@@ -174,13 +174,19 @@ export class SocialReadoutAnim {
     });
   }
 
-  /** Smoke: static burst → type-in → NEW flash → settle. */
+  /** Smoke: static burst → type-in → NEW flash → settle (+ plate type-in VFX). */
   private async playSmoke(job: Job, el: HTMLElement, nameEl: HTMLElement): Promise<void> {
     const badge = this.newBadge(job.kind);
+    const isSub = job.kind === "sub";
+    // Follow ~1.5s total feel; sub ~2.5–3s with exclusive stamp/jolt.
+    const staticMs = isSub ? 160 : 100;
+    const newMs = isSub ? 1100 : 420;
+    const settleMs = isSub ? 1200 : 520;
+
     el.dataset.socialFx = "static";
     nameEl.textContent = "";
     nameEl.style.opacity = "";
-    await this.wait(180);
+    await this.wait(staticMs);
 
     el.dataset.socialFx = "type";
     const chars = [...job.name];
@@ -189,6 +195,7 @@ export class SocialReadoutAnim {
       built += ch;
       nameEl.textContent = built;
       this.hooks.onTypeChar?.(job.kind, ch);
+      // Keep in sync with typewriter clack cadence
       await this.wait(22 + Math.floor(Math.random() * 28));
     }
     this.hooks.onTypeDone?.(job.kind);
@@ -196,15 +203,19 @@ export class SocialReadoutAnim {
 
     el.dataset.socialFx = "new";
     badge?.classList.add("on");
-    await this.wait(1100);
+    if (isSub) el.dataset.typeMark = "1";
+    await this.wait(newMs);
 
     el.dataset.socialFx = "settle";
-    await this.wait(1400);
+    await this.wait(settleMs);
 
     delete el.dataset.socialFx;
     badge?.classList.remove("on");
+    // Sub keeps a faint lasting stamp via data-type-mark until next event overwrites.
+    if (!isSub) delete el.dataset.typeMark;
     if (job.restoreTo !== undefined) {
       nameEl.textContent = job.restoreTo;
+      if (isSub) delete el.dataset.typeMark;
     }
     this.fitName(nameEl);
   }
