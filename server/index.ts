@@ -427,6 +427,8 @@ wss.on("connection", (ws, req) => {
           "sparks",
           "follow",
           "sub",
+          "sfx-follow",
+          "sfx-sub",
           "text-dip",
           "text-sweep",
           "text-op",

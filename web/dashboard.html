@@ -123,7 +123,7 @@
 
       <section class="dash-panel">
         <h2>Latest follow / sub</h2>
-        <p class="hint">Smoked-glass readouts in the ultrawide <strong>top bar</strong>. Leave blank until Twitch/Kick is wired. Demo buttons below animate LATEST FOLLOW / SUB only — they never overwrite saved names.</p>
+        <p class="hint">Smoked-glass readouts in the ultrawide <strong>top bar</strong>. Live names come from the Streamlabs bridge. Demo buttons below animate LATEST FOLLOW / SUB only — they never overwrite saved names.</p>
         <label class="inline"><input id="socialShowFollower" type="checkbox" /> Show latest follower</label>
         <label class="inline"><input id="socialShowSubscriber" type="checkbox" /> Show latest subscriber</label>
         <label>Latest follower <input id="socialFollowerName" type="text" placeholder="name" /></label>
@@ -133,6 +133,16 @@
           <button type="button" class="btn" data-atm-preview="follow">Demo follow event</button>
           <button type="button" class="btn" data-atm-preview="sub">Demo sub event</button>
         </div>
+        <h3>Event sounds (ultrawide-smoke)</h3>
+        <p class="hint">Procedural bunker-radio cues play only on real new events (same moment as type-in / NEW). In Streamlabs/OBS Browser Source, enable <strong>Control audio via OBS</strong> so the source appears in the mixer. URL overrides: <code>?sfx=0</code> mute, <code>?vol=0..1</code> (default 0.6).</p>
+        <label class="inline"><input id="sfxEnabled" type="checkbox" /> Enable event SFX</label>
+        <label>SFX volume <input id="sfxVolume" type="range" min="0" max="1" step="0.05" title="0 = silent, 1 = full" /></label>
+        <p class="hint" id="sfx-vol-label">Volume: 0.60</p>
+        <div class="btn-row">
+          <button type="button" class="btn" data-atm-preview="sfx-follow">Test follow sound</button>
+          <button type="button" class="btn" data-atm-preview="sfx-sub">Test sub sound</button>
+        </div>
+        <p class="hint">Test buttons play here (click unlocks audio) and also on the open ultrawide-smoke Browser Source — they do not change saved names. Save settings after changing enable/volume.</p>
       </section>
 
       <section class="dash-panel">

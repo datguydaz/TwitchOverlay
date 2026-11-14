@@ -7,6 +7,11 @@
 
 export type SocialKind = "follow" | "sub";
 
+export type SocialReadoutAnimHooks = {
+  /** Fired once when a follow/sub anim actually starts (type-in/NEW path). */
+  onEventStart?: (kind: SocialKind) => void;
+};
+
 type Job = {
   kind: SocialKind;
   name: string;
@@ -22,9 +27,15 @@ export class SocialReadoutAnim {
   private osReduce =
     typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
   private timers: number[] = [];
+  private hooks: SocialReadoutAnimHooks;
 
-  constructor(stage: HTMLElement, reducedMotion = false) {
+  constructor(
+    stage: HTMLElement,
+    reducedMotion = false,
+    hooks: SocialReadoutAnimHooks = {},
+  ) {
     this.stage = stage;
+    this.hooks = hooks;
     this.setReducedMotion(reducedMotion);
     document.addEventListener("visibilitychange", this.onVis);
   }
@@ -103,6 +114,8 @@ export class SocialReadoutAnim {
     const el = this.root(job.kind);
     const nameEl = this.nameEl(job.kind);
     if (!el || !nameEl) return Promise.resolve();
+
+    this.hooks.onEventStart?.(job.kind);
 
     if (this.reduced) {
       nameEl.textContent = job.name;

@@ -180,9 +180,17 @@ Visual overlay works on either platform. **Follow + subscription** can update th
 2. Paste your **Socket API Token** from [Streamlabs API Settings](https://streamlabs.com/dashboard#/settings/api-settings) as `STREAMLABS_SOCKET_TOKEN=…`
 3. Restart `npm run preview` (or `npm start`)
 4. Dashboard → **Events: connected**
-5. Streamlabs → test a Follow / Subscription alert, or get a real follow — the Browser Source at `http://127.0.0.1:8787/ultrawide-smoke.html` should type-in the name + NEW flash
+5. Streamlabs → test a Follow / Subscription alert, or get a real follow — the Browser Source at `http://127.0.0.1:8787/ultrawide-smoke.html` should type-in the name + NEW flash (plus bunker-radio SFX)
 
 The token never goes in the Browser Source URL. Without a token the overlay still works; Events stays **not configured**. Dashboard **Sample** buttons remain preview-only (they do not save names).
+
+### Event SFX (ultrawide-smoke)
+
+Procedural Web Audio (no sample packs): follow = short radio squelch; sub = hatch thud + morse beeps. Plays only on real new events (same trigger as type-in / NEW), not on page load.
+
+- Dashboard: enable + volume, **Test follow sound** / **Test sub sound**
+- URL: `?sfx=0` mute, `?vol=0..1` (default 0.6)
+- In Streamlabs/OBS Browser Source, tick **Control audio via OBS** so the source shows in the mixer
 
 Raids / bits / donations / live ticker text are not wired yet. Twitch EventSub remains a possible future alternative.
 

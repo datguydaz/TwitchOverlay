@@ -82,6 +82,14 @@ export interface TextEffectsSettings {
   reducedMotion: boolean;
 }
 
+/** Procedural bunker-radio event SFX (ultrawide-smoke Browser Source). */
+export interface SfxSettings {
+  /** Master enable — URL `?sfx=0` still forces mute. */
+  enabled: boolean;
+  /** 0..1 — URL `?vol=` overrides when present. Default ~0.6. */
+  volume: number;
+}
+
 export interface ChatSettings {
   enabled: boolean;
   /** Auto Zone Ops trash-talk on a timer. */
@@ -176,6 +184,7 @@ export interface OverlaySettings {
   ultrawide: UltrawideSettings;
   atmosphere: AtmosphereSettings;
   textEffects: TextEffectsSettings;
+  sfx: SfxSettings;
   demoModeDefault: boolean;
 }
 
@@ -256,6 +265,10 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     enabled: true,
     intensity: "medium",
     reducedMotion: false,
+  },
+  sfx: {
+    enabled: true,
+    volume: 0.6,
   },
   demoModeDefault: false,
 };
@@ -379,6 +392,14 @@ export function mergeSettings(
         enabled: t.enabled !== false,
         intensity,
         reducedMotion: !!t.reducedMotion,
+      };
+    })(),
+    sfx: (() => {
+      const s = { ...base.sfx, ...partial.sfx };
+      const vol = Number(s.volume);
+      return {
+        enabled: s.enabled !== false,
+        volume: Number.isFinite(vol) ? Math.max(0, Math.min(1, vol)) : 0.6,
       };
     })(),
   };

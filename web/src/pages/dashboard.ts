@@ -10,6 +10,7 @@ import {
 } from "../lib/settingsClient.ts";
 import { applyDemoInput } from "../lib/inputClient.ts";
 import { MicCapture } from "../lib/micCapture.ts";
+import { createBunkerSfx } from "../lib/bunkerSfx.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
 import type { StatusMessage } from "../../../shared/protocol.ts";
 
@@ -21,6 +22,7 @@ let dashWs: WebSocket | null = null;
 let token = "";
 let mic: MicCapture | null = null;
 let lastInputAt: number | null = null;
+const dashSfx = createBunkerSfx();
 
 function toast(msg: string): void {
   const el = document.getElementById("toast");
@@ -126,6 +128,15 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("textFxIntensity") as HTMLSelectElement).value = s.textEffects.intensity;
   (document.getElementById("textFxReducedMotion") as HTMLInputElement).checked =
     s.textEffects.reducedMotion;
+
+  const sfxEnabled = document.getElementById("sfxEnabled") as HTMLInputElement | null;
+  const sfxVolume = document.getElementById("sfxVolume") as HTMLInputElement | null;
+  if (sfxEnabled) sfxEnabled.checked = s.sfx?.enabled !== false;
+  if (sfxVolume) {
+    const v = Number.isFinite(s.sfx?.volume) ? Number(s.sfx.volume) : 0.6;
+    sfxVolume.value = String(Math.max(0, Math.min(1, v)));
+  }
+  syncSfxVolLabel();
 
   for (const key of Object.keys(s.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);
@@ -273,6 +284,16 @@ function readForm(): OverlaySettings {
   }
 
   {
+    const sfxEnabled = document.getElementById("sfxEnabled") as HTMLInputElement | null;
+    const sfxVolume = document.getElementById("sfxVolume") as HTMLInputElement | null;
+    const vol = Number(sfxVolume?.value ?? 0.6);
+    next.sfx = {
+      enabled: sfxEnabled ? sfxEnabled.checked : true,
+      volume: Number.isFinite(vol) ? Math.max(0, Math.min(1, vol)) : 0.6,
+    };
+  }
+
+  {
     const intensityRaw = (
       document.getElementById("textFxIntensity") as HTMLSelectElement
     ).value;
@@ -311,6 +332,14 @@ function showSample(kind: string): void {
   card.innerHTML = `<div class="tag">SAMPLE // NOT LIVE</div><div class="body">${labels[kind] ?? kind}</div>`;
   rail.prepend(card);
   window.setTimeout(() => card.remove(), 5000);
+}
+
+function syncSfxVolLabel(): void {
+  const el = document.getElementById("sfx-vol-label");
+  const input = document.getElementById("sfxVolume") as HTMLInputElement | null;
+  if (!el || !input) return;
+  const v = Number(input.value);
+  el.textContent = `Volume: ${Number.isFinite(v) ? v.toFixed(2) : "0.60"}`;
 }
 
 function formatLastInput(ts: number | null): string {
@@ -640,11 +669,33 @@ async function main(): Promise<void> {
     });
   });
 
+  document.getElementById("sfxVolume")?.addEventListener("input", () => {
+    syncSfxVolLabel();
+  });
+
   document.querySelectorAll("[data-atm-preview]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const kind = (btn as HTMLElement).dataset.atmPreview || "";
       if (!kind) return;
       dashWs?.send(JSON.stringify({ type: "atm-preview", kind }));
+      if (kind === "sfx-follow" || kind === "sfx-sub") {
+        const enabled =
+          (document.getElementById("sfxEnabled") as HTMLInputElement | null)?.checked !==
+          false;
+        const vol = Number(
+          (document.getElementById("sfxVolume") as HTMLInputElement | null)?.value ?? 0.6,
+        );
+        dashSfx.applyConfig({
+          enabled,
+          volume: Number.isFinite(vol) ? Math.max(0, Math.min(1, vol)) : 0.6,
+        });
+        // Click unlocks AudioContext in the dashboard tab; also forwarded to Browser Source.
+        dashSfx.play(kind === "sfx-follow" ? "follow" : "sub", { force: true });
+        toast(
+          "SFX test: local preview + sent to ultrawide-smoke (does not change names)",
+        );
+        return;
+      }
       const textish = kind.startsWith("text-") || kind === "follow" || kind === "sub";
       toast(
         textish

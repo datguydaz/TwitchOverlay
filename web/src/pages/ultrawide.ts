@@ -5,6 +5,7 @@ import {
 import { AtmosphereVfx } from "../lib/atmosphereVfx.ts";
 import { TextLifeVfx } from "../lib/textLifeVfx.ts";
 import { SocialReadoutAnim } from "../lib/socialReadoutAnim.ts";
+import { createBunkerSfx } from "../lib/bunkerSfx.ts";
 import {
   applySmokeRuinTextures,
   resolveSmokeEdgeStyle,
@@ -108,6 +109,7 @@ function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
 let atm: AtmosphereVfx | null = null;
 let textFx: TextLifeVfx | null = null;
 let socialAnim: SocialReadoutAnim | null = null;
+const bunkerSfx = createBunkerSfx();
 let lastFollower = "";
 let lastSubscriber = "";
 let bootstrappedSocial = false;
@@ -332,8 +334,15 @@ function applyUltrawide(settings: OverlaySettings): void {
     }
   }
 
-  if (!socialAnim) socialAnim = new SocialReadoutAnim(stage, reduced);
-  else socialAnim.setReducedMotion(reduced);
+  bunkerSfx.applyConfig(settings.sfx || { enabled: true, volume: 0.6 });
+
+  if (!socialAnim) {
+    socialAnim = new SocialReadoutAnim(stage, reduced, {
+      onEventStart: (kind) => bunkerSfx.play(kind),
+    });
+  } else {
+    socialAnim.setReducedMotion(reduced);
+  }
 
   // First load: set names quietly (never leave plates blank on smoke). Later: anim on change.
   if (!bootstrappedSocial) {
@@ -373,6 +382,14 @@ function applyUltrawide(settings: OverlaySettings): void {
 }
 
 function routePreview(kind: AtmPreviewKind): void {
+  if (kind === "sfx-follow") {
+    bunkerSfx.play("follow", { force: true });
+    return;
+  }
+  if (kind === "sfx-sub") {
+    bunkerSfx.play("sub", { force: true });
+    return;
+  }
   if (kind === "follow") {
     socialAnim?.demo("follow", DEMO_FOLLOW);
     atm?.preview("follow");
@@ -388,6 +405,18 @@ function routePreview(kind: AtmPreviewKind): void {
 }
 
 async function main(): Promise<void> {
+  const params = new URLSearchParams(location.search);
+  bunkerSfx.applyUrlParams(params);
+  // Browser Source: resume early; Chrome tab may stay suspended until click.
+  void bunkerSfx.unlock();
+  const unlockOnce = () => {
+    void bunkerSfx.unlock();
+    window.removeEventListener("pointerdown", unlockOnce);
+    window.removeEventListener("keydown", unlockOnce);
+  };
+  window.addEventListener("pointerdown", unlockOnce, { once: true });
+  window.addEventListener("keydown", unlockOnce, { once: true });
+
   let settings = await fetchSettings();
   applyCssVars(settings);
   applyUltrawide(settings);
@@ -402,7 +431,6 @@ async function main(): Promise<void> {
     if (!document.hidden) void refresh();
   }, 2500);
 
-  const params = new URLSearchParams(location.search);
   const preview = params.get("atmPreview") as AtmPreviewKind | null;
   if (preview) {
     window.setTimeout(() => routePreview(preview), 400);
