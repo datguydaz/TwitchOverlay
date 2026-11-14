@@ -42,17 +42,17 @@ function findFfmpeg() {
   return null;
 }
 
+let priorSettings = null;
 try {
-  const cur = await (await fetch(`${BASE}/api/settings`)).json();
+  priorSettings = await (await fetch(`${BASE}/api/settings`)).json();
   await fetch(`${BASE}/api/settings`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      ...cur,
       operatorTypos: { enabled: true, chance: 1, subStyle: "rage" },
     }),
   });
-  console.log("settings: sub rage forced for capture");
+  console.log("settings: sub rage forced for capture (will restore)");
 } catch (e) {
   console.warn("settings patch failed", e);
 }
@@ -100,6 +100,19 @@ for (let i = 0; i < demos.length; i++) {
 await page.waitForTimeout(500);
 await context.close();
 await browser.close();
+
+if (priorSettings) {
+  try {
+    await fetch(`${BASE}/api/settings`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(priorSettings),
+    });
+    console.log("settings restored");
+  } catch (e) {
+    console.warn("settings restore failed", e);
+  }
+}
 
 const vids = readdirSync(vidTmp).filter((f) => f.endsWith(".webm"));
 if (!vids.length) {

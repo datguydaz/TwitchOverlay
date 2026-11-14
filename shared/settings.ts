@@ -122,26 +122,31 @@ export const DEFAULT_SFX_EVENT: SfxEventSettings = {
   volume: 1,
 };
 
-/** Subscriber typo flavour when operator typos fire. Follows always use normal typos. */
+/**
+ * Typo flavour when operator typos fire (follow + sub).
+ * `rage` = always full rage sequence (default).
+ * `normal` = classic wrong-first typos (uses `chance`).
+ * `mixed` = legacy alias for `rage` (no silent randomness).
+ */
 export type SubTypoStyle = "rage" | "normal" | "mixed";
 
 /** Comedic operator typos during follow/sub type-in. */
 export interface OperatorTypoSettings {
   /** Master enable — URL `?typos=0` forces off, `?typos=1` forces on. */
   enabled: boolean;
-  /** Chance 0..1 when enabled (default 0.7). Long names skip. */
+  /** Chance 0..1 for `normal` style only (default 1). Rage ignores chance. */
   chance: number;
   /**
-   * Sub only: rage keysmash / normal typo / mixed (~60% rage).
-   * Default mixed. Follows ignore this.
+   * Follow + sub: rage keysmash (default) / normal typo / mixed (= rage).
+   * Default rage so behaviour cannot silently flip back to random.
    */
   subStyle: SubTypoStyle;
 }
 
 export const DEFAULT_OPERATOR_TYPOS: OperatorTypoSettings = {
   enabled: true,
-  chance: 0.7,
-  subStyle: "mixed",
+  chance: 1,
+  subStyle: "rage",
 };
 
 export interface ChatSettings {
@@ -331,10 +336,17 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   demoModeDefault: false,
 };
 
+/**
+ * Deep-merge overlay settings onto a base document.
+ * Pass `onto` = current live settings for partial patches (Streamlabs, SFX cleanup)
+ * so unspecified keys are preserved. Omit `onto` (defaults to DEFAULT_SETTINGS) when
+ * loading a file / filling gaps from shipped defaults.
+ */
 export function mergeSettings(
   partial: Partial<OverlaySettings> | null | undefined,
+  onto: OverlaySettings = DEFAULT_SETTINGS,
 ): OverlaySettings {
-  const base = structuredClone(DEFAULT_SETTINGS);
+  const base = structuredClone(onto);
   if (!partial) return base;
   return {
     ...base,
@@ -491,12 +503,21 @@ export function mergeSettings(
     operatorTypos: (() => {
       const t = { ...base.operatorTypos, ...partial.operatorTypos };
       const ch = Number(t.chance);
-      const styleRaw = String(t.subStyle || "mixed").toLowerCase();
+      const styleRaw = String(
+        t.subStyle || DEFAULT_OPERATOR_TYPOS.subStyle,
+      ).toLowerCase();
+      // `mixed` kept as a stored value for older dashboards, but runtime treats it as rage.
       const subStyle: SubTypoStyle =
-        styleRaw === "rage" || styleRaw === "normal" ? styleRaw : "mixed";
+        styleRaw === "normal"
+          ? "normal"
+          : styleRaw === "mixed"
+            ? "mixed"
+            : "rage";
       return {
         enabled: t.enabled !== false,
-        chance: Number.isFinite(ch) ? Math.max(0, Math.min(1, ch)) : 0.7,
+        chance: Number.isFinite(ch)
+          ? Math.max(0, Math.min(1, ch))
+          : DEFAULT_OPERATOR_TYPOS.chance,
         subStyle,
       };
     })(),

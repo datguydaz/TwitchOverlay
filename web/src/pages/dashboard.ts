@@ -456,8 +456,8 @@ function syncOperatorTyposChanceLabel(): void {
   const el = document.getElementById("operator-typos-chance-label");
   const input = document.getElementById("operatorTyposChance") as HTMLInputElement | null;
   if (!el || !input) return;
-  const pct = Math.round(clamp01Form(Number(input.value), 0.7) * 100);
-  el.textContent = `Chance: ${pct}%`;
+  const pct = Math.round(clamp01Form(Number(input.value), 1) * 100);
+  el.textContent = `Chance (normal style only): ${pct}%`;
 }
 
 function fillOperatorTyposForm(s: OverlaySettings): void {
@@ -466,10 +466,10 @@ function fillOperatorTyposForm(s: OverlaySettings): void {
   const style = document.getElementById("operatorTyposSubStyle") as HTMLSelectElement | null;
   const cfg = s.operatorTypos || DEFAULT_OPERATOR_TYPOS;
   if (en) en.checked = cfg.enabled !== false;
-  if (ch) ch.value = String(clamp01Form(cfg.chance, 0.7));
+  if (ch) ch.value = String(clamp01Form(cfg.chance, DEFAULT_OPERATOR_TYPOS.chance));
   if (style) {
-    const v = cfg.subStyle || "mixed";
-    style.value = v === "rage" || v === "normal" ? v : "mixed";
+    const v = cfg.subStyle || DEFAULT_OPERATOR_TYPOS.subStyle;
+    style.value = v === "normal" || v === "mixed" ? v : "rage";
   }
   syncOperatorTyposChanceLabel();
 }
@@ -478,11 +478,11 @@ function readOperatorTyposForm(): OverlaySettings["operatorTypos"] {
   const en = document.getElementById("operatorTyposEnabled") as HTMLInputElement | null;
   const ch = document.getElementById("operatorTyposChance") as HTMLInputElement | null;
   const style = document.getElementById("operatorTyposSubStyle") as HTMLSelectElement | null;
-  const raw = (style?.value || "mixed").toLowerCase();
+  const raw = (style?.value || DEFAULT_OPERATOR_TYPOS.subStyle).toLowerCase();
   return {
     enabled: en ? en.checked : true,
-    chance: clamp01Form(Number(ch?.value ?? 0.7), 0.7),
-    subStyle: raw === "rage" || raw === "normal" ? raw : "mixed",
+    chance: clamp01Form(Number(ch?.value ?? DEFAULT_OPERATOR_TYPOS.chance), DEFAULT_OPERATOR_TYPOS.chance),
+    subStyle: raw === "normal" || raw === "mixed" ? raw : "rage",
   };
 }
 

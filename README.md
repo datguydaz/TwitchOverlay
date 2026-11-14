@@ -170,7 +170,13 @@ See [`companion/README.md`](./companion/README.md) for `uiohook-napi` details, U
 
 ## Settings
 
-Dashboard persists settings via `PUT /api/settings` to `data/settings.json` (server-side so every OBS browser source can read the same values). Modules: visibility, position (`x`/`y`), scale. Avatar intensity + lights. Countdown + scene copy.
+Dashboard persists settings via `PUT /api/settings` to **`data/settings.json`** (server-side so every OBS browser source can read the same values). That live file is **gitignored** so pulls do not overwrite your dashboard choices or social names.
+
+- Shipped template: `data/settings.defaults.json` (tracked).
+- On first run (or if the live file is missing), the server copies defaults → `data/settings.json`.
+- Partial API patches (Streamlabs follow/sub, sound cleanup) merge onto the **current** live document so typos/SFX/atmosphere are not reset.
+
+Modules: visibility, position (`x`/`y`), scale. Avatar intensity + lights. Countdown + scene copy.
 
 ## Twitch & Kick / Streamlabs events
 

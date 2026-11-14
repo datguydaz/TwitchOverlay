@@ -59,19 +59,17 @@ await page.route("**/*", (route) => {
   return route.continue();
 });
 
-// Ensure typos on for demos
+let priorSettings = null;
 try {
-  const cur = await (await fetch(`${BASE}/api/settings`)).json();
-  const next = {
-    ...cur,
-    operatorTypos: { enabled: true, chance: 1 },
-  };
+  priorSettings = await (await fetch(`${BASE}/api/settings`)).json();
   await fetch(`${BASE}/api/settings`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(next),
+    body: JSON.stringify({
+      operatorTypos: { enabled: true, chance: 1, subStyle: "rage" },
+    }),
   });
-  console.log("settings: operatorTypos forced on for capture");
+  console.log("settings: operatorTypos forced on for capture (will restore)");
 } catch (e) {
   console.warn("settings patch failed", e);
 }
@@ -97,6 +95,19 @@ await page.waitForTimeout(600);
 
 await context.close();
 await browser.close();
+
+if (priorSettings) {
+  try {
+    await fetch(`${BASE}/api/settings`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(priorSettings),
+    });
+    console.log("settings restored");
+  } catch (e) {
+    console.warn("settings restore failed", e);
+  }
+}
 
 const vids = readdirSync(vidTmp).filter((f) => f.endsWith(".webm"));
 if (!vids.length) {

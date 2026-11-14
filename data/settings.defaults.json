@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "streamerName": "datguydaz",
+  "accentColor": "#c7923a",
+  "oliveColor": "#6b7355",
+  "beigeColor": "#c4b59a",
+  "charcoalColor": "#1a1c18",
+  "countdownMinutes": 10,
+  "countdownTargetIso": null,
+  "sceneText": {
+    "startingSoonTitle": "SIGNAL ACQUISITION",
+    "startingSoonSub": "Operator inbound. Stand by for zone entry.",
+    "brbTitle": "OPERATOR AWAY",
+    "brbSub": "Hold position. Transmission resumes shortly.",
+    "endingTitle": "EXTRACTION COMPLETE",
+    "endingSub": "Thanks for riding along in the zone."
+  },
+  "modules": {
+    "identity": {
+      "visible": true,
+      "x": 48,
+      "y": 48,
+      "scale": 1
+    },
+    "webcam": {
+      "visible": true,
+      "x": 1452,
+      "y": 48,
+      "scale": 1
+    },
+    "events": {
+      "visible": true,
+      "x": 48,
+      "y": 820,
+      "scale": 1
+    },
+    "avatar": {
+      "visible": true,
+      "x": 1500,
+      "y": 740,
+      "scale": 0.35
+    }
+  },
+  "avatar": {
+    "intensity": 1,
+    "lightsEnabled": true,
+    "mouseFollowGain": 0.12,
+    "mouseFollowSmooth": 0.75
+  },
+  "mic": {
+    "enabled": false,
+    "threshold": 0.12
+  },
+  "chat": {
+    "enabled": true,
+    "demoAuto": true,
+    "intervalMs": 14000,
+    "games": [
+      "Tarkov",
+      "DayZ",
+      "Arena Breakout",
+      "Hunt: Showdown",
+      "Gray Zone"
+    ],
+    "placement": "bottom-center",
+    "offsetXPct": 20,
+    "offsetYPct": 2,
+    "scale": 1
+  },
+  "social": {
+    "showFollower": true,
+    "showSubscriber": true,
+    "latestFollower": "",
+    "latestSubscriber": ""
+  },
+  "ultrawide": {
+    "canvasWidth": 3440,
+    "canvasHeight": 1440,
+    "barHeight": 180,
+    "topVisible": true,
+    "bottomVisible": true,
+    "topText": "ZONE OPS // TRANSMISSION",
+    "bottomText": "HOLD THE LINE",
+    "statusText": "ZONE THREAT // RAID READY",
+    "operatorLineOnTop": true,
+    "operatorLine": "OPERATOR ONLINE"
+  },
+  "atmosphere": {
+    "enabled": true,
+    "intensity": "low",
+    "dust": true,
+    "smoke": true,
+    "sparks": true,
+    "flicker": true,
+    "reducedMotion": false
+  },
+  "textEffects": {
+    "enabled": true,
+    "intensity": "medium",
+    "reducedMotion": false
+  },
+  "sfx": {
+    "enabled": true,
+    "volume": 0.6,
+    "follow": {
+      "preset": "typewriter",
+      "customId": "",
+      "pool": [],
+      "typewriterLayer": false,
+      "volume": 1
+    },
+    "sub": {
+      "preset": "typewriter",
+      "customId": "",
+      "pool": [],
+      "typewriterLayer": false,
+      "volume": 1
+    }
+  },
+  "operatorTypos": {
+    "enabled": true,
+    "chance": 1,
+    "subStyle": "rage"
+  },
+  "demoModeDefault": false
+}

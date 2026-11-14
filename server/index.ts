@@ -29,6 +29,8 @@ const ROOT = resolve(__dirname, "..");
 loadEnvFiles(ROOT);
 const DATA_DIR = join(ROOT, "data");
 const SETTINGS_PATH = join(DATA_DIR, "settings.json");
+/** Shipped template — tracked in git. Live `settings.json` is gitignored. */
+const SETTINGS_DEFAULTS_PATH = join(DATA_DIR, "settings.defaults.json");
 const TOKEN_PATH = join(DATA_DIR, "local-token.txt");
 const DIST_DIR = join(ROOT, "dist");
 const PORT = Number(process.env.PORT || DEFAULT_HTTP_PORT);
@@ -45,16 +47,32 @@ function loadOrCreateToken(): string {
   return token;
 }
 
+/** Shipped defaults file, falling back to compiled DEFAULT_SETTINGS. */
+function readShippedDefaults(): OverlaySettings {
+  if (existsSync(SETTINGS_DEFAULTS_PATH)) {
+    try {
+      const raw = JSON.parse(
+        readFileSync(SETTINGS_DEFAULTS_PATH, "utf8"),
+      ) as Partial<OverlaySettings>;
+      return mergeSettings(raw);
+    } catch {
+      /* fall through */
+    }
+  }
+  return structuredClone(DEFAULT_SETTINGS);
+}
+
 function loadSettings(): OverlaySettings {
   if (!existsSync(SETTINGS_PATH)) {
-    writeFileSync(SETTINGS_PATH, JSON.stringify(DEFAULT_SETTINGS, null, 2));
-    return structuredClone(DEFAULT_SETTINGS);
+    const defaults = readShippedDefaults();
+    writeFileSync(SETTINGS_PATH, JSON.stringify(defaults, null, 2));
+    return structuredClone(defaults);
   }
   try {
     const raw = JSON.parse(readFileSync(SETTINGS_PATH, "utf8")) as Partial<OverlaySettings>;
     return mergeSettings(raw);
   } catch {
-    return structuredClone(DEFAULT_SETTINGS);
+    return readShippedDefaults();
   }
 }
 
@@ -151,14 +169,15 @@ app.get("/api/settings", (_req, res) => {
 });
 
 app.put("/api/settings", (req, res) => {
-  settings = mergeSettings(req.body as Partial<OverlaySettings>);
+  // Merge onto current live settings so partial bodies cannot wipe names / toggles.
+  settings = mergeSettings(req.body as Partial<OverlaySettings>, settings);
   saveSettings(settings);
   broadcast({ type: "settings-updated" });
   res.json(settings);
 });
 
 app.post("/api/settings/reset", (_req, res) => {
-  settings = structuredClone(DEFAULT_SETTINGS);
+  settings = readShippedDefaults();
   saveSettings(settings);
   broadcast({ type: "settings-updated" });
   res.json(settings);
@@ -213,13 +232,16 @@ app.delete("/api/sounds/:id", (req, res) => {
     }
     return { ...ev, pool, customId, preset };
   };
-  settings = mergeSettings({
-    sfx: {
-      ...settings.sfx,
-      follow: cleanEvent(settings.sfx.follow),
-      sub: cleanEvent(settings.sfx.sub),
+  settings = mergeSettings(
+    {
+      sfx: {
+        ...settings.sfx,
+        follow: cleanEvent(settings.sfx.follow),
+        sub: cleanEvent(settings.sfx.sub),
+      },
     },
-  });
+    settings,
+  );
   saveSettings(settings);
   broadcast({ type: "settings-updated" });
   res.json({ ok: true, settings });
@@ -305,17 +327,22 @@ const streamlabsBridge = createStreamlabsBridge(
       broadcastStatus();
     },
     applySocial(patch, metaInfo) {
-      const next = mergeSettings({
-        social: {
-          ...settings.social,
-          ...(patch.latestFollower != null
-            ? { latestFollower: patch.latestFollower }
-            : {}),
-          ...(patch.latestSubscriber != null
-            ? { latestSubscriber: patch.latestSubscriber }
-            : {}),
+      // Must merge onto live settings — merging onto DEFAULT_SETTINGS used to
+      // wipe dashboard choices (typos, SFX, atmosphere, etc.) on every event.
+      const next = mergeSettings(
+        {
+          social: {
+            ...settings.social,
+            ...(patch.latestFollower != null
+              ? { latestFollower: patch.latestFollower }
+              : {}),
+            ...(patch.latestSubscriber != null
+              ? { latestSubscriber: patch.latestSubscriber }
+              : {}),
+          },
         },
-      });
+        settings,
+      );
       const folChanged =
         patch.latestFollower != null &&
         patch.latestFollower !== settings.social.latestFollower;

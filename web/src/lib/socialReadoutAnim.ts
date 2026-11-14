@@ -83,9 +83,13 @@ export class SocialReadoutAnim {
   }
 
   setTypoConfig(cfg: OperatorTypoSettings): void {
-    const styleRaw = String(cfg.subStyle || "mixed").toLowerCase();
+    const styleRaw = String(cfg.subStyle || DEFAULT_OPERATOR_TYPOS.subStyle).toLowerCase();
     const subStyle: SubTypoStyle =
-      styleRaw === "rage" || styleRaw === "normal" ? styleRaw : "mixed";
+      styleRaw === "normal"
+        ? "normal"
+        : styleRaw === "mixed"
+          ? "mixed"
+          : "rage";
     this.typoCfg = {
       enabled: cfg.enabled !== false,
       chance: Math.max(0, Math.min(1, Number(cfg.chance) || 0)),
@@ -130,8 +134,8 @@ export class SocialReadoutAnim {
       name: sampleName,
       restoreTo,
       forceTypo: typosOn,
-      // ?demo=sub always shows rage when typos are on
-      forceRage: typosOn && kind === "sub",
+      // Demos always show the full rage sequence when typos are on (follow + sub).
+      forceRage: typosOn,
     });
     void this.kick();
   }
@@ -260,10 +264,8 @@ export class SocialReadoutAnim {
   private shouldTypo(job: Job): boolean {
     if (!this.typosEnabled()) return false;
     if (job.forceTypo || job.forceRage) return true;
-    // Rage can run on short names; normal typos still skip <4 / >12
-    if (job.kind === "sub" && this.wantSubRage(job) && nameOkForRage(job.name)) {
-      return Math.random() < this.typoCfg.chance;
-    }
+    // Default rage path: always (no randomness).
+    if (this.wantAlwaysRage(job) && nameOkForRage(job.name)) return true;
     if (nameTooLongForTypo(job.name)) return false;
     return Math.random() < this.typoCfg.chance;
   }
@@ -280,20 +282,21 @@ export class SocialReadoutAnim {
     return isSub ? randMs(70, 110) : randMs(55, 95);
   }
 
-  /** Prefer rage for sub when style says so (~60% in mixed). */
-  private wantSubRage(job: Job): boolean {
-    if (job.kind !== "sub") return false;
+  /**
+   * Full rage sequence for follow + sub when typos enabled and style is not `normal`.
+   * `mixed` is a legacy alias for always-rage (no randomness).
+   */
+  private wantAlwaysRage(job: Job): boolean {
     if (job.forceRage) return true;
-    const style = this.typoCfg.subStyle || "mixed";
-    if (style === "rage") return true;
-    if (style === "normal") return false;
-    return Math.random() < 0.6;
+    if (!this.typosEnabled()) return false;
+    const style = this.typoCfg.subStyle || DEFAULT_OPERATOR_TYPOS.subStyle;
+    return style !== "normal";
   }
 
   /**
    * Smoke type-in:
-   * Follow — acquire → tune → type (± typo) → NEW → settle.
-   * Sub — surge+CRT → type (± normal typo or rage smash) → stamp/NEW → settle.
+   * Follow — acquire → tune → type (± always-rage) → NEW → settle (lighter VFX).
+   * Sub — surge+CRT → type (± always-rage) → stamp/NEW → settle.
    */
   private async playSmoke(job: Job, el: HTMLElement, nameEl: HTMLElement): Promise<void> {
     const t0 = performance.now();
@@ -334,8 +337,7 @@ export class SocialReadoutAnim {
     const pauseScale = longName ? 0.72 : 1;
 
     if (
-      isSub &&
-      this.wantSubRage(job) &&
+      this.wantAlwaysRage(job) &&
       nameOkForRage(job.name) &&
       (doTypo || job.forceRage)
     ) {
@@ -376,7 +378,7 @@ export class SocialReadoutAnim {
     // Correct name — carefully after rage; bell only after this
     await this.typeString(job.kind, el, nameEl, ghost, job.name, {
       decrypt: isSub && !didTypo,
-      careful: didTypo && isSub,
+      careful: didTypo,
     });
 
     this.hooks.onTypeDone?.(job.kind);
@@ -443,9 +445,10 @@ export class SocialReadoutAnim {
   }
 
   /**
-   * Sub rage v2 (3rd-demo feel):
+   * Rage v2 (follow + sub):
    * half name → fumble+fix → fumble+fix (frustration builds) →
    * digit/letter smash → dead stop → wipe EVERYTHING → composed → clean retype.
+   * Follow keeps lighter plate CSS; typing sequence is identical.
    */
   private async playRage(
     kind: SocialKind,
