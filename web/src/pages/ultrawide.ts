@@ -184,7 +184,15 @@ const DEMO_SUB = "RAID_READY";
 /** Optional `?demoname=` overrides the demo sample (capped). */
 let urlDemoName = "";
 
-function applyUltrawide(settings: OverlaySettings): void {
+type ApplyUltrawideOpts = {
+  /**
+   * Sync follower/sub names into memory + DOM without enqueueing type-in / SFX.
+   * Used after WS reconnect so a stale settings snapshot cannot replay the last event.
+   */
+  quietSocial?: boolean;
+};
+
+function applyUltrawide(settings: OverlaySettings, opts?: ApplyUltrawideOpts): void {
   const uw = settings.ultrawide;
   const mode = document.body.dataset.uwMode;
   const stage = qs<HTMLElement>("#uw-stage");
@@ -360,11 +368,14 @@ function applyUltrawide(settings: OverlaySettings): void {
   }
   socialAnim.setTypoConfig(settings.operatorTypos || DEFAULT_OPERATOR_TYPOS);
 
-  // First load: set names quietly (never leave plates blank on smoke). Later: anim on change.
-  if (!bootstrappedSocial) {
+  // First load / quiet resync: set names without anim. Later: anim only on real change.
+  if (!bootstrappedSocial || opts?.quietSocial) {
     if (followerName) followerName.textContent = nextFol;
     if (subscriberName) subscriberName.textContent = nextSub;
     bootstrappedSocial = true;
+    // Align memory before any concurrent poll can see a false "change"
+    lastFollower = nextFol;
+    lastSubscriber = nextSub;
     if (smokeFixed) {
       void (async () => {
         try {
@@ -388,10 +399,9 @@ function applyUltrawide(settings: OverlaySettings): void {
     } else if (subscriberName && !subscriberName.closest("[data-social-fx]")) {
       subscriberName.textContent = nextSub;
     }
+    lastFollower = nextFol;
+    lastSubscriber = nextSub;
   }
-
-  lastFollower = nextFol;
-  lastSubscriber = nextSub;
 
   stage.dataset.vfx =
     settings.atmosphere.enabled && !settings.atmosphere.reducedMotion ? "on" : "off";
@@ -463,11 +473,11 @@ async function main(): Promise<void> {
     urlTypoParamsApplied = true;
   }
 
-  const refresh = async () => {
+  const refresh = async (opts?: ApplyUltrawideOpts) => {
     settings = await fetchSettings();
     await refreshCustomSounds();
     applyCssVars(settings);
-    applyUltrawide(settings);
+    applyUltrawide(settings, opts);
   };
 
   window.setInterval(() => {
@@ -484,31 +494,135 @@ async function main(): Promise<void> {
     window.setTimeout(() => routePreview(demo), 500);
   }
 
+  // Persistent overlay WS — reconnect with backoff (Browser Source survives server restarts)
+  startOverlayWs({
+    onSettingsUpdated: () => {
+      void refresh();
+    },
+    onAtmPreview: (kind) => {
+      routePreview(kind);
+    },
+    onReconnected: () => {
+      // Resync CSS/SFX/names without replaying the last follow/sub anim or test SFX
+      void refresh({ quietSocial: true });
+    },
+  });
+}
+
+type OverlayWsHooks = {
+  onSettingsUpdated: () => void;
+  onAtmPreview: (kind: AtmPreviewKind) => void;
+  /** After a successful hello following disconnect — quiet settings sync. */
+  onReconnected: () => void;
+};
+
+function startOverlayWs(hooks: OverlayWsHooks): void {
   const proto = location.protocol === "https:" ? "wss" : "ws";
-  try {
-    const tokenRes = await fetch("/api/token");
-    const { token } = (await tokenRes.json()) as { token: string };
-    const ws = new WebSocket(`${proto}://${location.host}/ws`);
-    ws.addEventListener("open", () => {
-      ws.send(JSON.stringify({ type: "hello", role: "overlay", token }));
-    });
-    ws.addEventListener("message", (ev) => {
-      try {
-        const msg = JSON.parse(String(ev.data)) as {
-          type?: string;
-          kind?: string;
-        };
-        if (msg.type === "settings-updated") void refresh();
-        if (msg.type === "atm-preview" && msg.kind) {
-          routePreview(msg.kind as AtmPreviewKind);
-        }
-      } catch {
-        /* ignore */
-      }
-    });
-  } catch {
-    /* polling still covers settings */
+  let ws: WebSocket | null = null;
+  let retryMs = 500;
+  let intentionalClose = false;
+  let everConnected = false;
+  let connectGeneration = 0;
+
+  async function fetchToken(): Promise<string> {
+    const res = await fetch("/api/token");
+    if (!res.ok) throw new Error("token fetch failed");
+    const data = (await res.json()) as { token: string };
+    return String(data.token || "");
   }
+
+  function scheduleRetry(): void {
+    if (intentionalClose) return;
+    const wait = retryMs;
+    retryMs = Math.min(5000, retryMs * 1.5);
+    window.setTimeout(() => {
+      void connect();
+    }, wait);
+  }
+
+  async function connect(): Promise<void> {
+    if (intentionalClose) return;
+    const gen = ++connectGeneration;
+    let token: string;
+    try {
+      token = await fetchToken();
+    } catch {
+      scheduleRetry();
+      return;
+    }
+    if (gen !== connectGeneration) return;
+
+    try {
+      if (ws) {
+        try {
+          ws.onclose = null;
+          ws.close();
+        } catch {
+          /* ignore */
+        }
+        ws = null;
+      }
+      const socket = new WebSocket(`${proto}://${location.host}/ws`);
+      ws = socket;
+
+      socket.addEventListener("open", () => {
+        if (ws !== socket) return;
+        try {
+          socket.send(JSON.stringify({ type: "hello", role: "overlay", token }));
+        } catch {
+          /* ignore */
+        }
+        retryMs = 500;
+        const wasReconnect = everConnected;
+        everConnected = true;
+        // Only quiet-resync after a real reconnect (not the first connect)
+        if (wasReconnect) hooks.onReconnected();
+      });
+
+      socket.addEventListener("message", (ev) => {
+        if (ws !== socket) return;
+        try {
+          const msg = JSON.parse(String(ev.data)) as {
+            type?: string;
+            kind?: string;
+          };
+          if (msg.type === "settings-updated") hooks.onSettingsUpdated();
+          if (msg.type === "atm-preview" && msg.kind) {
+            hooks.onAtmPreview(msg.kind as AtmPreviewKind);
+          }
+        } catch {
+          /* ignore */
+        }
+      });
+
+      socket.addEventListener("close", () => {
+        if (ws !== socket) return;
+        ws = null;
+        scheduleRetry();
+      });
+
+      socket.addEventListener("error", () => {
+        // close handler schedules retry
+        try {
+          socket.close();
+        } catch {
+          /* ignore */
+        }
+      });
+    } catch {
+      scheduleRetry();
+    }
+  }
+
+  void connect();
+  window.addEventListener("beforeunload", () => {
+    intentionalClose = true;
+    try {
+      ws?.close();
+    } catch {
+      /* ignore */
+    }
+  });
 }
 
 void main();
