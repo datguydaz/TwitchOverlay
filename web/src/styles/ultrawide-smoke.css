@@ -1482,6 +1482,100 @@ body.uw-smoke-variant {
 .smk-type-dust > b:nth-child(6) { left: 62%; bottom: 28%; }
 .smk-type-dust > b:nth-child(7) { left: 48%; bottom: 22%; }
 .smk-type-dust > b:nth-child(8) { left: 78%; bottom: 34%; }
+/*
+ * Terminal status strip (plate footer) — ERROR / VERIFIED.
+ * Sits under the name glass, above HUD; never overlaps name or HUD labels.
+ */
+.smk-status-strip {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 0;
+  max-height: 0;
+  margin: 0;
+  padding: 0 6px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  font-family: "Share Tech Mono", "Consolas", monospace;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: none;
+}
+.smk-status-light {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1a1210;
+  box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.85);
+  opacity: 0;
+}
+.smk-status-err,
+.smk-status-ok {
+  display: none;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.smk-social[data-status="error"] .smk-status-strip,
+.smk-social[data-status="ok"] .smk-status-strip {
+  min-height: 11px;
+  max-height: 14px;
+  margin: 1px 0 0;
+  opacity: 1;
+}
+.smk-social[data-status="error"] .smk-status-light {
+  opacity: 1;
+  background: radial-gradient(circle at 35% 30%, #e05040 0%, #8a1810 55%, #3a0806 100%);
+  box-shadow:
+    0 0 4px rgba(180, 40, 28, 0.75),
+    inset 0 0 1px rgba(255, 120, 90, 0.35);
+  animation: smk-status-blink-err 0.28s steps(2, end) infinite;
+}
+.smk-social[data-status="error"] .smk-status-err {
+  display: inline;
+  color: rgba(210, 70, 55, 0.92);
+  text-shadow: 0 0 6px rgba(160, 30, 22, 0.45);
+}
+.smk-social[data-status="ok"] .smk-status-light {
+  opacity: 1;
+  background: radial-gradient(circle at 35% 30%, #8ad070 0%, #2e7a38 55%, #0e2814 100%);
+  box-shadow:
+    0 0 5px rgba(70, 150, 70, 0.7),
+    inset 0 0 1px rgba(180, 230, 160, 0.35);
+  animation: smk-status-blink-ok 0.55s steps(2, end) 2;
+}
+.smk-social[data-status="ok"] .smk-status-ok {
+  display: inline;
+  color: rgba(90, 170, 90, 0.95);
+  text-shadow: 0 0 6px rgba(60, 130, 70, 0.4);
+}
+#uw-subscriber .smk-status-strip {
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+}
+@keyframes smk-status-blink-err {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@keyframes smk-status-blink-ok {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .smk-social[data-status="error"] .smk-status-light,
+  .smk-social[data-status="ok"] .smk-status-light {
+    animation: none;
+  }
+}
+
 /* Stamp strip under radio glass — left side so it never covers name or CH-02 HUD. */
 .smk-stamp-strip {
   position: relative;

@@ -187,6 +187,12 @@ export class SocialReadoutAnim {
     delete this.stage.dataset.helmFlash;
   }
 
+  /** Plate-footer ERROR / VERIFIED strip (`data-status`). */
+  private setStatus(el: HTMLElement, status: "error" | "ok" | null): void {
+    if (status) el.dataset.status = status;
+    else delete el.dataset.status;
+  }
+
   private async kick(): Promise<void> {
     if (this.busy) return;
     this.busy = true;
@@ -309,6 +315,7 @@ export class SocialReadoutAnim {
     nameEl.textContent = "";
     nameEl.style.opacity = "";
     nameEl.style.fontSize = "";
+    this.setStatus(el, null);
     if (ghost) {
       ghost.textContent = "";
       ghost.classList.remove("on");
@@ -357,6 +364,7 @@ export class SocialReadoutAnim {
         });
 
         el.dataset.typo = "hesitate";
+        this.setStatus(el, "error");
         if (isSub && Math.random() < 0.65) {
           const base = nameEl.textContent || "";
           nameEl.textContent = `${base}...`;
@@ -371,11 +379,13 @@ export class SocialReadoutAnim {
         delete el.dataset.typo;
 
         await this.backspaceAll(job.kind, el, nameEl, ghost, isSub, false);
+        this.setStatus(el, null);
         await this.wait(randMs(80, 160) * pauseScale);
       }
     }
 
     // Correct name — carefully after rage; bell only after this
+    this.setStatus(el, null);
     await this.typeString(job.kind, el, nameEl, ghost, job.name, {
       decrypt: isSub && !didTypo,
       careful: didTypo,
@@ -397,6 +407,7 @@ export class SocialReadoutAnim {
     }
 
     el.dataset.socialFx = "new";
+    this.setStatus(el, "ok");
     badge?.classList.add("on");
     if (isSub) {
       el.dataset.typeMark = "1";
@@ -411,6 +422,7 @@ export class SocialReadoutAnim {
     delete el.dataset.socialFx;
     delete el.dataset.typo;
     delete el.dataset.rageBurst;
+    this.setStatus(el, null);
     el.style.transform = "";
     el.style.transition = "";
     el.classList.remove("smk-rage-wobble", "smk-rage-jolt");
@@ -466,6 +478,7 @@ export class SocialReadoutAnim {
     const scale = (ms: number) => Math.max(40, Math.round(ms * pauseScale));
 
     // 1) Type ~half correctly (steady human pace)
+    this.setStatus(el, null);
     el.dataset.typo = "rage-build";
     await this.typeString(kind, el, nameEl, ghost, plan.half, {
       decrypt: false,
@@ -487,8 +500,9 @@ export class SocialReadoutAnim {
         careful: !frustrated,
       });
 
-      // Notice the mistake — shorter as frustration builds
+      // Notice the mistake — red ERROR strip + light
       el.dataset.typo = "hesitate";
+      this.setStatus(el, "error");
       await this.wait(
         scale(frustrated ? randMs(180, 320) : randMs(280, 420)),
       );
@@ -502,12 +516,14 @@ export class SocialReadoutAnim {
         fum.length,
         frustrated,
       );
+      this.setStatus(el, null);
       await this.wait(scale(frustrated ? randMs(60, 110) : randMs(90, 150)));
       delete el.dataset.rageBurst;
     }
 
     // 4) Snap — table smash + big jump, then per-key keysmash jolts
     el.dataset.typo = "rage-slam";
+    this.setStatus(el, "error");
     this.hooks.onTableSmash?.(kind);
     this.slamPlate(el);
     await this.wait(scale(randMs(70, 110)));
@@ -531,6 +547,7 @@ export class SocialReadoutAnim {
 
     // 5) Dead stop (settle wobble), then erase EVERYTHING
     el.dataset.typo = "rage-stop";
+    this.setStatus(el, "error");
     this.settlePlate(el);
     await this.wait(scale(randMs(600, 900)));
 
@@ -538,6 +555,7 @@ export class SocialReadoutAnim {
     el.style.transform = "";
     el.classList.remove("smk-rage-wobble", "smk-rage-jolt");
     await this.backspaceAll(kind, el, nameEl, ghost, true, true);
+    this.setStatus(el, null);
     delete el.dataset.typo;
 
     // 6) Composed pause (clean retype happens in playSmoke after this)
