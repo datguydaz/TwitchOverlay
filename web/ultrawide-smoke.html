@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/src/styles/zone.css" />
     <link rel="stylesheet" href="/src/styles/ultrawide.css" />
     <link rel="stylesheet" href="/src/styles/ultrawide-smoke.css" />
+    <link rel="stylesheet" href="/src/styles/event-scenes.css" />
   </head>
   <body class="uw-smoke-variant">
     <script>
@@ -102,7 +103,22 @@
         <div class="smk-name-scorch" aria-hidden="true"></div>
 
         <div class="uw-bar-body uw-wall-header">
-          <div class="uw-side" id="uw-follower-slot">
+          <div class="uw-side" id="uw-follower-slot" style="position:relative">
+            <div class="esc-host" id="esc-telex" hidden aria-hidden="true">
+              <div class="esc-telex-body">
+                <div class="esc-telex-roller"></div>
+                <div class="esc-telex-slot"></div>
+                <div class="esc-telex-paper"><span class="esc-print"></span></div>
+                <div class="esc-telex-pin"></div>
+              </div>
+            </div>
+            <div class="esc-host" id="esc-dogtag" hidden aria-hidden="true">
+              <div class="esc-chain"></div>
+              <div class="esc-tag">
+                <span class="esc-tag-name"></span>
+                <span class="esc-tag-sparks"></span>
+              </div>
+            </div>
             <aside class="uw-readout uw-social-inbar smk-social" id="uw-follower" data-social="follow">
               <div class="smk-plate smk-crate">
                 <i class="smk-bolt a"></i><i class="smk-bolt b"></i><i class="smk-bolt c"></i><i class="smk-bolt d"></i>
@@ -159,7 +175,15 @@
             </div>
           </div>
 
-          <div class="uw-side uw-side-right" id="uw-subscriber-slot">
+          <div class="uw-side uw-side-right" id="uw-subscriber-slot" style="position:relative">
+            <div class="esc-host" id="esc-lockdown" hidden aria-hidden="true">
+              <div class="esc-strobe"></div>
+              <div class="esc-strobe-rail left"></div>
+              <div class="esc-strobe-rail right"></div>
+              <div class="esc-vault"><span class="esc-vault-name"></span></div>
+              <div class="esc-shutter left"></div>
+              <div class="esc-shutter right"></div>
+            </div>
             <aside class="uw-readout uw-social-inbar smk-social" id="uw-subscriber" data-social="sub">
               <div class="smk-plate smk-crate">
                 <i class="smk-bolt a"></i><i class="smk-bolt b"></i><i class="smk-bolt c"></i><i class="smk-bolt d"></i>
@@ -285,7 +309,17 @@
             </g>
           </svg>
         </div>
-        <div class="uw-bar-body uw-wall-footer">
+        <div class="uw-bar-body uw-wall-footer" style="position:relative">
+          <div class="esc-host" id="esc-airdrop" hidden aria-hidden="true">
+            <div class="esc-chute">
+              <div class="esc-canopy"></div>
+              <div class="esc-rig"></div>
+              <div class="esc-crate"><div class="esc-crate-lid"></div></div>
+            </div>
+            <div class="esc-air-dust"></div>
+            <div class="esc-air-flare"></div>
+            <div class="esc-rise-name"></div>
+          </div>
           <div class="uw-side"></div>
           <div class="uw-center"></div>
           <div class="uw-side uw-side-right"></div>

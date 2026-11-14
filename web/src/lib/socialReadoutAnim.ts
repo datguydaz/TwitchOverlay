@@ -1,8 +1,10 @@
 /**
  * Queued LATEST FOLLOW / LATEST SUB smoked-glass events.
- * Smoke: acquire/surge → type-in (optional decrypt) → NEW → settle (+ plate VFX).
+ * Smoke: narrative scene (telex/dogtag/airdrop/lockdown) or classic type-in VFX.
  * Demo previews never overwrite stored names.
  */
+
+import type { EventScenePlayer } from "./eventScenes.ts";
 
 export type SocialKind = "follow" | "sub";
 
@@ -38,6 +40,7 @@ export class SocialReadoutAnim {
   private timers: number[] = [];
   private hooks: SocialReadoutAnimHooks;
   private emberTimer: number | null = null;
+  private scenePlayer: EventScenePlayer | null = null;
 
   constructor(
     stage: HTMLElement,
@@ -52,6 +55,10 @@ export class SocialReadoutAnim {
 
   setReducedMotion(on: boolean): void {
     this.reduced = on || this.osReduce;
+  }
+
+  setScenePlayer(player: EventScenePlayer | null): void {
+    this.scenePlayer = player;
   }
 
   /** Real stored-name change — queues event animation. */
@@ -81,6 +88,7 @@ export class SocialReadoutAnim {
     this.timers = [];
     this.queue = [];
     if (this.emberTimer != null) window.clearTimeout(this.emberTimer);
+    this.scenePlayer?.dispose();
     this.clearStageSurge();
   }
 
@@ -154,7 +162,18 @@ export class SocialReadoutAnim {
       return Promise.resolve();
     }
 
-    if (this.isSmoke()) return this.playSmoke(job, el, nameEl);
+    if (this.isSmoke()) {
+      const scenes = this.scenePlayer;
+      if (scenes && !scenes.isClassic(job.kind)) {
+        return scenes.play(job.kind, {
+          name: job.name,
+          restoreTo: job.restoreTo,
+          el,
+          nameEl,
+        });
+      }
+      return this.playSmoke(job, el, nameEl);
+    }
     return this.playDefault(job, el, nameEl);
   }
 

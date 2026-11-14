@@ -122,6 +122,20 @@ export const DEFAULT_SFX_EVENT: SfxEventSettings = {
   volume: 1,
 };
 
+/** Narrative bar scenes for social events (ultrawide-smoke). */
+export type FollowEventScene = "telex" | "dogtag" | "classic";
+export type SubEventScene = "airdrop" | "lockdown" | "classic";
+
+export interface EventSceneSettings {
+  follow: FollowEventScene;
+  sub: SubEventScene;
+}
+
+export const DEFAULT_EVENT_SCENES: EventSceneSettings = {
+  follow: "telex",
+  sub: "airdrop",
+};
+
 export interface ChatSettings {
   enabled: boolean;
   /** Auto Zone Ops trash-talk on a timer. */
@@ -217,6 +231,7 @@ export interface OverlaySettings {
   atmosphere: AtmosphereSettings;
   textEffects: TextEffectsSettings;
   sfx: SfxSettings;
+  eventScenes: EventSceneSettings;
   demoModeDefault: boolean;
 }
 
@@ -304,6 +319,7 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     follow: { ...DEFAULT_SFX_EVENT },
     sub: { ...DEFAULT_SFX_EVENT },
   },
+  eventScenes: { ...DEFAULT_EVENT_SCENES },
   demoModeDefault: false,
 };
 
@@ -462,6 +478,15 @@ export function mergeSettings(
         volume: Number.isFinite(vol) ? Math.max(0, Math.min(1, vol)) : 0.6,
         follow: mergeEvent(partial.sfx?.follow ?? s.follow, DEFAULT_SFX_EVENT),
         sub: mergeEvent(partial.sfx?.sub ?? s.sub, DEFAULT_SFX_EVENT),
+      };
+    })(),
+    eventScenes: (() => {
+      const e = { ...base.eventScenes, ...partial.eventScenes };
+      const fol = String(e.follow || "telex").toLowerCase();
+      const sub = String(e.sub || "airdrop").toLowerCase();
+      return {
+        follow: fol === "dogtag" || fol === "classic" ? fol : "telex",
+        sub: sub === "lockdown" || sub === "classic" ? sub : "airdrop",
       };
     })(),
   };
