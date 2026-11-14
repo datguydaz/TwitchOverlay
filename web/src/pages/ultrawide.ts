@@ -181,6 +181,8 @@ const TEXT_PREVIEW = new Set<AtmPreviewKind>(["text-dip", "text-sweep", "text-op
 
 const DEMO_FOLLOW = "ZONE_SCOUT";
 const DEMO_SUB = "RAID_READY";
+/** Optional `?demoname=` overrides the demo sample (capped). */
+let urlDemoName = "";
 
 function applyUltrawide(settings: OverlaySettings): void {
   const uw = settings.ultrawide;
@@ -350,6 +352,7 @@ function applyUltrawide(settings: OverlaySettings): void {
       onEventStart: (kind) => bunkerSfx.playEventStart(kind),
       onTypeChar: (kind, ch, opts) => bunkerSfx.onTypeChar(kind, ch, opts),
       onBackspace: (kind, opts) => bunkerSfx.onBackspace(kind, opts),
+      onTableSmash: (kind) => bunkerSfx.playTableSmash(kind),
       onTypeDone: (kind) => bunkerSfx.onTypeDone(kind),
     });
   } else {
@@ -404,12 +407,12 @@ function routePreview(kind: AtmPreviewKind): void {
     return;
   }
   if (kind === "follow") {
-    socialAnim?.demo("follow", DEMO_FOLLOW);
+    socialAnim?.demo("follow", urlDemoName || DEMO_FOLLOW);
     atm?.preview("follow");
     return;
   }
   if (kind === "sub") {
-    socialAnim?.demo("sub", DEMO_SUB);
+    socialAnim?.demo("sub", urlDemoName || DEMO_SUB);
     atm?.preview("sub");
     return;
   }
@@ -438,6 +441,7 @@ async function refreshCustomSounds(): Promise<void> {
 
 async function main(): Promise<void> {
   const params = new URLSearchParams(location.search);
+  urlDemoName = (params.get("demoname") || "").trim().slice(0, 24);
   bunkerSfx.applyUrlParams(params);
   // Browser Source: resume early; Chrome tab may stay suspended until click.
   void bunkerSfx.unlock();

@@ -176,6 +176,24 @@ export class BunkerSfx {
     });
   }
 
+  /**
+   * Fist-on-wooden-desk slam + item rattle at the rage snap.
+   * Uses sub (or follow) event volume × master; respects mute.
+   */
+  playTableSmash(kind: BunkerSfxKind): void {
+    const master = this.effectiveMasterVolume;
+    if (master <= 0.001) return;
+    const cfg = this.eventConfig(kind);
+    const vol = master * clamp01(cfg.volume, 1) * 0.85;
+    if (vol <= 0.001) return;
+    void this.unlock().then((ok) => {
+      if (!ok && !this.ctx) return;
+      const ctx = this.ensureCtx();
+      if (!ctx || ctx.state !== "running" || !this.master) return;
+      this.playTableSmashProc(ctx, this.master, ctx.currentTime + 0.01, vol);
+    });
+  }
+
   /** Softer backspace / delete click during typo correction. */
   onBackspace(kind: BunkerSfxKind, opts?: { fast?: boolean }): void {
     if (!this.typing[kind]) return;
@@ -304,6 +322,64 @@ export class BunkerSfx {
     g.connect(dest);
     src.start(t0);
     src.stop(t0 + dur + 0.04);
+  }
+
+  /** Heavy wood thud + desk clutter rattle — punchy, not clipping. */
+  private playTableSmashProc(
+    ctx: AudioContext,
+    dest: GainNode,
+    t0: number,
+    vol: number,
+  ): void {
+    const bus = ctx.createGain();
+    // Soft ceiling so layered noise doesn't clip
+    bus.gain.value = Math.min(0.95, vol);
+    bus.connect(dest);
+
+    // Fist body — low sine drop
+    const thud = ctx.createOscillator();
+    thud.type = "sine";
+    thud.frequency.setValueAtTime(95, t0);
+    thud.frequency.exponentialRampToValueAtTime(38, t0 + 0.14);
+    const tg = ctx.createGain();
+    tg.gain.setValueAtTime(0.0001, t0);
+    tg.gain.exponentialRampToValueAtTime(0.55, t0 + 0.012);
+    tg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
+    thud.connect(tg);
+    tg.connect(bus);
+    thud.start(t0);
+    thud.stop(t0 + 0.24);
+
+    // Wood impact noise
+    this.noiseSource(ctx, bus, t0, 0.09, 0.42, "lowpass", 520, 0.9);
+    this.noiseSource(ctx, bus, t0 + 0.01, 0.05, 0.22, "bandpass", 1400, 1.6);
+
+    // Desk items rattling — staggered metallic/plastic ticks
+    const rattles = [0.05, 0.09, 0.14, 0.19, 0.26, 0.33];
+    rattles.forEach((off, i) => {
+      const tt = t0 + off;
+      this.noiseSource(
+        ctx,
+        bus,
+        tt,
+        rand(0.02, 0.04),
+        0.1 - i * 0.01,
+        "highpass",
+        rand(2200, 4800),
+        rand(0.8, 1.6),
+      );
+      const tick = ctx.createOscillator();
+      tick.type = "triangle";
+      tick.frequency.value = rand(380, 920);
+      const gg = ctx.createGain();
+      gg.gain.setValueAtTime(0.0001, tt);
+      gg.gain.exponentialRampToValueAtTime(0.06, tt + 0.005);
+      gg.gain.exponentialRampToValueAtTime(0.0001, tt + 0.05);
+      tick.connect(gg);
+      gg.connect(bus);
+      tick.start(tt);
+      tick.stop(tt + 0.06);
+    });
   }
 
   private playBackspace(

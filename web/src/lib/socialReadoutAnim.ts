@@ -9,6 +9,7 @@ import { DEFAULT_OPERATOR_TYPOS } from "../../../shared/settings.ts";
 import {
   makeRagePlan,
   makeWrongName,
+  nameOkForRage,
   nameTooLongForTypo,
 } from "./operatorTypos.ts";
 
@@ -23,6 +24,8 @@ export type SocialReadoutAnimHooks = {
   onTypeChar?: (kind: SocialKind, char: string, opts?: TypeCharOpts) => void;
   /** Soft backspace click during typo correction. */
   onBackspace?: (kind: SocialKind, opts?: { fast?: boolean }) => void;
+  /** Fist-on-desk slam at the rage snap (before keysmash). */
+  onTableSmash?: (kind: SocialKind) => void;
   /** After correct type-in finishes (carriage-return / bell). */
   onTypeDone?: (kind: SocialKind) => void;
 };
@@ -39,8 +42,8 @@ type Job = {
 };
 
 const SCRAMBLE = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#@$%&*";
-/** Whole smoke event soft cap (intro + type + NEW + settle). Rage needs ~6.5s. */
-const TOTAL_CAP_MS = 6500;
+/** Whole smoke event soft cap (intro + type + NEW + settle). Rage v2 needs ~8s. */
+const TOTAL_CAP_MS = 8000;
 
 function scrambleChar(): string {
   return SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)] || "#";
@@ -256,8 +259,12 @@ export class SocialReadoutAnim {
 
   private shouldTypo(job: Job): boolean {
     if (!this.typosEnabled()) return false;
+    if (job.forceTypo || job.forceRage) return true;
+    // Rage can run on short names; normal typos still skip <4 / >12
+    if (job.kind === "sub" && this.wantSubRage(job) && nameOkForRage(job.name)) {
+      return Math.random() < this.typoCfg.chance;
+    }
     if (nameTooLongForTypo(job.name)) return false;
-    if (job.forceTypo) return true;
     return Math.random() < this.typoCfg.chance;
   }
 
@@ -323,16 +330,23 @@ export class SocialReadoutAnim {
 
     const doTypo = this.shouldTypo(job);
     let didTypo = false;
+    const longName = job.name.trim().length >= 12;
+    const pauseScale = longName ? 0.72 : 1;
 
-    if (doTypo && isSub && this.wantSubRage(job)) {
+    if (
+      isSub &&
+      this.wantSubRage(job) &&
+      nameOkForRage(job.name) &&
+      (doTypo || job.forceRage)
+    ) {
       const rage = makeRagePlan(job.name);
       if (rage) {
         didTypo = true;
-        await this.playRage(job.kind, el, nameEl, ghost, rage.prefix, rage.smash);
+        await this.playRage(job.kind, el, nameEl, ghost, rage, pauseScale);
       }
     }
 
-    if (doTypo && !didTypo) {
+    if (doTypo && !didTypo && !nameTooLongForTypo(job.name)) {
       const plan = makeWrongName(job.name, { dramatic: isSub });
       if (plan) {
         didTypo = true;
@@ -344,16 +358,18 @@ export class SocialReadoutAnim {
         if (isSub && Math.random() < 0.65) {
           const base = nameEl.textContent || "";
           nameEl.textContent = `${base}...`;
-          await this.wait(randMs(280, 420));
+          await this.wait(randMs(280, 420) * pauseScale);
           nameEl.textContent = base;
-          await this.wait(randMs(220, 380));
+          await this.wait(randMs(220, 380) * pauseScale);
         } else {
-          await this.wait(isSub ? randMs(520, 780) : randMs(400, 700));
+          await this.wait(
+            (isSub ? randMs(520, 780) : randMs(400, 700)) * pauseScale,
+          );
         }
         delete el.dataset.typo;
 
         await this.backspaceAll(job.kind, el, nameEl, ghost, isSub, false);
-        await this.wait(randMs(80, 160));
+        await this.wait(randMs(80, 160) * pauseScale);
       }
     }
 
@@ -393,6 +409,9 @@ export class SocialReadoutAnim {
     delete el.dataset.socialFx;
     delete el.dataset.typo;
     delete el.dataset.rageBurst;
+    el.style.transform = "";
+    el.style.transition = "";
+    el.classList.remove("smk-rage-wobble", "smk-rage-jolt");
     badge?.classList.remove("on");
     if (ghost) {
       ghost.classList.remove("on");
@@ -423,52 +442,160 @@ export class SocialReadoutAnim {
     this.fitName(nameEl);
   }
 
-  /** Sub rage: prefix → frantic smash → stop → fast wipe → composed pause. */
+  /**
+   * Sub rage v2 (3rd-demo feel):
+   * half name → fumble+fix → fumble+fix (frustration builds) →
+   * digit/letter smash → dead stop → wipe EVERYTHING → composed → clean retype.
+   */
   private async playRage(
     kind: SocialKind,
     el: HTMLElement,
     nameEl: HTMLElement,
     ghost: HTMLElement | null,
-    prefix: string,
-    smash: string,
+    plan: {
+      half: string;
+      fumbles: string[];
+      smash: string;
+      short: boolean;
+    },
+    pauseScale: number,
   ): Promise<void> {
-    el.dataset.typo = "rage";
-    // Prefix carefully (correct letters)
-    await this.typeString(kind, el, nameEl, ghost, prefix, {
-      decrypt: false,
-      careful: true,
-    });
+    const scale = (ms: number) => Math.max(40, Math.round(ms * pauseScale));
 
-    // Frantic keysmash — hard clacks + escalating shake
-    const chars = [...smash];
+    // 1) Type ~half correctly (steady human pace)
+    el.dataset.typo = "rage-build";
+    await this.typeString(kind, el, nameEl, ghost, plan.half, {
+      decrypt: false,
+      careful: false,
+    });
+    await this.wait(scale(randMs(120, 200)));
+
+    // 2–3) Fumbles with building frustration
+    const fumbles = plan.fumbles.slice(0, plan.short ? 1 : 2);
+    for (let fi = 0; fi < fumbles.length; fi++) {
+      const fum = fumbles[fi]!;
+      const frustrated = fi > 0;
+      el.dataset.typo = frustrated ? "rage-build" : "hesitate";
+      if (frustrated) el.dataset.rageBurst = "2";
+
+      await this.typeString(kind, el, nameEl, ghost, fum, {
+        decrypt: false,
+        hard: frustrated,
+        careful: !frustrated,
+      });
+
+      // Notice the mistake — shorter as frustration builds
+      el.dataset.typo = "hesitate";
+      await this.wait(
+        scale(frustrated ? randMs(180, 320) : randMs(280, 420)),
+      );
+
+      // Backspace only the fumble chars
+      await this.backspaceN(
+        kind,
+        el,
+        nameEl,
+        ghost,
+        fum.length,
+        frustrated,
+      );
+      await this.wait(scale(frustrated ? randMs(60, 110) : randMs(90, 150)));
+      delete el.dataset.rageBurst;
+    }
+
+    // 4) Snap — table smash + big jump, then per-key keysmash jolts
+    el.dataset.typo = "rage-slam";
+    this.hooks.onTableSmash?.(kind);
+    this.slamPlate(el);
+    await this.wait(scale(randMs(70, 110)));
+
+    el.dataset.typo = "rage";
+    el.classList.remove("smk-rage-wobble");
+    const chars = [...plan.smash];
     let built = nameEl.textContent || "";
     for (let i = 0; i < chars.length; i++) {
       const ch = chars[i]!;
       built += ch;
       nameEl.textContent = built;
       this.hooks.onTypeChar?.(kind, ch, { hard: true });
-      const burst = 1 + Math.min(3, Math.floor(i / 4));
-      el.dataset.rageBurst = String(burst);
+      const t = chars.length <= 1 ? 1 : i / (chars.length - 1);
+      this.joltPlate(el, t);
       el.classList.remove("smk-spark-tick");
       void el.offsetWidth;
       el.classList.add("smk-spark-tick");
-      await this.wait(randMs(35, 60));
+      await this.wait(randMs(32, 55));
     }
 
-    // Dead stop — cursor blinks
+    // 5) Dead stop (settle wobble), then erase EVERYTHING
     el.dataset.typo = "rage-stop";
-    delete el.dataset.rageBurst;
-    await this.wait(randMs(600, 900));
+    this.settlePlate(el);
+    await this.wait(scale(randMs(600, 900)));
 
-    // Fast accelerating backspace wipe
     el.dataset.typo = "rage-wipe";
+    el.style.transform = "";
+    el.classList.remove("smk-rage-wobble", "smk-rage-jolt");
     await this.backspaceAll(kind, el, nameEl, ghost, true, true);
     delete el.dataset.typo;
 
-    // Composed pause before careful retype
+    // 6) Composed pause (clean retype happens in playSmoke after this)
     el.dataset.typo = "hesitate";
-    await this.wait(randMs(220, 380));
+    await this.wait(scale(randMs(240, 400)));
     delete el.dataset.typo;
+  }
+
+  /** One big desk-hit jump at the rage snap. */
+  private slamPlate(el: HTMLElement): void {
+    el.classList.remove("smk-rage-wobble", "smk-rage-jolt");
+    const rot = (Math.random() * 2 - 1) * 1.2;
+    el.style.transition = "transform 0.06s cubic-bezier(0.2, 0.9, 0.3, 1.4)";
+    el.style.transform = `translate(${(Math.random() * 2 - 1) * 2}px, 7px) rotate(${rot.toFixed(2)}deg)`;
+  }
+
+  /** Per-keysmash jolt — random direction, ramps with progress 0..1. */
+  private joltPlate(el: HTMLElement, progress: number): void {
+    const t = Math.max(0, Math.min(1, progress));
+    const amp = 1.4 + t * 4.2; // ~1.4 → 5.6 px
+    const rotAmp = 0.5 + t * 0.55; // 0.5° → ~1.05°
+    const x = (Math.random() * 2 - 1) * amp;
+    const y = (Math.random() * 2 - 1) * amp * 0.75;
+    const r = (Math.random() * 2 - 1) * rotAmp;
+    el.classList.remove("smk-rage-wobble");
+    el.classList.add("smk-rage-jolt");
+    el.style.transition = "transform 0.035s ease-out";
+    el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${r.toFixed(2)}deg)`;
+  }
+
+  /** Small settle wobble when keysmash stops. */
+  private settlePlate(el: HTMLElement): void {
+    el.classList.remove("smk-rage-jolt");
+    el.classList.add("smk-rage-wobble");
+    el.style.transition = "transform 0.18s ease-out";
+    el.style.transform = "translate(0, 0) rotate(0deg)";
+  }
+
+  /** Backspace exactly n characters (fumble fix). */
+  private async backspaceN(
+    kind: SocialKind,
+    el: HTMLElement,
+    nameEl: HTMLElement,
+    ghost: HTMLElement | null,
+    n: number,
+    hard: boolean,
+  ): Promise<void> {
+    let built = nameEl.textContent || "";
+    for (let i = 0; i < n && built.length; i++) {
+      built = built.slice(0, -1);
+      nameEl.textContent = built;
+      if (ghost) {
+        ghost.textContent = built;
+        if (!built) ghost.classList.remove("on");
+      }
+      this.hooks.onBackspace?.(kind, { fast: hard });
+      el.classList.remove("smk-spark-tick");
+      void el.offsetWidth;
+      el.classList.add("smk-spark-tick");
+      await this.wait(hard ? randMs(40, 70) : randMs(55, 90));
+    }
   }
 
   private async typeString(

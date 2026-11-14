@@ -252,13 +252,20 @@ export function nameTooLongForTypo(name: string): boolean {
   return n > 12 || n < 4;
 }
 
-function generateKeysmash(len: number): string | null {
-  for (let attempt = 0; attempt < 12; attempt++) {
+const DIGITS = "1234567890";
+
+function generateKeysmash(len: number, withDigits: boolean): string | null {
+  for (let attempt = 0; attempt < 14; attempt++) {
     let cur = HOME_ROW[Math.floor(Math.random() * HOME_ROW.length)]!;
     let out = cur;
     while (out.length < len) {
+      if (withDigits && Math.random() < 0.28) {
+        out += DIGITS[Math.floor(Math.random() * DIGITS.length)]!;
+        // Stay letter-biased after a digit
+        cur = HOME_ROW[Math.floor(Math.random() * HOME_ROW.length)]!;
+        continue;
+      }
       const near = HOME_NEAR[cur] || HOME_ROW;
-      // Mostly wander neighbours; occasional jump so it doesn't look like a word
       if (Math.random() < 0.18) {
         cur = HOME_ROW[Math.floor(Math.random() * HOME_ROW.length)]!;
       } else {
@@ -268,27 +275,104 @@ function generateKeysmash(len: number): string | null {
     }
     if (!isBlockedText(out) && !/[aeiou]{4,}/i.test(out)) return out;
   }
-  // Last-resort safe smash (manually vetted gibberish)
-  const safe = "rfkikmfeavmjfdkla";
+  const safe = withDigits ? "r39keqvfqkvqf8a" : "rfkikmfeavmjfdkla";
   return isBlockedText(safe) ? null : safe.slice(0, len);
 }
 
-/**
- * Sub rage: first 1–3 correct letters + frantic lowercase keysmash (12–20).
- */
-export function makeRagePlan(correct: string): {
-  prefix: string;
+/** Small wrong append after a correct prefix (1–2 chars). */
+function makeFumbleAppend(
+  correct: string,
+  halfLen: number,
+  avoid: string,
+): string | null {
+  const name = correct;
+  const next = name.slice(halfLen, halfLen + 1);
+  for (let attempt = 0; attempt < 10; attempt++) {
+    let append = "";
+    const mode = Math.floor(Math.random() * 3);
+    if (mode === 0 && next) {
+      // Adjacent-key of the next real letter
+      const n = neighbor(next);
+      append = n === next ? neighbor(next) || "x" : n;
+      if (Math.random() < 0.4) {
+        const n2 = neighbor(append);
+        append += n2;
+      }
+    } else if (mode === 1 && name.length > halfLen + 1) {
+      // Transpose of next two intended letters, mangled
+      const a = name[halfLen]!;
+      const b = name[halfLen + 1]!;
+      append = b + a;
+    } else {
+      // Random 1–2 home-row slips
+      const a = HOME_ROW[Math.floor(Math.random() * HOME_ROW.length)]!;
+      append = a;
+      if (Math.random() < 0.55) {
+        append += (HOME_NEAR[a] || HOME_ROW)[Math.floor(Math.random() * 3)]!;
+      }
+      // Match casing of name if upper-heavy
+      if (name === name.toUpperCase()) append = append.toUpperCase();
+    }
+    if (name === name.toUpperCase() && /[a-z]/.test(append)) {
+      append = append.toUpperCase();
+    }
+    if (
+      append &&
+      append !== avoid &&
+      !isBlockedText(name.slice(0, halfLen) + append)
+    ) {
+      return append;
+    }
+  }
+  return null;
+}
+
+export type RagePlanV2 = {
+  half: string;
+  fumbles: string[];
   smash: string;
+  /** Names shorter than 4 get a single fumble. */
+  short: boolean;
   kind: "rage";
-} | null {
+};
+
+/**
+ * Sub rage v2: half name → 1–2 fumbles → digit/letter smash → full wipe → clean.
+ */
+export function makeRagePlan(correct: string): RagePlanV2 | null {
   const name = String(correct || "").trim();
-  if (name.length < 3 || isBlockedText(name)) return null;
-  const keep = Math.min(name.length, 1 + Math.floor(Math.random() * 3)); // 1–3
-  const prefix = name.slice(0, keep);
-  const smashLen = 12 + Math.floor(Math.random() * 9); // 12–20
-  const smash = generateKeysmash(smashLen);
+  if (name.length < 2 || isBlockedText(name)) return null;
+
+  const short = name.length < 4;
+  // ~half the name (at least 1, leave at least 1 if possible)
+  let halfLen = Math.max(1, Math.floor(name.length / 2));
+  if (!short && halfLen >= name.length) halfLen = name.length - 1;
+  if (halfLen < 1) halfLen = 1;
+  const half = name.slice(0, halfLen);
+
+  const fumbles: string[] = [];
+  const f1 = makeFumbleAppend(name, halfLen, "");
+  if (f1) fumbles.push(f1);
+  if (!short) {
+    const f2 = makeFumbleAppend(name, halfLen, f1 || "");
+    if (f2) fumbles.push(f2);
+  }
+  if (!fumbles.length) {
+    // Guaranteed tiny slip
+    const fallback = name === name.toUpperCase() ? "X" : "x";
+    if (!isBlockedText(half + fallback)) fumbles.push(fallback);
+  }
+
+  const smashLen = 12 + Math.floor(Math.random() * 7); // 12–18
+  const smash = generateKeysmash(smashLen, true);
   if (!smash) return null;
-  const full = prefix + smash;
-  if (isBlockedText(full)) return null;
-  return { prefix, smash, kind: "rage" };
+  if (isBlockedText(half + smash)) return null;
+
+  return { half, fumbles, smash, short, kind: "rage" };
+}
+
+/** Rage allows shorter names than normal typos; still skip extreme lengths. */
+export function nameOkForRage(name: string): boolean {
+  const n = String(name || "").trim().length;
+  return n >= 2 && n <= 18;
 }
