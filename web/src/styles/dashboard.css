@@ -116,6 +116,65 @@
   margin: 10px 0;
 }
 
+.sfx-event-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+@media (max-width: 900px) {
+  .sfx-event-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sfx-event {
+  border: 1px solid rgba(107, 115, 85, 0.35);
+  padding: 10px 12px 12px;
+  margin: 0;
+}
+
+.sfx-event legend {
+  padding: 0 6px;
+  color: var(--olive);
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+
+.sfx-pool {
+  margin-top: 8px;
+}
+
+.sfx-pool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 140px;
+  overflow: auto;
+}
+
+.sfx-custom-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 12px;
+}
+
+.sfx-custom-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(107, 115, 85, 0.25);
+  font-size: 13px;
+}
+
+.sfx-custom-list .sfx-meta {
+  flex: 1 1 140px;
+  min-width: 0;
+}
+
 .mod-editor {
   border-top: 1px solid rgba(107, 115, 85, 0.3);
   padding-top: 10px;

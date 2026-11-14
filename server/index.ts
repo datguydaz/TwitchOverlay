@@ -22,6 +22,7 @@ import {
 } from "../shared/settings.ts";
 import { loadEnvFiles } from "./loadEnv.ts";
 import { createStreamlabsBridge } from "./streamlabsBridge.ts";
+import { SoundsStore, MAX_SOUND_BYTES } from "./soundsStore.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -33,6 +34,7 @@ const DIST_DIR = join(ROOT, "dist");
 const PORT = Number(process.env.PORT || DEFAULT_HTTP_PORT);
 
 mkdirSync(DATA_DIR, { recursive: true });
+const soundsStore = new SoundsStore(DATA_DIR);
 
 function loadOrCreateToken(): string {
   if (existsSync(TOKEN_PATH)) {
@@ -87,7 +89,7 @@ app.use(
     },
   }),
 );
-app.use(express.json({ limit: "256kb" }));
+app.use(express.json({ limit: "4mb" }));
 
 app.get("/api/health", (_req, res) => {
   const companionConnected = wss
@@ -161,6 +163,69 @@ app.post("/api/settings/reset", (_req, res) => {
   broadcast({ type: "settings-updated" });
   res.json(settings);
 });
+
+/** Custom event sounds (local only). */
+app.get("/api/sounds", (_req, res) => {
+  res.json({
+    sounds: soundsStore.list(),
+    maxBytes: MAX_SOUND_BYTES,
+  });
+});
+
+app.post("/api/sounds", (req, res) => {
+  const host = req.hostname;
+  if (host !== "127.0.0.1" && host !== "localhost") {
+    res.status(403).json({ error: "loopback only" });
+    return;
+  }
+  try {
+    const body = req.body as { name?: string; mime?: string; dataBase64?: string };
+    const meta = soundsStore.addFromBase64({
+      name: String(body.name || "sound.wav"),
+      mime: String(body.mime || ""),
+      dataBase64: String(body.dataBase64 || ""),
+    });
+    res.json({ ok: true, sound: meta });
+  } catch (err) {
+    const status = Number((err as { status?: number }).status) || 500;
+    res.status(status).json({ error: (err as Error).message || "upload failed" });
+  }
+});
+
+app.delete("/api/sounds/:id", (req, res) => {
+  const host = req.hostname;
+  if (host !== "127.0.0.1" && host !== "localhost") {
+    res.status(403).json({ error: "loopback only" });
+    return;
+  }
+  const id = String(req.params.id || "");
+  const ok = soundsStore.remove(id);
+  if (!ok) {
+    res.status(404).json({ error: "not found" });
+    return;
+  }
+  const cleanEvent = (ev: OverlaySettings["sfx"]["follow"]) => {
+    const pool = (ev.pool || []).filter((x) => x !== id);
+    let { preset, customId } = ev;
+    if (customId === id) {
+      customId = "";
+      if (preset === "custom") preset = "typewriter";
+    }
+    return { ...ev, pool, customId, preset };
+  };
+  settings = mergeSettings({
+    sfx: {
+      ...settings.sfx,
+      follow: cleanEvent(settings.sfx.follow),
+      sub: cleanEvent(settings.sfx.sub),
+    },
+  });
+  saveSettings(settings);
+  broadcast({ type: "settings-updated" });
+  res.json({ ok: true, settings });
+});
+
+app.use("/sounds", express.static(soundsStore.absoluteDir(), { maxAge: 0 }));
 
 if (existsSync(DIST_DIR)) {
   app.use(express.static(DIST_DIR));

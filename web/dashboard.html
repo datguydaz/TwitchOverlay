@@ -134,15 +134,51 @@
           <button type="button" class="btn" data-atm-preview="sub">Demo sub event</button>
         </div>
         <h3>Event sounds (ultrawide-smoke)</h3>
-        <p class="hint">Procedural bunker-radio cues play only on real new events (same moment as type-in / NEW). In Streamlabs/OBS Browser Source, enable <strong>Control audio via OBS</strong> so the source appears in the mixer. URL overrides: <code>?sfx=0</code> mute, <code>?vol=0..1</code> (default 0.6).</p>
-        <label class="inline"><input id="sfxEnabled" type="checkbox" /> Enable event SFX</label>
-        <label>SFX volume <input id="sfxVolume" type="range" min="0" max="1" step="0.05" title="0 = silent, 1 = full" /></label>
-        <p class="hint" id="sfx-vol-label">Volume: 0.60</p>
+        <p class="hint">Plays only on real new events (same moment as type-in / NEW). Default is a mechanical <strong>typewriter</strong> (clack per character). In Streamlabs/OBS Browser Source, enable <strong>Control audio via OBS</strong>. URL: <code>?sfx=0</code> mute, <code>?vol=0..1</code>.</p>
+        <label class="inline"><input id="sfxEnabled" type="checkbox" /> Enable event SFX (master)</label>
+        <label>Master volume <input id="sfxVolume" type="range" min="0" max="1" step="0.05" title="0 = silent, 1 = full" /></label>
+        <p class="hint" id="sfx-vol-label">Master: 0.60</p>
+
+        <div class="sfx-event-grid">
+          <fieldset class="sfx-event" data-sfx-event="follow">
+            <legend>Follow sound</legend>
+            <label>Preset
+              <select id="sfxFollowPreset"></select>
+            </label>
+            <label>Event volume <input id="sfxFollowVolume" type="range" min="0" max="1" step="0.05" /></label>
+            <label class="inline"><input id="sfxFollowLayer" type="checkbox" /> Layer typewriter under oneshot</label>
+            <div id="sfxFollowPool" class="sfx-pool" hidden>
+              <p class="hint">Random pool (check customs to include):</p>
+              <div class="sfx-pool-list"></div>
+            </div>
+          </fieldset>
+          <fieldset class="sfx-event" data-sfx-event="sub">
+            <legend>Sub sound</legend>
+            <label>Preset
+              <select id="sfxSubPreset"></select>
+            </label>
+            <label>Event volume <input id="sfxSubVolume" type="range" min="0" max="1" step="0.05" /></label>
+            <label class="inline"><input id="sfxSubLayer" type="checkbox" /> Layer typewriter under oneshot</label>
+            <div id="sfxSubPool" class="sfx-pool" hidden>
+              <p class="hint">Random pool (check customs to include):</p>
+              <div class="sfx-pool-list"></div>
+            </div>
+          </fieldset>
+        </div>
+
+        <h4>Custom sounds</h4>
+        <p class="hint">Upload mp3 / wav / ogg (max 2&nbsp;MB). Stored in local <code>data/sounds/</code> (not git). Preview or delete below; pick them in the Follow/Sub presets (or Random pool).</p>
+        <div class="btn-row">
+          <input id="sfxUpload" type="file" accept=".mp3,.wav,.ogg,.webm,.m4a,audio/*" />
+          <button type="button" id="btn-sfx-upload" class="btn">Upload</button>
+        </div>
+        <ul id="sfx-custom-list" class="sfx-custom-list"></ul>
+
         <div class="btn-row">
           <button type="button" class="btn" data-atm-preview="sfx-follow">Test follow sound</button>
           <button type="button" class="btn" data-atm-preview="sfx-sub">Test sub sound</button>
         </div>
-        <p class="hint">Test buttons play here (click unlocks audio) and also on the open ultrawide-smoke Browser Source — they do not change saved names. Save settings after changing enable/volume.</p>
+        <p class="hint">Test uses the current picker selection (no name overwrite). Save settings to push live to the Browser Source.</p>
       </section>
 
       <section class="dash-panel">

@@ -7,6 +7,8 @@ dist/
 !.env.example
 data/settings.json
 data/local-token.txt
+data/sounds/*
+!data/sounds/.gitkeep
 companion/node_modules/
 *.tsbuildinfo
 

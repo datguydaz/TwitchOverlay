@@ -334,11 +334,20 @@ function applyUltrawide(settings: OverlaySettings): void {
     }
   }
 
-  bunkerSfx.applyConfig(settings.sfx || { enabled: true, volume: 0.6 });
+  bunkerSfx.applyConfig(
+    settings.sfx || {
+      enabled: true,
+      volume: 0.6,
+      follow: { preset: "typewriter", customId: "", pool: [], typewriterLayer: false, volume: 1 },
+      sub: { preset: "typewriter", customId: "", pool: [], typewriterLayer: false, volume: 1 },
+    },
+  );
 
   if (!socialAnim) {
     socialAnim = new SocialReadoutAnim(stage, reduced, {
-      onEventStart: (kind) => bunkerSfx.play(kind),
+      onEventStart: (kind) => bunkerSfx.playEventStart(kind),
+      onTypeChar: (kind, ch) => bunkerSfx.onTypeChar(kind, ch),
+      onTypeDone: (kind) => bunkerSfx.onTypeDone(kind),
     });
   } else {
     socialAnim.setReducedMotion(reduced);
@@ -383,11 +392,11 @@ function applyUltrawide(settings: OverlaySettings): void {
 
 function routePreview(kind: AtmPreviewKind): void {
   if (kind === "sfx-follow") {
-    bunkerSfx.play("follow", { force: true });
+    bunkerSfx.playTest("follow");
     return;
   }
   if (kind === "sfx-sub") {
-    bunkerSfx.play("sub", { force: true });
+    bunkerSfx.playTest("sub");
     return;
   }
   if (kind === "follow") {
@@ -404,6 +413,25 @@ function routePreview(kind: AtmPreviewKind): void {
   if (TEXT_PREVIEW.has(kind)) textFx?.preview(kind);
 }
 
+async function refreshCustomSounds(): Promise<void> {
+  try {
+    const res = await fetch("/api/sounds");
+    if (!res.ok) return;
+    const data = (await res.json()) as {
+      sounds?: { id: string; name: string; filename: string }[];
+    };
+    bunkerSfx.setCustomCatalog(
+      (data.sounds || []).map((s) => ({
+        id: s.id,
+        name: s.name,
+        url: `/sounds/${encodeURIComponent(s.filename)}`,
+      })),
+    );
+  } catch {
+    /* offline */
+  }
+}
+
 async function main(): Promise<void> {
   const params = new URLSearchParams(location.search);
   bunkerSfx.applyUrlParams(params);
@@ -418,11 +446,13 @@ async function main(): Promise<void> {
   window.addEventListener("keydown", unlockOnce, { once: true });
 
   let settings = await fetchSettings();
+  await refreshCustomSounds();
   applyCssVars(settings);
   applyUltrawide(settings);
 
   const refresh = async () => {
     settings = await fetchSettings();
+    await refreshCustomSounds();
     applyCssVars(settings);
     applyUltrawide(settings);
   };

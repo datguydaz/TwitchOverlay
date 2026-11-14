@@ -82,13 +82,45 @@ export interface TextEffectsSettings {
   reducedMotion: boolean;
 }
 
-/** Procedural bunker-radio event SFX (ultrawide-smoke Browser Source). */
+/**
+ * Per-event sound selection for ultrawide-smoke.
+ * Built-ins: none / typewriter (default) / radio / hatch / random (from pool).
+ * `custom` picks one uploaded file via `customId`.
+ */
+export type SfxPreset = "none" | "typewriter" | "radio" | "hatch" | "random" | "custom";
+
+export interface SfxEventSettings {
+  preset: SfxPreset;
+  /** When preset is `custom` — single uploaded sound id. */
+  customId: string;
+  /** When preset is `random` — uploaded ids eligible for the pool. */
+  pool: string[];
+  /**
+   * Layer typewriter key-clacks under a oneshot (radio/hatch/custom/random).
+   * Default false when a non-typewriter oneshot is selected.
+   */
+  typewriterLayer: boolean;
+  /** Per-event volume 0..1 (multiplied by master). */
+  volume: number;
+}
+
+/** Event SFX — master mute/volume + separate Follow / Sub pickers. */
 export interface SfxSettings {
   /** Master enable — URL `?sfx=0` still forces mute. */
   enabled: boolean;
-  /** 0..1 — URL `?vol=` overrides when present. Default ~0.6. */
+  /** Master 0..1 — URL `?vol=` overrides when present. Default ~0.6. */
   volume: number;
+  follow: SfxEventSettings;
+  sub: SfxEventSettings;
 }
+
+export const DEFAULT_SFX_EVENT: SfxEventSettings = {
+  preset: "typewriter",
+  customId: "",
+  pool: [],
+  typewriterLayer: false,
+  volume: 1,
+};
 
 export interface ChatSettings {
   enabled: boolean;
@@ -269,6 +301,8 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   sfx: {
     enabled: true,
     volume: 0.6,
+    follow: { ...DEFAULT_SFX_EVENT },
+    sub: { ...DEFAULT_SFX_EVENT },
   },
   demoModeDefault: false,
 };
@@ -397,9 +431,37 @@ export function mergeSettings(
     sfx: (() => {
       const s = { ...base.sfx, ...partial.sfx };
       const vol = Number(s.volume);
+      const mergeEvent = (
+        raw: Partial<SfxEventSettings> | undefined,
+        fallback: SfxEventSettings,
+      ): SfxEventSettings => {
+        const e = { ...fallback, ...raw };
+        const presetRaw = String(e.preset || "typewriter").toLowerCase();
+        const preset: SfxPreset =
+          presetRaw === "none" ||
+          presetRaw === "radio" ||
+          presetRaw === "hatch" ||
+          presetRaw === "random" ||
+          presetRaw === "custom"
+            ? presetRaw
+            : "typewriter";
+        const evVol = Number(e.volume);
+        const pool = Array.isArray(e.pool)
+          ? e.pool.map((id) => String(id || "").trim()).filter(Boolean).slice(0, 48)
+          : [];
+        return {
+          preset,
+          customId: String(e.customId || "").trim(),
+          pool,
+          typewriterLayer: !!e.typewriterLayer,
+          volume: Number.isFinite(evVol) ? Math.max(0, Math.min(1, evVol)) : 1,
+        };
+      };
       return {
         enabled: s.enabled !== false,
         volume: Number.isFinite(vol) ? Math.max(0, Math.min(1, vol)) : 0.6,
+        follow: mergeEvent(partial.sfx?.follow ?? s.follow, DEFAULT_SFX_EVENT),
+        sub: mergeEvent(partial.sfx?.sub ?? s.sub, DEFAULT_SFX_EVENT),
       };
     })(),
   };

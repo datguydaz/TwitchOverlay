@@ -11,8 +11,21 @@ import {
 import { applyDemoInput } from "../lib/inputClient.ts";
 import { MicCapture } from "../lib/micCapture.ts";
 import { createBunkerSfx } from "../lib/bunkerSfx.ts";
-import type { OverlaySettings } from "../../../shared/settings.ts";
+import type {
+  OverlaySettings,
+  SfxEventSettings,
+  SfxPreset,
+} from "../../../shared/settings.ts";
+import { DEFAULT_SFX_EVENT } from "../../../shared/settings.ts";
 import type { StatusMessage } from "../../../shared/protocol.ts";
+
+type CustomSoundMeta = {
+  id: string;
+  name: string;
+  filename: string;
+  mime: string;
+  bytes: number;
+};
 
 let settings: OverlaySettings;
 let avatar: ReactiveAvatar;
@@ -23,6 +36,7 @@ let token = "";
 let mic: MicCapture | null = null;
 let lastInputAt: number | null = null;
 const dashSfx = createBunkerSfx();
+let customSounds: CustomSoundMeta[] = [];
 
 function toast(msg: string): void {
   const el = document.getElementById("toast");
@@ -129,14 +143,7 @@ function fillForm(s: OverlaySettings): void {
   (document.getElementById("textFxReducedMotion") as HTMLInputElement).checked =
     s.textEffects.reducedMotion;
 
-  const sfxEnabled = document.getElementById("sfxEnabled") as HTMLInputElement | null;
-  const sfxVolume = document.getElementById("sfxVolume") as HTMLInputElement | null;
-  if (sfxEnabled) sfxEnabled.checked = s.sfx?.enabled !== false;
-  if (sfxVolume) {
-    const v = Number.isFinite(s.sfx?.volume) ? Number(s.sfx.volume) : 0.6;
-    sfxVolume.value = String(Math.max(0, Math.min(1, v)));
-  }
-  syncSfxVolLabel();
+  fillSfxForm(s);
 
   for (const key of Object.keys(s.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);
@@ -283,15 +290,7 @@ function readForm(): OverlaySettings {
     };
   }
 
-  {
-    const sfxEnabled = document.getElementById("sfxEnabled") as HTMLInputElement | null;
-    const sfxVolume = document.getElementById("sfxVolume") as HTMLInputElement | null;
-    const vol = Number(sfxVolume?.value ?? 0.6);
-    next.sfx = {
-      enabled: sfxEnabled ? sfxEnabled.checked : true,
-      volume: Number.isFinite(vol) ? Math.max(0, Math.min(1, vol)) : 0.6,
-    };
-  }
+  next.sfx = readSfxForm();
 
   {
     const intensityRaw = (
@@ -339,7 +338,305 @@ function syncSfxVolLabel(): void {
   const input = document.getElementById("sfxVolume") as HTMLInputElement | null;
   if (!el || !input) return;
   const v = Number(input.value);
-  el.textContent = `Volume: ${Number.isFinite(v) ? v.toFixed(2) : "0.60"}`;
+  el.textContent = `Master: ${Number.isFinite(v) ? v.toFixed(2) : "0.60"}`;
+}
+
+function selectValueForEvent(ev: SfxEventSettings): string {
+  if (ev.preset === "custom" && ev.customId) return `custom:${ev.customId}`;
+  return ev.preset || "typewriter";
+}
+
+function parseSelectValue(raw: string): { preset: SfxPreset; customId: string } {
+  if (raw.startsWith("custom:")) {
+    return { preset: "custom", customId: raw.slice(7) };
+  }
+  const preset = raw as SfxPreset;
+  if (
+    preset === "none" ||
+    preset === "typewriter" ||
+    preset === "radio" ||
+    preset === "hatch" ||
+    preset === "random" ||
+    preset === "custom"
+  ) {
+    return { preset, customId: "" };
+  }
+  return { preset: "typewriter", customId: "" };
+}
+
+function rebuildSfxPresetSelect(selectId: string, selected: string): void {
+  const sel = document.getElementById(selectId) as HTMLSelectElement | null;
+  if (!sel) return;
+  const builtins: { value: string; label: string }[] = [
+    { value: "none", label: "None" },
+    { value: "typewriter", label: "Typewriter (default)" },
+    { value: "radio", label: "Radio squelch (legacy)" },
+    { value: "hatch", label: "Hatch / heavy radio (legacy)" },
+    { value: "random", label: "Random from my list" },
+  ];
+  const opts = [
+    ...builtins,
+    ...customSounds.map((s) => ({
+      value: `custom:${s.id}`,
+      label: `Custom: ${s.name}`,
+    })),
+  ];
+  sel.innerHTML = opts
+    .map(
+      (o) =>
+        `<option value="${o.value.replace(/"/g, "&quot;")}">${o.label.replace(/</g, "&lt;")}</option>`,
+    )
+    .join("");
+  const ok = opts.some((o) => o.value === selected);
+  sel.value = ok ? selected : "typewriter";
+}
+
+function renderSfxPool(
+  poolRootId: string,
+  selectedPool: string[],
+  visible: boolean,
+): void {
+  const root = document.getElementById(poolRootId);
+  if (!root) return;
+  root.hidden = !visible;
+  const list = root.querySelector(".sfx-pool-list");
+  if (!list) return;
+  if (!customSounds.length) {
+    list.innerHTML = `<p class="hint">No custom sounds yet — upload below.</p>`;
+    return;
+  }
+  const set = new Set(selectedPool);
+  list.innerHTML = customSounds
+    .map(
+      (s) =>
+        `<label class="inline"><input type="checkbox" data-sound-id="${s.id}" ${
+          set.has(s.id) ? "checked" : ""
+        } /> ${s.name.replace(/</g, "&lt;")}</label>`,
+    )
+    .join("");
+}
+
+function fillSfxEventForm(
+  which: "follow" | "sub",
+  ev: SfxEventSettings,
+): void {
+  const prefix = which === "follow" ? "Follow" : "Sub";
+  const presetEl = document.getElementById(
+    `sfx${prefix}Preset`,
+  ) as HTMLSelectElement | null;
+  const volEl = document.getElementById(
+    `sfx${prefix}Volume`,
+  ) as HTMLInputElement | null;
+  const layerEl = document.getElementById(
+    `sfx${prefix}Layer`,
+  ) as HTMLInputElement | null;
+  const value = selectValueForEvent(ev);
+  rebuildSfxPresetSelect(`sfx${prefix}Preset`, value);
+  if (presetEl) {
+    // rebuild already set value; ensure
+    const ok = [...presetEl.options].some((o) => o.value === value);
+    presetEl.value = ok ? value : "typewriter";
+  }
+  if (volEl) volEl.value = String(clamp01Form(ev.volume, 1));
+  if (layerEl) {
+    const isOneshot =
+      ev.preset === "radio" ||
+      ev.preset === "hatch" ||
+      ev.preset === "custom" ||
+      ev.preset === "random";
+    layerEl.checked = !!ev.typewriterLayer;
+    layerEl.disabled = !isOneshot;
+  }
+  renderSfxPool(`sfx${prefix}Pool`, ev.pool || [], ev.preset === "random");
+}
+
+function fillSfxForm(s: OverlaySettings): void {
+  const sfxEnabled = document.getElementById("sfxEnabled") as HTMLInputElement | null;
+  const sfxVolume = document.getElementById("sfxVolume") as HTMLInputElement | null;
+  if (sfxEnabled) sfxEnabled.checked = s.sfx?.enabled !== false;
+  if (sfxVolume) {
+    sfxVolume.value = String(clamp01Form(s.sfx?.volume, 0.6));
+  }
+  syncSfxVolLabel();
+  fillSfxEventForm("follow", s.sfx?.follow || DEFAULT_SFX_EVENT);
+  fillSfxEventForm("sub", s.sfx?.sub || DEFAULT_SFX_EVENT);
+  renderCustomSoundList();
+  syncDashSfxEngine();
+}
+
+function readSfxEventForm(which: "follow" | "sub"): SfxEventSettings {
+  const prefix = which === "follow" ? "Follow" : "Sub";
+  const presetEl = document.getElementById(
+    `sfx${prefix}Preset`,
+  ) as HTMLSelectElement | null;
+  const volEl = document.getElementById(
+    `sfx${prefix}Volume`,
+  ) as HTMLInputElement | null;
+  const layerEl = document.getElementById(
+    `sfx${prefix}Layer`,
+  ) as HTMLInputElement | null;
+  const poolRoot = document.getElementById(`sfx${prefix}Pool`);
+  const parsed = parseSelectValue(presetEl?.value || "typewriter");
+  const pool: string[] = [];
+  poolRoot?.querySelectorAll<HTMLInputElement>("input[data-sound-id]").forEach((cb) => {
+    if (cb.checked) pool.push(cb.dataset.soundId || "");
+  });
+  const isOneshot =
+    parsed.preset === "radio" ||
+    parsed.preset === "hatch" ||
+    parsed.preset === "custom" ||
+    parsed.preset === "random";
+  return {
+    preset: parsed.preset,
+    customId: parsed.customId,
+    pool: pool.filter(Boolean),
+    typewriterLayer: isOneshot ? !!layerEl?.checked : false,
+    volume: clamp01Form(Number(volEl?.value ?? 1), 1),
+  };
+}
+
+function readSfxForm(): OverlaySettings["sfx"] {
+  const sfxEnabled = document.getElementById("sfxEnabled") as HTMLInputElement | null;
+  const sfxVolume = document.getElementById("sfxVolume") as HTMLInputElement | null;
+  return {
+    enabled: sfxEnabled ? sfxEnabled.checked : true,
+    volume: clamp01Form(Number(sfxVolume?.value ?? 0.6), 0.6),
+    follow: readSfxEventForm("follow"),
+    sub: readSfxEventForm("sub"),
+  };
+}
+
+function clamp01Form(n: number, fallback: number): number {
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(0, Math.min(1, n));
+}
+
+function syncDashSfxEngine(): void {
+  const sfx = readSfxForm();
+  dashSfx.applyConfig(sfx);
+  dashSfx.setCustomCatalog(
+    customSounds.map((s) => ({
+      id: s.id,
+      name: s.name,
+      url: `/sounds/${encodeURIComponent(s.filename)}`,
+    })),
+  );
+}
+
+function renderCustomSoundList(): void {
+  const ul = document.getElementById("sfx-custom-list");
+  if (!ul) return;
+  if (!customSounds.length) {
+    ul.innerHTML = `<li class="hint">No uploads yet.</li>`;
+    return;
+  }
+  ul.innerHTML = customSounds
+    .map(
+      (s) => `<li data-id="${s.id}">
+        <span class="sfx-meta">${s.name.replace(/</g, "&lt;")} <span class="hint">(${Math.round(
+          s.bytes / 1024,
+        )} KB)</span></span>
+        <button type="button" class="btn" data-sfx-preview="${s.id}">Play</button>
+        <button type="button" class="btn" data-sfx-delete="${s.id}">Delete</button>
+      </li>`,
+    )
+    .join("");
+}
+
+async function refreshCustomSounds(): Promise<void> {
+  try {
+    const res = await fetch("/api/sounds");
+    if (!res.ok) return;
+    const data = (await res.json()) as { sounds?: CustomSoundMeta[] };
+    customSounds = data.sounds || [];
+  } catch {
+    customSounds = [];
+  }
+  syncDashSfxEngine();
+}
+
+async function uploadCustomSound(file: File): Promise<void> {
+  if (file.size > 2 * 1024 * 1024) {
+    toast("File too large (max 2 MB)");
+    return;
+  }
+  const buf = await file.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  const dataBase64 = btoa(binary);
+  const res = await fetch("/api/sounds", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      name: file.name,
+      mime: file.type || "application/octet-stream",
+      dataBase64,
+    }),
+  });
+  const json = (await res.json()) as { ok?: boolean; error?: string };
+  if (!res.ok) {
+    toast(json.error || "Upload failed");
+    return;
+  }
+  await refreshCustomSounds();
+  fillSfxForm(settings);
+  toast("Sound uploaded");
+}
+
+async function deleteCustomSound(id: string): Promise<void> {
+  const res = await fetch(`/api/sounds/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) {
+    toast("Delete failed");
+    return;
+  }
+  const json = (await res.json()) as { settings?: OverlaySettings };
+  if (json.settings) settings = json.settings;
+  await refreshCustomSounds();
+  fillForm(settings);
+  toast("Sound deleted");
+}
+
+function previewCustomSound(id: string): void {
+  const meta = customSounds.find((s) => s.id === id);
+  if (!meta) return;
+  const audio = new Audio(`/sounds/${encodeURIComponent(meta.filename)}`);
+  audio.volume = clamp01Form(Number((document.getElementById("sfxVolume") as HTMLInputElement | null)?.value ?? 0.6), 0.6);
+  void audio.play().catch(() => toast("Could not play (click page first)"));
+}
+
+function onSfxPresetChanged(which: "follow" | "sub"): void {
+  const prefix = which === "follow" ? "Follow" : "Sub";
+  const presetEl = document.getElementById(
+    `sfx${prefix}Preset`,
+  ) as HTMLSelectElement | null;
+  const layerEl = document.getElementById(
+    `sfx${prefix}Layer`,
+  ) as HTMLInputElement | null;
+  const parsed = parseSelectValue(presetEl?.value || "typewriter");
+  const isOneshot =
+    parsed.preset === "radio" ||
+    parsed.preset === "hatch" ||
+    parsed.preset === "custom" ||
+    parsed.preset === "random";
+  if (layerEl) {
+    layerEl.disabled = !isOneshot;
+    if (!isOneshot) layerEl.checked = false;
+    // Default layer off when picking a custom/oneshot
+    if (isOneshot && parsed.preset === "custom") layerEl.checked = false;
+  }
+  let pool = readSfxEventForm(which).pool;
+  if (parsed.preset === "random" && !pool.length) {
+    pool =
+      (which === "follow" ? settings.sfx?.follow?.pool : settings.sfx?.sub?.pool) || [];
+  }
+  renderSfxPool(`sfx${prefix}Pool`, pool, parsed.preset === "random");
+  syncDashSfxEngine();
 }
 
 function formatLastInput(ts: number | null): string {
@@ -482,6 +779,7 @@ async function connectDashWs(): Promise<void> {
 
 async function main(): Promise<void> {
   settings = await fetchSettings();
+  await refreshCustomSounds();
   fillForm(settings);
   applyCssVars(settings);
 
@@ -671,6 +969,58 @@ async function main(): Promise<void> {
 
   document.getElementById("sfxVolume")?.addEventListener("input", () => {
     syncSfxVolLabel();
+    syncDashSfxEngine();
+  });
+  document.getElementById("sfxEnabled")?.addEventListener("change", () => {
+    syncDashSfxEngine();
+  });
+  document.getElementById("sfxFollowPreset")?.addEventListener("change", () => {
+    onSfxPresetChanged("follow");
+  });
+  document.getElementById("sfxSubPreset")?.addEventListener("change", () => {
+    onSfxPresetChanged("sub");
+  });
+  document.getElementById("sfxFollowVolume")?.addEventListener("input", () => {
+    syncDashSfxEngine();
+  });
+  document.getElementById("sfxSubVolume")?.addEventListener("input", () => {
+    syncDashSfxEngine();
+  });
+  document.getElementById("sfxFollowLayer")?.addEventListener("change", () => {
+    syncDashSfxEngine();
+  });
+  document.getElementById("sfxSubLayer")?.addEventListener("change", () => {
+    syncDashSfxEngine();
+  });
+  document.getElementById("sfxFollowPool")?.addEventListener("change", () => {
+    syncDashSfxEngine();
+  });
+  document.getElementById("sfxSubPool")?.addEventListener("change", () => {
+    syncDashSfxEngine();
+  });
+
+  document.getElementById("btn-sfx-upload")?.addEventListener("click", () => {
+    const input = document.getElementById("sfxUpload") as HTMLInputElement | null;
+    const file = input?.files?.[0];
+    if (!file) {
+      toast("Choose a file first");
+      return;
+    }
+    void uploadCustomSound(file).then(() => {
+      if (input) input.value = "";
+    });
+  });
+
+  document.getElementById("sfx-custom-list")?.addEventListener("click", (ev) => {
+    const t = ev.target as HTMLElement | null;
+    if (!t) return;
+    const previewId = t.getAttribute("data-sfx-preview");
+    if (previewId) {
+      previewCustomSound(previewId);
+      return;
+    }
+    const delId = t.getAttribute("data-sfx-delete");
+    if (delId) void deleteCustomSound(delId);
   });
 
   document.querySelectorAll("[data-atm-preview]").forEach((btn) => {
@@ -679,18 +1029,8 @@ async function main(): Promise<void> {
       if (!kind) return;
       dashWs?.send(JSON.stringify({ type: "atm-preview", kind }));
       if (kind === "sfx-follow" || kind === "sfx-sub") {
-        const enabled =
-          (document.getElementById("sfxEnabled") as HTMLInputElement | null)?.checked !==
-          false;
-        const vol = Number(
-          (document.getElementById("sfxVolume") as HTMLInputElement | null)?.value ?? 0.6,
-        );
-        dashSfx.applyConfig({
-          enabled,
-          volume: Number.isFinite(vol) ? Math.max(0, Math.min(1, vol)) : 0.6,
-        });
-        // Click unlocks AudioContext in the dashboard tab; also forwarded to Browser Source.
-        dashSfx.play(kind === "sfx-follow" ? "follow" : "sub", { force: true });
+        syncDashSfxEngine();
+        dashSfx.playTest(kind === "sfx-follow" ? "follow" : "sub");
         toast(
           "SFX test: local preview + sent to ultrawide-smoke (does not change names)",
         );

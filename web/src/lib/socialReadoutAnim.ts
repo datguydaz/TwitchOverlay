@@ -10,6 +10,10 @@ export type SocialKind = "follow" | "sub";
 export type SocialReadoutAnimHooks = {
   /** Fired once when a follow/sub anim actually starts (type-in/NEW path). */
   onEventStart?: (kind: SocialKind) => void;
+  /** Each character during smoke type-in (for typewriter SFX). */
+  onTypeChar?: (kind: SocialKind, char: string) => void;
+  /** After type-in finishes (carriage-return / bell). */
+  onTypeDone?: (kind: SocialKind) => void;
 };
 
 type Job = {
@@ -119,6 +123,7 @@ export class SocialReadoutAnim {
 
     if (this.reduced) {
       nameEl.textContent = job.name;
+      this.hooks.onTypeDone?.(job.kind);
       if (job.restoreTo !== undefined) {
         return this.wait(400).then(() => {
           nameEl.textContent = job.restoreTo || "";
@@ -147,6 +152,7 @@ export class SocialReadoutAnim {
           nameEl.textContent = job.name;
           el.dataset.socialFx = "reveal";
           nameEl.style.opacity = "";
+          this.hooks.onTypeDone?.(job.kind);
         }, 520),
       );
 
@@ -182,8 +188,10 @@ export class SocialReadoutAnim {
     for (const ch of chars) {
       built += ch;
       nameEl.textContent = built;
+      this.hooks.onTypeChar?.(job.kind, ch);
       await this.wait(22 + Math.floor(Math.random() * 28));
     }
+    this.hooks.onTypeDone?.(job.kind);
     this.fitName(nameEl);
 
     el.dataset.socialFx = "new";
