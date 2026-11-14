@@ -359,12 +359,13 @@ export class SocialReadoutAnim {
       const plan = makeWrongName(job.name, { dramatic: isSub });
       if (plan) {
         didTypo = true;
+        // Red on while the wrong name is being typed / held
+        this.setStatus(el, "error");
         await this.typeString(job.kind, el, nameEl, ghost, plan.wrong, {
           decrypt: isSub,
         });
 
         el.dataset.typo = "hesitate";
-        this.setStatus(el, "error");
         if (isSub && Math.random() < 0.65) {
           const base = nameEl.textContent || "";
           nameEl.textContent = `${base}...`;
@@ -378,8 +379,9 @@ export class SocialReadoutAnim {
         }
         delete el.dataset.typo;
 
-        await this.backspaceAll(job.kind, el, nameEl, ghost, isSub, false);
+        // Red off as erase begins
         this.setStatus(el, null);
+        await this.backspaceAll(job.kind, el, nameEl, ghost, isSub, false);
         await this.wait(randMs(80, 160) * pauseScale);
       }
     }
@@ -477,7 +479,7 @@ export class SocialReadoutAnim {
   ): Promise<void> {
     const scale = (ms: number) => Math.max(40, Math.round(ms * pauseScale));
 
-    // 1) Type ~half correctly (steady human pace)
+    // 1) Type ~half correctly — neutral (no ERROR / no red)
     this.setStatus(el, null);
     el.dataset.typo = "rage-build";
     await this.typeString(kind, el, nameEl, ghost, plan.half, {
@@ -486,7 +488,7 @@ export class SocialReadoutAnim {
     });
     await this.wait(scale(randMs(120, 200)));
 
-    // 2–3) Fumbles with building frustration
+    // 2–3) Fumbles — ERROR only while wrong chars are on screen
     const fumbles = plan.fumbles.slice(0, plan.short ? 1 : 2);
     for (let fi = 0; fi < fumbles.length; fi++) {
       const fum = fumbles[fi]!;
@@ -494,20 +496,22 @@ export class SocialReadoutAnim {
       el.dataset.typo = frustrated ? "rage-build" : "hesitate";
       if (frustrated) el.dataset.rageBurst = "2";
 
+      // Red on as the wrong fumble starts appearing
+      this.setStatus(el, "error");
       await this.typeString(kind, el, nameEl, ghost, fum, {
         decrypt: false,
         hard: frustrated,
         careful: !frustrated,
       });
 
-      // Notice the mistake — red ERROR strip + light
       el.dataset.typo = "hesitate";
-      this.setStatus(el, "error");
       await this.wait(
         scale(frustrated ? randMs(180, 320) : randMs(280, 420)),
       );
 
-      // Backspace only the fumble chars
+      // Red off the moment we start erasing the mistake
+      this.setStatus(el, null);
+      delete el.dataset.typo;
       await this.backspaceN(
         kind,
         el,
@@ -516,18 +520,18 @@ export class SocialReadoutAnim {
         fum.length,
         frustrated,
       );
-      this.setStatus(el, null);
       await this.wait(scale(frustrated ? randMs(60, 110) : randMs(90, 150)));
       delete el.dataset.rageBurst;
     }
 
-    // 4) Snap — table smash + big jump, then per-key keysmash jolts
+    // 4) Desk slam — still only the correct half on screen → stay neutral
     el.dataset.typo = "rage-slam";
-    this.setStatus(el, "error");
+    this.setStatus(el, null);
     this.hooks.onTableSmash?.(kind);
     this.slamPlate(el);
     await this.wait(scale(randMs(70, 110)));
 
+    // Keysmash — ERROR from the first wrong smash char
     el.dataset.typo = "rage";
     el.classList.remove("smk-rage-wobble");
     const chars = [...plan.smash];
@@ -536,6 +540,7 @@ export class SocialReadoutAnim {
       const ch = chars[i]!;
       built += ch;
       nameEl.textContent = built;
+      if (i === 0) this.setStatus(el, "error");
       this.hooks.onTypeChar?.(kind, ch, { hard: true });
       const t = chars.length <= 1 ? 1 : i / (chars.length - 1);
       this.joltPlate(el, t);
@@ -545,17 +550,17 @@ export class SocialReadoutAnim {
       await this.wait(randMs(32, 55));
     }
 
-    // 5) Dead stop (settle wobble), then erase EVERYTHING
+    // 5) Dead stop with smash still visible — keep ERROR, then wipe
     el.dataset.typo = "rage-stop";
-    this.setStatus(el, "error");
     this.settlePlate(el);
     await this.wait(scale(randMs(600, 900)));
 
+    // Red off as erase begins; correct retype stays neutral
+    this.setStatus(el, null);
     el.dataset.typo = "rage-wipe";
     el.style.transform = "";
     el.classList.remove("smk-rage-wobble", "smk-rage-jolt");
     await this.backspaceAll(kind, el, nameEl, ghost, true, true);
-    this.setStatus(el, null);
     delete el.dataset.typo;
 
     // 6) Composed pause (clean retype happens in playSmoke after this)
