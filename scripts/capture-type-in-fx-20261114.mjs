@@ -63,29 +63,36 @@ async function cropPlate(kind, outPath) {
   });
 }
 
-/** Drive type-in mid-frame: start demo, wait until type phase with some chars. */
+/**
+ * Follow: mid type-in (partial name + CRT).
+ * Sub: "new" phase with full name + stamp in footer strip (must not cover name).
+ */
 async function captureMid(kind, outName) {
   await page.evaluate(async (k) => {
-    const stage = document.getElementById("uw-stage");
-    if (!stage) return;
-    // Trigger via custom event path used by page — call demo through WS-less hook
     const name = k === "follow" ? "ZONE_SCOUT" : "RAID_CLEAR";
     const root = document.getElementById(k === "follow" ? "uw-follower" : "uw-subscriber");
     const nameEl = document.getElementById(
       k === "follow" ? "uw-follower-name" : "uw-subscriber-name",
     );
+    const badge = root?.querySelector(".smk-new");
     if (!root || !nameEl) return;
-    // Mirror SocialReadoutAnim smoke phases for a deterministic mid-frame
     root.dataset.socialFx = "static";
     nameEl.textContent = "";
     await new Promise((r) => setTimeout(r, 80));
-    root.dataset.socialFx = "type";
-    if (k === "sub") root.dataset.typeMark = "1";
-    const partial = name.slice(0, Math.max(4, Math.ceil(name.length * 0.55)));
-    nameEl.textContent = partial;
+    if (k === "follow") {
+      root.dataset.socialFx = "type";
+      nameEl.textContent = name.slice(0, Math.max(4, Math.ceil(name.length * 0.55)));
+    } else {
+      root.dataset.socialFx = "type";
+      nameEl.textContent = name;
+      await new Promise((r) => setTimeout(r, 40));
+      root.dataset.socialFx = "new";
+      root.dataset.typeMark = "1";
+      badge?.classList.add("on");
+    }
   }, kind);
 
-  await page.waitForTimeout(kind === "sub" ? 220 : 140);
+  await page.waitForTimeout(kind === "sub" ? 280 : 140);
   const out = resolve(media, outName);
   await cropPlate(kind, out);
   console.log("wrote", out, existsSync(out) ? statSync(out).size : 0);

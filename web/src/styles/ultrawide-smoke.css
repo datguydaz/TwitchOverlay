@@ -978,6 +978,12 @@ body.uw-smoke-variant {
   align-items: stretch;
   text-align: right;
 }
+/* Name terminal stays left-aligned like the follower plate (labels can stay mirrored). */
+#uw-stage[data-variant="smoke-flare"] .uw-side-right .smk-radio-screen,
+#uw-stage[data-variant="smoke-flare"] #uw-subscriber-name,
+#uw-stage[data-variant="smoke-flare"] #uw-subscriber .uw-glass-name {
+  text-align: left !important;
+}
 .smk-bolt {
   position: absolute;
   z-index: 3;
@@ -1134,6 +1140,7 @@ body.uw-smoke-variant {
   max-width: 100% !important;
   overflow: hidden !important;
   text-overflow: clip !important;
+  text-align: left !important;
   animation: smk-radio-flicker 6.8s steps(1, end) infinite;
 }
 /* phosphor mono — matches ONLINE */
@@ -1308,22 +1315,37 @@ body.uw-smoke-variant {
 .smk-type-dust > b:nth-child(6) { left: 62%; bottom: 28%; }
 .smk-type-dust > b:nth-child(7) { left: 48%; bottom: 22%; }
 .smk-type-dust > b:nth-child(8) { left: 78%; bottom: 34%; }
+/* Stamp strip under radio glass — left side so it never covers name or CH-02 HUD. */
+.smk-stamp-strip {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 0;
+  margin: 0;
+  padding: 0 2px;
+  pointer-events: none;
+  overflow: visible;
+}
 .smk-type-stamp {
-  position: absolute;
-  right: 8px;
-  bottom: 22px;
-  z-index: 7;
+  position: relative;
+  display: inline-block;
+  z-index: 3;
   font-family: "Share Tech Mono", "Consolas", monospace;
-  font-size: 9px;
+  font-size: 7.5px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(160, 40, 32, 0.0);
+  color: rgba(160, 40, 32, 0);
   border: 1px solid rgba(140, 36, 28, 0);
-  padding: 3px 6px 2px;
-  transform: rotate(-8deg);
+  padding: 1px 4px 0;
+  transform: rotate(-5deg);
   opacity: 0;
-  background: rgba(20, 8, 6, 0.15);
+  background: rgba(20, 8, 6, 0.1);
+  line-height: 1.15;
+  max-width: 58%;
+  white-space: nowrap;
 }
 .smk-bar-edge-sweep {
   position: absolute;
@@ -1453,20 +1475,31 @@ body.uw-smoke-variant {
 #uw-subscriber[data-social-fx="new"] .smk-type-dust > b {
   animation: smk-dust-puff 1.05s ease-out 1;
 }
+#uw-subscriber[data-social-fx="new"] .smk-stamp-strip,
+#uw-subscriber[data-social-fx="settle"] .smk-stamp-strip,
+#uw-subscriber[data-type-mark="1"] .smk-stamp-strip {
+  min-height: 13px;
+  margin: 2px 0 1px;
+}
 #uw-subscriber[data-social-fx="new"] .smk-type-stamp,
 #uw-subscriber[data-social-fx="settle"] .smk-type-stamp,
 #uw-subscriber[data-type-mark="1"] .smk-type-stamp {
   opacity: 1;
-  color: rgba(150, 42, 34, 0.72);
-  border-color: rgba(140, 36, 28, 0.55);
+  color: rgba(150, 42, 34, 0.7);
+  border-color: rgba(140, 36, 28, 0.5);
   animation: smk-stamp-press 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) 1;
 }
 #uw-subscriber[data-type-mark="1"]:not([data-social-fx]) .smk-type-stamp,
 #uw-subscriber[data-type-mark="1"][data-social-fx="settle"] .smk-type-stamp {
-  opacity: 0.38;
-  color: rgba(130, 36, 30, 0.45);
-  border-color: rgba(120, 32, 26, 0.35);
+  opacity: 0.32;
+  color: rgba(130, 36, 30, 0.4);
+  border-color: rgba(120, 32, 26, 0.3);
   animation: none;
+}
+/* Keep HUD readable — stamp sits above the CH-02 row, right-biased, not over name glass. */
+#uw-subscriber .smk-hud {
+  position: relative;
+  z-index: 4;
 }
 #uw-subscriber[data-social-fx="static"] .smk-bar-edge-sweep,
 #uw-subscriber[data-social-fx="type"] .smk-bar-edge-sweep,
@@ -1540,17 +1573,17 @@ body.uw-smoke-variant {
 @keyframes smk-stamp-press {
   0% {
     opacity: 0;
-    transform: rotate(-8deg) scale(1.35);
-    filter: blur(1.5px);
+    transform: rotate(-6deg) scale(1.25);
+    filter: blur(1px);
   }
   55% {
     opacity: 1;
-    transform: rotate(-8deg) scale(0.96);
+    transform: rotate(-6deg) scale(0.97);
     filter: none;
   }
   100% {
     opacity: 1;
-    transform: rotate(-8deg) scale(1);
+    transform: rotate(-6deg) scale(1);
   }
 }
 @keyframes smk-dust-puff {
