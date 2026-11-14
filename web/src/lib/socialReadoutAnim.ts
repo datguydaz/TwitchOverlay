@@ -1,7 +1,6 @@
 /**
  * Queued LATEST FOLLOW / LATEST SUB smoked-glass events.
- * Default: indicator → sweep → clean name reveal → settle.
- * Smoke variant: static burst → type-in → red NEW flash → settle.
+ * Smoke: acquire/surge → type-in (optional decrypt) → NEW → settle (+ plate VFX).
  * Demo previews never overwrite stored names.
  */
 
@@ -23,6 +22,12 @@ type Job = {
   restoreTo?: string;
 };
 
+const SCRAMBLE = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#@$%&*";
+
+function scrambleChar(): string {
+  return SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)] || "#";
+}
+
 export class SocialReadoutAnim {
   private stage: HTMLElement;
   private queue: Job[] = [];
@@ -32,6 +37,7 @@ export class SocialReadoutAnim {
     typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
   private timers: number[] = [];
   private hooks: SocialReadoutAnimHooks;
+  private emberTimer: number | null = null;
 
   constructor(
     stage: HTMLElement,
@@ -74,6 +80,8 @@ export class SocialReadoutAnim {
     for (const t of this.timers) window.clearTimeout(t);
     this.timers = [];
     this.queue = [];
+    if (this.emberTimer != null) window.clearTimeout(this.emberTimer);
+    this.clearStageSurge();
   }
 
   private onVis = (): void => {
@@ -96,8 +104,22 @@ export class SocialReadoutAnim {
     );
   }
 
+  private ghostEl(kind: SocialKind): HTMLElement | null {
+    return this.root(kind)?.querySelector<HTMLElement>(".smk-type-ghost") ?? null;
+  }
+
   private newBadge(kind: SocialKind): HTMLElement | null {
     return this.root(kind)?.querySelector<HTMLElement>(".smk-new") ?? null;
+  }
+
+  private setStageSurge(on: boolean): void {
+    if (on) this.stage.dataset.barSurge = "1";
+    else delete this.stage.dataset.barSurge;
+  }
+
+  private clearStageSurge(): void {
+    delete this.stage.dataset.barSurge;
+    delete this.stage.dataset.helmFlash;
   }
 
   private async kick(): Promise<void> {
@@ -174,48 +196,114 @@ export class SocialReadoutAnim {
     });
   }
 
-  /** Smoke: static burst → type-in → NEW flash → settle (+ plate type-in VFX). */
+  /**
+   * Smoke type-in:
+   * Follow — acquire → tune → type (ghost/bloom) → NEW → settle (~2s feel).
+   * Sub — surge+CRT → decrypt type → stamp/NEW (bell) → settle + lingering ember.
+   */
   private async playSmoke(job: Job, el: HTMLElement, nameEl: HTMLElement): Promise<void> {
     const badge = this.newBadge(job.kind);
+    const ghost = this.ghostEl(job.kind);
     const isSub = job.kind === "sub";
-    // Follow ~1.5s total feel; sub ~2.5–3s with exclusive stamp/jolt.
-    const staticMs = isSub ? 160 : 100;
-    const newMs = isSub ? 1100 : 420;
-    const settleMs = isSub ? 1200 : 520;
+    const newMs = isSub ? 1000 : 380;
+    const settleMs = isSub ? 900 : 480;
 
-    el.dataset.socialFx = "static";
     nameEl.textContent = "";
     nameEl.style.opacity = "";
-    await this.wait(staticMs);
+    if (ghost) {
+      ghost.textContent = "";
+      ghost.classList.remove("on");
+    }
+
+    if (isSub) {
+      this.setStageSurge(true);
+      this.stage.dataset.helmFlash = "1";
+      el.dataset.socialFx = "surge";
+      await this.wait(320);
+      el.dataset.socialFx = "crt";
+      await this.wait(180);
+      delete this.stage.dataset.helmFlash;
+    } else {
+      el.dataset.socialFx = "acquire";
+      await this.wait(260);
+      el.dataset.socialFx = "tune";
+      await this.wait(160);
+    }
 
     el.dataset.socialFx = "type";
     const chars = [...job.name];
     let built = "";
-    for (const ch of chars) {
+    for (let i = 0; i < chars.length; i++) {
+      const ch = chars[i]!;
+      if (isSub) {
+        // Decrypt: 2 glyph flashes then resolve (synced to clacks)
+        for (let s = 0; s < 2; s++) {
+          nameEl.textContent = built + scrambleChar();
+          await this.wait(16 + Math.floor(Math.random() * 10));
+        }
+      }
+      if (ghost && built) {
+        ghost.textContent = built;
+        ghost.classList.remove("on");
+        void ghost.offsetWidth;
+        ghost.classList.add("on");
+      }
       built += ch;
       nameEl.textContent = built;
       this.hooks.onTypeChar?.(job.kind, ch);
-      // Keep in sync with typewriter clack cadence
+      el.classList.remove("smk-spark-tick");
+      void el.offsetWidth;
+      el.classList.add("smk-spark-tick");
       await this.wait(22 + Math.floor(Math.random() * 28));
     }
+    // Bell / carriage — align sub surge peak + stamp slam with this beat
     this.hooks.onTypeDone?.(job.kind);
     this.fitName(nameEl);
+    if (ghost) {
+      ghost.textContent = built;
+      ghost.classList.add("on");
+    }
 
     el.dataset.socialFx = "new";
     badge?.classList.add("on");
-    if (isSub) el.dataset.typeMark = "1";
+    if (isSub) {
+      el.dataset.typeMark = "1";
+      el.classList.add("smk-stamp-slam");
+    }
     await this.wait(newMs);
+    el.classList.remove("smk-stamp-slam", "smk-spark-tick");
 
     el.dataset.socialFx = "settle";
     await this.wait(settleMs);
 
     delete el.dataset.socialFx;
     badge?.classList.remove("on");
-    // Sub keeps a faint lasting stamp via data-type-mark until next event overwrites.
-    if (!isSub) delete el.dataset.typeMark;
+    if (ghost) {
+      ghost.classList.remove("on");
+      ghost.textContent = "";
+    }
+    this.setStageSurge(false);
+    delete this.stage.dataset.helmFlash;
+
+    if (isSub) {
+      // Lingering ember glow ~10s (idle cost: CSS only, no timers after one timeout)
+      el.dataset.ember = "1";
+      if (this.emberTimer != null) window.clearTimeout(this.emberTimer);
+      this.emberTimer = window.setTimeout(() => {
+        delete el.dataset.ember;
+        this.emberTimer = null;
+      }, 10_000);
+    } else {
+      delete el.dataset.typeMark;
+      delete el.dataset.ember;
+    }
+
     if (job.restoreTo !== undefined) {
       nameEl.textContent = job.restoreTo;
-      if (isSub) delete el.dataset.typeMark;
+      if (isSub) {
+        delete el.dataset.typeMark;
+        delete el.dataset.ember;
+      }
     }
     this.fitName(nameEl);
   }
