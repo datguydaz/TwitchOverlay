@@ -285,6 +285,11 @@ export interface OverlaySettings {
    * 1 = original pace; default 1.75; clamped 1–2.5.
    */
   eventAnimScale: number;
+  /**
+   * OPS terminal width as % of canvas (centered on logo axis).
+   * Default 42; clamped 30–80.
+   */
+  terminalWidthPct: number;
   demoModeDefault: boolean;
 }
 
@@ -375,6 +380,7 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   operatorTypos: { ...DEFAULT_OPERATOR_TYPOS },
   operatorReactions: { ...DEFAULT_OPERATOR_REACTIONS },
   eventAnimScale: 1.75,
+  terminalWidthPct: 42,
   demoModeDefault: false,
 };
 
@@ -606,6 +612,15 @@ export function mergeSettings(
       );
       if (!Number.isFinite(raw)) return DEFAULT_SETTINGS.eventAnimScale;
       return Math.max(1, Math.min(2.5, Math.round(raw * 100) / 100));
+    })(),
+    terminalWidthPct: (() => {
+      const raw = Number(
+        partial.terminalWidthPct ??
+          base.terminalWidthPct ??
+          DEFAULT_SETTINGS.terminalWidthPct,
+      );
+      if (!Number.isFinite(raw)) return DEFAULT_SETTINGS.terminalWidthPct;
+      return Math.max(30, Math.min(80, Math.round(raw)));
     })(),
   };
 }

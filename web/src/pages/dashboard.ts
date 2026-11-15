@@ -151,6 +151,7 @@ function fillForm(s: OverlaySettings): void {
   fillOperatorTyposForm(s);
   fillOperatorReactionsForm(s);
   fillEventAnimScaleForm(s);
+  fillTerminalWidthForm(s);
 
   for (const key of Object.keys(s.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);
@@ -306,6 +307,13 @@ function readForm(): OverlaySettings {
     next.eventAnimScale = Number.isFinite(n)
       ? Math.max(1, Math.min(2.5, Math.round(n * 100) / 100))
       : 1.75;
+  }
+  {
+    const el = document.getElementById("terminalWidthPct") as HTMLInputElement | null;
+    const n = Number(el?.value);
+    next.terminalWidthPct = Number.isFinite(n)
+      ? Math.max(30, Math.min(80, Math.round(n)))
+      : 42;
   }
 
   {
@@ -517,6 +525,25 @@ function fillEventAnimScaleForm(s: OverlaySettings): void {
     Number.isFinite(n) ? Math.max(1, Math.min(2.5, n)) : 1.75,
   );
   syncEventAnimScaleLabel();
+}
+
+function syncTerminalWidthLabel(): void {
+  const el = document.getElementById("terminal-width-label");
+  const input = document.getElementById("terminalWidthPct") as HTMLInputElement | null;
+  if (!el || !input) return;
+  const n = Number(input.value);
+  const v = Number.isFinite(n) ? Math.max(30, Math.min(80, Math.round(n))) : 42;
+  el.textContent = `Width: ${v}% (centred on logo axis)`;
+}
+
+function fillTerminalWidthForm(s: OverlaySettings): void {
+  const input = document.getElementById("terminalWidthPct") as HTMLInputElement | null;
+  if (!input) return;
+  const n = Number(s.terminalWidthPct);
+  input.value = String(
+    Number.isFinite(n) ? Math.max(30, Math.min(80, Math.round(n))) : 42,
+  );
+  syncTerminalWidthLabel();
 }
 
 function fillOperatorReactionsForm(s: OverlaySettings): void {
@@ -1109,6 +1136,9 @@ async function main(): Promise<void> {
   });
   document.getElementById("eventAnimScale")?.addEventListener("input", () => {
     syncEventAnimScaleLabel();
+  });
+  document.getElementById("terminalWidthPct")?.addEventListener("input", () => {
+    syncTerminalWidthLabel();
   });
   document.getElementById("sfxVolume")?.addEventListener("input", () => {
     syncSfxVolLabel();

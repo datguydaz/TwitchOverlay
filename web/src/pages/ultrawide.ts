@@ -228,6 +228,11 @@ function applyUltrawide(settings: OverlaySettings, opts?: ApplyUltrawideOpts): v
 
   stage.style.setProperty("--uw-bar-h", `${barH}px`);
   stage.style.setProperty("--uw-canvas-w", `${canvasW}px`);
+  {
+    const tw = Number(settings.terminalWidthPct);
+    const pct = Number.isFinite(tw) ? Math.max(30, Math.min(80, Math.round(tw))) : 42;
+    stage.style.setProperty("--smk-op-term-w-pct", String(pct));
+  }
 
   if (!mode) {
     stage.style.width = `${canvasW}px`;

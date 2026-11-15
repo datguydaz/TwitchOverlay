@@ -1574,27 +1574,31 @@ body.uw-smoke-variant {
    Do NOT set #uw-bottom to position:relative — that breaks bottom:0 letterbox. */
 .smk-op-terminal {
   position: absolute;
+  /* Exact horizontal centre — same axis as DATGUYDAZ (no offset) */
   left: 50%;
   /* Small bottom margin; bar overflow:hidden keeps it in-bar */
   bottom: calc(var(--uw-bar-h) * 0.03);
   top: auto;
   z-index: 28;
-  /* Big centrepiece — most of the bottom bar width/height */
-  width: min(2680px, 86%);
-  max-width: 2900px;
+  /* Width from dashboard --smk-op-term-w-pct (default 42%) */
+  width: calc(var(--smk-op-term-w-pct, 42) * 1%);
+  max-width: 86%;
   max-height: calc(var(--uw-bar-h) * 0.94);
   margin: 0;
   padding: 0;
-  transform: translate(-50%, 120%);
+  transform: translateX(-50%) translateY(120%);
   opacity: 0;
   pointer-events: none;
+  container-type: inline-size;
+  container-name: op-term;
   transition:
     transform 0.32s cubic-bezier(0.2, 0.85, 0.25, 1),
-    opacity 0.24s ease;
+    opacity 0.24s ease,
+    width 0.2s ease;
   will-change: transform, opacity;
 }
 .smk-op-terminal[data-open="1"] {
-  transform: translate(-50%, 0);
+  transform: translateX(-50%) translateY(0);
   opacity: 1;
 }
 .smk-op-term-frame {
@@ -1691,15 +1695,18 @@ body.uw-smoke-variant {
   border: 1px solid rgba(50, 46, 38, 0.9);
   background: rgba(8, 9, 7, 0.92);
   font-family: "Share Tech Mono", "Consolas", monospace;
-  /* Stream-readable centrepiece type */
-  font-size: clamp(32px, calc(var(--uw-bar-h) * 0.34), 64px);
+  /* Large type that shrinks with terminal width so nothing clips */
+  font-size: clamp(26px, min(8.5cqw, calc(var(--uw-bar-h) * 0.34)), 64px);
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgba(185, 178, 155, 0.95);
   overflow: hidden;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
   line-height: 1.05;
+  text-align: center;
+  justify-content: center;
 }
 .smk-op-term-screen[data-status="error"] {
   color: rgba(220, 75, 58, 0.98);
@@ -1712,8 +1719,9 @@ body.uw-smoke-variant {
 }
 .smk-op-term-main {
   flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-wrap: balance;
 }
 .smk-op-term-cursor {
   display: none;
@@ -1744,7 +1752,7 @@ body.uw-smoke-variant {
   z-index: 1;
   min-height: 18px;
   font-family: "Share Tech Mono", "Consolas", monospace;
-  font-size: clamp(14px, calc(var(--uw-bar-h) * 0.11), 24px);
+  font-size: clamp(12px, min(4.2cqw, calc(var(--uw-bar-h) * 0.11)), 24px);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1752,6 +1760,7 @@ body.uw-smoke-variant {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
 }
 .smk-op-term-sub[data-tone="error"] {
   color: rgba(220, 75, 58, 0.95);
@@ -1762,7 +1771,7 @@ body.uw-smoke-variant {
 .smk-op-term-stamp {
   position: relative;
   z-index: 1;
-  align-self: flex-start;
+  align-self: center;
   margin-top: 2px;
   padding: 3px 12px;
   border: 1px solid rgba(70, 130, 70, 0.75);
@@ -1815,7 +1824,7 @@ body.uw-smoke-variant {
     transition: opacity 0.15s ease;
   }
   .smk-op-terminal[data-open="1"] {
-    transform: translate(-50%, 0);
+    transform: translateX(-50%) translateY(0);
   }
   .smk-op-terminal[data-alarm="1"] .smk-op-term-lamp,
   .smk-op-term-cursor,
