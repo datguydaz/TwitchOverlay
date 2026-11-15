@@ -1,8 +1,9 @@
 /**
- * Streamlabs Socket API → overlay social names (follow / sub first slice).
+ * Streamlabs Socket API → overlay social names + operator reactions.
  * Token stays on the server only. Overlay never sees STREAMLABS_SOCKET_TOKEN.
  */
 import io from "socket.io-client";
+import type { OperatorReactionKind } from "../shared/protocol.ts";
 
 type SlSocket = SocketIOClient.Socket;
 
@@ -17,9 +18,21 @@ export type SocialPatch = {
   latestSubscriber?: string;
 };
 
+export type StreamlabsReactionEvent = {
+  reaction: OperatorReactionKind;
+  name?: string;
+  amount?: number;
+  currency?: string;
+  viewers?: number;
+  count?: number;
+  rawType: string;
+};
+
 export type StreamlabsBridgeHandlers = {
-  /** Apply social name updates (persist + broadcast). Return false to skip. */
+  /** Apply social name updates (persist + broadcast). */
   applySocial: (patch: SocialPatch, meta: { source: string; rawType: string }) => void;
+  /** Raid / bits / donation / gift-bomb (and similar) plate reactions. */
+  onReaction: (ev: StreamlabsReactionEvent) => void;
   onStatus: (status: EventsBridgeStatus, detail?: string) => void;
 };
 
@@ -27,6 +40,7 @@ type SlMessage = Record<string, unknown>;
 
 const DEDUPE_TTL_MS = 20_000;
 const MAX_NAME = 48;
+const GIFT_WINDOW_MS = 2800;
 
 function cleanName(raw: unknown): string {
   const t = String(raw ?? "")
@@ -35,6 +49,11 @@ function cleanName(raw: unknown): string {
     .slice(0, MAX_NAME);
   if (!t || t === "—" || t === "--" || t === "-") return "";
   return t;
+}
+
+function numField(raw: unknown, fallback = 0): number {
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : fallback;
 }
 
 /** Parse Streamlabs `event` payload (object or JSON string; message may be array or string). */
@@ -67,50 +86,124 @@ export function parseStreamlabsEvent(raw: unknown): { type: string; messages: Sl
   return { type, messages: messages as SlMessage[] };
 }
 
-/**
- * Map Streamlabs alert types → social plate updates.
- * Follow → latestFollower. Subscription / resub / gift → latestSubscriber.
- */
-export function mapStreamlabsToSocial(
-  type: string,
-  messages: SlMessage[],
-): SocialPatch | null {
-  const t = type.toLowerCase();
+function isGiftType(t: string): boolean {
+  return (
+    t === "submysterygift" ||
+    t === "mysterygift" ||
+    t === "gift_subscription" ||
+    t === "gift_sub" ||
+    t === "giftsub" ||
+    t === "gift" ||
+    t === "communitygift"
+  );
+}
+
+function isSubType(t: string): boolean {
+  return (
+    t === "subscription" ||
+    t === "resub" ||
+    t === "prime_sub" ||
+    t === "twitch_subscription" ||
+    isGiftType(t)
+  );
+}
+
+function firstName(messages: SlMessage[]): string {
   const first = messages[0] || {};
-  const name =
+  return (
     cleanName(first.name) ||
     cleanName(first.display_name) ||
     cleanName(first.from) ||
     cleanName(first.gifter) ||
-    cleanName((first as { names?: unknown }).names);
+    cleanName(first.raider) ||
+    cleanName((first as { names?: unknown }).names)
+  );
+}
 
-  if (!name) return null;
+/**
+ * Map Streamlabs alert types → social plate updates and/or reactions.
+ */
+export function mapStreamlabsEvent(
+  type: string,
+  messages: SlMessage[],
+): { social?: SocialPatch; reaction?: Omit<StreamlabsReactionEvent, "rawType"> } | null {
+  const t = type.toLowerCase();
+  const first = messages[0] || {};
+  const name = firstName(messages);
 
   if (t === "follow" || t === "follower") {
-    return { latestFollower: name };
+    if (!name) return null;
+    return { social: { latestFollower: name } };
   }
 
-  // Twitch sub / resub / gifted sub (receiver or gifter → show recipient when present)
+  if (t === "raid" || t === "host" || t === "twitch_raid") {
+    if (!name) return null;
+    const viewers = Math.max(
+      1,
+      Math.round(
+        numField(first.raiders, 0) ||
+          numField(first.viewers, 0) ||
+          numField(first.viewer_count, 0) ||
+          numField(first.amount, 0) ||
+          1,
+      ),
+    );
+    return { reaction: { reaction: "raid", name, viewers } };
+  }
+
   if (
-    t === "subscription" ||
-    t === "resub" ||
-    t === "submysterygift" ||
-    t === "mysterygift" ||
-    t === "prime_sub" ||
-    t === "twitch_subscription" ||
-    t === "gift_subscription" ||
-    t === "gift_sub" ||
-    t === "giftsub"
+    t === "bits" ||
+    t === "cheer" ||
+    t === "twitch_bits" ||
+    t === "donation" ||
+    t === "streamlabs" ||
+    t === "tiltifydonation" ||
+    t === "patreon" ||
+    t === "superchat" ||
+    t === "youtube_superchat" ||
+    t === "merch"
   ) {
-    const recipient =
-      cleanName(first.name) ||
-      cleanName(first.display_name) ||
-      cleanName(first.gifter) ||
-      name;
-    return { latestSubscriber: recipient };
+    if (!name && t !== "donation") return null;
+    const amount =
+      numField(first.amount, 0) ||
+      numField(first.bits, 0) ||
+      numField(first.donatedAmount, 0) ||
+      numField((first as { money?: { amount?: unknown } }).money?.amount, 0);
+    const currency =
+      cleanName(first.currency) ||
+      cleanName((first as { money?: { currency?: unknown } }).money?.currency) ||
+      (t.includes("bit") || t === "cheer" ? "bits" : "USD");
+    const reaction: OperatorReactionKind =
+      t.includes("bit") || t === "cheer" || t === "twitch_bits" ? "bits" : "donation";
+    return {
+      reaction: {
+        reaction,
+        name: name || "ANON",
+        amount: amount > 0 ? amount : reaction === "bits" ? 100 : 5,
+        currency,
+      },
+    };
+  }
+
+  if (isGiftType(t)) {
+    // Handled by gift aggregator in the bridge class
+    return { social: name ? { latestSubscriber: name } : undefined };
+  }
+
+  if (isSubType(t)) {
+    if (!name) return null;
+    return { social: { latestSubscriber: name } };
   }
 
   return null;
+}
+
+/** @deprecated use mapStreamlabsEvent — kept for older tests */
+export function mapStreamlabsToSocial(
+  type: string,
+  messages: SlMessage[],
+): SocialPatch | null {
+  return mapStreamlabsEvent(type, messages)?.social ?? null;
 }
 
 export class StreamlabsBridge {
@@ -124,9 +217,20 @@ export class StreamlabsBridge {
   private readonly handlers: StreamlabsBridgeHandlers;
   private readonly token: string;
 
+  /** Gift-sub burst aggregator → giftbomb when threshold met. */
+  private giftBuf: { name: string; rawType: string }[] = [];
+  private giftTimer: ReturnType<typeof setTimeout> | null = null;
+  private giftBombThreshold = 5;
+  private giftBombsEnabled = true;
+
   constructor(token: string, handlers: StreamlabsBridgeHandlers) {
     this.token = (token || "").trim();
     this.handlers = handlers;
+  }
+
+  setGiftBombConfig(enabled: boolean, threshold: number): void {
+    this.giftBombsEnabled = enabled;
+    this.giftBombThreshold = Math.max(3, Math.min(50, Math.round(threshold) || 5));
   }
 
   getStatus(): EventsBridgeStatus {
@@ -154,6 +258,11 @@ export class StreamlabsBridge {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
+    if (this.giftTimer) {
+      clearTimeout(this.giftTimer);
+      this.giftTimer = null;
+    }
+    this.flushGifts(true);
     if (this.socket) {
       this.socket.removeAllListeners();
       this.socket.disconnect();
@@ -182,10 +291,9 @@ export class StreamlabsBridge {
 
     this.setStatus("connecting");
     const url = `https://sockets.streamlabs.com?token=${encodeURIComponent(this.token)}`;
-    // Streamlabs still speaks socket.io v2 protocol
     const socket = io(url, {
       transports: ["websocket"],
-      reconnection: false, // we own backoff
+      reconnection: false,
       timeout: 15000,
     });
     this.socket = socket;
@@ -193,7 +301,9 @@ export class StreamlabsBridge {
     socket.on("connect", () => {
       this.reconnectAttempt = 0;
       this.setStatus("connected");
-      console.log("[streamlabs] Socket connected (follow/sub -> overlay plates)");
+      console.log(
+        "[streamlabs] Socket connected (follow/sub/raid/bits/gifts -> overlay)",
+      );
     });
 
     socket.on("event", (payload: unknown) => {
@@ -246,11 +356,46 @@ export class StreamlabsBridge {
     return false;
   }
 
+  private queueGift(name: string, rawType: string): void {
+    this.giftBuf.push({ name: name || "GIFTED", rawType });
+    if (this.giftTimer) clearTimeout(this.giftTimer);
+    this.giftTimer = setTimeout(() => {
+      this.giftTimer = null;
+      this.flushGifts(false);
+    }, GIFT_WINDOW_MS);
+  }
+
+  private flushGifts(forceIndividual: boolean): void {
+    const batch = this.giftBuf.splice(0, this.giftBuf.length);
+    if (!batch.length) return;
+    const count = batch.length;
+    const last = batch[batch.length - 1]!;
+    if (
+      !forceIndividual &&
+      this.giftBombsEnabled &&
+      count >= this.giftBombThreshold
+    ) {
+      this.handlers.onReaction({
+        reaction: "giftbomb",
+        count,
+        name: last.name,
+        rawType: last.rawType,
+      });
+      // No applySocial — replaces N sub type-ins; keep existing plate name
+      console.log(`[streamlabs] giftbomb ×${count}`);
+      return;
+    }
+    for (const g of batch) {
+      this.handlers.applySocial(
+        { latestSubscriber: g.name },
+        { source: "streamlabs", rawType: g.rawType },
+      );
+    }
+  }
+
   private handleEventPayload(raw: unknown): boolean {
     const parsed = parseStreamlabsEvent(raw);
     if (!parsed) return false;
-    const patch = mapStreamlabsToSocial(parsed.type, parsed.messages);
-    if (!patch) return false;
 
     const first = parsed.messages[0] || {};
     const idHint =
@@ -258,23 +403,57 @@ export class StreamlabsBridge {
       cleanName(first._id) ||
       cleanName(first.id) ||
       "";
-    const nameKey = patch.latestFollower || patch.latestSubscriber || "";
+
+    if (isGiftType(parsed.type)) {
+      const name = firstName(parsed.messages) || "GIFTED";
+      const dedupeKey = idHint
+        ? `id:${idHint}`
+        : `gift:${name}:${Date.now()}`;
+      // Soft dedupe for gifts — allow bursts, skip exact id repeats
+      if (idHint && this.isDuplicate(dedupeKey)) {
+        console.log(`[streamlabs] Dedupe skip ${dedupeKey}`);
+        return false;
+      }
+      if (idHint) this.recent.set(dedupeKey, Date.now());
+      this.queueGift(name, parsed.type);
+      return true;
+    }
+
+    const mapped = mapStreamlabsEvent(parsed.type, parsed.messages);
+    if (!mapped) return false;
+
+    const nameKey =
+      mapped.social?.latestFollower ||
+      mapped.social?.latestSubscriber ||
+      mapped.reaction?.name ||
+      "";
     const dedupeKey = idHint
       ? `id:${idHint}`
-      : `${parsed.type}:${nameKey}:${patch.latestFollower ? "fol" : "sub"}`;
+      : `${parsed.type}:${nameKey}`;
     if (this.isDuplicate(dedupeKey)) {
       console.log(`[streamlabs] Dedupe skip ${dedupeKey}`);
       return false;
     }
 
-    this.handlers.applySocial(patch, { source: "streamlabs", rawType: parsed.type });
-    console.log(
-      `[streamlabs] ${parsed.type} -> ${
-        patch.latestFollower
-          ? `follower=${patch.latestFollower}`
-          : `subscriber=${patch.latestSubscriber}`
-      }`,
-    );
+    if (mapped.reaction) {
+      this.handlers.onReaction({ ...mapped.reaction, rawType: parsed.type });
+      console.log(
+        `[streamlabs] ${parsed.type} -> reaction=${mapped.reaction.reaction}`,
+      );
+    }
+    if (mapped.social) {
+      this.handlers.applySocial(mapped.social, {
+        source: "streamlabs",
+        rawType: parsed.type,
+      });
+      console.log(
+        `[streamlabs] ${parsed.type} -> ${
+          mapped.social.latestFollower
+            ? `follower=${mapped.social.latestFollower}`
+            : `subscriber=${mapped.social.latestSubscriber}`
+        }`,
+      );
+    }
     return true;
   }
 }

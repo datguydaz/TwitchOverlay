@@ -22,6 +22,7 @@ import {
 } from "../shared/settings.ts";
 import { loadEnvFiles } from "./loadEnv.ts";
 import { createStreamlabsBridge } from "./streamlabsBridge.ts";
+import { TwitchIrcCoffee } from "./twitchIrcCoffee.ts";
 import { SoundsStore, MAX_SOUND_BYTES } from "./soundsStore.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -168,10 +169,23 @@ app.get("/api/settings", (_req, res) => {
   res.json(settings);
 });
 
+function syncOperatorReactionServices(): void {
+  const r = settings.operatorReactions;
+  streamlabsBridge.setGiftBombConfig(
+    r?.giftBombs !== false,
+    r?.giftBombThreshold ?? 5,
+  );
+  coffeeIrc.configure(
+    r?.coffeeChannel || "datguydaz",
+    r?.coffee !== false,
+  );
+}
+
 app.put("/api/settings", (req, res) => {
   // Merge onto current live settings so partial bodies cannot wipe names / toggles.
   settings = mergeSettings(req.body as Partial<OverlaySettings>, settings);
   saveSettings(settings);
+  syncOperatorReactionServices();
   broadcast({ type: "settings-updated" });
   res.json(settings);
 });
@@ -179,6 +193,7 @@ app.put("/api/settings", (req, res) => {
 app.post("/api/settings/reset", (_req, res) => {
   settings = readShippedDefaults();
   saveSettings(settings);
+  syncOperatorReactionServices();
   broadcast({ type: "settings-updated" });
   res.json(settings);
 });
@@ -326,6 +341,21 @@ const streamlabsBridge = createStreamlabsBridge(
       eventsDetail = detail || "";
       broadcastStatus();
     },
+    onReaction(ev) {
+      lastEventsAt = Date.now();
+      broadcast(
+        {
+          type: "operator-reaction",
+          reaction: ev.reaction,
+          name: ev.name,
+          amount: ev.amount,
+          currency: ev.currency,
+          viewers: ev.viewers,
+          count: ev.count,
+        },
+        (c) => meta.get(c)?.role === "overlay",
+      );
+    },
     applySocial(patch, metaInfo) {
       // Must merge onto live settings — merging onto DEFAULT_SETTINGS used to
       // wipe dashboard choices (typos, SFX, atmosphere, etc.) on every event.
@@ -349,7 +379,25 @@ const streamlabsBridge = createStreamlabsBridge(
       const subChanged =
         patch.latestSubscriber != null &&
         patch.latestSubscriber !== settings.social.latestSubscriber;
-      if (!folChanged && !subChanged) return;
+      const folRepeat =
+        !folChanged &&
+        patch.latestFollower != null &&
+        patch.latestFollower === settings.social.latestFollower;
+      if (!folChanged && !subChanged) {
+        // Same follower again → "NAME AGAIN?" reaction (no settings wipe)
+        if (folRepeat && settings.operatorReactions?.repeatName !== false) {
+          lastEventsAt = Date.now();
+          broadcast(
+            {
+              type: "operator-reaction",
+              reaction: "repeat",
+              name: patch.latestFollower,
+            },
+            (c) => meta.get(c)?.role === "overlay",
+          );
+        }
+        return;
+      }
       settings = next;
       saveSettings(settings);
       lastEventsAt = Date.now();
@@ -358,6 +406,37 @@ const streamlabsBridge = createStreamlabsBridge(
       void metaInfo;
     },
   },
+);
+
+streamlabsBridge.setGiftBombConfig(
+  settings.operatorReactions?.giftBombs !== false,
+  settings.operatorReactions?.giftBombThreshold ?? 5,
+);
+
+const coffeeIrc = new TwitchIrcCoffee(
+  {
+    onCoffee(hit) {
+      lastEventsAt = Date.now();
+      broadcast(
+        {
+          type: "operator-reaction",
+          reaction: "coffee",
+          name: hit.user,
+        },
+        (c) => meta.get(c)?.role === "overlay",
+      );
+    },
+  },
+  {
+    userCooldownMs: () =>
+      settings.operatorReactions?.coffeeUserCooldownMs ?? 120_000,
+    globalCooldownMs: () =>
+      settings.operatorReactions?.coffeeGlobalCooldownMs ?? 45_000,
+  },
+);
+coffeeIrc.configure(
+  settings.operatorReactions?.coffeeChannel || "datguydaz",
+  settings.operatorReactions?.coffee !== false,
 );
 
 function broadcastStatus(): void {
@@ -525,6 +604,12 @@ wss.on("connection", (ws, req) => {
           "text-sweep",
           "text-op",
           "text-hold",
+          "raid",
+          "bits",
+          "giftbomb",
+          "idle",
+          "repeat",
+          "coffee",
         ]);
         if (!allowed.has(kind)) break;
         broadcast(
@@ -558,4 +643,5 @@ server.listen(PORT, "127.0.0.1", () => {
     console.log("Tip: npm run dev  → Vite :5173 proxies /api and /ws here");
   }
   streamlabsBridge.start();
+  coffeeIrc.start();
 });

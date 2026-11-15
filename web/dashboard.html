@@ -145,6 +145,29 @@
             <option value="mixed">Legacy mixed (= always rage)</option>
           </select>
         </label>
+
+        <h3>Operator reactions</h3>
+        <p class="hint">Funny plate bits on the ultrawide bars only (no stage VFX). Live raids/bits/gifts need matching Streamlabs alert types enabled. Demos restore names and never save. URL: <code>?demo=raid|bits|giftbomb|idle|repeat|coffee</code>.</p>
+        <label class="inline"><input id="opReactRaids" type="checkbox" /> Raids (panic type + INCOMING hostiles)</label>
+        <label class="inline"><input id="opReactBits" type="checkbox" /> Bits / donations (calculator + ERR + stamp)</label>
+        <label class="inline"><input id="opReactGiftBombs" type="checkbox" /> Gift bombs (MULTIPLE CONTACTS ×N)</label>
+        <label>Gift-bomb threshold <input id="opReactGiftThreshold" type="number" min="3" max="50" step="1" title="Min gifts in a burst" /></label>
+        <label class="inline"><input id="opReactIdle" type="checkbox" /> Idle bored typing</label>
+        <label>Idle delay (minutes) <input id="opReactIdleMin" type="number" min="3" max="60" step="1" /></label>
+        <label class="inline"><input id="opReactRepeat" type="checkbox" /> Repeat name (“AGAIN?”)</label>
+        <label class="inline"><input id="opReactCoffee" type="checkbox" /> !coffee easter egg (anonymous IRC)</label>
+        <label>Coffee channel <input id="opReactCoffeeChannel" type="text" placeholder="datguydaz" maxlength="32" /></label>
+        <label>Coffee per-user cooldown (sec) <input id="opReactCoffeeUserSec" type="number" min="10" max="600" step="5" /></label>
+        <label>Coffee global cooldown (sec) <input id="opReactCoffeeGlobalSec" type="number" min="5" max="600" step="5" /></label>
+        <div class="btn-row">
+          <button type="button" class="btn" data-atm-preview="raid">Demo raid</button>
+          <button type="button" class="btn" data-atm-preview="bits">Demo bits</button>
+          <button type="button" class="btn" data-atm-preview="giftbomb">Demo gift bomb</button>
+          <button type="button" class="btn" data-atm-preview="idle">Demo idle</button>
+          <button type="button" class="btn" data-atm-preview="repeat">Demo repeat</button>
+          <button type="button" class="btn" data-atm-preview="coffee">Demo coffee</button>
+        </div>
+
         <h3>Event sounds (ultrawide-smoke)</h3>
         <p class="hint">Plays only on real new events (same moment as type-in / NEW). Default is a mechanical <strong>typewriter</strong> (clack per character). In Streamlabs/OBS Browser Source, enable <strong>Control audio via OBS</strong>. URL: <code>?sfx=0</code> mute, <code>?vol=0..1</code>.</p>
         <label class="inline"><input id="sfxEnabled" type="checkbox" /> Enable event SFX (master)</label>

@@ -16,7 +16,11 @@ import type {
   SfxEventSettings,
   SfxPreset,
 } from "../../../shared/settings.ts";
-import { DEFAULT_SFX_EVENT, DEFAULT_OPERATOR_TYPOS } from "../../../shared/settings.ts";
+import {
+  DEFAULT_SFX_EVENT,
+  DEFAULT_OPERATOR_TYPOS,
+  DEFAULT_OPERATOR_REACTIONS,
+} from "../../../shared/settings.ts";
 import type { StatusMessage } from "../../../shared/protocol.ts";
 
 type CustomSoundMeta = {
@@ -145,6 +149,7 @@ function fillForm(s: OverlaySettings): void {
 
   fillSfxForm(s);
   fillOperatorTyposForm(s);
+  fillOperatorReactionsForm(s);
 
   for (const key of Object.keys(s.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);
@@ -293,6 +298,7 @@ function readForm(): OverlaySettings {
 
   next.sfx = readSfxForm();
   next.operatorTypos = readOperatorTyposForm();
+  next.operatorReactions = readOperatorReactionsForm();
 
   {
     const intensityRaw = (
@@ -483,6 +489,74 @@ function readOperatorTyposForm(): OverlaySettings["operatorTypos"] {
     enabled: en ? en.checked : true,
     chance: clamp01Form(Number(ch?.value ?? DEFAULT_OPERATOR_TYPOS.chance), DEFAULT_OPERATOR_TYPOS.chance),
     subStyle: raw === "normal" || raw === "mixed" ? raw : "rage",
+  };
+}
+
+function fillOperatorReactionsForm(s: OverlaySettings): void {
+  const r = s.operatorReactions || DEFAULT_OPERATOR_REACTIONS;
+  const setCheck = (id: string, on: boolean) => {
+    const el = document.getElementById(id) as HTMLInputElement | null;
+    if (el) el.checked = on;
+  };
+  const setNum = (id: string, v: number) => {
+    const el = document.getElementById(id) as HTMLInputElement | null;
+    if (el) el.value = String(v);
+  };
+  setCheck("opReactRaids", r.raids !== false);
+  setCheck("opReactBits", r.bits !== false);
+  setCheck("opReactGiftBombs", r.giftBombs !== false);
+  setNum("opReactGiftThreshold", r.giftBombThreshold || 5);
+  setCheck("opReactIdle", r.idle !== false);
+  setNum(
+    "opReactIdleMin",
+    Math.round((r.idleDelayMs || DEFAULT_OPERATOR_REACTIONS.idleDelayMs) / 60_000),
+  );
+  setCheck("opReactRepeat", r.repeatName !== false);
+  setCheck("opReactCoffee", r.coffee !== false);
+  const ch = document.getElementById("opReactCoffeeChannel") as HTMLInputElement | null;
+  if (ch) ch.value = r.coffeeChannel || DEFAULT_OPERATOR_REACTIONS.coffeeChannel;
+  setNum(
+    "opReactCoffeeUserSec",
+    Math.round((r.coffeeUserCooldownMs || 120_000) / 1000),
+  );
+  setNum(
+    "opReactCoffeeGlobalSec",
+    Math.round((r.coffeeGlobalCooldownMs || 45_000) / 1000),
+  );
+}
+
+function readOperatorReactionsForm(): OverlaySettings["operatorReactions"] {
+  const check = (id: string, fallback: boolean) => {
+    const el = document.getElementById(id) as HTMLInputElement | null;
+    return el ? el.checked : fallback;
+  };
+  const num = (id: string, fallback: number) => {
+    const el = document.getElementById(id) as HTMLInputElement | null;
+    const n = Number(el?.value);
+    return Number.isFinite(n) ? n : fallback;
+  };
+  const chEl = document.getElementById("opReactCoffeeChannel") as HTMLInputElement | null;
+  const idleMin = num("opReactIdleMin", 10);
+  return {
+    raids: check("opReactRaids", true),
+    bits: check("opReactBits", true),
+    giftBombs: check("opReactGiftBombs", true),
+    giftBombThreshold: num("opReactGiftThreshold", 5),
+    idle: check("opReactIdle", true),
+    idleDelayMs: Math.round(Math.max(3, Math.min(60, idleMin)) * 60_000),
+    repeatName: check("opReactRepeat", true),
+    coffee: check("opReactCoffee", true),
+    coffeeChannel: (chEl?.value || DEFAULT_OPERATOR_REACTIONS.coffeeChannel)
+      .trim()
+      .replace(/^#/, "")
+      .toLowerCase()
+      .slice(0, 32),
+    coffeeUserCooldownMs: Math.round(
+      Math.max(10, Math.min(600, num("opReactCoffeeUserSec", 120))) * 1000,
+    ),
+    coffeeGlobalCooldownMs: Math.round(
+      Math.max(5, Math.min(600, num("opReactCoffeeGlobalSec", 45))) * 1000,
+    ),
   };
 }
 

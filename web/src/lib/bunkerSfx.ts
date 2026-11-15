@@ -194,6 +194,96 @@ export class BunkerSfx {
     });
   }
 
+  /** Short alarm click for raid hostiles count-up. */
+  playAlarmClick(): void {
+    this.playOneShotProc((ctx, dest, t0, vol) => {
+      const osc = ctx.createOscillator();
+      osc.type = "square";
+      osc.frequency.setValueAtTime(880, t0);
+      osc.frequency.exponentialRampToValueAtTime(440, t0 + 0.05);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(vol * 0.28, t0 + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.07);
+      osc.connect(g);
+      g.connect(dest);
+      osc.start(t0);
+      osc.stop(t0 + 0.08);
+    }, 0.55);
+  }
+
+  /** Clacky calculator key for bits/donation counting. */
+  playCalcClack(): void {
+    this.playOneShotProc((ctx, dest, t0, vol) => {
+      this.noiseSource(ctx, dest, t0, 0.02, vol * 0.35, "bandpass", rand(1800, 3200), 1.8);
+      const osc = ctx.createOscillator();
+      osc.type = "triangle";
+      osc.frequency.value = rand(520, 760);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(vol * 0.18, t0 + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.04);
+      osc.connect(g);
+      g.connect(dest);
+      osc.start(t0);
+      osc.stop(t0 + 0.05);
+    }, 0.5);
+  }
+
+  /** Tired operator sigh for gift bombs. */
+  playSigh(): void {
+    this.playOneShotProc((ctx, dest, t0, vol) => {
+      this.noiseSource(ctx, dest, t0, 0.28, vol * 0.22, "lowpass", 700, 0.7);
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(190, t0);
+      osc.frequency.exponentialRampToValueAtTime(95, t0 + 0.35);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(vol * 0.2, t0 + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.4);
+      osc.connect(g);
+      g.connect(dest);
+      osc.start(t0);
+      osc.stop(t0 + 0.42);
+    }, 0.6);
+  }
+
+  /** Coffee splash / wet splat for !coffee. */
+  playCoffeeSplash(): void {
+    this.playOneShotProc((ctx, dest, t0, vol) => {
+      this.noiseSource(ctx, dest, t0, 0.12, vol * 0.4, "bandpass", 600, 1.2);
+      this.noiseSource(ctx, dest, t0 + 0.04, 0.18, vol * 0.25, "lowpass", 400, 0.8);
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(140, t0);
+      osc.frequency.exponentialRampToValueAtTime(55, t0 + 0.15);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(vol * 0.3, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.2);
+      osc.connect(g);
+      g.connect(dest);
+      osc.start(t0);
+      osc.stop(t0 + 0.22);
+    }, 0.65);
+  }
+
+  private playOneShotProc(
+    fn: (ctx: AudioContext, dest: GainNode, t0: number, vol: number) => void,
+    volScale: number,
+  ): void {
+    const master = this.effectiveMasterVolume;
+    if (master <= 0.001) return;
+    const vol = master * volScale;
+    void this.unlock().then((ok) => {
+      if (!ok && !this.ctx) return;
+      const ctx = this.ensureCtx();
+      if (!ctx || ctx.state !== "running" || !this.master) return;
+      fn(ctx, this.master, ctx.currentTime + 0.01, vol);
+    });
+  }
+
   /** Softer backspace / delete click during typo correction. */
   onBackspace(kind: BunkerSfxKind, opts?: { fast?: boolean }): void {
     if (!this.typing[kind]) return;

@@ -5,6 +5,7 @@ import {
 import { AtmosphereVfx } from "../lib/atmosphereVfx.ts";
 import { TextLifeVfx } from "../lib/textLifeVfx.ts";
 import { SocialReadoutAnim } from "../lib/socialReadoutAnim.ts";
+import { OperatorReactions } from "../lib/operatorReactions.ts";
 import { createBunkerSfx } from "../lib/bunkerSfx.ts";
 import {
   applySmokeRuinTextures,
@@ -15,8 +16,15 @@ import { applySmokeBarFx } from "../lib/smokeBarFx.ts";
 import { applySmokeBunkerHud } from "../lib/smokeBunkerHud.ts";
 import { applySmokeBarProps } from "../lib/smokeBarProps.ts";
 import type { OverlaySettings } from "../../../shared/settings.ts";
-import { DEFAULT_OPERATOR_TYPOS } from "../../../shared/settings.ts";
-import type { AtmPreviewKind } from "../../../shared/protocol.ts";
+import {
+  DEFAULT_OPERATOR_REACTIONS,
+  DEFAULT_OPERATOR_TYPOS,
+} from "../../../shared/settings.ts";
+import type {
+  AtmPreviewKind,
+  OperatorReactionKind,
+  OperatorReactionMessage,
+} from "../../../shared/protocol.ts";
 
 function qs<T extends HTMLElement>(sel: string): T | null {
   return document.querySelector(sel);
@@ -110,7 +118,17 @@ function scaleUwStage(stage: HTMLElement, width: number, height: number): void {
 let atm: AtmosphereVfx | null = null;
 let textFx: TextLifeVfx | null = null;
 let socialAnim: SocialReadoutAnim | null = null;
+let operatorReactions: OperatorReactions | null = null;
 const bunkerSfx = createBunkerSfx();
+
+const REACTION_DEMO = new Set<string>([
+  "raid",
+  "bits",
+  "giftbomb",
+  "idle",
+  "repeat",
+  "coffee",
+]);
 let lastFollower = "";
 let lastSubscriber = "";
 let bootstrappedSocial = false;
@@ -368,6 +386,25 @@ function applyUltrawide(settings: OverlaySettings, opts?: ApplyUltrawideOpts): v
   }
   socialAnim.setTypoConfig(settings.operatorTypos || DEFAULT_OPERATOR_TYPOS);
 
+  if (!operatorReactions) {
+    operatorReactions = new OperatorReactions(stage, {
+      onArmType: () => bunkerSfx.playEventStart("follow"),
+      onTypeChar: (ch, opts) => bunkerSfx.onTypeChar("follow", ch, opts),
+      onBackspace: (opts) =>
+        bunkerSfx.onBackspace("follow", { fast: opts?.hard }),
+      onAlarmClick: () => bunkerSfx.playAlarmClick(),
+      onCalcClack: () => bunkerSfx.playCalcClack(),
+      onSigh: () => bunkerSfx.playSigh(),
+      onCoffeeSplash: () => bunkerSfx.playCoffeeSplash(),
+      onTableSmash: () => bunkerSfx.playTableSmash("follow"),
+      onTypeDone: () => bunkerSfx.onTypeDone("follow"),
+    });
+  }
+  operatorReactions.setReducedMotion(reduced);
+  operatorReactions.setConfig(
+    settings.operatorReactions || DEFAULT_OPERATOR_REACTIONS,
+  );
+
   // First load / quiet resync: set names without anim. Later: anim only on real change.
   if (!bootstrappedSocial || opts?.quietSocial) {
     if (followerName) followerName.textContent = nextFol;
@@ -407,6 +444,33 @@ function applyUltrawide(settings: OverlaySettings, opts?: ApplyUltrawideOpts): v
     settings.atmosphere.enabled && !settings.atmosphere.reducedMotion ? "on" : "off";
 }
 
+function routeReactionDemo(kind: OperatorReactionKind): void {
+  const name = urlDemoName || undefined;
+  switch (kind) {
+    case "raid":
+      operatorReactions?.demo("raid", { name: name || "RAID_BOSS", viewers: 18 });
+      break;
+    case "bits":
+      operatorReactions?.demo("bits", { name: name || "TIPPER", amount: 500, currency: "bits" });
+      break;
+    case "donation":
+      operatorReactions?.demo("donation", { name: name || "TIPPER", amount: 5, currency: "USD" });
+      break;
+    case "giftbomb":
+      operatorReactions?.demo("giftbomb", { name: name || "GIFTER", count: 8 });
+      break;
+    case "idle":
+      operatorReactions?.demo("idle");
+      break;
+    case "repeat":
+      operatorReactions?.demo("repeat", { name: name || lastFollower || "LORMIN" });
+      break;
+    case "coffee":
+      operatorReactions?.demo("coffee", { name: name || "CHAT" });
+      break;
+  }
+}
+
 function routePreview(kind: AtmPreviewKind): void {
   if (kind === "sfx-follow") {
     bunkerSfx.playTest("follow");
@@ -426,8 +490,24 @@ function routePreview(kind: AtmPreviewKind): void {
     atm?.preview("sub");
     return;
   }
+  if (REACTION_DEMO.has(kind)) {
+    routeReactionDemo(kind as OperatorReactionKind);
+    return;
+  }
   if (kind === "flicker" || kind === "smoke" || kind === "sparks") atm?.preview(kind);
   if (TEXT_PREVIEW.has(kind)) textFx?.preview(kind);
+}
+
+function handleOperatorReaction(msg: OperatorReactionMessage): void {
+  operatorReactions?.enqueue({
+    reaction: msg.reaction,
+    name: msg.name,
+    amount: msg.amount,
+    currency: msg.currency,
+    viewers: msg.viewers,
+    count: msg.count,
+    demo: msg.demo === true,
+  });
 }
 
 async function refreshCustomSounds(): Promise<void> {
@@ -488,10 +568,10 @@ async function main(): Promise<void> {
   if (preview) {
     window.setTimeout(() => routePreview(preview), 400);
   }
-  // ?demo=follow|sub — full type-in + VFX preview without overwriting saved names
+  // ?demo=follow|sub|raid|bits|giftbomb|idle|repeat|coffee — never persists names
   const demo = (params.get("demo") || "").trim().toLowerCase();
-  if (demo === "follow" || demo === "sub") {
-    window.setTimeout(() => routePreview(demo), 500);
+  if (demo === "follow" || demo === "sub" || REACTION_DEMO.has(demo)) {
+    window.setTimeout(() => routePreview(demo as AtmPreviewKind), 500);
   }
 
   // Persistent overlay WS — reconnect with backoff (Browser Source survives server restarts)
@@ -501,6 +581,9 @@ async function main(): Promise<void> {
     },
     onAtmPreview: (kind) => {
       routePreview(kind);
+    },
+    onOperatorReaction: (msg) => {
+      handleOperatorReaction(msg);
     },
     onReconnected: () => {
       // Resync CSS/SFX/names without replaying the last follow/sub anim or test SFX
@@ -512,6 +595,7 @@ async function main(): Promise<void> {
 type OverlayWsHooks = {
   onSettingsUpdated: () => void;
   onAtmPreview: (kind: AtmPreviewKind) => void;
+  onOperatorReaction: (msg: OperatorReactionMessage) => void;
   /** After a successful hello following disconnect — quiet settings sync. */
   onReconnected: () => void;
 };
@@ -585,10 +669,20 @@ function startOverlayWs(hooks: OverlayWsHooks): void {
           const msg = JSON.parse(String(ev.data)) as {
             type?: string;
             kind?: string;
+            reaction?: OperatorReactionKind;
+            name?: string;
+            amount?: number;
+            currency?: string;
+            viewers?: number;
+            count?: number;
+            demo?: boolean;
           };
           if (msg.type === "settings-updated") hooks.onSettingsUpdated();
           if (msg.type === "atm-preview" && msg.kind) {
             hooks.onAtmPreview(msg.kind as AtmPreviewKind);
+          }
+          if (msg.type === "operator-reaction" && msg.reaction) {
+            hooks.onOperatorReaction(msg as OperatorReactionMessage);
           }
         } catch {
           /* ignore */

@@ -149,6 +149,40 @@ export const DEFAULT_OPERATOR_TYPOS: OperatorTypoSettings = {
   subStyle: "rage",
 };
 
+/** Funny operator reactions on the ultrawide plates (raids, bits, idle, etc.). */
+export interface OperatorReactionsSettings {
+  raids: boolean;
+  bits: boolean;
+  giftBombs: boolean;
+  /** Min gifts in a burst to trigger gift-bomb instead of N sub anims. */
+  giftBombThreshold: number;
+  idle: boolean;
+  /** Idle delay before bored typing, ms (clamped 3–60 min). Default 10 min. */
+  idleDelayMs: number;
+  repeatName: boolean;
+  coffee: boolean;
+  /** Twitch channel for !coffee justinfan IRC (no token). */
+  coffeeChannel: string;
+  /** Per-chatter cooldown for !coffee, ms. */
+  coffeeUserCooldownMs: number;
+  /** Global cooldown between coffee spills, ms. */
+  coffeeGlobalCooldownMs: number;
+}
+
+export const DEFAULT_OPERATOR_REACTIONS: OperatorReactionsSettings = {
+  raids: true,
+  bits: true,
+  giftBombs: true,
+  giftBombThreshold: 5,
+  idle: true,
+  idleDelayMs: 600_000,
+  repeatName: true,
+  coffee: true,
+  coffeeChannel: "datguydaz",
+  coffeeUserCooldownMs: 120_000,
+  coffeeGlobalCooldownMs: 45_000,
+};
+
 export interface ChatSettings {
   enabled: boolean;
   /** Auto Zone Ops trash-talk on a timer. */
@@ -245,6 +279,7 @@ export interface OverlaySettings {
   textEffects: TextEffectsSettings;
   sfx: SfxSettings;
   operatorTypos: OperatorTypoSettings;
+  operatorReactions: OperatorReactionsSettings;
   demoModeDefault: boolean;
 }
 
@@ -333,6 +368,7 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     sub: { ...DEFAULT_SFX_EVENT },
   },
   operatorTypos: { ...DEFAULT_OPERATOR_TYPOS },
+  operatorReactions: { ...DEFAULT_OPERATOR_REACTIONS },
   demoModeDefault: false,
 };
 
@@ -519,6 +555,43 @@ export function mergeSettings(
           ? Math.max(0, Math.min(1, ch))
           : DEFAULT_OPERATOR_TYPOS.chance,
         subStyle,
+      };
+    })(),
+    operatorReactions: (() => {
+      const r = {
+        ...DEFAULT_OPERATOR_REACTIONS,
+        ...base.operatorReactions,
+        ...partial.operatorReactions,
+      };
+      const idleMs = Number(r.idleDelayMs);
+      const thr = Number(r.giftBombThreshold);
+      const userCd = Number(r.coffeeUserCooldownMs);
+      const globCd = Number(r.coffeeGlobalCooldownMs);
+      const ch = String(r.coffeeChannel || DEFAULT_OPERATOR_REACTIONS.coffeeChannel)
+        .trim()
+        .replace(/^#/, "")
+        .toLowerCase()
+        .slice(0, 32);
+      return {
+        raids: r.raids !== false,
+        bits: r.bits !== false,
+        giftBombs: r.giftBombs !== false,
+        giftBombThreshold: Number.isFinite(thr)
+          ? Math.max(3, Math.min(50, Math.round(thr)))
+          : DEFAULT_OPERATOR_REACTIONS.giftBombThreshold,
+        idle: r.idle !== false,
+        idleDelayMs: Number.isFinite(idleMs)
+          ? Math.max(180_000, Math.min(3_600_000, Math.round(idleMs)))
+          : DEFAULT_OPERATOR_REACTIONS.idleDelayMs,
+        repeatName: r.repeatName !== false,
+        coffee: r.coffee !== false,
+        coffeeChannel: ch || DEFAULT_OPERATOR_REACTIONS.coffeeChannel,
+        coffeeUserCooldownMs: Number.isFinite(userCd)
+          ? Math.max(10_000, Math.min(600_000, Math.round(userCd)))
+          : DEFAULT_OPERATOR_REACTIONS.coffeeUserCooldownMs,
+        coffeeGlobalCooldownMs: Number.isFinite(globCd)
+          ? Math.max(5_000, Math.min(600_000, Math.round(globCd)))
+          : DEFAULT_OPERATOR_REACTIONS.coffeeGlobalCooldownMs,
       };
     })(),
   };

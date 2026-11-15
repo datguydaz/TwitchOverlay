@@ -122,5 +122,18 @@
     "chance": 1,
     "subStyle": "rage"
   },
+  "operatorReactions": {
+    "raids": true,
+    "bits": true,
+    "giftBombs": true,
+    "giftBombThreshold": 5,
+    "idle": true,
+    "idleDelayMs": 600000,
+    "repeatName": true,
+    "coffee": true,
+    "coffeeChannel": "datguydaz",
+    "coffeeUserCooldownMs": 120000,
+    "coffeeGlobalCooldownMs": 45000
+  },
   "demoModeDefault": false
 }

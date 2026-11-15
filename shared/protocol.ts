@@ -64,11 +64,39 @@ export type AtmPreviewKind =
   | "text-dip"
   | "text-sweep"
   | "text-op"
-  | "text-hold";
+  | "text-hold"
+  | "raid"
+  | "bits"
+  | "giftbomb"
+  | "idle"
+  | "repeat"
+  | "coffee";
 
 export interface AtmPreviewMessage {
   type: "atm-preview";
   kind: AtmPreviewKind;
+}
+
+/** Live / mock operator plate reactions (raids, bits, gift bombs, coffee, …). */
+export type OperatorReactionKind =
+  | "raid"
+  | "bits"
+  | "donation"
+  | "giftbomb"
+  | "idle"
+  | "repeat"
+  | "coffee";
+
+export interface OperatorReactionMessage {
+  type: "operator-reaction";
+  reaction: OperatorReactionKind;
+  name?: string;
+  amount?: number;
+  currency?: string;
+  viewers?: number;
+  count?: number;
+  /** When true, overlay must restore names and never persist. */
+  demo?: boolean;
 }
 
 export interface PauseMessage {
@@ -139,6 +167,7 @@ export type ServerToClientMessage =
   | MicMessage
   | ChatLineMessage
   | AtmPreviewMessage
+  | OperatorReactionMessage
   | ResetIdleMessage
   | PongMessage
   | ErrorMessage;

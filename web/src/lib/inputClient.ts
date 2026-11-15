@@ -179,7 +179,7 @@ export class InputClient {
         break;
       case "settings-updated":
       case "atm-preview":
-      case "status":
+      case "operator-reaction":
       case "pong":
       case "error":
         break;
