@@ -240,9 +240,55 @@ export function makeWrongName(correct: string, opts?: { dramatic?: boolean }): {
     if (kind === "adjacent") wrong = adjacentTypo(name);
     else if (kind === "transpose") wrong = transposeTypo(name);
     else wrong = wrongWordTypo(name, dramatic);
-    if (wrong && !isBlockedText(wrong)) return { wrong, kind };
+    if (wrong && wrong !== name && !isBlockedText(wrong)) return { wrong, kind };
   }
   return null;
+}
+
+/**
+ * Always returns a misspelling that is never identical to `correct`,
+ * including 1–3 character names (where makeWrongName returns null).
+ */
+export function makeDistinctWrongName(correct: string): string {
+  const name = String(correct || "").trim() || "?";
+  if (name.length >= 4) {
+    const plan = makeWrongName(name);
+    if (plan?.wrong && plan.wrong !== name && !isBlockedText(plan.wrong)) {
+      return plan.wrong;
+    }
+  }
+
+  const upperHeavy =
+    name === name.toUpperCase() ||
+    [...name].filter((c) => /[A-Z]/.test(c)).length >=
+      [...name].filter((c) => /[a-z]/.test(c)).length;
+
+  const flip = (c: string): string => {
+    const pool = "ZXQKVWMNBP";
+    const lower = c.toLowerCase();
+    for (const p of pool) {
+      if (p.toLowerCase() !== lower) return upperHeavy ? p : p.toLowerCase();
+    }
+    return upperHeavy ? "X" : "x";
+  };
+
+  let out: string;
+  if (name.length <= 1) {
+    out = name + flip(name[0] || "A");
+  } else if (name.length === 2) {
+    const swapped = name[1]! + name[0]!;
+    out = swapped !== name ? swapped : name[0]! + flip(name[1]!);
+  } else {
+    const chars = [...name];
+    const i = Math.min(1, chars.length - 1);
+    chars[i] = flip(chars[i]!);
+    out = chars.join("");
+    if (out === name) out = name.slice(0, -1) + flip(name[name.length - 1]!);
+  }
+
+  if (out === name || isBlockedText(out)) out = `${name}${flip(name[name.length - 1] || "A")}`;
+  if (out === name) out = `X${name}`;
+  return out;
 }
 
 /** Skip typos when the correct name would blow the ~5s budget. */

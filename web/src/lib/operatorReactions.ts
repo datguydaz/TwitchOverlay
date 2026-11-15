@@ -7,6 +7,7 @@
 import type { OperatorReactionsSettings } from "../../../shared/settings.ts";
 import { DEFAULT_OPERATOR_REACTIONS } from "../../../shared/settings.ts";
 import type { OperatorReactionKind } from "../../../shared/protocol.ts";
+import { makeDistinctWrongName } from "./operatorTypos.ts";
 
 export type ReactionSfxHooks = {
   onArmType?: () => void;
@@ -264,7 +265,7 @@ export class OperatorReactions {
   }
 
   /**
-   * @param pace `fumble` = 1× (typos, smash, ERR, miscount).
+   * @param pace `fumble` = 1× (name typos, erase, ERR).
    *             `reveal` = eventAnimScale (correct name / amount / ✓ hold).
    */
   private wait(
@@ -471,6 +472,45 @@ export class OperatorReactions {
     }
   }
 
+  /**
+   * Name fumble at 1×: type a distinct wrong spelling, ERR, erase,
+   * then carefully retype the correct name at reveal pace.
+   * Red only while the wrong text is on screen.
+   */
+  private async fumbleThenRevealName(correct: string): Promise<void> {
+    const wrong = makeDistinctWrongName(correct);
+    this.setCursor(true);
+    // Type wrong first; red only once wrong text is on screen
+    await this.typeInto(
+      () => this.termMain()?.textContent || "",
+      (t) => {
+        this.setMain(t);
+        if (t.length === 1) this.setScreenStatus("error");
+      },
+      wrong,
+      { careful: false, pace: "fumble" },
+    );
+    this.setSub("ERR", "error");
+    await this.wait(randMs(700, 1100), "fumble");
+    // Red off the moment erase begins
+    this.setScreenStatus(null);
+    this.setSub(null);
+    await this.backspaceTo(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      0,
+      { hard: false, pace: "fumble" },
+    );
+    await this.wait(randMs(160, 260), "fumble");
+    await this.typeInto(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      correct,
+      { careful: true, pace: "reveal" },
+    );
+    this.setCursor(false);
+  }
+
   private async playReducedTerminal(job: ReactionJob): Promise<void> {
     this.openTerminal(job.reaction);
     if (job.reaction === "raid") {
@@ -497,43 +537,16 @@ export class OperatorReactions {
     this.closeTerminal();
   }
 
-  /** Raid: panic smash (1×), careful name + HOSTILES count-up (reveal). */
+  /** Raid: name typo → correct name → HOSTILES count-up (always correct). */
   private async playRaid(job: ReactionJob): Promise<void> {
     const name = clampName(job.name || "RAIDER", 16);
     const viewers = Math.max(1, Math.min(9999, Math.round(job.viewers || 12)));
     this.openTerminal("raid");
-    this.setCursor(true);
     this.setAlarm(true);
-    this.setScreenStatus("error");
 
-    const smashLen = 10 + Math.floor(Math.random() * 6);
-    const smash = "asdfqwerzxcv".slice(0, smashLen);
-    await this.typeInto(
-      () => this.termMain()?.textContent || "",
-      (t) => this.setMain(t),
-      smash,
-      { hard: true, pace: "fumble" },
-    );
-    this.hooks.onTableSmash?.();
-    await this.wait(randMs(480, 720), "fumble");
-    this.setScreenStatus(null);
-    await this.backspaceTo(
-      () => this.termMain()?.textContent || "",
-      (t) => this.setMain(t),
-      0,
-      { hard: true, pace: "fumble" },
-    );
-    await this.wait(randMs(180, 280), "fumble");
-
-    await this.typeInto(
-      () => this.termMain()?.textContent || "",
-      (t) => this.setMain(t),
-      name,
-      { careful: true, pace: "reveal" },
-    );
+    await this.fumbleThenRevealName(name);
     this.setScreenStatus("ok");
     this.hooks.onTypeDone?.();
-    this.setCursor(false);
 
     const steps = Math.min(viewers, 40);
     const step = Math.max(1, Math.ceil(viewers / steps));
@@ -550,93 +563,40 @@ export class OperatorReactions {
   }
 
   /**
-   * Bits/donation: header INCOMING FUNDS, big name once, amount+ERR under
-   * name only, final green amount line once (no FROM / stamp).
+   * Bits/donation: name typo → ERR → correct name (reveal), then amount
+   * typed correctly once (no amount miscount / identical retype).
    */
   private async playBits(job: ReactionJob): Promise<void> {
     const who = clampName(job.name || "ANONYMOUS", 14);
-    const amount = job.amount ?? 500;
-    const currency =
-      job.currency || (job.reaction === "bits" ? "bits" : "USD");
-    const wrong = formatAmount(
-      job.reaction === "bits" ? Math.max(1, amount - 7) : amount * 0.9,
-      currency,
-    );
     const result = this.fundsResultLine(job);
 
     this.openTerminal(job.reaction);
     this.setHeader("INCOMING FUNDS");
-    this.setCursor(true);
 
-    await this.typeInto(
-      () => this.termMain()?.textContent || "",
-      (t) => this.setMain(t),
-      who,
-      { careful: true, pace: "reveal" },
-    );
-    this.setCursor(false);
-    await this.wait(randMs(280, 420), "fumble");
+    await this.fumbleThenRevealName(who);
+    this.setScreenStatus("ok");
+    await this.wait(randMs(220, 360), "reveal");
 
     let built = "";
-    for (const ch of [...wrong]) {
-      built += ch;
-      this.setSub(built, "neutral");
-      if (ch !== " ") this.hooks.onCalcClack?.();
-      await this.wait(randMs(70, 120), "fumble");
-    }
-    this.setScreenStatus("error");
-    this.setSub(`${wrong}  ERR`, "error");
-    await this.wait(randMs(800, 1200), "fumble");
-    this.setScreenStatus(null);
-    this.setSub(null);
-    await this.wait(randMs(160, 260), "fumble");
-
-    built = "";
     for (const ch of [...result]) {
       built += ch;
       this.setSub(built, "ok");
       if (ch !== " " && ch !== "✓") this.hooks.onCalcClack?.();
       await this.wait(randMs(95, 155), "reveal");
     }
-    this.setScreenStatus("ok");
     this.setStamp(null);
     this.hooks.onTypeDone?.();
     await this.wait(this.punchlineHoldMs(), "reveal");
     this.closeTerminal();
   }
 
-  /** Gift bomb: panic fumble, then name + ×N SUBS GIFTED ✓ once each. */
+  /** Gift bomb: name typo → correct name → ×N SUBS GIFTED ✓ (once). */
   private async playGiftBomb(job: ReactionJob): Promise<void> {
     const count = Math.max(5, Math.round(job.count || 5));
     const who = clampName(job.name || "ANONYMOUS", 14);
     this.openTerminal("giftbomb");
-    this.setCursor(true);
-    this.setScreenStatus("error");
-    await this.typeInto(
-      () => this.termMain()?.textContent || "",
-      (t) => this.setMain(t),
-      "aaa",
-      { hard: true, pace: "fumble" },
-    );
-    await this.wait(randMs(350, 520), "fumble");
-    this.setScreenStatus(null);
-    await this.backspaceTo(
-      () => this.termMain()?.textContent || "",
-      (t) => this.setMain(t),
-      0,
-      { hard: true, pace: "fumble" },
-    );
-    this.hooks.onSigh?.();
-    this.hooks.onTableSmash?.();
-    await this.wait(randMs(180, 280), "fumble");
 
-    await this.typeInto(
-      () => this.termMain()?.textContent || "",
-      (t) => this.setMain(t),
-      who,
-      { careful: true, pace: "reveal" },
-    );
-    this.setCursor(false);
+    await this.fumbleThenRevealName(who);
     this.setSub(`×${count} SUBS GIFTED ✓`, "ok");
     this.setScreenStatus("ok");
     this.hooks.onTypeDone?.();
