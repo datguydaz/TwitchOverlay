@@ -118,60 +118,108 @@ export function applySmokeBarProps(stage: HTMLElement): () => void {
   const timers: Timer[] = [];
   let dead = false;
 
+  // Always fire unless disposed — never skip cleanups when document.hidden
+  // (OBS/Browser Source can flap visibility and leave dim classes stuck).
   const later = (fn: () => void, ms: number) => {
     const id = window.setTimeout(() => {
-      if (dead || document.hidden) return;
+      if (dead) return;
       fn();
     }, ms);
     timers.push(id);
+  };
+
+  const clearSurge = () => {
+    stage.classList.remove("smk-surge-flare", "smk-surge-shake", "smk-surge-brown");
+    top.classList.remove("smk-fx-on-sparks", "smk-surge-dim");
+    bot.classList.remove("smk-fx-on-sparks", "smk-surge-dim");
   };
 
   // Rare corner lamp blink — mostly dead
   const lamps = stage.querySelectorAll<HTMLElement>(".smk-warn-lamp");
   const scheduleLamp = () => {
     if (dead || reduced) return;
-    const lamp = lamps[Math.floor(Math.random() * lamps.length)];
-    if (lamp && Math.random() < 0.55) {
-      lamp.classList.add("smk-warn-on");
-      later(() => lamp.classList.remove("smk-warn-on"), rand(80, 220));
-      if (Math.random() < 0.35) {
-        later(() => {
+    later(() => {
+      if (dead) return;
+      if (!document.hidden) {
+        const lamp = lamps[Math.floor(Math.random() * lamps.length)];
+        if (lamp && Math.random() < 0.55) {
           lamp.classList.add("smk-warn-on");
-          later(() => lamp.classList.remove("smk-warn-on"), rand(60, 140));
-        }, rand(120, 280));
+          later(() => lamp.classList.remove("smk-warn-on"), rand(80, 220));
+          if (Math.random() < 0.35) {
+            later(() => {
+              if (dead || document.hidden) return;
+              lamp.classList.add("smk-warn-on");
+              later(() => lamp.classList.remove("smk-warn-on"), rand(60, 140));
+            }, rand(120, 280));
+          }
+        }
       }
-    }
-    later(scheduleLamp, rand(6000, 16000));
+      scheduleLamp();
+    }, rand(6000, 16000));
   };
 
-  // Power surge: every ~3–6 min (or ?surge=1 once soon)
+  /**
+   * Power surge: brief flare → shake → bar-only dim veil (crossfade).
+   * Never applies a stage-wide brightness filter (that stuck dark when
+   * cleanup timers aborted on document.hidden).
+   */
   const runSurge = () => {
     if (dead) return;
+    clearSurge();
     stage.classList.add("smk-surge-flare");
     later(() => {
+      if (dead) return;
       stage.classList.remove("smk-surge-flare");
       stage.classList.add("smk-surge-shake");
       top.classList.add("smk-fx-on-sparks");
       bot.classList.add("smk-fx-on-sparks");
       later(() => {
+        if (dead) return;
         stage.classList.remove("smk-surge-shake");
         top.classList.remove("smk-fx-on-sparks");
         bot.classList.remove("smk-fx-on-sparks");
+        // Bar-only dim veil with CSS opacity crossfade (not #uw-stage filter)
         stage.classList.add("smk-surge-brown");
-        later(() => stage.classList.remove("smk-surge-brown"), 1000);
+        top.classList.add("smk-surge-dim");
+        bot.classList.add("smk-surge-dim");
+        later(() => {
+          if (dead) return;
+          top.classList.remove("smk-surge-dim");
+          bot.classList.remove("smk-surge-dim");
+          // Drop flag after veil has faded out
+          later(() => {
+            if (dead) return;
+            stage.classList.remove("smk-surge-brown");
+          }, 450);
+        }, 900);
       }, 280);
     }, 180);
   };
 
   const scheduleSurge = () => {
     if (dead || reduced) return;
+    let wait = rand(180000, 360000);
+    try {
+      const fast = new URLSearchParams(location.search).get("fastdark");
+      if (fast === "1" || fast === "true") wait = rand(2500, 4000);
+    } catch {
+      /* ignore */
+    }
     later(() => {
-      runSurge();
+      if (dead) return;
+      if (!document.hidden) runSurge();
       scheduleSurge();
-    }, rand(180000, 360000));
+    }, wait);
+  };
+
+  const onVis = () => {
+    if (dead || document.hidden) return;
+    // Coming back visible: never leave a stuck brownout
+    clearSurge();
   };
 
   if (!reduced) {
+    document.addEventListener("visibilitychange", onVis);
     later(scheduleLamp, rand(4000, 9000));
     try {
       const force = new URLSearchParams(location.search).get("surge");
@@ -181,15 +229,22 @@ export function applySmokeBarProps(stage: HTMLElement): () => void {
     } catch {
       /* ignore */
     }
-    later(scheduleSurge, rand(180000, 360000));
+    later(scheduleSurge, (() => {
+      try {
+        const fast = new URLSearchParams(location.search).get("fastdark");
+        if (fast === "1" || fast === "true") return rand(1200, 2000);
+      } catch {
+        /* ignore */
+      }
+      return rand(180000, 360000);
+    })());
   }
 
   return () => {
     dead = true;
+    document.removeEventListener("visibilitychange", onVis);
     for (const t of timers) window.clearTimeout(t);
-    stage.classList.remove("smk-surge-flare", "smk-surge-shake", "smk-surge-brown");
+    clearSurge();
     lamps.forEach((l) => l.classList.remove("smk-warn-on"));
-    top.classList.remove("smk-fx-on-sparks");
-    bot.classList.remove("smk-fx-on-sparks");
   };
 }
