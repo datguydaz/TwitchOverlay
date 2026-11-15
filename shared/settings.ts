@@ -319,7 +319,8 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
     avatar: { visible: true, x: 1500, y: 740, scale: 0.35 },
   },
   avatar: {
-    intensity: 1,
+    /** Avatar motion amount (IdleMotion). 1.35 = default “alive” level. */
+    intensity: 1.35,
     lightsEnabled: true,
     mouseFollowGain: 0.12,
     mouseFollowSmooth: 0.75,
@@ -416,7 +417,7 @@ export function mergeSettings(
       };
       return {
         ...a,
-        intensity: clamp(a.intensity, 0.2, 2, 1),
+        intensity: clamp(a.intensity, 0.2, 2, 1.35),
         lightsEnabled: !!a.lightsEnabled,
         mouseFollowGain: clamp(a.mouseFollowGain, 0.04, 0.45, 0.12),
         mouseFollowSmooth: clamp(a.mouseFollowSmooth, 0, 0.95, 0.75),

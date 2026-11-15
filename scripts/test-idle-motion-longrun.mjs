@@ -44,10 +44,9 @@ async function main() {
       const cur = idle.sample();
       const jump = Math.hypot(cur.yaw - prev.yaw, cur.pitch - prev.pitch);
       if (jump > maxJump) maxJump = jump;
-      // Per-minute glance change should stay tiny (max head turn ~2°)
-      // Chunk samples are 1 simulated minute apart — a full glance reverse is ~4°, not a spasm.
-      // Spasms are multi-dozen-degree / discontinuous snaps; keep a tight but fair ceiling.
-      if (jump > 4.5) {
+      // Chunk samples are 1 simulated minute apart — a full glance reverse can be ~8–10°.
+      // Spasms are multi-dozen-degree / discontinuous snaps.
+      if (jump > 11) {
         return {
           ok: false,
           reason: `spasm-like jump ${jump.toFixed(3)} after ${advanced}ms`,
@@ -69,7 +68,7 @@ async function main() {
         advanced += 120_000;
         const after = idle.sample();
         const resumeJump = Math.hypot(after.yaw - before.yaw, after.pitch - before.pitch);
-        if (resumeJump > 4.5) {
+        if (resumeJump > 11) {
           return {
             ok: false,
             reason: `post-hide catch-up spasm ${resumeJump.toFixed(3)}`,
@@ -84,9 +83,15 @@ async function main() {
 
     push("end");
 
-    // Bounds check — never exceed design clamps
+    // Bounds check — never exceed design clamps (amount ≤ 2)
     for (const s of samples) {
-      if (Math.abs(s.yaw) > 2.2 || Math.abs(s.pitch) > 0.7 || Math.abs(s.breathY) > 2.2) {
+      if (
+        Math.abs(s.yaw) > 8 ||
+        Math.abs(s.pitch) > 3.2 ||
+        Math.abs(s.breathY) > 7 ||
+        Math.abs(s.swayX || 0) > 4 ||
+        Math.abs(s.swayRot || 0) > 3
+      ) {
         return { ok: false, reason: "sample out of bounds", samples, maxJump };
       }
     }

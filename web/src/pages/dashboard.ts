@@ -971,6 +971,12 @@ async function main(): Promise<void> {
     void saveSettings(settings).then(() => toast("COMMS position saved"));
   });
 
+  // Live preview Avatar motion amount (persists on Save).
+  document.getElementById("intensity")?.addEventListener("input", () => {
+    const v = Number((document.getElementById("intensity") as HTMLInputElement).value);
+    if (Number.isFinite(v)) avatar.setIntensity(v);
+  });
+
   document.getElementById("btn-save")?.addEventListener("click", async () => {
     settings = await saveSettings(readForm());
     fillForm(settings);
