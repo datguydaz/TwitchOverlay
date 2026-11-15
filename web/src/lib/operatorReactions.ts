@@ -1,13 +1,14 @@
 /**
- * Funny operator plate reactions: raid / bits / giftbomb / idle / repeat / coffee.
- * Never persists names — demos always restore. Red only while wrong text is visible.
+ * Funny operator reactions.
+ * Raid / bits / giftbomb / idle / coffee → dedicated bottom-bar OPS TERMINAL.
+ * Repeat name stays on the follower plate (it's a follow).
+ * Demos never persist. Red only while wrong text is visible.
  */
 import type { OperatorReactionsSettings } from "../../../shared/settings.ts";
 import { DEFAULT_OPERATOR_REACTIONS } from "../../../shared/settings.ts";
 import type { OperatorReactionKind } from "../../../shared/protocol.ts";
 
 export type ReactionSfxHooks = {
-  /** Arm typewriter layer once before a typing sequence. */
   onArmType?: () => void;
   onTypeChar?: (ch: string, opts?: { hard?: boolean }) => void;
   onBackspace?: (opts?: { hard?: boolean }) => void;
@@ -28,7 +29,6 @@ type ReactionJob = {
   count?: number;
   demo?: boolean;
   restoreFollow?: string;
-  restoreSub?: string;
 };
 
 function randMs(a: number, b: number): number {
@@ -49,6 +49,15 @@ function formatAmount(amount: number, currency?: string): string {
   if (!Number.isFinite(n)) return `${sym}?`;
   return n >= 100 && Number.isInteger(n) ? `${sym}${n}` : `${sym}${n.toFixed(2)}`;
 }
+
+const MODE_LABEL: Record<string, string> = {
+  raid: "RAID",
+  bits: "BITS",
+  donation: "DONATION",
+  giftbomb: "GIFTS",
+  idle: "IDLE",
+  coffee: "HAZARD",
+};
 
 export class OperatorReactions {
   private stage: HTMLElement;
@@ -80,15 +89,13 @@ export class OperatorReactions {
     this.armIdle();
   }
 
-  /** Enqueue a live or demo reaction. */
-  enqueue(job: Omit<ReactionJob, "restoreFollow" | "restoreSub">): void {
+  enqueue(job: Omit<ReactionJob, "restoreFollow">): void {
     if (!this.enabled(job.reaction)) return;
-    const fol = this.nameEl("follow");
-    const sub = this.nameEl("sub");
+    const fol = this.followNameEl();
     this.queue.push({
       ...job,
-      restoreFollow: job.demo ? fol?.textContent || "" : undefined,
-      restoreSub: job.demo ? sub?.textContent || "" : undefined,
+      restoreFollow:
+        job.demo && job.reaction === "repeat" ? fol?.textContent || "" : undefined,
     });
     this.bumpActivity();
     void this.kick();
@@ -120,8 +127,7 @@ export class OperatorReactions {
     this.timers = [];
     this.queue = [];
     if (this.idleTimer != null) window.clearTimeout(this.idleTimer);
-    this.clearCoffee();
-    this.clearReactHosts();
+    this.closeTerminal(true);
   }
 
   private enabled(kind: OperatorReactionKind): boolean {
@@ -178,7 +184,6 @@ export class OperatorReactions {
         this.armIdle();
         return;
       }
-      // Rare: only ~35% of idle firings actually type something
       if (Math.random() > 0.35) {
         this.armIdle();
         return;
@@ -187,47 +192,40 @@ export class OperatorReactions {
     }, delay);
   }
 
-  private root(kind: "follow" | "sub"): HTMLElement | null {
-    return this.stage.querySelector(
-      kind === "follow" ? "#uw-follower" : "#uw-subscriber",
-    );
+  private bottom(): HTMLElement | null {
+    return this.stage.querySelector("#uw-bottom");
   }
 
-  private nameEl(kind: "follow" | "sub"): HTMLElement | null {
-    return this.stage.querySelector(
-      kind === "follow" ? "#uw-follower-name" : "#uw-subscriber-name",
-    );
+  private terminal(): HTMLElement | null {
+    return this.stage.querySelector("#smk-op-terminal");
   }
 
-  private reactLine(kind: "follow" | "sub"): HTMLElement | null {
-    return this.root(kind)?.querySelector(".smk-react-line") ?? null;
+  private termMain(): HTMLElement | null {
+    return this.stage.querySelector("#smk-op-term-main");
   }
 
-  private setStatus(el: HTMLElement, status: "error" | "ok" | null): void {
-    if (status) el.dataset.status = status;
-    else delete el.dataset.status;
+  private termSub(): HTMLElement | null {
+    return this.stage.querySelector("#smk-op-term-sub");
   }
 
-  private setReact(
-    kind: "follow" | "sub",
-    text: string | null,
-    tone: "neutral" | "error" | "ok" | null = "neutral",
-  ): void {
-    const root = this.root(kind);
-    const line = this.reactLine(kind);
-    if (!root || !line) return;
-    if (!text) {
-      delete root.dataset.react;
-      line.textContent = "";
-      return;
-    }
-    root.dataset.react = tone || "neutral";
-    line.textContent = text;
+  private termStamp(): HTMLElement | null {
+    return this.stage.querySelector("#smk-op-term-stamp");
   }
 
-  private clearReactHosts(): void {
-    this.setReact("follow", null, null);
-    this.setReact("sub", null, null);
+  private termMode(): HTMLElement | null {
+    return this.stage.querySelector("#smk-op-term-mode");
+  }
+
+  private termScreen(): HTMLElement | null {
+    return this.terminal()?.querySelector(".smk-op-term-screen") ?? null;
+  }
+
+  private followRoot(): HTMLElement | null {
+    return this.stage.querySelector("#uw-follower");
+  }
+
+  private followNameEl(): HTMLElement | null {
+    return this.stage.querySelector("#uw-follower-name");
   }
 
   private wait(ms: number): Promise<void> {
@@ -256,8 +254,12 @@ export class OperatorReactions {
   }
 
   private async play(job: ReactionJob): Promise<void> {
+    if (job.reaction === "repeat") {
+      await this.playRepeat(job);
+      return;
+    }
     if (this.reduced) {
-      await this.playReduced(job);
+      await this.playReducedTerminal(job);
       return;
     }
     switch (job.reaction) {
@@ -274,267 +276,371 @@ export class OperatorReactions {
       case "idle":
         await this.playIdle(job);
         break;
-      case "repeat":
-        await this.playRepeat(job);
-        break;
       case "coffee":
         await this.playCoffee(job);
         break;
     }
   }
 
-  private async playReduced(job: ReactionJob): Promise<void> {
-    if (job.reaction === "raid" && job.name) {
-      const el = this.nameEl("follow");
-      if (el) el.textContent = clampName(job.name);
-    }
-    if ((job.reaction === "bits" || job.reaction === "donation") && job.amount != null) {
-      this.setReact("sub", formatAmount(job.amount, job.currency), "ok");
-      await this.wait(800);
-      this.setReact("sub", null, null);
-    }
-    if (job.reaction === "giftbomb") {
-      this.setReact("sub", `MULTIPLE CONTACTS ×${job.count || 5}`, "ok");
-      await this.wait(900);
-      this.setReact("sub", null, null);
-    }
-    this.restoreDemo(job);
+  private openTerminal(kind: OperatorReactionKind): void {
+    const term = this.terminal();
+    const bottom = this.bottom();
+    if (!term) return;
+    term.dataset.open = "1";
+    term.dataset.kind = kind;
+    term.setAttribute("aria-hidden", "false");
+    delete term.dataset.alarm;
+    delete term.dataset.cursor;
+    if (bottom) bottom.dataset.opTerm = "1";
+    this.stage.dataset.opTerm = "1";
+    const mode = this.termMode();
+    if (mode) mode.textContent = MODE_LABEL[kind] || "OPS";
+    this.setMain("");
+    this.setSub(null);
+    this.setStamp(null);
+    this.setScreenStatus(null);
   }
 
-  private restoreDemo(job: ReactionJob): void {
-    if (!job.demo) return;
-    const fol = this.nameEl("follow");
-    const sub = this.nameEl("sub");
-    if (fol && job.restoreFollow !== undefined) fol.textContent = job.restoreFollow;
-    if (sub && job.restoreSub !== undefined) sub.textContent = job.restoreSub;
+  private closeTerminal(instant = false): void {
+    const term = this.terminal();
+    const bottom = this.bottom();
+    if (term) {
+      if (instant) term.style.transition = "none";
+      term.dataset.open = "0";
+      term.setAttribute("aria-hidden", "true");
+      delete term.dataset.kind;
+      delete term.dataset.alarm;
+      delete term.dataset.cursor;
+      if (instant) {
+        // Force reflow then restore transition
+        void term.offsetWidth;
+        term.style.transition = "";
+      }
+    }
+    if (bottom) delete bottom.dataset.opTerm;
+    delete this.stage.dataset.opTerm;
+    this.setMain("");
+    this.setSub(null);
+    this.setStamp(null);
+    this.setScreenStatus(null);
+    const mode = this.termMode();
+    if (mode) mode.textContent = "";
+  }
+
+  private setMain(text: string): void {
+    const el = this.termMain();
+    if (el) el.textContent = text;
+  }
+
+  private setSub(
+    text: string | null,
+    tone: "neutral" | "error" | "ok" | null = "neutral",
+  ): void {
+    const el = this.termSub();
+    if (!el) return;
+    if (!text) {
+      el.textContent = "";
+      delete el.dataset.tone;
+      return;
+    }
+    el.textContent = text;
+    if (tone && tone !== "neutral") el.dataset.tone = tone;
+    else delete el.dataset.tone;
+  }
+
+  private setStamp(text: string | null): void {
+    const el = this.termStamp();
+    if (!el) return;
+    if (!text) {
+      el.hidden = true;
+      el.textContent = "";
+      return;
+    }
+    el.hidden = false;
+    el.textContent = text;
+  }
+
+  private setScreenStatus(status: "error" | "ok" | null): void {
+    const screen = this.termScreen();
+    if (!screen) return;
+    if (status) screen.dataset.status = status;
+    else delete screen.dataset.status;
+  }
+
+  private setCursor(on: boolean): void {
+    const term = this.terminal();
+    if (!term) return;
+    if (on) term.dataset.cursor = "1";
+    else delete term.dataset.cursor;
+  }
+
+  private setAlarm(on: boolean): void {
+    const term = this.terminal();
+    if (!term) return;
+    if (on) term.dataset.alarm = "1";
+    else delete term.dataset.alarm;
   }
 
   private async typeInto(
-    nameEl: HTMLElement,
+    getText: () => string,
+    setText: (t: string) => void,
     text: string,
     opts?: { hard?: boolean; careful?: boolean },
   ): Promise<void> {
     this.hooks.onArmType?.();
     const chars = [...text];
-    let built = nameEl.textContent || "";
+    let built = getText();
     for (let i = 0; i < chars.length; i++) {
       const ch = chars[i]!;
       built += ch;
-      nameEl.textContent = built;
+      setText(built);
       this.hooks.onTypeChar?.(ch, { hard: opts?.hard });
-      const base = opts?.careful ? randMs(140, 200) : opts?.hard ? randMs(28, 48) : randMs(90, 150);
+      const base = opts?.careful
+        ? randMs(140, 200)
+        : opts?.hard
+          ? randMs(28, 48)
+          : randMs(90, 150);
       await this.wait(base);
     }
   }
 
   private async backspaceTo(
-    nameEl: HTMLElement,
+    getText: () => string,
+    setText: (t: string) => void,
     targetLen: number,
     opts?: { hard?: boolean },
   ): Promise<void> {
     this.hooks.onArmType?.();
-    let cur = nameEl.textContent || "";
+    let cur = getText();
     while (cur.length > targetLen) {
       cur = cur.slice(0, -1);
-      nameEl.textContent = cur;
+      setText(cur);
       this.hooks.onBackspace?.({ hard: opts?.hard });
       await this.wait(opts?.hard ? randMs(28, 45) : randMs(50, 85));
     }
   }
 
-  private async backspaceAll(nameEl: HTMLElement, hard = false): Promise<void> {
-    await this.backspaceTo(nameEl, 0, { hard });
+  private async playReducedTerminal(job: ReactionJob): Promise<void> {
+    this.openTerminal(job.reaction);
+    if (job.reaction === "raid") {
+      this.setMain(clampName(job.name || "RAIDER"));
+      this.setSub(`INCOMING: ${job.viewers || 12} HOSTILES`, "ok");
+    } else if (job.reaction === "bits" || job.reaction === "donation") {
+      const label = formatAmount(
+        job.amount ?? 500,
+        job.currency || (job.reaction === "bits" ? "bits" : "USD"),
+      );
+      this.setMain(label);
+      this.setScreenStatus("ok");
+      this.setStamp(`✓ ${label}`);
+    } else if (job.reaction === "giftbomb") {
+      this.setMain(`×${job.count || 5}`);
+      this.setSub(`MULTIPLE CONTACTS ×${job.count || 5}`, "ok");
+    } else if (job.reaction === "idle") {
+      this.setMain("zzz");
+    } else if (job.reaction === "coffee") {
+      this.setMain("COFFEE SPILL");
+    }
+    await this.wait(700);
+    this.closeTerminal();
   }
 
-  /** Raid: panic keysmash raider name, then correct + INCOMING count-up. */
+  /** Raid: panic type raider, correct, HOSTILES count-up + alarm lamp. */
   private async playRaid(job: ReactionJob): Promise<void> {
-    const root = this.root("follow");
-    const nameEl = this.nameEl("follow");
-    if (!root || !nameEl) return;
     const name = clampName(job.name || "RAIDER", 16);
     const viewers = Math.max(1, Math.min(9999, Math.round(job.viewers || 12)));
-    const restore = nameEl.textContent || "";
+    this.openTerminal("raid");
+    this.setCursor(true);
+    this.setAlarm(true);
+    this.setScreenStatus("error");
 
-    root.dataset.socialFx = "type";
-    nameEl.textContent = "";
-    this.setStatus(root, null);
-
-    // Panic smash
-    this.setStatus(root, "error");
     const smashLen = 10 + Math.floor(Math.random() * 6);
     const smash = "asdfqwerzxcv".slice(0, smashLen);
-    await this.typeInto(nameEl, smash, { hard: true });
+    await this.typeInto(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      smash,
+      { hard: true },
+    );
     this.hooks.onTableSmash?.();
     await this.wait(randMs(280, 420));
-    this.setStatus(root, null);
-    await this.backspaceAll(nameEl, true);
-    await this.wait(randMs(120, 200));
+    this.setScreenStatus(null);
+    await this.backspaceTo(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      0,
+      { hard: true },
+    );
+    await this.wait(randMs(100, 180));
 
-    // Correct name
-    await this.typeInto(nameEl, name, { careful: true });
-    this.setStatus(root, "ok");
+    await this.typeInto(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      name,
+      { careful: true },
+    );
+    this.setScreenStatus("ok");
     this.hooks.onTypeDone?.();
+    this.setCursor(false);
 
-    // Count-up hostiles (neutral/ok — not "wrong text", so no red).
-    // Large raids step so we stay CPU-light and under ~2s.
     const steps = Math.min(viewers, 40);
     const step = Math.max(1, Math.ceil(viewers / steps));
     for (let n = step; n <= viewers; n += step) {
       const show = Math.min(n, viewers);
-      this.setReact("follow", `INCOMING: ${show} HOSTILES`, "neutral");
+      this.setSub(`INCOMING: ${show} HOSTILES`, "neutral");
       this.hooks.onAlarmClick?.();
       await this.wait(show < 8 ? 70 : show < 30 ? 40 : 22);
     }
-    this.setReact("follow", `INCOMING: ${viewers} HOSTILES`, "ok");
-    await this.wait(900);
-    this.setStatus(root, null);
-    this.setReact("follow", null, null);
-    delete root.dataset.socialFx;
-
-    if (job.demo) nameEl.textContent = restore;
-    else nameEl.textContent = name;
+    this.setSub(`INCOMING: ${viewers} HOSTILES`, "ok");
+    this.setAlarm(false);
+    await this.wait(1100);
+    this.closeTerminal();
   }
 
-  /** Bits/donation: calculator clacks, one ERR, recount, green stamp. */
+  /** Bits/donation: calculator, one ERR (red), recount, green stamp. */
   private async playBits(job: ReactionJob): Promise<void> {
-    const root = this.root("sub");
-    const nameEl = this.nameEl("sub");
-    if (!root || !nameEl) return;
     const amount = job.amount ?? 500;
-    const label = formatAmount(amount, job.currency || (job.reaction === "bits" ? "bits" : "USD"));
+    const label = formatAmount(
+      amount,
+      job.currency || (job.reaction === "bits" ? "bits" : "USD"),
+    );
     const wrong = formatAmount(
       job.reaction === "bits" ? Math.max(1, amount - 7) : amount * 0.9,
       job.currency || (job.reaction === "bits" ? "bits" : "USD"),
     );
-    const restore = nameEl.textContent || "";
+    this.openTerminal(job.reaction);
+    this.setCursor(true);
+    this.setSub("CALC…", "neutral");
 
-    root.dataset.socialFx = "type";
-    nameEl.textContent = "";
-    this.setReact("sub", "CALC…", "neutral");
-
-    // First count (will be "wrong")
     for (const ch of wrong.replace(/\s/g, "")) {
-      nameEl.textContent = (nameEl.textContent || "") + ch;
+      this.setMain((this.termMain()?.textContent || "") + ch);
       this.hooks.onCalcClack?.();
       await this.wait(randMs(55, 95));
     }
-    this.setStatus(root, "error");
-    this.setReact("sub", "ERR", "error");
+    this.setScreenStatus("error");
+    this.setSub("ERR", "error");
     await this.wait(randMs(420, 620));
-    this.setStatus(root, null);
-    this.setReact("sub", "RECALC…", "neutral");
-    await this.backspaceAll(nameEl, false);
+    this.setScreenStatus(null);
+    this.setSub("RECALC…", "neutral");
+    await this.backspaceTo(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      0,
+      { hard: false },
+    );
     await this.wait(randMs(100, 180));
 
-    // Correct count
-    nameEl.textContent = "";
+    this.setMain("");
     for (const ch of label.replace(/\s/g, "")) {
-      nameEl.textContent = (nameEl.textContent || "") + ch;
+      this.setMain((this.termMain()?.textContent || "") + ch);
       this.hooks.onCalcClack?.();
       await this.wait(randMs(55, 95));
     }
-    this.setStatus(root, "ok");
-    this.setReact("sub", `✓ ${label}`, "ok");
+    this.setCursor(false);
+    this.setScreenStatus("ok");
+    this.setSub(null);
+    this.setStamp(`✓ ${label}`);
     this.hooks.onTypeDone?.();
-    await this.wait(1100);
-    this.setStatus(root, null);
-    this.setReact("sub", null, null);
-    delete root.dataset.socialFx;
-
-    // Bits/donations never overwrite the real sub name plate
-    nameEl.textContent = restore;
+    await this.wait(1200);
+    this.closeTerminal();
   }
 
-  /** Gift bomb: give up, slam MULTIPLE CONTACTS ×N. */
+  /** Gift bomb: give up typing, slam MULTIPLE CONTACTS ×N. */
   private async playGiftBomb(job: ReactionJob): Promise<void> {
-    const root = this.root("sub");
-    const nameEl = this.nameEl("sub");
-    if (!root || !nameEl) return;
     const count = Math.max(5, Math.round(job.count || 5));
-    const restore = nameEl.textContent || "";
-
-    root.dataset.socialFx = "type";
-    nameEl.textContent = "";
-    this.setStatus(root, "error");
-    await this.typeInto(nameEl, "aaa", { hard: true });
+    this.openTerminal("giftbomb");
+    this.setCursor(true);
+    this.setScreenStatus("error");
+    await this.typeInto(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      "aaa",
+      { hard: true },
+    );
     await this.wait(200);
-    this.setStatus(root, null);
-    await this.backspaceAll(nameEl, true);
+    this.setScreenStatus(null);
+    await this.backspaceTo(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      0,
+      { hard: true },
+    );
+    this.setCursor(false);
     this.hooks.onSigh?.();
     this.hooks.onTableSmash?.();
-    nameEl.textContent = `×${count}`;
-    this.setReact("sub", `MULTIPLE CONTACTS ×${count}`, "ok");
-    this.setStatus(root, "ok");
-    await this.wait(1400);
-    this.setStatus(root, null);
-    this.setReact("sub", null, null);
-    delete root.dataset.socialFx;
-
-    // Gift bomb never overwrites the saved sub name
-    nameEl.textContent = restore;
+    this.setMain(`×${count}`);
+    this.setSub(`MULTIPLE CONTACTS ×${count}`, "ok");
+    this.setScreenStatus("ok");
+    await this.wait(1500);
+    this.closeTerminal();
   }
 
-  /** Idle: blink then type bored line and delete — never keeps it. */
-  private async playIdle(job: ReactionJob): Promise<void> {
-    const root = this.root("follow");
-    const nameEl = this.nameEl("follow");
-    if (!root || !nameEl) return;
-    const restore = job.restoreFollow ?? nameEl.textContent ?? "";
+  /** Idle: blink cursor, type bored line, delete — never keeps it. */
+  private async playIdle(_job: ReactionJob): Promise<void> {
     const line = IDLE_LINES[Math.floor(Math.random() * IDLE_LINES.length)]!;
-
-    root.dataset.socialFx = "type";
-    nameEl.textContent = "";
-    // Cursor blink beat
-    await this.wait(randMs(600, 1100));
-    await this.typeInto(nameEl, line, { careful: true });
-    await this.wait(randMs(700, 1200));
-    await this.backspaceAll(nameEl, false);
-    delete root.dataset.socialFx;
-    nameEl.textContent = restore;
+    this.openTerminal("idle");
+    this.setCursor(true);
+    await this.wait(randMs(500, 900));
+    await this.typeInto(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      line,
+      { careful: true },
+    );
+    await this.wait(randMs(700, 1100));
+    await this.backspaceTo(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      0,
+      { hard: false },
+    );
+    this.setCursor(false);
+    await this.wait(200);
+    this.closeTerminal();
   }
 
-  /** Repeat follower: type "NAME AGAIN?" then delete " AGAIN?". */
+  /** Repeat follower — stays on follower plate only. */
   private async playRepeat(job: ReactionJob): Promise<void> {
-    const root = this.root("follow");
-    const nameEl = this.nameEl("follow");
+    const root = this.followRoot();
+    const nameEl = this.followNameEl();
     if (!root || !nameEl) return;
     const name = clampName(job.name || "SOMEONE", 14);
     const restore = job.demo ? job.restoreFollow ?? "" : name;
 
     root.dataset.socialFx = "type";
     nameEl.textContent = "";
-    await this.typeInto(nameEl, `${name} AGAIN?`, { careful: true });
-    this.setReact("follow", "SEEN THIS ONE…", "neutral");
+    await this.typeInto(
+      () => nameEl.textContent || "",
+      (t) => {
+        nameEl.textContent = t;
+      },
+      `${name} AGAIN?`,
+      { careful: true },
+    );
     await this.wait(randMs(500, 780));
-    // Delete " AGAIN?"
-    const keep = name.length;
-    await this.backspaceTo(nameEl, keep, { hard: false });
-    this.setStatus(root, "ok");
+    await this.backspaceTo(
+      () => nameEl.textContent || "",
+      (t) => {
+        nameEl.textContent = t;
+      },
+      name.length,
+      { hard: false },
+    );
+    root.dataset.status = "ok";
     this.hooks.onTypeDone?.();
     await this.wait(500);
-    this.setStatus(root, null);
-    this.setReact("follow", null, null);
+    delete root.dataset.status;
     delete root.dataset.socialFx;
     nameEl.textContent = restore || name;
   }
 
-  /** Coffee spill: brief plate glitch + splash SFX. */
+  /** Coffee spill: terminal glitch + splash. */
   private async playCoffee(_job: ReactionJob): Promise<void> {
+    this.openTerminal("coffee");
     this.hooks.onCoffeeSplash?.();
-    this.stage.dataset.coffeeSpill = "1";
-    const fol = this.root("follow");
-    const sub = this.root("sub");
-    fol?.classList.add("smk-coffee-glitch");
-    sub?.classList.add("smk-coffee-glitch");
-    this.setReact("follow", "COFFEE SPILL", "neutral");
-    await this.wait(720);
-    this.clearCoffee();
-    this.setReact("follow", null, null);
-  }
-
-  private clearCoffee(): void {
-    delete this.stage.dataset.coffeeSpill;
-    this.root("follow")?.classList.remove("smk-coffee-glitch");
-    this.root("sub")?.classList.remove("smk-coffee-glitch");
+    this.setMain("COFFEE SPILL");
+    this.setSub("MUG DOWN — WIPE CONSOLE", "neutral");
+    await this.wait(800);
+    this.closeTerminal();
   }
 }

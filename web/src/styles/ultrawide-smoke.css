@@ -1566,62 +1566,252 @@ body.uw-smoke-variant {
   flex-direction: row-reverse;
 }
 
-/* Operator reaction readout (raid hostiles / bits stamp / gift bomb) */
-.smk-react-host {
-  position: relative;
-  z-index: 3;
-  min-height: 0;
-  max-height: 0;
-  overflow: hidden;
+/*
+ * Operator terminal — dedicated reaction console in the BOTTOM BAR center.
+ * Never leaves the bar (bar overflow:hidden). Hides chatter ticker while open.
+ */
+/* Terminal is absolute inside #uw-bottom (.uw-bar is already position:absolute).
+   Do NOT set #uw-bottom to position:relative — that breaks bottom:0 letterbox. */
+.smk-op-terminal {
+  position: absolute;
+  left: 50%;
+  /* Sit above the chatter band; bar overflow:hidden keeps it in-bar */
+  bottom: calc(var(--uw-bar-h) * 0.1);
+  top: auto;
+  z-index: 28;
+  width: min(520px, 42%);
+  max-width: 560px;
+  max-height: calc(var(--uw-bar-h) * 0.78);
+  margin: 0;
+  padding: 0;
+  transform: translate(-50%, 120%);
   opacity: 0;
   pointer-events: none;
-  padding: 0 6px;
-  font-family: "Share Tech Mono", "Consolas", monospace;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.85, 0.25, 1),
+    opacity 0.22s ease;
+  will-change: transform, opacity;
 }
-.smk-react-line {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: rgba(170, 162, 142, 0.9);
-}
-.smk-social[data-react] .smk-react-host {
-  min-height: 12px;
-  max-height: 15px;
-  margin: 1px 0 0;
+.smk-op-terminal[data-open="1"] {
+  transform: translate(-50%, 0);
   opacity: 1;
 }
-.smk-social[data-react="error"] .smk-react-line {
-  color: rgba(220, 75, 58, 0.95);
-  text-shadow: 0 0 6px rgba(160, 30, 22, 0.4);
+.smk-op-term-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 10px 7px;
+  border: 1px solid rgba(90, 82, 68, 0.85);
+  border-radius: 2px;
+  background:
+    linear-gradient(180deg, rgba(28, 26, 22, 0.96), rgba(14, 13, 11, 0.94)),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.12) 2px,
+      rgba(0, 0, 0, 0.12) 3px
+    );
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.65),
+    0 8px 18px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(180, 170, 145, 0.12);
+  overflow: hidden;
 }
-.smk-social[data-react="ok"] .smk-react-line {
+.smk-op-term-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(120, 40, 28, 0.12), transparent 55%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.25), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.25));
+  opacity: 0.9;
+}
+.smk-op-term-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Share Tech Mono", "Consolas", monospace;
+  font-size: clamp(8px, calc(var(--uw-bar-h) * 0.048), 11px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(170, 160, 140, 0.85);
+}
+.smk-op-term-lamp {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(70, 64, 54, 0.9);
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.8);
+  flex: 0 0 auto;
+}
+.smk-op-terminal[data-kind="raid"] .smk-op-term-lamp,
+.smk-op-terminal[data-alarm="1"] .smk-op-term-lamp {
+  background: rgba(200, 55, 42, 0.95);
+  box-shadow: 0 0 8px rgba(160, 30, 22, 0.65);
+  animation: smk-op-term-blink 0.35s steps(2, end) infinite;
+}
+.smk-op-terminal[data-kind="bits"] .smk-op-term-lamp,
+.smk-op-terminal[data-kind="donation"] .smk-op-term-lamp {
+  background: rgba(95, 145, 85, 0.55);
+}
+.smk-op-terminal[data-kind="giftbomb"] .smk-op-term-lamp {
+  background: rgba(160, 120, 70, 0.75);
+}
+.smk-op-terminal[data-kind="coffee"] .smk-op-term-lamp {
+  background: rgba(140, 80, 55, 0.9);
+}
+.smk-op-term-title {
+  font-weight: 700;
+  opacity: 0.9;
+}
+.smk-op-term-mode {
+  margin-left: auto;
+  color: rgba(200, 70, 55, 0.9);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.smk-op-term-screen {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-height: clamp(22px, calc(var(--uw-bar-h) * 0.2), 36px);
+  padding: 2px 6px;
+  border: 1px solid rgba(50, 46, 38, 0.9);
+  background: rgba(8, 9, 7, 0.92);
+  font-family: "Share Tech Mono", "Consolas", monospace;
+  font-size: clamp(13px, calc(var(--uw-bar-h) * 0.095), 20px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(185, 178, 155, 0.95);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.smk-op-term-screen[data-status="error"] {
+  color: rgba(220, 75, 58, 0.98);
+  text-shadow: 0 0 6px rgba(160, 30, 22, 0.45);
+  border-color: rgba(140, 40, 30, 0.65);
+}
+.smk-op-term-screen[data-status="ok"] {
   color: rgba(95, 175, 95, 0.98);
   text-shadow: 0 0 6px rgba(60, 130, 70, 0.4);
 }
-#uw-subscriber .smk-react-host {
-  text-align: right;
+.smk-op-term-main {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.smk-op-term-cursor {
+  display: none;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 1px;
+  background: rgba(170, 160, 140, 0.75);
+  animation: smk-op-term-cursor 0.9s steps(1, end) infinite;
+}
+.smk-op-terminal[data-cursor="1"] .smk-op-term-cursor {
+  display: inline-block;
+}
+.smk-op-term-scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.015) 2px,
+    rgba(255, 255, 255, 0.015) 3px
+  );
+  opacity: 0.7;
+}
+.smk-op-term-sub {
+  position: relative;
+  z-index: 1;
+  min-height: 12px;
+  font-family: "Share Tech Mono", "Consolas", monospace;
+  font-size: clamp(8px, calc(var(--uw-bar-h) * 0.05), 11px);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(160, 152, 132, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.smk-op-term-sub[data-tone="error"] {
+  color: rgba(220, 75, 58, 0.95);
+}
+.smk-op-term-sub[data-tone="ok"] {
+  color: rgba(95, 175, 95, 0.98);
+}
+.smk-op-term-stamp {
+  position: relative;
+  z-index: 1;
+  align-self: flex-start;
+  margin-top: 1px;
+  padding: 1px 6px;
+  border: 1px solid rgba(70, 130, 70, 0.75);
+  font-family: "Share Tech Mono", "Consolas", monospace;
+  font-size: clamp(9px, calc(var(--uw-bar-h) * 0.055), 12px);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(95, 175, 95, 0.98);
+  background: rgba(20, 40, 22, 0.55);
+  box-shadow: 0 0 8px rgba(50, 110, 55, 0.25);
+  animation: smk-op-term-stamp 0.35s ease-out 1;
+}
+.smk-op-terminal[data-kind="coffee"] .smk-op-term-frame {
+  animation: smk-op-term-coffee 0.55s steps(3, end) 1;
+  filter: hue-rotate(-8deg) contrast(1.08);
 }
 
-/* !coffee spill — plate-local glitch only (no stage VFX) */
-.smk-social.smk-coffee-glitch {
-  animation: smk-coffee-jolt 0.55s steps(3, end) 1;
+/* Hide bottom chatter ticker / chrono while terminal is out (no HUD overlap) */
+#uw-bottom[data-op-term="1"] .smk-chatter,
+#uw-stage[data-op-term="1"] .smk-chatter {
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
-.smk-social.smk-coffee-glitch .smk-radio-screen {
-  filter: hue-rotate(-12deg) contrast(1.1);
+
+@keyframes smk-op-term-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
 }
-#uw-stage[data-coffee-spill="1"] .smk-op-online {
-  color: rgba(180, 90, 70, 0.95);
+@keyframes smk-op-term-cursor {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
-@keyframes smk-coffee-jolt {
+@keyframes smk-op-term-stamp {
+  0% { transform: scale(1.25) rotate(-4deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes smk-op-term-coffee {
   0%, 100% { transform: translate(0, 0); }
   20% { transform: translate(-2px, 1px) rotate(-0.4deg); }
   45% { transform: translate(2px, -1px) rotate(0.35deg); }
   70% { transform: translate(-1px, 0.5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .smk-op-terminal {
+    transition: opacity 0.15s ease;
+  }
+  .smk-op-terminal[data-open="1"] {
+    transform: translate(-50%, 0);
+  }
+  .smk-op-terminal[data-alarm="1"] .smk-op-term-lamp,
+  .smk-op-term-cursor,
+  .smk-op-term-stamp,
+  .smk-op-terminal[data-kind="coffee"] .smk-op-term-frame {
+    animation: none !important;
+  }
 }
 @keyframes smk-status-blink-err {
   0%, 100% { opacity: 1; }

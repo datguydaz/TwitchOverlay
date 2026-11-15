@@ -132,9 +132,6 @@
                   <span class="smk-status-err">ERR 0x3F // INPUT MISMATCH</span>
                   <span class="smk-status-ok">✓ VERIFIED</span>
                 </div>
-                <div class="smk-react-host" aria-hidden="true">
-                  <span class="smk-react-line"></span>
-                </div>
                 <div class="smk-hud" aria-hidden="true">
                   <span>CH-01</span><span class="smk-hud-sep">|</span><span>N 47.21.08</span><span class="smk-hud-sep">|</span><span>RX</span>
                 </div>
@@ -202,9 +199,6 @@
                   <i class="smk-status-light"></i>
                   <span class="smk-status-err">ERR 0x3F // INPUT MISMATCH</span>
                   <span class="smk-status-ok">✓ VERIFIED</span>
-                </div>
-                <div class="smk-react-host" aria-hidden="true">
-                  <span class="smk-react-line"></span>
                 </div>
                 <div class="smk-hud" aria-hidden="true">
                   <span>CH-02</span><span class="smk-hud-sep">|</span><span>E 12.84.55</span><span class="smk-hud-sep">|</span><span>TX</span>
@@ -306,6 +300,23 @@
           <div class="uw-center"></div>
           <div class="uw-side uw-side-right"></div>
         </div>
+        <!-- Dedicated OPS TERMINAL — slides within bottom bar only (overflow clipped) -->
+        <aside id="smk-op-terminal" class="smk-op-terminal" data-open="0" aria-hidden="true">
+          <div class="smk-op-term-frame">
+            <header class="smk-op-term-head">
+              <i class="smk-op-term-lamp" aria-hidden="true"></i>
+              <span class="smk-op-term-title">OPS TERMINAL</span>
+              <span class="smk-op-term-mode" id="smk-op-term-mode"></span>
+            </header>
+            <div class="smk-op-term-screen" data-status="">
+              <span class="smk-op-term-scan" aria-hidden="true"></span>
+              <span class="smk-op-term-main" id="smk-op-term-main"></span>
+              <span class="smk-op-term-cursor" aria-hidden="true"></span>
+            </div>
+            <div class="smk-op-term-sub" id="smk-op-term-sub"></div>
+            <div class="smk-op-term-stamp" id="smk-op-term-stamp" hidden></div>
+          </div>
+        </aside>
         <div class="smk-flicker" aria-hidden="true"></div>
       </div>
     </div>
