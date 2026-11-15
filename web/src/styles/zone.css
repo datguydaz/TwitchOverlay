@@ -430,18 +430,21 @@ body.scene-opaque {
   transform-origin: 600px 390px;
 }
 
-/* Chest breath only (translate — no scale stretch of armour). Arms/hands are outside this node. */
+/* Chest breath only (translate — no scale stretch of armour). Arms/hands are outside this node.
+ * Driven by IdleMotion JS (capped dt) — CSS infinite loops spasm after long OBS pauses. */
 #idle-breath {
   transform-box: fill-box;
   transform-origin: 50% 35%;
-  animation: breath 6s ease-in-out infinite;
+  animation: none;
+  will-change: transform;
 }
 
-/* Head idle: long seamless loop, pivot near helm base / collar. Single animation — do not stack. */
+/* Head idle: pivot near helm base / collar. Driven by IdleMotion JS — no CSS loop. */
 #idle-head {
   transform-box: fill-box;
   transform-origin: 50% 88%;
-  animation: head-idle 75s linear infinite;
+  animation: none;
+  will-change: transform;
 }
 
 #arm-left,

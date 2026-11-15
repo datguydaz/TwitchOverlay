@@ -1,4 +1,5 @@
 import { scavengerSvg } from "./scavenger.svg.ts";
+import { IdleMotion } from "./idleMotion.ts";
 import type { InputKind, InputPhase } from "../../../shared/protocol.ts";
 import { HAND_HOME, KEY_SLOT_COUNT, slotPos } from "../../../shared/keyGrid.ts";
 import { applyChatPlacement, type ChatLayout } from "../lib/chatPlacement.ts";
@@ -262,15 +263,20 @@ export class ReactiveAvatar {
   private mouseFollowSmooth = 0.75;
   private mouseFollowDecayTimer: number | null = null;
   private mouseFollowRaf: number | null = null;
+  private mouseFollowLastTs = 0;
   /** Last applied hand aim / wrist transforms — skip redundant writes that restart transitions. */
   private lastHandTx = "";
   private lastWristTx = "";
+  private idleMotion: IdleMotion | null = null;
   private disposed = false;
   private readonly onVis = (): void => {
     if (document.hidden) {
       this.clearFlavorSchedule();
       this.clearEyeBlinkSchedule();
+      this.idleMotion?.pause();
+      this.mouseFollowLastTs = 0;
     } else {
+      this.idleMotion?.resume();
       this.scheduleFlavor();
       this.scheduleEyeBlink();
     }
@@ -312,6 +318,18 @@ export class ReactiveAvatar {
     this.scheduleEyeBlink();
     // Clear any legacy duration overrides once — never reseed idle loops after this.
     this.clearLegacyIdleDurationOverrides();
+    // JS idle (capped dt) — avoids long-run CSS animation spasms after OBS pause.
+    const reduce =
+      typeof matchMedia === "function" &&
+      matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.idleMotion = new IdleMotion({
+      breathEl: this.root.querySelector("#idle-breath") as SVGElement | null,
+      headEl: this.root.querySelector("#idle-head") as SVGElement | null,
+      reducedMotion: reduce,
+    });
+    if (!document.hidden) this.idleMotion.start();
+    (this.root as HTMLElement & { __pzIdleMotion?: IdleMotion }).__pzIdleMotion =
+      this.idleMotion;
   }
 
   /**
@@ -1036,10 +1054,21 @@ export class ReactiveAvatar {
 
   private kickMouseFollowLoop(): void {
     if (this.mouseFollowRaf != null) return;
-    const tick = () => {
+    const tick = (ts: number) => {
       this.mouseFollowRaf = null;
       if (this.disposed) return;
-      const t = this.mouseFollowLerp();
+      if (document.hidden) {
+        this.mouseFollowLastTs = 0;
+        return;
+      }
+      // Frame-rate independent lerp with hard dt cap (no catch-up spasm after pause).
+      let dt = this.mouseFollowLastTs === 0 ? 16 : ts - this.mouseFollowLastTs;
+      this.mouseFollowLastTs = ts;
+      if (!Number.isFinite(dt) || dt < 0) dt = 16;
+      if (dt > 48) dt = 48;
+      const base = this.mouseFollowLerp();
+      // Convert per-frame factor (~60fps) into dt-scaled blend.
+      const t = 1 - Math.pow(1 - base, dt / 16.67);
       this.mouseFollowX += (this.mouseFollowTargetX - this.mouseFollowX) * t;
       this.mouseFollowY += (this.mouseFollowTargetY - this.mouseFollowY) * t;
       if (
@@ -1057,6 +1086,8 @@ export class ReactiveAvatar {
         Math.abs(this.mouseFollowTargetY) >= 0.05;
       if (stillMoving) {
         this.mouseFollowRaf = window.requestAnimationFrame(tick);
+      } else {
+        this.mouseFollowLastTs = 0;
       }
     };
     this.mouseFollowRaf = window.requestAnimationFrame(tick);
@@ -1166,6 +1197,8 @@ export class ReactiveAvatar {
   dispose(): void {
     this.disposed = true;
     document.removeEventListener("visibilitychange", this.onVis);
+    this.idleMotion?.dispose();
+    this.idleMotion = null;
     this.clearFlavorSchedule();
     this.clearEyeBlinkSchedule();
     if (this.flavorClearTimer != null) window.clearTimeout(this.flavorClearTimer);
