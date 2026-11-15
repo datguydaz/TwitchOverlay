@@ -408,6 +408,10 @@ export class SocialReadoutAnim {
       settleMs = Math.floor(settleMs * scale);
     }
 
+    // Completion is green-only: kill red bar-lip surge before NEW / VERIFIED
+    this.setStageSurge(false);
+    delete this.stage.dataset.helmFlash;
+
     el.dataset.socialFx = "new";
     this.setStatus(el, "ok");
     badge?.classList.add("on");

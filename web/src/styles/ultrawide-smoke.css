@@ -963,14 +963,14 @@ body.uw-smoke-variant {
   z-index: 0;
 }
 .smk-plate.smk-crate::after {
-  /* stencil wash / crate stencil edge */
+  /* stencil wash / crate stencil edge — olive, not error-red */
   content: "";
   position: absolute;
   left: 10px;
   right: 10px;
   top: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(120, 40, 28, 0.55), transparent);
+  background: linear-gradient(90deg, transparent, rgba(120, 140, 90, 0.4), transparent);
   z-index: 1;
 }
 #uw-stage[data-variant="smoke-flare"] .uw-side-right .smk-plate.smk-crate {
@@ -1013,8 +1013,9 @@ body.uw-smoke-variant {
   font-family: "Share Tech Mono", "Consolas", monospace;
   font-size: 10px;
   letter-spacing: 0.18em;
-  color: rgba(140, 48, 32, 0.85);
-  border: 1px solid rgba(120, 40, 28, 0.45);
+  /* Neutral bone tag — never reads as ERROR red at verify */
+  color: rgba(160, 152, 132, 0.82);
+  border: 1px solid rgba(110, 100, 82, 0.45);
   padding: 1px 5px 0;
   line-height: 1.2;
   opacity: 0.9;
@@ -1042,11 +1043,12 @@ body.uw-smoke-variant {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.2em;
-  color: #f0e8d8;
-  background: #7a1c14;
+  color: #e8f2e0;
+  /* Verified green — was red #7a1c14 (the completion "red pop") */
+  background: #2e6b34;
   padding: 2px 6px 1px;
   line-height: 1.1;
-  box-shadow: 0 0 10px rgba(140, 28, 18, 0.55);
+  box-shadow: 0 0 10px rgba(60, 140, 70, 0.55);
   animation: smk-new-flash 0.55s steps(2, end) infinite;
 }
 .smk-new.on {
@@ -1457,8 +1459,9 @@ body.uw-smoke-variant {
   height: 10px;
   border-radius: 50%;
   opacity: 0;
-  background: radial-gradient(circle at 40% 35%, #f2b0a0 0%, #a02418 45%, #3a0a08 100%);
-  box-shadow: 0 0 0 1px rgba(80, 16, 12, 0.8);
+  /* Neutral default; red only under data-status=error, green on verify */
+  background: radial-gradient(circle at 40% 35%, #c8d4b8 0%, #4a6a40 45%, #1a2814 100%);
+  box-shadow: 0 0 0 1px rgba(40, 60, 32, 0.8);
 }
 .smk-type-dust {
   position: absolute;
@@ -1749,16 +1752,31 @@ body.uw-smoke-variant {
 #uw-subscriber.smk-stamp-slam[data-social-fx="new"] .smk-plate {
   animation: smk-plate-jolt 0.35s steps(2, end) 1;
 }
+/* Intro (before typing) may use red lamp; typing stays neutral; verify = green */
 #uw-subscriber[data-social-fx="surge"] .smk-type-lamp,
-#uw-subscriber[data-social-fx="crt"] .smk-type-lamp,
-#uw-subscriber[data-social-fx="type"] .smk-type-lamp {
+#uw-subscriber[data-social-fx="crt"] .smk-type-lamp {
   opacity: 1;
+  background: radial-gradient(circle at 40% 35%, #f2b0a0 0%, #a02418 45%, #3a0a08 100%);
+  box-shadow: 0 0 0 1px rgba(80, 16, 12, 0.8);
   animation: smk-emerg-lamp 0.35s steps(2, end) infinite;
 }
-#uw-subscriber[data-social-fx="new"] .smk-type-lamp {
+#uw-subscriber[data-social-fx="type"] .smk-type-lamp {
   opacity: 1;
-  animation: smk-emerg-lamp 0.35s steps(2, end) infinite;
-  box-shadow: 0 0 12px rgba(80, 160, 70, 0.55);
+  animation: smk-verify-lamp 0.55s steps(2, end) infinite;
+}
+#uw-subscriber[data-status="error"] .smk-type-lamp {
+  background: radial-gradient(circle at 40% 35%, #f2b0a0 0%, #a02418 45%, #3a0a08 100%) !important;
+  box-shadow: 0 0 0 1px rgba(80, 16, 12, 0.8) !important;
+  animation: smk-emerg-lamp 0.28s steps(2, end) infinite !important;
+}
+#uw-subscriber[data-social-fx="new"] .smk-type-lamp,
+#uw-subscriber[data-status="ok"] .smk-type-lamp,
+#uw-follower[data-social-fx="new"] .smk-type-lamp,
+#uw-follower[data-status="ok"] .smk-type-lamp {
+  opacity: 1;
+  background: radial-gradient(circle at 40% 35%, #b8e0a0 0%, #2e7a38 50%, #0e2814 100%) !important;
+  box-shadow: 0 0 12px rgba(80, 160, 70, 0.55) !important;
+  animation: smk-verify-lamp 0.45s steps(2, end) infinite !important;
 }
 #uw-subscriber[data-social-fx="crt"] .smk-crt-hline {
   opacity: 1;
@@ -2132,6 +2150,18 @@ body.uw-smoke-variant {
   50% {
     opacity: 0.35;
     box-shadow: 0 0 3px rgba(120, 24, 18, 0.25);
+  }
+}
+@keyframes smk-verify-lamp {
+  0%, 100% {
+    opacity: 0.95;
+    box-shadow:
+      0 0 6px rgba(80, 160, 70, 0.55),
+      0 0 14px rgba(50, 120, 60, 0.3);
+  }
+  50% {
+    opacity: 0.45;
+    box-shadow: 0 0 3px rgba(60, 120, 70, 0.25);
   }
 }
 @keyframes smk-sub-chroma {
