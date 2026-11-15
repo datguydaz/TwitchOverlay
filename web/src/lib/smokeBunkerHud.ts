@@ -135,9 +135,10 @@ export function applySmokeBunkerHud(stage: HTMLElement): () => void {
   let dead = false;
   const raidStart = resolveRaidStart();
 
+  // Always run unless disposed — cleanups must not skip when document.hidden
   const later = (fn: () => void, ms: number) => {
     const id = window.setTimeout(() => {
-      if (dead || document.hidden) return;
+      if (dead) return;
       fn();
     }, ms);
     timeouts.push(id);
@@ -190,38 +191,53 @@ export function applySmokeBunkerHud(stage: HTMLElement): () => void {
 
   // Bulb brownout / flicker
   const bulbs = stage.querySelectorAll<HTMLElement>(".smk-bunker-light");
+  const clearBulbs = () => {
+    bulbs.forEach((b) => b.classList.remove("smk-bulb-flick", "smk-bulb-brown"));
+  };
   const scheduleBulb = () => {
     if (dead || reduced) return;
-    const roll = Math.random();
-    if (roll < 0.55) {
-      bulbs.forEach((b) => b.classList.add("smk-bulb-flick"));
-      later(() => bulbs.forEach((b) => b.classList.remove("smk-bulb-flick")), rand(60, 140));
-    } else if (roll < 0.82) {
-      bulbs.forEach((b) => b.classList.add("smk-bulb-brown"));
-      later(() => bulbs.forEach((b) => b.classList.remove("smk-bulb-brown")), rand(180, 420));
-    } else {
-      // double stutter
-      bulbs.forEach((b) => b.classList.add("smk-bulb-flick"));
-      later(() => {
-        bulbs.forEach((b) => b.classList.remove("smk-bulb-flick"));
-        later(() => {
+    later(() => {
+      if (dead) return;
+      if (!document.hidden) {
+        const roll = Math.random();
+        if (roll < 0.55) {
+          bulbs.forEach((b) => b.classList.add("smk-bulb-flick"));
+          later(() => bulbs.forEach((b) => b.classList.remove("smk-bulb-flick")), rand(60, 140));
+        } else if (roll < 0.82) {
           bulbs.forEach((b) => b.classList.add("smk-bulb-brown"));
-          later(() => bulbs.forEach((b) => b.classList.remove("smk-bulb-brown")), rand(120, 280));
-        }, 90);
-      }, 70);
-    }
-    later(scheduleBulb, rand(3500, 9000));
+          later(() => bulbs.forEach((b) => b.classList.remove("smk-bulb-brown")), rand(180, 420));
+        } else {
+          bulbs.forEach((b) => b.classList.add("smk-bulb-flick"));
+          later(() => {
+            bulbs.forEach((b) => b.classList.remove("smk-bulb-flick"));
+            later(() => {
+              if (dead) return;
+              bulbs.forEach((b) => b.classList.add("smk-bulb-brown"));
+              later(() => bulbs.forEach((b) => b.classList.remove("smk-bulb-brown")), rand(120, 280));
+            }, 90);
+          }, 70);
+        }
+      }
+      scheduleBulb();
+    }, rand(3500, 9000));
+  };
+
+  const onVis = () => {
+    if (dead || document.hidden) return;
+    clearBulbs();
   };
 
   if (!reduced) {
+    document.addEventListener("visibilitychange", onVis);
     later(glitchChatter, rand(2000, 4000));
     later(scheduleBulb, rand(2500, 5000));
   }
 
   return () => {
     dead = true;
+    document.removeEventListener("visibilitychange", onVis);
     for (const t of timeouts) window.clearTimeout(t);
     for (const t of intervals) window.clearInterval(t);
-    bulbs.forEach((b) => b.classList.remove("smk-bulb-flick", "smk-bulb-brown"));
+    clearBulbs();
   };
 }

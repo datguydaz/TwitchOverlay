@@ -3134,7 +3134,7 @@ body.uw-smoke-variant {
   50% { transform: rotate(2.4deg); }
 }
 
-/* Rare power surge */
+/* Rare power surge — bar-only dim veil (never stage-wide filter; that stuck dark) */
 #uw-stage.smk-surge-flare .smk-bulb-glow {
   opacity: 1.4 !important;
   filter: brightness(1.35);
@@ -3147,11 +3147,23 @@ body.uw-smoke-variant {
 #uw-stage.smk-surge-shake .uw-bar-bottom {
   animation: smk-surge-shake 0.28s steps(2, end);
 }
-#uw-stage.smk-surge-brown {
-  filter: brightness(0.72) contrast(1.05);
-}
 #uw-stage.smk-surge-brown .smk-bulb-glow {
   opacity: 0.15 !important;
+  transition: opacity 0.45s ease;
+}
+/* Soft bar dim via existing dropout layer — crossfades, no #uw-stage filter */
+.smk-ruin-bar.smk-surge-dim .smk-fx-dropout {
+  opacity: 0.38;
+  transition: opacity 0.45s ease;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.42),
+    rgba(0, 0, 0, 0.18) 45%,
+    rgba(0, 0, 0, 0.36)
+  );
+}
+.smk-ruin-bar .smk-fx-dropout {
+  transition: opacity 0.45s ease;
 }
 @keyframes smk-surge-shake {
   0%, 100% { transform: translate(0, 0); }

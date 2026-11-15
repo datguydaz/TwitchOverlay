@@ -58,9 +58,10 @@ export function applySmokeBarFx(stage: HTMLElement): () => void {
   const timers: Timer[] = [];
   let dead = false;
 
+  // Always fire unless disposed — class removals must not skip when hidden
   const later = (fn: () => void, ms: number) => {
     const id = window.setTimeout(() => {
-      if (dead || document.hidden) return;
+      if (dead) return;
       fn();
     }, ms);
     timers.push(id);
@@ -77,18 +78,22 @@ export function applySmokeBarFx(stage: HTMLElement): () => void {
   const scheduleStatic = () => {
     later(() => {
       if (dead) return;
-      const dur = rand(70, 160);
-      pulseClass([top, bot], "smk-fx-on-static", dur);
+      if (!document.hidden) {
+        const dur = rand(70, 160);
+        pulseClass([top, bot], "smk-fx-on-static", dur);
+      }
       scheduleStatic();
     }, rand(3500, 8000));
   };
 
   const scheduleNameTear = () => {
     later(() => {
-      if (dead || !nameplate) return;
-      const dur = rand(100, 180);
-      nameplate.classList.add("smk-fx-on-tear");
-      later(() => nameplate.classList.remove("smk-fx-on-tear"), dur);
+      if (dead) return;
+      if (!document.hidden && nameplate) {
+        const dur = rand(100, 180);
+        nameplate.classList.add("smk-fx-on-tear");
+        later(() => nameplate.classList.remove("smk-fx-on-tear"), dur);
+      }
       scheduleNameTear();
     }, rand(7000, 14000));
   };
@@ -96,10 +101,11 @@ export function applySmokeBarFx(stage: HTMLElement): () => void {
   const scheduleDropout = () => {
     later(() => {
       if (dead) return;
-      const dur = rand(160, 380);
-      pulseClass([top, bot], "smk-fx-on-dropout", dur);
-      // Brief static ride-along
-      pulseClass([top, bot], "smk-fx-on-static", Math.min(dur, 120));
+      if (!document.hidden) {
+        const dur = rand(160, 380);
+        pulseClass([top, bot], "smk-fx-on-dropout", dur);
+        pulseClass([top, bot], "smk-fx-on-static", Math.min(dur, 120));
+      }
       scheduleDropout();
     }, rand(8000, 15000));
   };
@@ -107,9 +113,11 @@ export function applySmokeBarFx(stage: HTMLElement): () => void {
   const scheduleSparks = () => {
     later(() => {
       if (dead) return;
-      const target = Math.random() > 0.45 ? top : bot;
-      target.classList.add("smk-fx-on-sparks");
-      later(() => target.classList.remove("smk-fx-on-sparks"), rand(220, 480));
+      if (!document.hidden) {
+        const target = Math.random() > 0.45 ? top : bot;
+        target.classList.add("smk-fx-on-sparks");
+        later(() => target.classList.remove("smk-fx-on-sparks"), rand(220, 480));
+      }
       scheduleSparks();
     }, rand(5000, 11000));
   };
