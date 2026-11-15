@@ -326,6 +326,7 @@ export class ReactiveAvatar {
       breathEl: this.root.querySelector("#idle-breath") as SVGElement | null,
       headEl: this.root.querySelector("#idle-head") as SVGElement | null,
       reducedMotion: reduce,
+      amount: this.intensity,
     });
     if (!document.hidden) this.idleMotion.start();
     (this.root as HTMLElement & { __pzIdleMotion?: IdleMotion }).__pzIdleMotion =
@@ -464,7 +465,8 @@ export class ReactiveAvatar {
   setIntensity(value: number): void {
     this.intensity = Math.max(0.2, Math.min(2, value));
     this.root.style.setProperty("--avatar-intensity", String(this.intensity));
-    // Idle breath/head use fixed CSS durations on nested layers — never reseed here.
+    // Scales IdleMotion amplitudes only — never reseeds phase / CSS loops.
+    this.idleMotion?.setAmount(this.intensity);
   }
 
   /** Dashboard-persisted mouse+hand follow gain (speed) + smoothness (lerp). */
