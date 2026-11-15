@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stream Ending</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/fonts.css" />
+    <link rel="stylesheet" href="/src/styles/zone.css" />
+  </head>
+  <body class="scene-opaque">
+    <div id="stage">
+      <div class="signal-noise" aria-hidden="true"></div>
+      <div class="scene-terminal">
+        <div class="terminal-panel">
+          <div class="rad-stamp">EXFIL<br />OK</div>
+          <div class="terminal-eyebrow">FIELD TERMINAL // EXFIL</div>
+          <h1 class="terminal-title" id="scene-title">EXTRACTION COMPLETE</h1>
+          <p class="terminal-sub" id="scene-sub">Thanks for riding along in the zone.</p>
+          <p class="terminal-sub" style="margin-bottom: 0">
+            Operator: <span data-streamer-name>datguydaz</span>
+          </p>
+        </div>
+      </div>
+      <div class="module" id="mod-avatar">
+        <div id="avatar-mount"></div>
+      </div>
+      <div class="conn-pill" id="conn-pill" data-state="offline">INPUT // IDLE</div>
+    </div>
+    <script type="module" src="/src/pages/ending.ts"></script>
+  </body>
+</html>

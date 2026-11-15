@@ -1,0 +1,626 @@
+export type SceneId =
+  | "gameplay"
+  | "starting-soon"
+  | "brb"
+  | "ending"
+  | "avatar"
+  | "ultrawide";
+
+export type SocialPlacement =
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right";
+
+/** AI bot chat corner on avatar overlay (dashboard-editable). */
+export type ChatPlacement =
+  | "bottom-center"
+  | "bottom-left"
+  | "bottom-right"
+  | "top-left"
+  | "top-right"
+  | "mid-left"
+  | "mid-right";
+
+export const CHAT_PLACEMENTS: readonly ChatPlacement[] = [
+  "bottom-center",
+  "bottom-left",
+  "bottom-right",
+  "top-left",
+  "top-right",
+  "mid-left",
+  "mid-right",
+] as const;
+
+export interface ModuleTransform {
+  visible: boolean;
+  x: number;
+  y: number;
+  scale: number;
+}
+
+/** Letterbox fills for ultrawide canvas (e.g. 3440×1440) around centered 16:9. */
+export interface UltrawideSettings {
+  canvasWidth: number;
+  canvasHeight: number;
+  /** Each bar thickness in px. Default 180 → 1080px hole in 1440 canvas. */
+  barHeight: number;
+  topVisible: boolean;
+  bottomVisible: boolean;
+  /** Legacy/custom top center when operatorLineOnTop is false. */
+  topText: string;
+  /** Bottom-center banner line (operator name lives on top). */
+  bottomText: string;
+  /** Bottom-right status chip — threat / extract / raid vibe. */
+  statusText: string;
+  /** When true, top center shows `{STREAMER} // {operatorLine}`. */
+  operatorLineOnTop: boolean;
+  /** Suffix after streamer name on the top bar. */
+  operatorLine: string;
+}
+
+export type AtmosphereIntensity = "low" | "medium" | "high";
+
+/** Ultrawide / bunker frame ambient VFX — dashboard only; not real connection status. */
+export interface AtmosphereSettings {
+  /** Master enable for decorative atmosphere. */
+  enabled: boolean;
+  intensity: AtmosphereIntensity;
+  dust: boolean;
+  smoke: boolean;
+  sparks: boolean;
+  flicker: boolean;
+  /** Force-disable motion even if OS allows it. */
+  reducedMotion: boolean;
+}
+
+/** Frame lettering life FX — separate from ambient atmosphere. */
+export interface TextEffectsSettings {
+  enabled: boolean;
+  intensity: AtmosphereIntensity;
+  /** Force-disable text motion even if OS allows it. */
+  reducedMotion: boolean;
+}
+
+/**
+ * Per-event sound selection for ultrawide-smoke.
+ * Built-ins: none / typewriter (default) / radio / hatch / random (from pool).
+ * `custom` picks one uploaded file via `customId`.
+ */
+export type SfxPreset = "none" | "typewriter" | "radio" | "hatch" | "random" | "custom";
+
+export interface SfxEventSettings {
+  preset: SfxPreset;
+  /** When preset is `custom` — single uploaded sound id. */
+  customId: string;
+  /** When preset is `random` — uploaded ids eligible for the pool. */
+  pool: string[];
+  /**
+   * Layer typewriter key-clacks under a oneshot (radio/hatch/custom/random).
+   * Default false when a non-typewriter oneshot is selected.
+   */
+  typewriterLayer: boolean;
+  /** Per-event volume 0..1 (multiplied by master). */
+  volume: number;
+}
+
+/** Event SFX — master mute/volume + separate Follow / Sub pickers. */
+export interface SfxSettings {
+  /** Master enable — URL `?sfx=0` still forces mute. */
+  enabled: boolean;
+  /** Master 0..1 — URL `?vol=` overrides when present. Default ~0.6. */
+  volume: number;
+  follow: SfxEventSettings;
+  sub: SfxEventSettings;
+}
+
+export const DEFAULT_SFX_EVENT: SfxEventSettings = {
+  preset: "typewriter",
+  customId: "",
+  pool: [],
+  typewriterLayer: false,
+  volume: 1,
+};
+
+/**
+ * Typo flavour when operator typos fire (follow + sub).
+ * `rage` = always full rage sequence (default).
+ * `normal` = classic wrong-first typos (uses `chance`).
+ * `mixed` = legacy alias for `rage` (no silent randomness).
+ */
+export type SubTypoStyle = "rage" | "normal" | "mixed";
+
+/** Comedic operator typos during follow/sub type-in. */
+export interface OperatorTypoSettings {
+  /** Master enable — URL `?typos=0` forces off, `?typos=1` forces on. */
+  enabled: boolean;
+  /** Chance 0..1 for `normal` style only (default 1). Rage ignores chance. */
+  chance: number;
+  /**
+   * Follow + sub: rage keysmash (default) / normal typo / mixed (= rage).
+   * Default rage so behaviour cannot silently flip back to random.
+   */
+  subStyle: SubTypoStyle;
+}
+
+export const DEFAULT_OPERATOR_TYPOS: OperatorTypoSettings = {
+  enabled: true,
+  chance: 1,
+  subStyle: "rage",
+};
+
+/** Funny operator reactions on the ultrawide plates (raids, bits, idle, etc.). */
+export interface OperatorReactionsSettings {
+  raids: boolean;
+  bits: boolean;
+  giftBombs: boolean;
+  /** Min gifts in a burst to trigger gift-bomb instead of N sub anims. */
+  giftBombThreshold: number;
+  idle: boolean;
+  /** Idle delay before bored typing, ms (clamped 3–60 min). Default 10 min. */
+  idleDelayMs: number;
+  repeatName: boolean;
+  coffee: boolean;
+  /** Twitch channel for !coffee justinfan IRC (no token). */
+  coffeeChannel: string;
+  /** Per-chatter cooldown for !coffee, ms. */
+  coffeeUserCooldownMs: number;
+  /** Global cooldown between coffee spills, ms. */
+  coffeeGlobalCooldownMs: number;
+}
+
+export const DEFAULT_OPERATOR_REACTIONS: OperatorReactionsSettings = {
+  raids: true,
+  bits: true,
+  giftBombs: true,
+  giftBombThreshold: 5,
+  idle: true,
+  idleDelayMs: 600_000,
+  repeatName: true,
+  coffee: true,
+  coffeeChannel: "datguydaz",
+  coffeeUserCooldownMs: 120_000,
+  coffeeGlobalCooldownMs: 45_000,
+};
+
+export interface ChatSettings {
+  enabled: boolean;
+  /** Auto Zone Ops trash-talk on a timer. */
+  demoAuto: boolean;
+  /** Trash-talk interval in ms (clamped 6s–90s). */
+  intervalMs: number;
+  /**
+   * Games he "plays" for canned match trash-talk (not live game reading).
+   * One display name per entry — edited in dashboard.
+   */
+  games: string[];
+  /** Corner / side for the AI bot chat bubble (persisted). */
+  placement: ChatPlacement;
+  /** Inset from the chosen horizontal edge, percent of overlay width (0–40). */
+  offsetXPct: number;
+  /** Inset from the chosen vertical edge, percent of overlay height (0–40). */
+  offsetYPct: number;
+  /** COMMS bubble scale multiplier (0.6–10, default 1). */
+  scale: number;
+}
+
+/** Default roster for "playing his own games" chat flavor. */
+export const DEFAULT_CHAT_GAMES: readonly string[] = [
+  "Tarkov",
+  "DayZ",
+  "Arena Breakout",
+  "Hunt: Showdown",
+  "Gray Zone",
+];
+
+export interface SocialSettings {
+  showFollower: boolean;
+  showSubscriber: boolean;
+  /**
+   * Display name for latest follower. Empty until Twitch/Kick is wired.
+   * (Kept as latestFollowerSample in persisted JSON via merge for compat.)
+   */
+  latestFollower: string;
+  latestSubscriber: string;
+  /** @deprecated compat — mapped to latestFollower */
+  latestFollowerSample?: string;
+  /** @deprecated compat — mapped to latestSubscriber */
+  latestSubscriberSample?: string;
+  followerPlacement?: SocialPlacement;
+  subscriberPlacement?: SocialPlacement;
+}
+
+export interface OverlaySettings {
+  version: 1;
+  streamerName: string;
+  accentColor: string;
+  oliveColor: string;
+  beigeColor: string;
+  charcoalColor: string;
+  countdownMinutes: number;
+  countdownTargetIso: string | null;
+  sceneText: {
+    startingSoonTitle: string;
+    startingSoonSub: string;
+    brbTitle: string;
+    brbSub: string;
+    endingTitle: string;
+    endingSub: string;
+  };
+  modules: {
+    identity: ModuleTransform;
+    webcam: ModuleTransform;
+    events: ModuleTransform;
+    avatar: ModuleTransform;
+  };
+  avatar: {
+    intensity: number;
+    lightsEnabled: boolean;
+    /**
+     * Mouse+hand follow gain (speed). Higher = bigger nudge per cursor delta.
+     * Typical 0.06–0.35; default ~0.12 (slower/smoother than the first pass).
+     */
+    mouseFollowGain: number;
+    /**
+     * Mouse+hand follow smoothness 0–1. Higher = slower lerp / more glide.
+     * 0 = snappy; ~0.75 default; 0.95 = very soft.
+     */
+    mouseFollowSmooth: number;
+  };
+  mic: {
+    /** Dashboard Web Audio mic → overlays (levels only). */
+    enabled: boolean;
+    threshold: number;
+  };
+  chat: ChatSettings;
+  social: SocialSettings;
+  ultrawide: UltrawideSettings;
+  atmosphere: AtmosphereSettings;
+  textEffects: TextEffectsSettings;
+  sfx: SfxSettings;
+  operatorTypos: OperatorTypoSettings;
+  operatorReactions: OperatorReactionsSettings;
+  /**
+   * Scales all event animations (follow/sub rage, raid, bits, giftbomb, etc.).
+   * 1 = original pace; default 1.75; clamped 1–2.5.
+   */
+  eventAnimScale: number;
+  /**
+   * OPS terminal width as % of canvas (centered on logo axis).
+   * Default 42; clamped 30–80.
+   */
+  terminalWidthPct: number;
+  demoModeDefault: boolean;
+}
+
+export const DEFAULT_SETTINGS: OverlaySettings = {
+  version: 1,
+  streamerName: "datguydaz",
+  accentColor: "#c7923a",
+  oliveColor: "#6b7355",
+  beigeColor: "#c4b59a",
+  charcoalColor: "#1a1c18",
+  countdownMinutes: 10,
+  countdownTargetIso: null,
+  sceneText: {
+    startingSoonTitle: "SIGNAL ACQUISITION",
+    startingSoonSub: "Operator inbound. Stand by for zone entry.",
+    brbTitle: "OPERATOR AWAY",
+    brbSub: "Hold position. Transmission resumes shortly.",
+    endingTitle: "EXTRACTION COMPLETE",
+    endingSub: "Thanks for riding along in the zone.",
+  },
+  modules: {
+    identity: { visible: true, x: 48, y: 48, scale: 1 },
+    /* 16:9 cam is 420px wide — keep fully on 1920 stage (was 1560+320) */
+    webcam: { visible: true, x: 1452, y: 48, scale: 1 },
+    events: { visible: true, x: 48, y: 820, scale: 1 },
+    /* Visual size ~420px after 1200px hi-res base (1200 * 0.35 ≈ 420) */
+    avatar: { visible: true, x: 1500, y: 740, scale: 0.35 },
+  },
+  avatar: {
+    intensity: 1,
+    lightsEnabled: true,
+    mouseFollowGain: 0.12,
+    mouseFollowSmooth: 0.75,
+  },
+  mic: {
+    enabled: false,
+    threshold: 0.12,
+  },
+  chat: {
+    enabled: true,
+    demoAuto: true,
+    intervalMs: 14000,
+    games: [...DEFAULT_CHAT_GAMES],
+    // Centered under desk lip by default (ox 20 = dead center for bottom-center)
+    placement: "bottom-center",
+    offsetXPct: 20,
+    offsetYPct: 2,
+    scale: 1,
+  },
+  social: {
+    showFollower: true,
+    showSubscriber: true,
+    latestFollower: "",
+    latestSubscriber: "",
+  },
+  ultrawide: {
+    canvasWidth: 3440,
+    canvasHeight: 1440,
+    barHeight: 180,
+    topVisible: true,
+    bottomVisible: true,
+    topText: "ZONE OPS // TRANSMISSION",
+    bottomText: "HOLD THE LINE",
+    statusText: "ZONE THREAT // RAID READY",
+    operatorLineOnTop: true,
+    operatorLine: "OPERATOR ONLINE",
+  },
+  atmosphere: {
+    enabled: true,
+    intensity: "low",
+    dust: true,
+    smoke: true,
+    sparks: true,
+    flicker: true,
+    reducedMotion: false,
+  },
+  textEffects: {
+    enabled: true,
+    intensity: "medium",
+    reducedMotion: false,
+  },
+  sfx: {
+    enabled: true,
+    volume: 0.6,
+    follow: { ...DEFAULT_SFX_EVENT },
+    sub: { ...DEFAULT_SFX_EVENT },
+  },
+  operatorTypos: { ...DEFAULT_OPERATOR_TYPOS },
+  operatorReactions: { ...DEFAULT_OPERATOR_REACTIONS },
+  eventAnimScale: 1.75,
+  terminalWidthPct: 42,
+  demoModeDefault: false,
+};
+
+/**
+ * Deep-merge overlay settings onto a base document.
+ * Pass `onto` = current live settings for partial patches (Streamlabs, SFX cleanup)
+ * so unspecified keys are preserved. Omit `onto` (defaults to DEFAULT_SETTINGS) when
+ * loading a file / filling gaps from shipped defaults.
+ */
+export function mergeSettings(
+  partial: Partial<OverlaySettings> | null | undefined,
+  onto: OverlaySettings = DEFAULT_SETTINGS,
+): OverlaySettings {
+  const base = structuredClone(onto);
+  if (!partial) return base;
+  return {
+    ...base,
+    ...partial,
+    version: 1,
+    sceneText: { ...base.sceneText, ...partial.sceneText },
+    modules: {
+      identity: { ...base.modules.identity, ...partial.modules?.identity },
+      webcam: { ...base.modules.webcam, ...partial.modules?.webcam },
+      events: { ...base.modules.events, ...partial.modules?.events },
+      avatar: { ...base.modules.avatar, ...partial.modules?.avatar },
+    },
+    avatar: (() => {
+      const a = { ...base.avatar, ...partial.avatar };
+      const clamp = (n: unknown, min: number, max: number, fallback: number) => {
+        const v = Number(n);
+        if (!Number.isFinite(v)) return fallback;
+        return Math.max(min, Math.min(max, Math.round(v * 1000) / 1000));
+      };
+      return {
+        ...a,
+        intensity: clamp(a.intensity, 0.2, 2, 1),
+        lightsEnabled: !!a.lightsEnabled,
+        mouseFollowGain: clamp(a.mouseFollowGain, 0.04, 0.45, 0.12),
+        mouseFollowSmooth: clamp(a.mouseFollowSmooth, 0, 0.95, 0.75),
+      };
+    })(),
+    mic: { ...base.mic, ...partial.mic },
+    chat: (() => {
+      const c = { ...base.chat, ...partial.chat };
+      const raw = partial.chat?.games ?? c.games ?? [...DEFAULT_CHAT_GAMES];
+      const games = (Array.isArray(raw) ? raw : [])
+        .map((g) => String(g ?? "").trim())
+        .filter(Boolean)
+        .slice(0, 24);
+      const placementRaw = String(partial.chat?.placement ?? c.placement ?? "bottom-center");
+      const placement = (CHAT_PLACEMENTS as readonly string[]).includes(placementRaw)
+        ? (placementRaw as ChatPlacement)
+        : "bottom-center";
+      const clampPct = (n: unknown, fallback: number) => {
+        const v = Number(n);
+        if (!Number.isFinite(v)) return fallback;
+        return Math.max(0, Math.min(40, v));
+      };
+      const clampScale = (n: unknown, fallback: number) => {
+        const v = Number(n);
+        if (!Number.isFinite(v)) return fallback;
+        return Math.max(0.6, Math.min(10, Math.round(v * 100) / 100));
+      };
+      return {
+        ...c,
+        games: games.length ? games : [...DEFAULT_CHAT_GAMES],
+        placement,
+        offsetXPct: clampPct(partial.chat?.offsetXPct ?? c.offsetXPct, 20),
+        offsetYPct: clampPct(partial.chat?.offsetYPct ?? c.offsetYPct, 2),
+        scale: clampScale(partial.chat?.scale ?? c.scale, 1),
+      };
+    })(),
+    social: (() => {
+      const s = { ...base.social, ...partial.social };
+      // Migrate old SAMPLE fields → empty placeholders
+      const fol =
+        partial.social?.latestFollower ??
+        partial.social?.latestFollowerSample ??
+        s.latestFollower ??
+        "";
+      const sub =
+        partial.social?.latestSubscriber ??
+        partial.social?.latestSubscriberSample ??
+        s.latestSubscriber ??
+        "";
+      const scrub = (v: string) => {
+        const t = String(v ?? "").trim();
+        if (!t || t === "—" || t === "--" || t === "-") return "";
+        if (/^sample/i.test(t) || t === "GhostPing_42" || t === "RaidMama" || t === "SAMPLE_USER" || t === "SAMPLE_SUB") {
+          return "";
+        }
+        return t;
+      };
+      return {
+        showFollower: s.showFollower,
+        showSubscriber: s.showSubscriber,
+        latestFollower: scrub(fol),
+        latestSubscriber: scrub(sub),
+      };
+    })(),
+    ultrawide: { ...base.ultrawide, ...partial.ultrawide },
+    atmosphere: (() => {
+      const a = { ...base.atmosphere, ...partial.atmosphere };
+      const raw = String(a.intensity || "low").toLowerCase();
+      const intensity: AtmosphereIntensity =
+        raw === "medium" || raw === "med"
+          ? "medium"
+          : raw === "high"
+            ? "high"
+            : "low";
+      return {
+        enabled: a.enabled !== false,
+        intensity,
+        dust: a.dust !== false,
+        smoke: a.smoke !== false,
+        sparks: a.sparks !== false,
+        flicker: a.flicker !== false,
+        reducedMotion: !!a.reducedMotion,
+      };
+    })(),
+    textEffects: (() => {
+      const t = { ...base.textEffects, ...partial.textEffects };
+      const raw = String(t.intensity || "medium").toLowerCase();
+      const intensity: AtmosphereIntensity =
+        raw === "low" ? "low" : raw === "high" ? "high" : "medium";
+      return {
+        enabled: t.enabled !== false,
+        intensity,
+        reducedMotion: !!t.reducedMotion,
+      };
+    })(),
+    sfx: (() => {
+      const s = { ...base.sfx, ...partial.sfx };
+      const vol = Number(s.volume);
+      const mergeEvent = (
+        raw: Partial<SfxEventSettings> | undefined,
+        fallback: SfxEventSettings,
+      ): SfxEventSettings => {
+        const e = { ...fallback, ...raw };
+        const presetRaw = String(e.preset || "typewriter").toLowerCase();
+        const preset: SfxPreset =
+          presetRaw === "none" ||
+          presetRaw === "radio" ||
+          presetRaw === "hatch" ||
+          presetRaw === "random" ||
+          presetRaw === "custom"
+            ? presetRaw
+            : "typewriter";
+        const evVol = Number(e.volume);
+        const pool = Array.isArray(e.pool)
+          ? e.pool.map((id) => String(id || "").trim()).filter(Boolean).slice(0, 48)
+          : [];
+        return {
+          preset,
+          customId: String(e.customId || "").trim(),
+          pool,
+          typewriterLayer: !!e.typewriterLayer,
+          volume: Number.isFinite(evVol) ? Math.max(0, Math.min(1, evVol)) : 1,
+        };
+      };
+      return {
+        enabled: s.enabled !== false,
+        volume: Number.isFinite(vol) ? Math.max(0, Math.min(1, vol)) : 0.6,
+        follow: mergeEvent(partial.sfx?.follow ?? s.follow, DEFAULT_SFX_EVENT),
+        sub: mergeEvent(partial.sfx?.sub ?? s.sub, DEFAULT_SFX_EVENT),
+      };
+    })(),
+    operatorTypos: (() => {
+      const t = { ...base.operatorTypos, ...partial.operatorTypos };
+      const ch = Number(t.chance);
+      const styleRaw = String(
+        t.subStyle || DEFAULT_OPERATOR_TYPOS.subStyle,
+      ).toLowerCase();
+      // `mixed` kept as a stored value for older dashboards, but runtime treats it as rage.
+      const subStyle: SubTypoStyle =
+        styleRaw === "normal"
+          ? "normal"
+          : styleRaw === "mixed"
+            ? "mixed"
+            : "rage";
+      return {
+        enabled: t.enabled !== false,
+        chance: Number.isFinite(ch)
+          ? Math.max(0, Math.min(1, ch))
+          : DEFAULT_OPERATOR_TYPOS.chance,
+        subStyle,
+      };
+    })(),
+    operatorReactions: (() => {
+      const r = {
+        ...DEFAULT_OPERATOR_REACTIONS,
+        ...base.operatorReactions,
+        ...partial.operatorReactions,
+      };
+      const idleMs = Number(r.idleDelayMs);
+      const thr = Number(r.giftBombThreshold);
+      const userCd = Number(r.coffeeUserCooldownMs);
+      const globCd = Number(r.coffeeGlobalCooldownMs);
+      const ch = String(r.coffeeChannel || DEFAULT_OPERATOR_REACTIONS.coffeeChannel)
+        .trim()
+        .replace(/^#/, "")
+        .toLowerCase()
+        .slice(0, 32);
+      return {
+        raids: r.raids !== false,
+        bits: r.bits !== false,
+        giftBombs: r.giftBombs !== false,
+        giftBombThreshold: Number.isFinite(thr)
+          ? Math.max(3, Math.min(50, Math.round(thr)))
+          : DEFAULT_OPERATOR_REACTIONS.giftBombThreshold,
+        idle: r.idle !== false,
+        idleDelayMs: Number.isFinite(idleMs)
+          ? Math.max(180_000, Math.min(3_600_000, Math.round(idleMs)))
+          : DEFAULT_OPERATOR_REACTIONS.idleDelayMs,
+        repeatName: r.repeatName !== false,
+        coffee: r.coffee !== false,
+        coffeeChannel: ch || DEFAULT_OPERATOR_REACTIONS.coffeeChannel,
+        coffeeUserCooldownMs: Number.isFinite(userCd)
+          ? Math.max(10_000, Math.min(600_000, Math.round(userCd)))
+          : DEFAULT_OPERATOR_REACTIONS.coffeeUserCooldownMs,
+        coffeeGlobalCooldownMs: Number.isFinite(globCd)
+          ? Math.max(5_000, Math.min(600_000, Math.round(globCd)))
+          : DEFAULT_OPERATOR_REACTIONS.coffeeGlobalCooldownMs,
+      };
+    })(),
+    eventAnimScale: (() => {
+      const raw = Number(
+        partial.eventAnimScale ?? base.eventAnimScale ?? DEFAULT_SETTINGS.eventAnimScale,
+      );
+      if (!Number.isFinite(raw)) return DEFAULT_SETTINGS.eventAnimScale;
+      return Math.max(1, Math.min(2.5, Math.round(raw * 100) / 100));
+    })(),
+    terminalWidthPct: (() => {
+      const raw = Number(
+        partial.terminalWidthPct ??
+          base.terminalWidthPct ??
+          DEFAULT_SETTINGS.terminalWidthPct,
+      );
+      if (!Number.isFinite(raw)) return DEFAULT_SETTINGS.terminalWidthPct;
+      return Math.max(30, Math.min(80, Math.round(raw)));
+    })(),
+  };
+}

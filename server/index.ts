@@ -1,0 +1,647 @@
+import cors from "cors";
+import express from "express";
+import { createServer } from "node:http";
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { randomBytes } from "node:crypto";
+import { WebSocketServer, type WebSocket } from "ws";
+import {
+  DEFAULT_HTTP_PORT,
+  LOCAL_ORIGIN_RE,
+  type ClientRole,
+  type ClientToServerMessage,
+  type EventsBridgeStatus,
+  type InputMessage,
+  type ServerToClientMessage,
+} from "../shared/protocol.ts";
+import {
+  DEFAULT_SETTINGS,
+  mergeSettings,
+  type OverlaySettings,
+} from "../shared/settings.ts";
+import { loadEnvFiles } from "./loadEnv.ts";
+import { createStreamlabsBridge } from "./streamlabsBridge.ts";
+import { TwitchIrcCoffee } from "./twitchIrcCoffee.ts";
+import { SoundsStore, MAX_SOUND_BYTES } from "./soundsStore.ts";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = resolve(__dirname, "..");
+loadEnvFiles(ROOT);
+const DATA_DIR = join(ROOT, "data");
+const SETTINGS_PATH = join(DATA_DIR, "settings.json");
+/** Shipped template — tracked in git. Live `settings.json` is gitignored. */
+const SETTINGS_DEFAULTS_PATH = join(DATA_DIR, "settings.defaults.json");
+const TOKEN_PATH = join(DATA_DIR, "local-token.txt");
+const DIST_DIR = join(ROOT, "dist");
+const PORT = Number(process.env.PORT || DEFAULT_HTTP_PORT);
+
+mkdirSync(DATA_DIR, { recursive: true });
+const soundsStore = new SoundsStore(DATA_DIR);
+
+function loadOrCreateToken(): string {
+  if (existsSync(TOKEN_PATH)) {
+    return readFileSync(TOKEN_PATH, "utf8").trim();
+  }
+  const token = `local-${randomBytes(16).toString("hex")}`;
+  writeFileSync(TOKEN_PATH, token, "utf8");
+  return token;
+}
+
+/** Shipped defaults file, falling back to compiled DEFAULT_SETTINGS. */
+function readShippedDefaults(): OverlaySettings {
+  if (existsSync(SETTINGS_DEFAULTS_PATH)) {
+    try {
+      const raw = JSON.parse(
+        readFileSync(SETTINGS_DEFAULTS_PATH, "utf8"),
+      ) as Partial<OverlaySettings>;
+      return mergeSettings(raw);
+    } catch {
+      /* fall through */
+    }
+  }
+  return structuredClone(DEFAULT_SETTINGS);
+}
+
+function loadSettings(): OverlaySettings {
+  if (!existsSync(SETTINGS_PATH)) {
+    const defaults = readShippedDefaults();
+    writeFileSync(SETTINGS_PATH, JSON.stringify(defaults, null, 2));
+    return structuredClone(defaults);
+  }
+  try {
+    const raw = JSON.parse(readFileSync(SETTINGS_PATH, "utf8")) as Partial<OverlaySettings>;
+    return mergeSettings(raw);
+  } catch {
+    return readShippedDefaults();
+  }
+}
+
+function saveSettings(settings: OverlaySettings): void {
+  writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+}
+
+const localToken = loadOrCreateToken();
+let settings = loadSettings();
+let capturePaused = false;
+let lastInputAt: number | null = null;
+let eventsStatus: EventsBridgeStatus = "not_configured";
+let eventsDetail = "";
+let lastEventsAt: number | null = null;
+
+interface SockMeta {
+  role: ClientRole | null;
+  authed: boolean;
+}
+
+const meta = new WeakMap<WebSocket, SockMeta>();
+
+const app = express();
+app.use(
+  cors({
+    origin(origin, cb) {
+      if (!origin || LOCAL_ORIGIN_RE.test(origin)) {
+        cb(null, true);
+        return;
+      }
+      cb(new Error("Non-local origin blocked"));
+    },
+  }),
+);
+app.use(express.json({ limit: "4mb" }));
+
+app.get("/api/health", (_req, res) => {
+  const companionConnected = wss
+    ? [...wss.clients].some((c) => meta.get(c)?.role === "companion")
+    : false;
+  res.json({
+    ok: true,
+    bind: "127.0.0.1",
+    capturePaused,
+    companionConnected,
+    lastInputAt,
+    eventsStatus,
+    eventsDetail: eventsDetail || undefined,
+    lastEventsAt,
+    overlayClients: wss
+      ? [...wss.clients].filter((c) => meta.get(c)?.role === "overlay" && meta.get(c)?.authed)
+          .length
+      : 0,
+  });
+});
+
+/** Loopback-only: inject a Streamlabs-shaped payload (for tests / dry runs). */
+app.post("/api/events/mock", (req, res) => {
+  const host = req.hostname;
+  if (host !== "127.0.0.1" && host !== "localhost") {
+    res.status(403).json({ error: "loopback only" });
+    return;
+  }
+  const ok = streamlabsBridge.ingestRaw(req.body);
+  res.json({
+    ok,
+    eventsStatus,
+    social: {
+      latestFollower: settings.social.latestFollower,
+      latestSubscriber: settings.social.latestSubscriber,
+    },
+  });
+});
+
+app.get("/api/token", (req, res) => {
+  const origin = req.get("origin") || "";
+  const host = req.hostname;
+  if (host !== "127.0.0.1" && host !== "localhost") {
+    res.status(403).json({ error: "loopback only" });
+    return;
+  }
+  if (origin && !LOCAL_ORIGIN_RE.test(origin)) {
+    res.status(403).json({ error: "local origin only" });
+    return;
+  }
+  res.json({
+    token: localToken,
+    note: "Local loopback convenience token — not internet auth.",
+  });
+});
+
+app.get("/api/settings", (_req, res) => {
+  res.json(settings);
+});
+
+function syncOperatorReactionServices(): void {
+  const r = settings.operatorReactions;
+  streamlabsBridge.setGiftBombConfig(
+    r?.giftBombs !== false,
+    r?.giftBombThreshold ?? 5,
+  );
+  coffeeIrc.configure(
+    r?.coffeeChannel || "datguydaz",
+    r?.coffee !== false,
+  );
+}
+
+app.put("/api/settings", (req, res) => {
+  // Merge onto current live settings so partial bodies cannot wipe names / toggles.
+  settings = mergeSettings(req.body as Partial<OverlaySettings>, settings);
+  saveSettings(settings);
+  syncOperatorReactionServices();
+  broadcast({ type: "settings-updated" });
+  res.json(settings);
+});
+
+app.post("/api/settings/reset", (_req, res) => {
+  settings = readShippedDefaults();
+  saveSettings(settings);
+  syncOperatorReactionServices();
+  broadcast({ type: "settings-updated" });
+  res.json(settings);
+});
+
+/** Custom event sounds (local only). */
+app.get("/api/sounds", (_req, res) => {
+  res.json({
+    sounds: soundsStore.list(),
+    maxBytes: MAX_SOUND_BYTES,
+  });
+});
+
+app.post("/api/sounds", (req, res) => {
+  const host = req.hostname;
+  if (host !== "127.0.0.1" && host !== "localhost") {
+    res.status(403).json({ error: "loopback only" });
+    return;
+  }
+  try {
+    const body = req.body as { name?: string; mime?: string; dataBase64?: string };
+    const meta = soundsStore.addFromBase64({
+      name: String(body.name || "sound.wav"),
+      mime: String(body.mime || ""),
+      dataBase64: String(body.dataBase64 || ""),
+    });
+    res.json({ ok: true, sound: meta });
+  } catch (err) {
+    const status = Number((err as { status?: number }).status) || 500;
+    res.status(status).json({ error: (err as Error).message || "upload failed" });
+  }
+});
+
+app.delete("/api/sounds/:id", (req, res) => {
+  const host = req.hostname;
+  if (host !== "127.0.0.1" && host !== "localhost") {
+    res.status(403).json({ error: "loopback only" });
+    return;
+  }
+  const id = String(req.params.id || "");
+  const ok = soundsStore.remove(id);
+  if (!ok) {
+    res.status(404).json({ error: "not found" });
+    return;
+  }
+  const cleanEvent = (ev: OverlaySettings["sfx"]["follow"]) => {
+    const pool = (ev.pool || []).filter((x) => x !== id);
+    let { preset, customId } = ev;
+    if (customId === id) {
+      customId = "";
+      if (preset === "custom") preset = "typewriter";
+    }
+    return { ...ev, pool, customId, preset };
+  };
+  settings = mergeSettings(
+    {
+      sfx: {
+        ...settings.sfx,
+        follow: cleanEvent(settings.sfx.follow),
+        sub: cleanEvent(settings.sfx.sub),
+      },
+    },
+    settings,
+  );
+  saveSettings(settings);
+  broadcast({ type: "settings-updated" });
+  res.json({ ok: true, settings });
+});
+
+app.use("/sounds", express.static(soundsStore.absoluteDir(), { maxAge: 0 }));
+
+if (existsSync(DIST_DIR)) {
+  app.use(express.static(DIST_DIR));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/ws")) {
+      next();
+      return;
+    }
+    const fallback = join(DIST_DIR, "index.html");
+    if (existsSync(fallback)) {
+      res.sendFile(fallback);
+      return;
+    }
+    next();
+  });
+} else {
+  app.get("/", (_req, res) => {
+    res.type("html").send(`<!doctype html>
+<html><body style="font-family:monospace;background:#1a1c18;color:#c4b59a;padding:2rem">
+<h1>Zone Overlay server</h1>
+<p>No <code>dist/</code> yet. Run <code>npm run dev</code> (Vite on :5173) or <code>npm run preview</code>.</p>
+<p>API/WS bound to 127.0.0.1:${PORT}</p>
+</body></html>`);
+  });
+}
+
+const server = createServer(app);
+let wss: WebSocketServer;
+wss = new WebSocketServer({
+  server,
+  path: "/ws",
+  // Accept only connections that will authenticate via hello + local checks.
+});
+
+function send(ws: WebSocket, msg: ServerToClientMessage): void {
+  if (ws.readyState === ws.OPEN) {
+    ws.send(JSON.stringify(msg));
+  }
+}
+
+function broadcast(msg: ServerToClientMessage, filter?: (ws: WebSocket) => boolean): void {
+  for (const client of wss.clients) {
+    if (client.readyState !== client.OPEN) continue;
+    const m = meta.get(client);
+    if (!m?.authed) continue;
+    if (filter && !filter(client)) continue;
+    send(client, msg);
+  }
+}
+
+function statusPayload(): ServerToClientMessage {
+  const companionConnected = [...wss.clients].some(
+    (c) => meta.get(c)?.role === "companion" && meta.get(c)?.authed,
+  );
+  const overlayClients = [...wss.clients].filter(
+    (c) => meta.get(c)?.role === "overlay" && meta.get(c)?.authed,
+  ).length;
+  return {
+    type: "status",
+    capturePaused,
+    companionConnected,
+    overlayClients,
+    lastInputAt,
+    demoModeHint:
+      "Demo mode is dashboard-local only and never reports as a live companion connection.",
+    eventsStatus,
+    eventsDetail: eventsDetail || undefined,
+  };
+}
+
+const streamlabsBridge = createStreamlabsBridge(
+  process.env.STREAMLABS_SOCKET_TOKEN || "",
+  {
+    onStatus(status, detail) {
+      eventsStatus = status;
+      eventsDetail = detail || "";
+      broadcastStatus();
+    },
+    onReaction(ev) {
+      lastEventsAt = Date.now();
+      broadcast(
+        {
+          type: "operator-reaction",
+          reaction: ev.reaction,
+          name: ev.name,
+          amount: ev.amount,
+          currency: ev.currency,
+          viewers: ev.viewers,
+          count: ev.count,
+        },
+        (c) => meta.get(c)?.role === "overlay",
+      );
+    },
+    applySocial(patch, metaInfo) {
+      // Must merge onto live settings — merging onto DEFAULT_SETTINGS used to
+      // wipe dashboard choices (typos, SFX, atmosphere, etc.) on every event.
+      const next = mergeSettings(
+        {
+          social: {
+            ...settings.social,
+            ...(patch.latestFollower != null
+              ? { latestFollower: patch.latestFollower }
+              : {}),
+            ...(patch.latestSubscriber != null
+              ? { latestSubscriber: patch.latestSubscriber }
+              : {}),
+          },
+        },
+        settings,
+      );
+      const folChanged =
+        patch.latestFollower != null &&
+        patch.latestFollower !== settings.social.latestFollower;
+      const subChanged =
+        patch.latestSubscriber != null &&
+        patch.latestSubscriber !== settings.social.latestSubscriber;
+      const folRepeat =
+        !folChanged &&
+        patch.latestFollower != null &&
+        patch.latestFollower === settings.social.latestFollower;
+      if (!folChanged && !subChanged) {
+        // Same follower again → "NAME AGAIN?" reaction (no settings wipe)
+        if (folRepeat && settings.operatorReactions?.repeatName !== false) {
+          lastEventsAt = Date.now();
+          broadcast(
+            {
+              type: "operator-reaction",
+              reaction: "repeat",
+              name: patch.latestFollower,
+            },
+            (c) => meta.get(c)?.role === "overlay",
+          );
+        }
+        return;
+      }
+      settings = next;
+      saveSettings(settings);
+      lastEventsAt = Date.now();
+      // Overlay refresh on settings-updated runs smoke type-in / NEW for changed names
+      broadcast({ type: "settings-updated" });
+      void metaInfo;
+    },
+  },
+);
+
+streamlabsBridge.setGiftBombConfig(
+  settings.operatorReactions?.giftBombs !== false,
+  settings.operatorReactions?.giftBombThreshold ?? 5,
+);
+
+const coffeeIrc = new TwitchIrcCoffee(
+  {
+    onCoffee(hit) {
+      lastEventsAt = Date.now();
+      broadcast(
+        {
+          type: "operator-reaction",
+          reaction: "coffee",
+          name: hit.user,
+        },
+        (c) => meta.get(c)?.role === "overlay",
+      );
+    },
+  },
+  {
+    userCooldownMs: () =>
+      settings.operatorReactions?.coffeeUserCooldownMs ?? 120_000,
+    globalCooldownMs: () =>
+      settings.operatorReactions?.coffeeGlobalCooldownMs ?? 45_000,
+  },
+);
+coffeeIrc.configure(
+  settings.operatorReactions?.coffeeChannel || "datguydaz",
+  settings.operatorReactions?.coffee !== false,
+);
+
+function broadcastStatus(): void {
+  broadcast(statusPayload());
+}
+
+wss.on("connection", (ws, req) => {
+  meta.set(ws, { role: null, authed: false });
+
+  // Streamlabs/OBS CEF often omits Origin or sends null — allow empty.
+  // Only block clearly non-loopback Origins.
+  const origin = req.headers.origin || "";
+  if (origin && origin !== "null" && !LOCAL_ORIGIN_RE.test(origin)) {
+    send(ws, {
+      type: "error",
+      code: "origin_blocked",
+      message: "Only localhost/127.0.0.1 origins are accepted.",
+    });
+    ws.close();
+    return;
+  }
+
+  // Companion / Streamlabs overlays / test clients: hello + token required.
+  ws.on("message", (raw) => {
+    let msg: ClientToServerMessage;
+    try {
+      msg = JSON.parse(String(raw)) as ClientToServerMessage;
+    } catch {
+      send(ws, { type: "error", code: "bad_json", message: "Invalid JSON" });
+      return;
+    }
+
+    const state = meta.get(ws);
+    if (!state) return;
+
+    if (msg.type === "hello") {
+      if (msg.token !== localToken) {
+        send(ws, {
+          type: "error",
+          code: "bad_token",
+          message: "Local token mismatch. Fetch /api/token from loopback.",
+        });
+        ws.close();
+        return;
+      }
+      state.role = msg.role;
+      state.authed = true;
+      send(ws, statusPayload());
+      broadcastStatus();
+      return;
+    }
+
+    if (!state.authed) {
+      send(ws, { type: "error", code: "unauthed", message: "Send hello first" });
+      return;
+    }
+
+    switch (msg.type) {
+      case "ping":
+        send(ws, { type: "pong" });
+        break;
+      case "pause":
+        capturePaused = true;
+        broadcast({ type: "reset-idle", reason: "pause" });
+        broadcastStatus();
+        break;
+      case "resume":
+        capturePaused = false;
+        broadcastStatus();
+        break;
+      case "input": {
+        if (state.role !== "companion" && state.role !== "test") {
+          send(ws, {
+            type: "error",
+            code: "role",
+            message: "Only companion/test may send input",
+          });
+          break;
+        }
+        if (capturePaused) break;
+        lastInputAt = Date.now();
+        const forward: InputMessage = {
+          type: "input",
+          kind: msg.kind,
+          phase: msg.phase,
+          pressId: msg.pressId,
+          held: msg.held,
+        };
+        if (typeof msg.slot === "number" && Number.isFinite(msg.slot)) {
+          forward.slot = Math.max(0, Math.min(63, Math.floor(msg.slot)));
+        }
+        if (msg.kind === "mouseMove") {
+          const dx = Number(msg.dx);
+          const dy = Number(msg.dy);
+          if (Number.isFinite(dx)) forward.dx = Math.max(-24, Math.min(24, dx));
+          if (Number.isFinite(dy)) forward.dy = Math.max(-24, Math.min(24, dy));
+        }
+        broadcast(forward, (c) => {
+          const r = meta.get(c)?.role;
+          return r === "overlay" || r === "dashboard";
+        });
+        break;
+      }
+      case "mic": {
+        // Levels only — dashboard (Web Audio) or companion may publish.
+        if (
+          state.role !== "dashboard" &&
+          state.role !== "companion" &&
+          state.role !== "test"
+        ) {
+          send(ws, {
+            type: "error",
+            code: "role",
+            message: "Only dashboard/companion/test may send mic levels",
+          });
+          break;
+        }
+        const level = Math.max(0, Math.min(1, Number(msg.level) || 0));
+        broadcast(
+          { type: "mic", level, talking: !!msg.talking },
+          (c) => meta.get(c)?.role === "overlay" || meta.get(c)?.role === "dashboard",
+        );
+        break;
+      }
+      case "chat-line": {
+        if (state.role !== "dashboard" && state.role !== "test") {
+          send(ws, {
+            type: "error",
+            code: "role",
+            message: "Only dashboard/test may send chat lines",
+          });
+          break;
+        }
+        const text = String(msg.text || "").trim().slice(0, 160);
+        if (!text) break;
+        broadcast(
+          {
+            type: "chat-line",
+            text,
+            from: msg.from === "demo" ? "demo" : "dashboard",
+          },
+          (c) => meta.get(c)?.role === "overlay" || meta.get(c)?.role === "dashboard",
+        );
+        break;
+      }
+      case "atm-preview": {
+        if (state.role !== "dashboard" && state.role !== "test") {
+          send(ws, {
+            type: "error",
+            code: "role",
+            message: "Only dashboard/test may preview atmosphere",
+          });
+          break;
+        }
+        const kind = String(msg.kind || "");
+        const allowed = new Set([
+          "flicker",
+          "smoke",
+          "sparks",
+          "follow",
+          "sub",
+          "sfx-follow",
+          "sfx-sub",
+          "text-dip",
+          "text-sweep",
+          "text-op",
+          "text-hold",
+          "raid",
+          "bits",
+          "giftbomb",
+          "idle",
+          "repeat",
+          "coffee",
+        ]);
+        if (!allowed.has(kind)) break;
+        broadcast(
+          { type: "atm-preview", kind: kind as import("../shared/protocol.ts").AtmPreviewKind },
+          (c) => meta.get(c)?.role === "overlay",
+        );
+        break;
+      }
+      default: {
+        const _exhaustive: never = msg;
+        void _exhaustive;
+        break;
+      }
+    }
+  });
+
+  ws.on("close", () => {
+    const state = meta.get(ws);
+    if (state?.role === "companion" || state?.role === "test") {
+      broadcast({ type: "reset-idle", reason: "disconnect" });
+    }
+    broadcastStatus();
+  });
+});
+
+server.listen(PORT, "127.0.0.1", () => {
+  console.log(`Zone overlay server on http://127.0.0.1:${PORT}`);
+  console.log(`WebSocket         ws://127.0.0.1:${PORT}/ws`);
+  console.log(`Local token file  ${TOKEN_PATH}`);
+  if (!existsSync(DIST_DIR)) {
+    console.log("Tip: npm run dev  → Vite :5173 proxies /api and /ws here");
+  }
+  streamlabsBridge.start();
+  coffeeIrc.start();
+});

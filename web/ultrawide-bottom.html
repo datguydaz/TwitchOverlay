@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ultrawide Bottom Bar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@500;600;700&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/fonts.css" />
+    <link rel="stylesheet" href="/src/styles/zone.css" />
+    <link rel="stylesheet" href="/src/styles/ultrawide.css" />
+  </head>
+  <body class="uw-bar-only" data-uw-mode="bottom">
+    <div id="uw-stage" data-atm="on" data-vfx="on" data-text-fx="on">
+      <div class="uw-bar uw-bar-bottom" id="uw-bottom" data-edge="bottom">
+        <div class="uw-seam uw-seam-top" aria-hidden="true"></div>
+        <div class="uw-smoke-depth" aria-hidden="true"></div>
+        <div class="uw-bar-haze uw-bar-haze-footer" aria-hidden="true"></div>
+        <!-- Footer cinematic: denser ember rail + L→R amber ticker (no rain, no status text) -->
+        <div class="uw-footer-rail" aria-hidden="true">
+          <span class="uw-footer-rail-glow"></span>
+          <!-- Dual tickers / scans: 50% phase offset → overlapping crossfade, no rewind snap -->
+          <span class="uw-footer-ticker t-a"></span>
+          <span class="uw-footer-ticker t-b"></span>
+          <span class="uw-footer-stutter"></span>
+          <span class="uw-footer-scan s-a"></span>
+          <span class="uw-footer-scan s-b"></span>
+          <span class="uw-footer-rail-pop p1"></span>
+          <span class="uw-footer-rail-pop p2"></span>
+          <span class="uw-footer-rail-pop p3"></span>
+          <span class="uw-footer-rail-pop p4"></span>
+          <span class="uw-footer-rail-pop p5"></span>
+        </div>
+        <div class="uw-grime" aria-hidden="true">
+          <i class="uw-scratch c"></i>
+        </div>
+        <div class="uw-bar-body uw-wall-footer">
+          <div class="uw-side">
+            <div class="uw-footer-vent" aria-hidden="true">
+              <div class="uw-vent-face"><i></i><i></i><i></i></div>
+              <span class="uw-vent-wisp"></span>
+            </div>
+          </div>
+          <div class="uw-center uw-footer-atm" aria-hidden="true">
+            <span class="uw-footer-drift a"></span>
+            <span class="uw-footer-drift b"></span>
+            <span class="uw-footer-drift c"></span>
+            <span class="uw-footer-ember e1"></span>
+            <span class="uw-footer-ember e2"></span>
+            <span class="uw-footer-ember e3"></span>
+            <span class="uw-footer-ember e4"></span>
+            <span class="uw-footer-ember e5"></span>
+            <span class="uw-footer-ember e6"></span>
+          </div>
+          <div class="uw-side uw-side-right" aria-hidden="true"></div>
+        </div>
+        <div class="uw-atm-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+    <script type="module" src="/src/pages/ultrawide.ts"></script>
+  </body>
+</html>
