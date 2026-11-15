@@ -175,8 +175,8 @@ export function resolveSmokeEdgeStyle(stage?: HTMLElement | null): SmokeEdgeStyl
   if (raw === "steel" || raw === "rust" || raw === "phosphor" || raw === "blackout" || raw === "red") {
     return raw;
   }
-  // Default stays current red until user picks a new style
-  return "red";
+  // Approved default: steel lip when ?edge is unset
+  return "steel";
 }
 
 /**
