@@ -42,8 +42,8 @@ type Job = {
 };
 
 const SCRAMBLE = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#@$%&*";
-/** Whole smoke event soft cap (intro + type + NEW + settle). Rage v2 needs ~8s. */
-const TOTAL_CAP_MS = 8000;
+/** Soft cap at 1× scale (intro + type + NEW + settle). Scaled by eventAnimScale. */
+const TOTAL_CAP_BASE_MS = 10_000;
 
 function scrambleChar(): string {
   return SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)] || "#";
@@ -66,6 +66,8 @@ export class SocialReadoutAnim {
   private typoCfg: OperatorTypoSettings = { ...DEFAULT_OPERATOR_TYPOS };
   /** URL `?typos=0|1` override — null = use settings. */
   private urlTypos: boolean | null = null;
+  /** Dashboard eventAnimScale (1–2.5). Applied inside wait(). */
+  private animScale = 1.75;
 
   constructor(
     stage: HTMLElement,
@@ -95,6 +97,13 @@ export class SocialReadoutAnim {
       chance: Math.max(0, Math.min(1, Number(cfg.chance) || 0)),
       subStyle,
     };
+  }
+
+  setAnimScale(scale: number): void {
+    const n = Number(scale);
+    this.animScale = Number.isFinite(n)
+      ? Math.max(1, Math.min(2.5, n))
+      : 1.75;
   }
 
   applyUrlParams(params: URLSearchParams): void {
@@ -276,16 +285,16 @@ export class SocialReadoutAnim {
     return Math.random() < this.typoCfg.chance;
   }
 
-  /** Human key delay: 110–170ms + hesitation near the end. */
+  /** Human key delay (pre-scale): slightly slower base than original. */
   private charDelay(i: number, len: number, isSub: boolean): number {
-    let ms = randMs(110, 170);
-    if (i >= len - 2 && len >= 4) ms += randMs(70, 140);
-    if (isSub) ms += randMs(8, 24);
+    let ms = randMs(130, 200);
+    if (i >= len - 2 && len >= 4) ms += randMs(90, 170);
+    if (isSub) ms += randMs(10, 28);
     return ms;
   }
 
   private backspaceDelay(isSub: boolean): number {
-    return isSub ? randMs(70, 110) : randMs(55, 95);
+    return isSub ? randMs(85, 130) : randMs(65, 110);
   }
 
   /**
@@ -309,8 +318,9 @@ export class SocialReadoutAnim {
     const badge = this.newBadge(job.kind);
     const ghost = this.ghostEl(job.kind);
     const isSub = job.kind === "sub";
-    let newMs = isSub ? 640 : 320;
-    let settleMs = isSub ? 520 : 360;
+    // Longer VERIFIED / NEW hold — further multiplied by animScale in wait()
+    let newMs = isSub ? 980 : 560;
+    let settleMs = isSub ? 780 : 520;
 
     nameEl.textContent = "";
     nameEl.style.opacity = "";
@@ -401,9 +411,12 @@ export class SocialReadoutAnim {
     }
 
     const used = performance.now() - t0;
-    const remain = TOTAL_CAP_MS - used;
-    if (remain < newMs + settleMs) {
-      const scale = Math.max(0.3, remain / Math.max(1, newMs + settleMs));
+    const cap = TOTAL_CAP_BASE_MS * this.animScale;
+    // newMs/settleMs are pre-scale; compare against remaining budget in wall-clock ms
+    const remain = cap - used;
+    const holdBudget = (newMs + settleMs) * this.animScale;
+    if (remain < holdBudget) {
+      const scale = Math.max(0.35, remain / Math.max(1, holdBudget));
       newMs = Math.floor(newMs * scale);
       settleMs = Math.floor(settleMs * scale);
     }
@@ -660,11 +673,11 @@ export class SocialReadoutAnim {
       void el.offsetWidth;
       el.classList.add("smk-spark-tick");
       if (opts.careful) {
-        let ms = randMs(130, 190);
-        if (i >= chars.length - 2 && chars.length >= 3) ms += randMs(90, 160);
+        let ms = randMs(150, 220);
+        if (i >= chars.length - 2 && chars.length >= 3) ms += randMs(110, 190);
         await this.wait(ms);
       } else if (opts.hard) {
-        await this.wait(randMs(35, 60));
+        await this.wait(randMs(40, 70));
       } else {
         await this.wait(this.charDelay(i, chars.length, isSub));
       }
@@ -727,8 +740,9 @@ export class SocialReadoutAnim {
   }
 
   private wait(ms: number): Promise<void> {
+    const scaled = Math.max(1, Math.round(ms * this.animScale));
     return new Promise((r) => {
-      this.timers.push(window.setTimeout(r, ms));
+      this.timers.push(window.setTimeout(r, scaled));
     });
   }
 }

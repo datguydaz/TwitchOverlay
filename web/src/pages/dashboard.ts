@@ -150,6 +150,7 @@ function fillForm(s: OverlaySettings): void {
   fillSfxForm(s);
   fillOperatorTyposForm(s);
   fillOperatorReactionsForm(s);
+  fillEventAnimScaleForm(s);
 
   for (const key of Object.keys(s.modules) as (keyof OverlaySettings["modules"])[]) {
     const root = document.querySelector(`[data-mod="${key}"]`);
@@ -299,6 +300,13 @@ function readForm(): OverlaySettings {
   next.sfx = readSfxForm();
   next.operatorTypos = readOperatorTyposForm();
   next.operatorReactions = readOperatorReactionsForm();
+  {
+    const el = document.getElementById("eventAnimScale") as HTMLInputElement | null;
+    const n = Number(el?.value);
+    next.eventAnimScale = Number.isFinite(n)
+      ? Math.max(1, Math.min(2.5, Math.round(n * 100) / 100))
+      : 1.75;
+  }
 
   {
     const intensityRaw = (
@@ -490,6 +498,25 @@ function readOperatorTyposForm(): OverlaySettings["operatorTypos"] {
     chance: clamp01Form(Number(ch?.value ?? DEFAULT_OPERATOR_TYPOS.chance), DEFAULT_OPERATOR_TYPOS.chance),
     subStyle: raw === "normal" || raw === "mixed" ? raw : "rage",
   };
+}
+
+function syncEventAnimScaleLabel(): void {
+  const el = document.getElementById("event-anim-scale-label");
+  const input = document.getElementById("eventAnimScale") as HTMLInputElement | null;
+  if (!el || !input) return;
+  const n = Number(input.value);
+  const v = Number.isFinite(n) ? Math.max(1, Math.min(2.5, n)) : 1.75;
+  el.textContent = `Length: ${v.toFixed(2)}× (scales follow/sub + terminal reactions)`;
+}
+
+function fillEventAnimScaleForm(s: OverlaySettings): void {
+  const input = document.getElementById("eventAnimScale") as HTMLInputElement | null;
+  if (!input) return;
+  const n = Number(s.eventAnimScale);
+  input.value = String(
+    Number.isFinite(n) ? Math.max(1, Math.min(2.5, n)) : 1.75,
+  );
+  syncEventAnimScaleLabel();
 }
 
 function fillOperatorReactionsForm(s: OverlaySettings): void {
@@ -1079,6 +1106,9 @@ async function main(): Promise<void> {
 
   document.getElementById("operatorTyposChance")?.addEventListener("input", () => {
     syncOperatorTyposChanceLabel();
+  });
+  document.getElementById("eventAnimScale")?.addEventListener("input", () => {
+    syncEventAnimScaleLabel();
   });
   document.getElementById("sfxVolume")?.addEventListener("input", () => {
     syncSfxVolLabel();

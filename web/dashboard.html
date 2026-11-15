@@ -148,6 +148,10 @@
 
         <h3>Operator reactions</h3>
         <p class="hint">Reactions play on a dedicated <strong>OPS TERMINAL</strong> that slides out of the <strong>bottom bar center</strong> (not the follow/sub plates). Repeat-name “AGAIN?” still uses the follower plate. No stage VFX. Live raids/bits/gifts need matching Streamlabs alert types. Demos never save names. URL: <code>?demo=raid|bits|giftbomb|idle|repeat|coffee</code>.</p>
+        <label>Animation length
+          <input id="eventAnimScale" type="range" min="1" max="2.5" step="0.05" />
+        </label>
+        <p class="hint" id="event-anim-scale-label">Length: 1.75× (scales follow/sub + terminal reactions)</p>
         <label class="inline"><input id="opReactRaids" type="checkbox" /> Raids (panic type + INCOMING hostiles)</label>
         <label class="inline"><input id="opReactBits" type="checkbox" /> Bits / donations (calculator + ERR + stamp)</label>
         <label class="inline"><input id="opReactGiftBombs" type="checkbox" /> Gift bombs (MULTIPLE CONTACTS ×N)</label>

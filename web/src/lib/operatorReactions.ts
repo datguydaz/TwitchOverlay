@@ -69,6 +69,8 @@ export class OperatorReactions {
   private timers: number[] = [];
   private idleTimer: number | null = null;
   private lastActivity = performance.now();
+  /** Dashboard eventAnimScale (1–2.5). Applied inside wait(). */
+  private animScale = 1.75;
 
   constructor(stage: HTMLElement, hooks: ReactionSfxHooks = {}) {
     this.stage = stage;
@@ -80,8 +82,20 @@ export class OperatorReactions {
     this.bumpActivity();
   }
 
+  setAnimScale(scale: number): void {
+    const n = Number(scale);
+    this.animScale = Number.isFinite(n)
+      ? Math.max(1, Math.min(2.5, n))
+      : 1.75;
+  }
+
   setReducedMotion(on: boolean): void {
     this.reduced = on;
+  }
+
+  /** Wall-clock hold after the punchline before retract (~9.6s at default 1.75×). */
+  private punchlineHoldMs(): number {
+    return 5500;
   }
 
   bumpActivity(): void {
@@ -229,8 +243,9 @@ export class OperatorReactions {
   }
 
   private wait(ms: number): Promise<void> {
+    const scaled = Math.max(1, Math.round(ms * this.animScale));
     return new Promise((resolve) => {
-      this.timers.push(window.setTimeout(resolve, Math.max(0, ms)));
+      this.timers.push(window.setTimeout(resolve, scaled));
     });
   }
 
@@ -396,10 +411,10 @@ export class OperatorReactions {
       setText(built);
       this.hooks.onTypeChar?.(ch, { hard: opts?.hard });
       const base = opts?.careful
-        ? randMs(140, 200)
+        ? randMs(160, 230)
         : opts?.hard
-          ? randMs(28, 48)
-          : randMs(90, 150);
+          ? randMs(36, 58)
+          : randMs(110, 175);
       await this.wait(base);
     }
   }
@@ -416,7 +431,7 @@ export class OperatorReactions {
       cur = cur.slice(0, -1);
       setText(cur);
       this.hooks.onBackspace?.({ hard: opts?.hard });
-      await this.wait(opts?.hard ? randMs(28, 45) : randMs(50, 85));
+      await this.wait(opts?.hard ? randMs(36, 55) : randMs(65, 105));
     }
   }
 
@@ -434,14 +449,14 @@ export class OperatorReactions {
       this.setScreenStatus("ok");
       this.setStamp(`✓ ${label}`);
     } else if (job.reaction === "giftbomb") {
-      this.setMain(`×${job.count || 5}`);
-      this.setSub(`MULTIPLE CONTACTS ×${job.count || 5}`, "ok");
+      this.setMain(`MULTIPLE CONTACTS ×${job.count || 5}`);
+      this.setSub("GIFT BOMB — CONTACT CLUSTER", "ok");
     } else if (job.reaction === "idle") {
       this.setMain("zzz");
     } else if (job.reaction === "coffee") {
       this.setMain("COFFEE SPILL");
     }
-    await this.wait(700);
+    await this.wait(this.punchlineHoldMs());
     this.closeTerminal();
   }
 
@@ -463,7 +478,7 @@ export class OperatorReactions {
       { hard: true },
     );
     this.hooks.onTableSmash?.();
-    await this.wait(randMs(280, 420));
+    await this.wait(randMs(480, 720));
     this.setScreenStatus(null);
     await this.backspaceTo(
       () => this.termMain()?.textContent || "",
@@ -471,7 +486,7 @@ export class OperatorReactions {
       0,
       { hard: true },
     );
-    await this.wait(randMs(100, 180));
+    await this.wait(randMs(180, 280));
 
     await this.typeInto(
       () => this.termMain()?.textContent || "",
@@ -489,11 +504,11 @@ export class OperatorReactions {
       const show = Math.min(n, viewers);
       this.setSub(`INCOMING: ${show} HOSTILES`, "neutral");
       this.hooks.onAlarmClick?.();
-      await this.wait(show < 8 ? 70 : show < 30 ? 40 : 22);
+      await this.wait(show < 8 ? 95 : show < 30 ? 55 : 32);
     }
     this.setSub(`INCOMING: ${viewers} HOSTILES`, "ok");
     this.setAlarm(false);
-    await this.wait(1100);
+    await this.wait(this.punchlineHoldMs());
     this.closeTerminal();
   }
 
@@ -515,11 +530,11 @@ export class OperatorReactions {
     for (const ch of wrong.replace(/\s/g, "")) {
       this.setMain((this.termMain()?.textContent || "") + ch);
       this.hooks.onCalcClack?.();
-      await this.wait(randMs(55, 95));
+      await this.wait(randMs(70, 120));
     }
     this.setScreenStatus("error");
     this.setSub("ERR", "error");
-    await this.wait(randMs(420, 620));
+    await this.wait(randMs(800, 1200));
     this.setScreenStatus(null);
     this.setSub("RECALC…", "neutral");
     await this.backspaceTo(
@@ -528,20 +543,20 @@ export class OperatorReactions {
       0,
       { hard: false },
     );
-    await this.wait(randMs(100, 180));
+    await this.wait(randMs(180, 280));
 
     this.setMain("");
     for (const ch of label.replace(/\s/g, "")) {
       this.setMain((this.termMain()?.textContent || "") + ch);
       this.hooks.onCalcClack?.();
-      await this.wait(randMs(55, 95));
+      await this.wait(randMs(70, 120));
     }
     this.setCursor(false);
     this.setScreenStatus("ok");
     this.setSub(null);
     this.setStamp(`✓ ${label}`);
     this.hooks.onTypeDone?.();
-    await this.wait(1200);
+    await this.wait(this.punchlineHoldMs());
     this.closeTerminal();
   }
 
@@ -557,7 +572,7 @@ export class OperatorReactions {
       "aaa",
       { hard: true },
     );
-    await this.wait(200);
+    await this.wait(randMs(350, 520));
     this.setScreenStatus(null);
     await this.backspaceTo(
       () => this.termMain()?.textContent || "",
@@ -568,10 +583,10 @@ export class OperatorReactions {
     this.setCursor(false);
     this.hooks.onSigh?.();
     this.hooks.onTableSmash?.();
-    this.setMain(`×${count}`);
-    this.setSub(`MULTIPLE CONTACTS ×${count}`, "ok");
+    this.setMain(`MULTIPLE CONTACTS ×${count}`);
+    this.setSub("GIFT BOMB — CONTACT CLUSTER", "ok");
     this.setScreenStatus("ok");
-    await this.wait(1500);
+    await this.wait(this.punchlineHoldMs());
     this.closeTerminal();
   }
 
@@ -580,14 +595,14 @@ export class OperatorReactions {
     const line = IDLE_LINES[Math.floor(Math.random() * IDLE_LINES.length)]!;
     this.openTerminal("idle");
     this.setCursor(true);
-    await this.wait(randMs(500, 900));
+    await this.wait(randMs(700, 1200));
     await this.typeInto(
       () => this.termMain()?.textContent || "",
       (t) => this.setMain(t),
       line,
       { careful: true },
     );
-    await this.wait(randMs(700, 1100));
+    await this.wait(randMs(1100, 1800));
     await this.backspaceTo(
       () => this.termMain()?.textContent || "",
       (t) => this.setMain(t),
@@ -595,7 +610,7 @@ export class OperatorReactions {
       { hard: false },
     );
     this.setCursor(false);
-    await this.wait(200);
+    await this.wait(400);
     this.closeTerminal();
   }
 
@@ -617,7 +632,7 @@ export class OperatorReactions {
       `${name} AGAIN?`,
       { careful: true },
     );
-    await this.wait(randMs(500, 780));
+    await this.wait(randMs(800, 1200));
     await this.backspaceTo(
       () => nameEl.textContent || "",
       (t) => {
@@ -628,7 +643,7 @@ export class OperatorReactions {
     );
     root.dataset.status = "ok";
     this.hooks.onTypeDone?.();
-    await this.wait(500);
+    await this.wait(randMs(900, 1400));
     delete root.dataset.status;
     delete root.dataset.socialFx;
     nameEl.textContent = restore || name;
@@ -640,7 +655,7 @@ export class OperatorReactions {
     this.hooks.onCoffeeSplash?.();
     this.setMain("COFFEE SPILL");
     this.setSub("MUG DOWN — WIPE CONSOLE", "neutral");
-    await this.wait(800);
+    await this.wait(this.punchlineHoldMs());
     this.closeTerminal();
   }
 }

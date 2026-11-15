@@ -135,5 +135,6 @@
     "coffeeUserCooldownMs": 120000,
     "coffeeGlobalCooldownMs": 45000
   },
+  "eventAnimScale": 1.75,
   "demoModeDefault": false
 }

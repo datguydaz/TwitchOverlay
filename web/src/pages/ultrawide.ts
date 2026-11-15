@@ -385,6 +385,7 @@ function applyUltrawide(settings: OverlaySettings, opts?: ApplyUltrawideOpts): v
     socialAnim.setReducedMotion(reduced);
   }
   socialAnim.setTypoConfig(settings.operatorTypos || DEFAULT_OPERATOR_TYPOS);
+  socialAnim.setAnimScale(settings.eventAnimScale ?? 1.75);
 
   if (!operatorReactions) {
     operatorReactions = new OperatorReactions(stage, {
@@ -404,6 +405,7 @@ function applyUltrawide(settings: OverlaySettings, opts?: ApplyUltrawideOpts): v
   operatorReactions.setConfig(
     settings.operatorReactions || DEFAULT_OPERATOR_REACTIONS,
   );
+  operatorReactions.setAnimScale(settings.eventAnimScale ?? 1.75);
 
   // First load / quiet resync: set names without anim. Later: anim only on real change.
   if (!bootstrappedSocial || opts?.quietSocial) {

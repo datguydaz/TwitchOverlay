@@ -280,6 +280,11 @@ export interface OverlaySettings {
   sfx: SfxSettings;
   operatorTypos: OperatorTypoSettings;
   operatorReactions: OperatorReactionsSettings;
+  /**
+   * Scales all event animations (follow/sub rage, raid, bits, giftbomb, etc.).
+   * 1 = original pace; default 1.75; clamped 1–2.5.
+   */
+  eventAnimScale: number;
   demoModeDefault: boolean;
 }
 
@@ -369,6 +374,7 @@ export const DEFAULT_SETTINGS: OverlaySettings = {
   },
   operatorTypos: { ...DEFAULT_OPERATOR_TYPOS },
   operatorReactions: { ...DEFAULT_OPERATOR_REACTIONS },
+  eventAnimScale: 1.75,
   demoModeDefault: false,
 };
 
@@ -593,6 +599,13 @@ export function mergeSettings(
           ? Math.max(5_000, Math.min(600_000, Math.round(globCd)))
           : DEFAULT_OPERATOR_REACTIONS.coffeeGlobalCooldownMs,
       };
+    })(),
+    eventAnimScale: (() => {
+      const raw = Number(
+        partial.eventAnimScale ?? base.eventAnimScale ?? DEFAULT_SETTINGS.eventAnimScale,
+      );
+      if (!Number.isFinite(raw)) return DEFAULT_SETTINGS.eventAnimScale;
+      return Math.max(1, Math.min(2.5, Math.round(raw * 100) / 100));
     })(),
   };
 }
