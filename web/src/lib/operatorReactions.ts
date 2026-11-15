@@ -577,11 +577,13 @@ export class OperatorReactions {
     this.setScreenStatus("ok");
     await this.wait(randMs(220, 360), "reveal");
 
+    this.hooks.onArmType?.();
     let built = "";
     for (const ch of [...result]) {
       built += ch;
       this.setSub(built, "ok");
-      if (ch !== " " && ch !== "✓") this.hooks.onCalcClack?.();
+      // Typewriter clack per glyph (spaces / check soften inside onTypeChar)
+      this.hooks.onTypeChar?.(ch, { hard: false });
       await this.wait(randMs(95, 155), "reveal");
     }
     this.setStamp(null);

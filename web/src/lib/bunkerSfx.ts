@@ -52,6 +52,8 @@ export class BunkerSfx {
   private lastOneshotAt: Record<BunkerSfxKind, number> = { follow: 0, sub: 0 };
   /** Active typewriter session per kind (for layer / preset). */
   private typing: Record<BunkerSfxKind, boolean> = { follow: false, sub: false };
+  /** Optional tee for capture/proofs (MediaRecorder). */
+  private captureDest: MediaStreamAudioDestinationNode | null = null;
 
   applyUrlParams(params: URLSearchParams): void {
     const sfx = (params.get("sfx") || "").trim().toLowerCase();
@@ -98,30 +100,64 @@ export class BunkerSfx {
     }
   }
 
+  /**
+   * Tee master bus into a MediaStream for proof captures (MediaRecorder).
+   * Safe to call repeatedly; connects once.
+   */
+  getCaptureStream(): MediaStream | null {
+    const ctx = this.ensureCtx();
+    if (!ctx || !this.master) return null;
+    if (!this.captureDest) {
+      try {
+        this.captureDest = ctx.createMediaStreamDestination();
+        this.master.connect(this.captureDest);
+      } catch {
+        return null;
+      }
+    }
+    return this.captureDest.stream;
+  }
+
   eventConfig(kind: BunkerSfxKind): SfxEventSettings {
     return kind === "follow" ? this.follow : this.sub;
   }
 
+  /** True when this event should produce per-key typewriter clacks. */
+  private wantsTypewriter(kind: BunkerSfxKind): boolean {
+    const cfg = this.eventConfig(kind);
+    return (
+      cfg.preset === "typewriter" ||
+      (cfg.typewriterLayer && cfg.preset !== "none")
+    );
+  }
+
+  /**
+   * Open a typewriter session so subsequent onTypeChar / onBackspace clack.
+   * OPS terminal calls this so typing still sounds when follow oneshot is debounced.
+   */
+  armTyping(kind: BunkerSfxKind = "follow"): void {
+    this.typing[kind] = true;
+  }
+
   /**
    * Event start: oneshots (radio/hatch/custom/random) + open typewriter session if needed.
-   * Debounced for gift-sub bombs unless `force`.
+   * Debounced for gift-sub bombs unless `force`. Debounce never blocks arming typewriter.
    */
   playEventStart(kind: BunkerSfxKind, opts?: { force?: boolean }): void {
     const cfg = this.eventConfig(kind);
     const master = this.effectiveMasterVolume;
     if (master <= 0.001) return;
 
+    const wantType = this.wantsTypewriter(kind);
+    // Always (re)arm typewriter before debounce — silent keys were caused by
+    // early-return leaving typing[kind] false after a prior onTypeDone.
+    if (wantType) this.typing[kind] = true;
+
     const now = performance.now();
     if (!opts?.force && now - this.lastOneshotAt[kind] < DEBOUNCE_MS[kind]) {
-      // Still allow typewriter chars if a session is already open
       return;
     }
     this.lastOneshotAt[kind] = now;
-
-    const wantType =
-      cfg.preset === "typewriter" ||
-      (cfg.typewriterLayer && cfg.preset !== "none");
-    this.typing[kind] = wantType;
 
     void this.unlock().then((ok) => {
       if (!ok && !this.ctx) return;
@@ -153,23 +189,24 @@ export class BunkerSfx {
 
   /** One key clack — call from type-in loop. `hard` = rage smash (louder). */
   onTypeChar(kind: BunkerSfxKind, char: string, opts?: { hard?: boolean }): void {
-    if (!this.typing[kind]) return;
+    // Every typed character clacks when SFX is on (follow/sub/OPS/bits/etc.)
+    this.typing[kind] = true;
     const master = this.effectiveMasterVolume;
     if (master <= 0.001) return;
     const cfg = this.eventConfig(kind);
     const hard = !!opts?.hard;
-    const vol = master * clamp01(cfg.volume, 1) * (hard ? 0.92 : 0.55);
+    const vol = master * clamp01(cfg.volume, 1) * (hard ? 0.92 : 0.62);
     if (vol <= 0.001) return;
     void this.unlock().then((ok) => {
       if (!ok && !this.ctx) return;
       const ctx = this.ensureCtx();
       if (!ctx || ctx.state !== "running" || !this.master) return;
-      const soft = !hard && (char === " " || char === "-" || char === "_");
+      const soft = !hard && (char === " " || char === "-" || char === "_" || char === "✓");
       this.playTypeClack(
         ctx,
         this.master,
         ctx.currentTime,
-        vol * (soft ? 0.55 : hard ? 1.15 : 1),
+        vol * (soft ? 0.5 : hard ? 1.15 : 1),
         soft,
         hard,
       );
@@ -212,22 +249,19 @@ export class BunkerSfx {
     }, 0.55);
   }
 
-  /** Clacky calculator key for bits/donation counting. */
+  /** Amount/count key — same mechanical typewriter family as name typing. */
   playCalcClack(): void {
-    this.playOneShotProc((ctx, dest, t0, vol) => {
-      this.noiseSource(ctx, dest, t0, 0.02, vol * 0.35, "bandpass", rand(1800, 3200), 1.8);
-      const osc = ctx.createOscillator();
-      osc.type = "triangle";
-      osc.frequency.value = rand(520, 760);
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(vol * 0.18, t0 + 0.004);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.04);
-      osc.connect(g);
-      g.connect(dest);
-      osc.start(t0);
-      osc.stop(t0 + 0.05);
-    }, 0.5);
+    const master = this.effectiveMasterVolume;
+    if (master <= 0.001) return;
+    const cfg = this.eventConfig("follow");
+    const vol = master * clamp01(cfg.volume, 1) * 0.58;
+    if (vol <= 0.001) return;
+    void this.unlock().then((ok) => {
+      if (!ok && !this.ctx) return;
+      const ctx = this.ensureCtx();
+      if (!ctx || ctx.state !== "running" || !this.master) return;
+      this.playTypeClack(ctx, this.master, ctx.currentTime, vol, false, false);
+    });
   }
 
   /** Tired operator sigh for gift bombs. */
@@ -286,11 +320,11 @@ export class BunkerSfx {
 
   /** Softer backspace / delete click during typo correction. */
   onBackspace(kind: BunkerSfxKind, opts?: { fast?: boolean }): void {
-    if (!this.typing[kind]) return;
+    this.typing[kind] = true;
     const master = this.effectiveMasterVolume;
     if (master <= 0.001) return;
     const cfg = this.eventConfig(kind);
-    const vol = master * clamp01(cfg.volume, 1) * (opts?.fast ? 0.22 : 0.32);
+    const vol = master * clamp01(cfg.volume, 1) * (opts?.fast ? 0.24 : 0.36);
     if (vol <= 0.001) return;
     void this.unlock().then((ok) => {
       if (!ok && !this.ctx) return;
@@ -495,7 +529,10 @@ export class BunkerSfx {
     osc.stop(t0 + 0.05);
   }
 
-  /** Mechanical typewriter key — noise strike + low mechanism, not a beep. */
+  /**
+   * Mechanical typewriter key: sharp metal strike + brief platen / linkage.
+   * Pitch varies slightly per key so rapid typing doesn't drone.
+   */
   private playTypeClack(
     ctx: AudioContext,
     dest: GainNode,
@@ -505,46 +542,57 @@ export class BunkerSfx {
     hard = false,
   ): void {
     const bus = ctx.createGain();
-    bus.gain.value = vol * rand(0.75, 1.15);
+    // Per-key gain + pitch jitter
+    const pitch = rand(0.92, 1.1);
+    bus.gain.value = vol * rand(0.82, 1.18);
     bus.connect(dest);
 
     const strikeDur = soft
-      ? rand(0.012, 0.022)
+      ? rand(0.01, 0.018)
       : hard
-        ? rand(0.022, 0.04)
-        : rand(0.016, 0.032);
-    const strikeFreq = soft
-      ? rand(1800, 2600)
-      : hard
-        ? rand(1600, 3200)
-        : rand(2200, 3800);
+        ? rand(0.02, 0.036)
+        : rand(0.012, 0.024);
+    const strikeFreq =
+      (soft ? rand(2400, 3400) : hard ? rand(1900, 3600) : rand(2600, 4200)) * pitch;
+    // Tip / slug strike
     this.noiseSource(
       ctx,
       bus,
       t0,
       strikeDur,
-      soft ? 0.22 : hard ? 0.55 : 0.38,
+      soft ? 0.28 : hard ? 0.62 : 0.48,
       "bandpass",
       strikeFreq,
-      rand(1.6, 3.2),
+      rand(2.2, 4.2),
     );
-    // Body / linkage thud
+    // Second thin metallic tick (typebar bounce)
+    this.noiseSource(
+      ctx,
+      bus,
+      t0 + rand(0.004, 0.01),
+      rand(0.006, 0.014),
+      soft ? 0.1 : hard ? 0.28 : 0.18,
+      "highpass",
+      strikeFreq * rand(1.1, 1.45),
+      0.7,
+    );
+    // Body / linkage thud — low, short, varies with pitch
     const osc = ctx.createOscillator();
     osc.type = hard ? "square" : "triangle";
-    const f0 = soft ? rand(70, 95) : hard ? rand(95, 160) : rand(85, 130);
+    const f0 = (soft ? rand(78, 105) : hard ? rand(100, 170) : rand(90, 145)) * pitch;
     osc.frequency.setValueAtTime(f0, t0);
-    osc.frequency.exponentialRampToValueAtTime(f0 * 0.55, t0 + 0.04);
+    osc.frequency.exponentialRampToValueAtTime(Math.max(28, f0 * 0.5), t0 + 0.035);
     const g = ctx.createGain();
-    g.gain.setValueAtTime(soft ? 0.12 : hard ? 0.32 : 0.2, t0);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + rand(0.035, hard ? 0.07 : 0.055));
+    g.gain.setValueAtTime(soft ? 0.1 : hard ? 0.3 : 0.18, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + rand(0.03, hard ? 0.065 : 0.05));
     const lp = ctx.createBiquadFilter();
     lp.type = "lowpass";
-    lp.frequency.value = hard ? 2200 : 4000;
+    lp.frequency.value = hard ? 2400 : 3800;
     osc.connect(lp);
     lp.connect(g);
     g.connect(bus);
     osc.start(t0);
-    osc.stop(t0 + (hard ? 0.08 : 0.06));
+    osc.stop(t0 + (hard ? 0.075 : 0.055));
   }
 
   private playTypeBell(
