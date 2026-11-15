@@ -394,7 +394,11 @@ function applyUltrawide(settings: OverlaySettings, opts?: ApplyUltrawideOpts): v
 
   if (!operatorReactions) {
     operatorReactions = new OperatorReactions(stage, {
-      onArmType: () => bunkerSfx.playEventStart("follow"),
+      onArmType: () => {
+        // OPS typing must clack even if follow oneshot is debounced / non-typewriter
+        bunkerSfx.armTyping("follow");
+        bunkerSfx.playEventStart("follow");
+      },
       onTypeChar: (ch, opts) => bunkerSfx.onTypeChar("follow", ch, opts),
       onBackspace: (opts) =>
         bunkerSfx.onBackspace("follow", { fast: opts?.hard }),
@@ -549,7 +553,6 @@ async function main(): Promise<void> {
   };
   window.addEventListener("pointerdown", unlockOnce, { once: true });
   window.addEventListener("keydown", unlockOnce, { once: true });
-
   let settings = await fetchSettings();
   await refreshCustomSounds();
   applyCssVars(settings);
@@ -571,13 +574,27 @@ async function main(): Promise<void> {
     if (!document.hidden) void refresh();
   }, 2500);
 
+  // Capture proofs: expose SFX + demo trigger for MediaRecorder audio tee.
+  if (params.has("capture") || params.get("sfxcap") === "1") {
+    const cap = window as unknown as {
+      __bunkerSfx?: typeof bunkerSfx;
+      __pzDemo?: (kind: string) => void;
+    };
+    cap.__bunkerSfx = bunkerSfx;
+    cap.__pzDemo = (kind: string) => routePreview(kind as AtmPreviewKind);
+  }
+
   const preview = params.get("atmPreview") as AtmPreviewKind | null;
   if (preview) {
     window.setTimeout(() => routePreview(preview), 400);
   }
-  // ?demo=follow|sub|raid|bits|giftbomb|idle|repeat|coffee — never persists names
+  // ?demo=follow|sub|raid|bits|… — skip auto-fire when sfxcap drives demos manually
   const demo = (params.get("demo") || "").trim().toLowerCase();
-  if (demo === "follow" || demo === "sub" || REACTION_DEMO.has(demo)) {
+  const manualCap = params.get("sfxcap") === "1";
+  if (
+    !manualCap &&
+    (demo === "follow" || demo === "sub" || REACTION_DEMO.has(demo))
+  ) {
     window.setTimeout(() => routePreview(demo as AtmPreviewKind), 500);
   }
 
