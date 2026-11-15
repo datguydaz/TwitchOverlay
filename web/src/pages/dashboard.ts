@@ -514,7 +514,7 @@ function syncEventAnimScaleLabel(): void {
   if (!el || !input) return;
   const n = Number(input.value);
   const v = Number.isFinite(n) ? Math.max(1, Math.min(2.5, n)) : 1.75;
-  el.textContent = `Length: ${v.toFixed(2)}× (scales follow/sub + terminal reactions)`;
+  el.textContent = `Reveal: ${v.toFixed(2)}× (slows correct name + amount; fumbles stay 1×)`;
 }
 
 function fillEventAnimScaleForm(s: OverlaySettings): void {

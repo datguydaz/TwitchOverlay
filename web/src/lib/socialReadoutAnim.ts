@@ -42,7 +42,7 @@ type Job = {
 };
 
 const SCRAMBLE = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#@$%&*";
-/** Soft cap at 1× scale (intro + type + NEW + settle). Scaled by eventAnimScale. */
+/** Soft cap for reveal budget (correct type + NEW + settle). Fumbles are unscaled. */
 const TOTAL_CAP_BASE_MS = 10_000;
 
 function scrambleChar(): string {
@@ -66,7 +66,10 @@ export class SocialReadoutAnim {
   private typoCfg: OperatorTypoSettings = { ...DEFAULT_OPERATOR_TYPOS };
   /** URL `?typos=0|1` override — null = use settings. */
   private urlTypos: boolean | null = null;
-  /** Dashboard eventAnimScale (1–2.5). Applied inside wait(). */
+  /**
+   * Dashboard "Reveal speed" (1–2.5). Applied only to correct-reveal
+   * (final name type, NEW/VERIFIED hold). Fumbles stay at 1×.
+   */
   private animScale = 1.75;
 
   constructor(
@@ -396,11 +399,12 @@ export class SocialReadoutAnim {
       }
     }
 
-    // Correct name — carefully after rage; bell only after this
+    // Correct name — carefully after rage; reveal pace (slider)
     this.setStatus(el, null);
     await this.typeString(job.kind, el, nameEl, ghost, job.name, {
       decrypt: isSub && !didTypo,
       careful: didTypo,
+      pace: "reveal",
     });
 
     this.hooks.onTypeDone?.(job.kind);
@@ -432,11 +436,11 @@ export class SocialReadoutAnim {
       el.dataset.typeMark = "1";
       el.classList.add("smk-stamp-slam");
     }
-    await this.wait(Math.max(160, newMs));
+    await this.wait(Math.max(160, newMs), "reveal");
     el.classList.remove("smk-stamp-slam", "smk-spark-tick");
 
     el.dataset.socialFx = "settle";
-    await this.wait(Math.max(140, settleMs));
+    await this.wait(Math.max(140, settleMs), "reveal");
 
     delete el.dataset.socialFx;
     delete el.dataset.typo;
@@ -647,9 +651,15 @@ export class SocialReadoutAnim {
     nameEl: HTMLElement,
     ghost: HTMLElement | null,
     text: string,
-    opts: { decrypt?: boolean; careful?: boolean; hard?: boolean },
+    opts: {
+      decrypt?: boolean;
+      careful?: boolean;
+      hard?: boolean;
+      pace?: "fumble" | "reveal";
+    },
   ): Promise<void> {
     const isSub = kind === "sub";
+    const pace = opts.pace ?? (opts.careful ? "reveal" : "fumble");
     const chars = [...text];
     let built = nameEl.textContent || "";
     for (let i = 0; i < chars.length; i++) {
@@ -657,7 +667,7 @@ export class SocialReadoutAnim {
       if (opts.decrypt) {
         for (let s = 0; s < 2; s++) {
           nameEl.textContent = built + scrambleChar();
-          await this.wait(14 + Math.floor(Math.random() * 10));
+          await this.wait(14 + Math.floor(Math.random() * 10), pace);
         }
       }
       if (ghost && built) {
@@ -675,11 +685,11 @@ export class SocialReadoutAnim {
       if (opts.careful) {
         let ms = randMs(150, 220);
         if (i >= chars.length - 2 && chars.length >= 3) ms += randMs(110, 190);
-        await this.wait(ms);
+        await this.wait(ms, pace);
       } else if (opts.hard) {
-        await this.wait(randMs(40, 70));
+        await this.wait(randMs(40, 70), pace);
       } else {
-        await this.wait(this.charDelay(i, chars.length, isSub));
+        await this.wait(this.charDelay(i, chars.length, isSub), pace);
       }
     }
   }
@@ -739,8 +749,16 @@ export class SocialReadoutAnim {
     }
   }
 
-  private wait(ms: number): Promise<void> {
-    const scaled = Math.max(1, Math.round(ms * this.animScale));
+  /**
+   * @param pace `fumble` (default) = 1× typos/smash/erase;
+   *             `reveal` = eventAnimScale for correct name + NEW hold.
+   */
+  private wait(
+    ms: number,
+    pace: "fumble" | "reveal" = "fumble",
+  ): Promise<void> {
+    const mul = pace === "fumble" ? 1 : this.animScale;
+    const scaled = Math.max(1, Math.round(ms * mul));
     return new Promise((r) => {
       this.timers.push(window.setTimeout(r, scaled));
     });

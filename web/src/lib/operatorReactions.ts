@@ -69,7 +69,10 @@ export class OperatorReactions {
   private timers: number[] = [];
   private idleTimer: number | null = null;
   private lastActivity = performance.now();
-  /** Dashboard eventAnimScale (1–2.5). Applied inside wait(). */
+  /**
+   * Dashboard "Reveal speed" (1–2.5). Applied only to the correct-reveal
+   * phase (final name, amounts, green hold). Fumbles stay at 1×.
+   */
   private animScale = 1.75;
 
   constructor(stage: HTMLElement, hooks: ReactionSfxHooks = {}) {
@@ -93,9 +96,27 @@ export class OperatorReactions {
     this.reduced = on;
   }
 
-  /** Wall-clock hold after the punchline before retract (~9.6s at default 1.75×). */
+  /** Pre-scale hold after the green ✓ punchline (~9.6s at default 1.75× reveal). */
   private punchlineHoldMs(): number {
     return 5500;
+  }
+
+  private setHeader(text: string): void {
+    const mode = this.termMode();
+    if (mode) mode.textContent = text;
+  }
+
+  /** Funds punchline — each piece once. */
+  private fundsResultLine(job: ReactionJob): string {
+    const amount = job.amount ?? 500;
+    const currency =
+      job.currency || (job.reaction === "bits" ? "bits" : "USD");
+    const label = formatAmount(amount, currency);
+    const cur = (currency || "").toUpperCase();
+    if (job.reaction === "bits" || cur === "BITS" || cur === "BIT") {
+      return `${label} ✓`;
+    }
+    return `${label} DONATED ✓`;
   }
 
   bumpActivity(): void {
@@ -242,8 +263,16 @@ export class OperatorReactions {
     return this.stage.querySelector("#uw-follower-name");
   }
 
-  private wait(ms: number): Promise<void> {
-    const scaled = Math.max(1, Math.round(ms * this.animScale));
+  /**
+   * @param pace `fumble` = 1× (typos, smash, ERR, miscount).
+   *             `reveal` = eventAnimScale (correct name / amount / ✓ hold).
+   */
+  private wait(
+    ms: number,
+    pace: "fumble" | "reveal" = "reveal",
+  ): Promise<void> {
+    const mul = pace === "fumble" ? 1 : this.animScale;
+    const scaled = Math.max(1, Math.round(ms * mul));
     return new Promise((resolve) => {
       this.timers.push(window.setTimeout(resolve, scaled));
     });
@@ -400,8 +429,11 @@ export class OperatorReactions {
     getText: () => string,
     setText: (t: string) => void,
     text: string,
-    opts?: { hard?: boolean; careful?: boolean },
+    opts?: { hard?: boolean; careful?: boolean; pace?: "fumble" | "reveal" },
   ): Promise<void> {
+    const pace =
+      opts?.pace ??
+      (opts?.hard ? "fumble" : opts?.careful ? "reveal" : "reveal");
     this.hooks.onArmType?.();
     const chars = [...text];
     let built = getText();
@@ -415,7 +447,7 @@ export class OperatorReactions {
         : opts?.hard
           ? randMs(36, 58)
           : randMs(110, 175);
-      await this.wait(base);
+      await this.wait(base, pace);
     }
   }
 
@@ -423,15 +455,19 @@ export class OperatorReactions {
     getText: () => string,
     setText: (t: string) => void,
     targetLen: number,
-    opts?: { hard?: boolean },
+    opts?: { hard?: boolean; pace?: "fumble" | "reveal" },
   ): Promise<void> {
+    const pace = opts?.pace ?? "fumble";
     this.hooks.onArmType?.();
     let cur = getText();
     while (cur.length > targetLen) {
       cur = cur.slice(0, -1);
       setText(cur);
       this.hooks.onBackspace?.({ hard: opts?.hard });
-      await this.wait(opts?.hard ? randMs(36, 55) : randMs(65, 105));
+      await this.wait(
+        opts?.hard ? randMs(36, 55) : randMs(65, 105),
+        pace,
+      );
     }
   }
 
@@ -439,30 +475,29 @@ export class OperatorReactions {
     this.openTerminal(job.reaction);
     if (job.reaction === "raid") {
       this.setMain(clampName(job.name || "RAIDER"));
-      this.setSub(`INCOMING: ${job.viewers || 12} HOSTILES`, "ok");
+      this.setSub(`${job.viewers || 12} HOSTILES INCOMING`, "ok");
     } else if (job.reaction === "bits" || job.reaction === "donation") {
       const who = clampName(job.name || "ANONYMOUS", 14);
-      const label = formatAmount(
-        job.amount ?? 500,
-        job.currency || (job.reaction === "bits" ? "bits" : "USD"),
-      );
-      this.setMain(`${who} // ${label}`);
+      this.setHeader("INCOMING FUNDS");
+      this.setMain(who);
+      this.setSub(this.fundsResultLine(job), "ok");
       this.setScreenStatus("ok");
-      this.setStamp(`✓ ${label} // ${who}`);
     } else if (job.reaction === "giftbomb") {
       const who = clampName(job.name || "ANONYMOUS", 14);
-      this.setMain(`MULTIPLE CONTACTS ×${job.count || 5}`);
-      this.setSub(`GIFTER // ${who}`, "ok");
+      const count = Math.max(5, Math.round(job.count || 5));
+      this.setMain(who);
+      this.setSub(`×${count} SUBS GIFTED ✓`, "ok");
+      this.setScreenStatus("ok");
     } else if (job.reaction === "idle") {
       this.setMain("zzz");
     } else if (job.reaction === "coffee") {
       this.setMain("COFFEE SPILL");
     }
-    await this.wait(this.punchlineHoldMs());
+    await this.wait(this.punchlineHoldMs(), "reveal");
     this.closeTerminal();
   }
 
-  /** Raid: panic type raider, correct, HOSTILES count-up + alarm lamp. */
+  /** Raid: panic smash (1×), careful name + HOSTILES count-up (reveal). */
   private async playRaid(job: ReactionJob): Promise<void> {
     const name = clampName(job.name || "RAIDER", 16);
     const viewers = Math.max(1, Math.min(9999, Math.round(job.viewers || 12)));
@@ -477,24 +512,24 @@ export class OperatorReactions {
       () => this.termMain()?.textContent || "",
       (t) => this.setMain(t),
       smash,
-      { hard: true },
+      { hard: true, pace: "fumble" },
     );
     this.hooks.onTableSmash?.();
-    await this.wait(randMs(480, 720));
+    await this.wait(randMs(480, 720), "fumble");
     this.setScreenStatus(null);
     await this.backspaceTo(
       () => this.termMain()?.textContent || "",
       (t) => this.setMain(t),
       0,
-      { hard: true },
+      { hard: true, pace: "fumble" },
     );
-    await this.wait(randMs(180, 280));
+    await this.wait(randMs(180, 280), "fumble");
 
     await this.typeInto(
       () => this.termMain()?.textContent || "",
       (t) => this.setMain(t),
       name,
-      { careful: true },
+      { careful: true, pace: "reveal" },
     );
     this.setScreenStatus("ok");
     this.hooks.onTypeDone?.();
@@ -504,84 +539,73 @@ export class OperatorReactions {
     const step = Math.max(1, Math.ceil(viewers / steps));
     for (let n = step; n <= viewers; n += step) {
       const show = Math.min(n, viewers);
-      this.setSub(`INCOMING: ${show} HOSTILES`, "neutral");
+      this.setSub(`${show} HOSTILES INCOMING`, "neutral");
       this.hooks.onAlarmClick?.();
-      await this.wait(show < 8 ? 95 : show < 30 ? 55 : 32);
+      await this.wait(show < 8 ? 140 : show < 30 ? 85 : 48, "reveal");
     }
-    this.setSub(`${name} // ${viewers} HOSTILES`, "ok");
+    this.setSub(`${viewers} HOSTILES INCOMING`, "ok");
     this.setAlarm(false);
-    await this.wait(this.punchlineHoldMs());
+    await this.wait(this.punchlineHoldMs(), "reveal");
     this.closeTerminal();
   }
 
-  /** Bits/donation: name intro, calculator, one ERR, recount, green stamp with name. */
+  /**
+   * Bits/donation: header INCOMING FUNDS, big name once, amount+ERR under
+   * name only, final green amount line once (no FROM / stamp).
+   */
   private async playBits(job: ReactionJob): Promise<void> {
     const who = clampName(job.name || "ANONYMOUS", 14);
     const amount = job.amount ?? 500;
-    const label = formatAmount(
-      amount,
-      job.currency || (job.reaction === "bits" ? "bits" : "USD"),
-    );
+    const currency =
+      job.currency || (job.reaction === "bits" ? "bits" : "USD");
     const wrong = formatAmount(
       job.reaction === "bits" ? Math.max(1, amount - 7) : amount * 0.9,
-      job.currency || (job.reaction === "bits" ? "bits" : "USD"),
+      currency,
     );
+    const result = this.fundsResultLine(job);
+
     this.openTerminal(job.reaction);
+    this.setHeader("INCOMING FUNDS");
     this.setCursor(true);
 
-    // Operator types the sender first
     await this.typeInto(
       () => this.termMain()?.textContent || "",
       (t) => this.setMain(t),
-      `INCOMING FUNDS // ${who}`,
-      { careful: true },
+      who,
+      { careful: true, pace: "reveal" },
     );
-    this.setSub(`FROM // ${who}`, "neutral");
-    await this.wait(randMs(400, 650));
-    await this.backspaceTo(
-      () => this.termMain()?.textContent || "",
-      (t) => this.setMain(t),
-      0,
-      { hard: false },
-    );
-    await this.wait(randMs(120, 200));
+    this.setCursor(false);
+    await this.wait(randMs(280, 420), "fumble");
 
-    this.setSub("CALC…", "neutral");
-    for (const ch of wrong.replace(/\s/g, "")) {
-      this.setMain((this.termMain()?.textContent || "") + ch);
-      this.hooks.onCalcClack?.();
-      await this.wait(randMs(70, 120));
+    let built = "";
+    for (const ch of [...wrong]) {
+      built += ch;
+      this.setSub(built, "neutral");
+      if (ch !== " ") this.hooks.onCalcClack?.();
+      await this.wait(randMs(70, 120), "fumble");
     }
     this.setScreenStatus("error");
-    this.setSub(`ERR // ${who}`, "error");
-    await this.wait(randMs(800, 1200));
+    this.setSub(`${wrong}  ERR`, "error");
+    await this.wait(randMs(800, 1200), "fumble");
     this.setScreenStatus(null);
-    this.setSub("RECALC…", "neutral");
-    await this.backspaceTo(
-      () => this.termMain()?.textContent || "",
-      (t) => this.setMain(t),
-      0,
-      { hard: false },
-    );
-    await this.wait(randMs(180, 280));
+    this.setSub(null);
+    await this.wait(randMs(160, 260), "fumble");
 
-    this.setMain("");
-    const finalLine = `${who} // ${label}`;
-    for (const ch of [...finalLine]) {
-      this.setMain((this.termMain()?.textContent || "") + ch);
-      if (ch !== " " && ch !== "/") this.hooks.onCalcClack?.();
-      await this.wait(randMs(55, 100));
+    built = "";
+    for (const ch of [...result]) {
+      built += ch;
+      this.setSub(built, "ok");
+      if (ch !== " " && ch !== "✓") this.hooks.onCalcClack?.();
+      await this.wait(randMs(95, 155), "reveal");
     }
-    this.setCursor(false);
     this.setScreenStatus("ok");
-    this.setSub(`FROM // ${who}`, "ok");
-    this.setStamp(`✓ ${label} // ${who}`);
+    this.setStamp(null);
     this.hooks.onTypeDone?.();
-    await this.wait(this.punchlineHoldMs());
+    await this.wait(this.punchlineHoldMs(), "reveal");
     this.closeTerminal();
   }
 
-  /** Gift bomb: give up typing, slam MULTIPLE CONTACTS ×N + gifter. */
+  /** Gift bomb: panic fumble, then name + ×N SUBS GIFTED ✓ once each. */
   private async playGiftBomb(job: ReactionJob): Promise<void> {
     const count = Math.max(5, Math.round(job.count || 5));
     const who = clampName(job.name || "ANONYMOUS", 14);
@@ -592,23 +616,31 @@ export class OperatorReactions {
       () => this.termMain()?.textContent || "",
       (t) => this.setMain(t),
       "aaa",
-      { hard: true },
+      { hard: true, pace: "fumble" },
     );
-    await this.wait(randMs(350, 520));
+    await this.wait(randMs(350, 520), "fumble");
     this.setScreenStatus(null);
     await this.backspaceTo(
       () => this.termMain()?.textContent || "",
       (t) => this.setMain(t),
       0,
-      { hard: true },
+      { hard: true, pace: "fumble" },
     );
-    this.setCursor(false);
     this.hooks.onSigh?.();
     this.hooks.onTableSmash?.();
-    this.setMain(`MULTIPLE CONTACTS ×${count}`);
-    this.setSub(`GIFTER // ${who}`, "ok");
+    await this.wait(randMs(180, 280), "fumble");
+
+    await this.typeInto(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      who,
+      { careful: true, pace: "reveal" },
+    );
+    this.setCursor(false);
+    this.setSub(`×${count} SUBS GIFTED ✓`, "ok");
     this.setScreenStatus("ok");
-    await this.wait(this.punchlineHoldMs());
+    this.hooks.onTypeDone?.();
+    await this.wait(this.punchlineHoldMs(), "reveal");
     this.closeTerminal();
   }
 
@@ -617,22 +649,22 @@ export class OperatorReactions {
     const line = IDLE_LINES[Math.floor(Math.random() * IDLE_LINES.length)]!;
     this.openTerminal("idle");
     this.setCursor(true);
-    await this.wait(randMs(700, 1200));
+    await this.wait(randMs(700, 1200), "fumble");
     await this.typeInto(
       () => this.termMain()?.textContent || "",
       (t) => this.setMain(t),
       line,
-      { careful: true },
+      { careful: true, pace: "fumble" },
     );
-    await this.wait(randMs(1100, 1800));
+    await this.wait(randMs(1100, 1800), "fumble");
     await this.backspaceTo(
       () => this.termMain()?.textContent || "",
       (t) => this.setMain(t),
       0,
-      { hard: false },
+      { hard: false, pace: "fumble" },
     );
     this.setCursor(false);
-    await this.wait(400);
+    await this.wait(400, "fumble");
     this.closeTerminal();
   }
 
@@ -652,20 +684,20 @@ export class OperatorReactions {
         nameEl.textContent = t;
       },
       `${name} AGAIN?`,
-      { careful: true },
+      { careful: true, pace: "reveal" },
     );
-    await this.wait(randMs(800, 1200));
+    await this.wait(randMs(800, 1200), "reveal");
     await this.backspaceTo(
       () => nameEl.textContent || "",
       (t) => {
         nameEl.textContent = t;
       },
       name.length,
-      { hard: false },
+      { hard: false, pace: "fumble" },
     );
     root.dataset.status = "ok";
     this.hooks.onTypeDone?.();
-    await this.wait(randMs(900, 1400));
+    await this.wait(randMs(900, 1400), "reveal");
     delete root.dataset.status;
     delete root.dataset.socialFx;
     nameEl.textContent = restore || name;
@@ -677,7 +709,7 @@ export class OperatorReactions {
     this.hooks.onCoffeeSplash?.();
     this.setMain("COFFEE SPILL");
     this.setSub("MUG DOWN — WIPE CONSOLE", "neutral");
-    await this.wait(this.punchlineHoldMs());
+    await this.wait(this.punchlineHoldMs(), "reveal");
     this.closeTerminal();
   }
 }

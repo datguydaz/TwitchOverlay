@@ -148,17 +148,17 @@
 
         <h3>Operator reactions</h3>
         <p class="hint">Reactions play on a dedicated <strong>OPS TERMINAL</strong> that slides out of the <strong>bottom bar center</strong> (not the follow/sub plates). Repeat-name “AGAIN?” still uses the follower plate. No stage VFX. Live raids/bits/gifts need matching Streamlabs alert types. Demos never save names. URL: <code>?demo=raid|bits|giftbomb|idle|repeat|coffee</code>.</p>
-        <label>Animation length
+        <label>Reveal speed
           <input id="eventAnimScale" type="range" min="1" max="2.5" step="0.05" />
         </label>
-        <p class="hint" id="event-anim-scale-label">Length: 1.75× (scales follow/sub + terminal reactions)</p>
+        <p class="hint" id="event-anim-scale-label">Reveal: 1.75× (slows correct name + amount; fumbles stay 1×)</p>
         <label>Terminal width
           <input id="terminalWidthPct" type="range" min="30" max="80" step="1" />
         </label>
         <p class="hint" id="terminal-width-label">Width: 42% (centred on logo axis)</p>
-        <label class="inline"><input id="opReactRaids" type="checkbox" /> Raids (panic type + INCOMING hostiles)</label>
-        <label class="inline"><input id="opReactBits" type="checkbox" /> Bits / donations (calculator + ERR + stamp)</label>
-        <label class="inline"><input id="opReactGiftBombs" type="checkbox" /> Gift bombs (MULTIPLE CONTACTS ×N)</label>
+        <label class="inline"><input id="opReactRaids" type="checkbox" /> Raids (name + N HOSTILES INCOMING)</label>
+        <label class="inline"><input id="opReactBits" type="checkbox" /> Bits / donations (name + amount ✓)</label>
+        <label class="inline"><input id="opReactGiftBombs" type="checkbox" /> Gift bombs (name + ×N SUBS GIFTED ✓)</label>
         <label>Gift-bomb threshold <input id="opReactGiftThreshold" type="number" min="3" max="50" step="1" title="Min gifts in a burst" /></label>
         <label class="inline"><input id="opReactIdle" type="checkbox" /> Idle bored typing</label>
         <label>Idle delay (minutes) <input id="opReactIdleMin" type="number" min="3" max="60" step="1" /></label>
