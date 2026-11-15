@@ -108,14 +108,35 @@ function isSubType(t: string): boolean {
   );
 }
 
+/**
+ * Sender / raider / gifter display name across Streamlabs platforms.
+ * Twitch bits/cheers, donations, YouTube superchat, etc. use different keys.
+ */
 function firstName(messages: SlMessage[]): string {
   const first = messages[0] || {};
+  const nestedRaw = (first as { message?: unknown }).message;
+  const nest: SlMessage =
+    nestedRaw && typeof nestedRaw === "object"
+      ? (nestedRaw as SlMessage)
+      : {};
   return (
     cleanName(first.name) ||
     cleanName(first.display_name) ||
+    cleanName(first.displayName) ||
     cleanName(first.from) ||
+    cleanName(first.from_name) ||
+    cleanName(first.donor) ||
+    cleanName(first.donator) ||
+    cleanName(first.username) ||
+    cleanName(first.user_name) ||
+    cleanName(first.user) ||
     cleanName(first.gifter) ||
+    cleanName(first.gifter_display_name) ||
     cleanName(first.raider) ||
+    cleanName(first.channel) ||
+    cleanName(nest.name) ||
+    cleanName(nest.display_name) ||
+    cleanName(nest.from) ||
     cleanName((first as { names?: unknown }).names)
   );
 }
@@ -163,7 +184,6 @@ export function mapStreamlabsEvent(
     t === "youtube_superchat" ||
     t === "merch"
   ) {
-    if (!name && t !== "donation") return null;
     const amount =
       numField(first.amount, 0) ||
       numField(first.bits, 0) ||
@@ -172,13 +192,13 @@ export function mapStreamlabsEvent(
     const currency =
       cleanName(first.currency) ||
       cleanName((first as { money?: { currency?: unknown } }).money?.currency) ||
-      (t.includes("bit") || t === "cheer" ? "bits" : "USD");
+      (t.includes("bit") || t === "cheer" || t === "twitch_bits" ? "bits" : "USD");
     const reaction: OperatorReactionKind =
       t.includes("bit") || t === "cheer" || t === "twitch_bits" ? "bits" : "donation";
     return {
       reaction: {
         reaction,
-        name: name || "ANON",
+        name: name || "ANONYMOUS",
         amount: amount > 0 ? amount : reaction === "bits" ? 100 : 5,
         currency,
       },
@@ -357,7 +377,7 @@ export class StreamlabsBridge {
   }
 
   private queueGift(name: string, rawType: string): void {
-    this.giftBuf.push({ name: name || "GIFTED", rawType });
+    this.giftBuf.push({ name: name || "ANONYMOUS", rawType });
     if (this.giftTimer) clearTimeout(this.giftTimer);
     this.giftTimer = setTimeout(() => {
       this.giftTimer = null;
@@ -378,11 +398,11 @@ export class StreamlabsBridge {
       this.handlers.onReaction({
         reaction: "giftbomb",
         count,
-        name: last.name,
+        name: last.name || "ANONYMOUS",
         rawType: last.rawType,
       });
       // No applySocial — replaces N sub type-ins; keep existing plate name
-      console.log(`[streamlabs] giftbomb ×${count}`);
+      console.log(`[streamlabs] giftbomb ×${count} from ${last.name || "ANONYMOUS"}`);
       return;
     }
     for (const g of batch) {
@@ -405,7 +425,7 @@ export class StreamlabsBridge {
       "";
 
     if (isGiftType(parsed.type)) {
-      const name = firstName(parsed.messages) || "GIFTED";
+      const name = firstName(parsed.messages) || "ANONYMOUS";
       const dedupeKey = idHint
         ? `id:${idHint}`
         : `gift:${name}:${Date.now()}`;

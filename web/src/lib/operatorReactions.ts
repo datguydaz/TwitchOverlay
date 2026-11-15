@@ -441,16 +441,18 @@ export class OperatorReactions {
       this.setMain(clampName(job.name || "RAIDER"));
       this.setSub(`INCOMING: ${job.viewers || 12} HOSTILES`, "ok");
     } else if (job.reaction === "bits" || job.reaction === "donation") {
+      const who = clampName(job.name || "ANONYMOUS", 14);
       const label = formatAmount(
         job.amount ?? 500,
         job.currency || (job.reaction === "bits" ? "bits" : "USD"),
       );
-      this.setMain(label);
+      this.setMain(`${who} // ${label}`);
       this.setScreenStatus("ok");
-      this.setStamp(`✓ ${label}`);
+      this.setStamp(`✓ ${label} // ${who}`);
     } else if (job.reaction === "giftbomb") {
+      const who = clampName(job.name || "ANONYMOUS", 14);
       this.setMain(`MULTIPLE CONTACTS ×${job.count || 5}`);
-      this.setSub("GIFT BOMB — CONTACT CLUSTER", "ok");
+      this.setSub(`GIFTER // ${who}`, "ok");
     } else if (job.reaction === "idle") {
       this.setMain("zzz");
     } else if (job.reaction === "coffee") {
@@ -506,14 +508,15 @@ export class OperatorReactions {
       this.hooks.onAlarmClick?.();
       await this.wait(show < 8 ? 95 : show < 30 ? 55 : 32);
     }
-    this.setSub(`INCOMING: ${viewers} HOSTILES`, "ok");
+    this.setSub(`${name} // ${viewers} HOSTILES`, "ok");
     this.setAlarm(false);
     await this.wait(this.punchlineHoldMs());
     this.closeTerminal();
   }
 
-  /** Bits/donation: calculator, one ERR (red), recount, green stamp. */
+  /** Bits/donation: name intro, calculator, one ERR, recount, green stamp with name. */
   private async playBits(job: ReactionJob): Promise<void> {
+    const who = clampName(job.name || "ANONYMOUS", 14);
     const amount = job.amount ?? 500;
     const label = formatAmount(
       amount,
@@ -525,15 +528,32 @@ export class OperatorReactions {
     );
     this.openTerminal(job.reaction);
     this.setCursor(true);
-    this.setSub("CALC…", "neutral");
 
+    // Operator types the sender first
+    await this.typeInto(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      `INCOMING FUNDS // ${who}`,
+      { careful: true },
+    );
+    this.setSub(`FROM // ${who}`, "neutral");
+    await this.wait(randMs(400, 650));
+    await this.backspaceTo(
+      () => this.termMain()?.textContent || "",
+      (t) => this.setMain(t),
+      0,
+      { hard: false },
+    );
+    await this.wait(randMs(120, 200));
+
+    this.setSub("CALC…", "neutral");
     for (const ch of wrong.replace(/\s/g, "")) {
       this.setMain((this.termMain()?.textContent || "") + ch);
       this.hooks.onCalcClack?.();
       await this.wait(randMs(70, 120));
     }
     this.setScreenStatus("error");
-    this.setSub("ERR", "error");
+    this.setSub(`ERR // ${who}`, "error");
     await this.wait(randMs(800, 1200));
     this.setScreenStatus(null);
     this.setSub("RECALC…", "neutral");
@@ -546,23 +566,25 @@ export class OperatorReactions {
     await this.wait(randMs(180, 280));
 
     this.setMain("");
-    for (const ch of label.replace(/\s/g, "")) {
+    const finalLine = `${who} // ${label}`;
+    for (const ch of [...finalLine]) {
       this.setMain((this.termMain()?.textContent || "") + ch);
-      this.hooks.onCalcClack?.();
-      await this.wait(randMs(70, 120));
+      if (ch !== " " && ch !== "/") this.hooks.onCalcClack?.();
+      await this.wait(randMs(55, 100));
     }
     this.setCursor(false);
     this.setScreenStatus("ok");
-    this.setSub(null);
-    this.setStamp(`✓ ${label}`);
+    this.setSub(`FROM // ${who}`, "ok");
+    this.setStamp(`✓ ${label} // ${who}`);
     this.hooks.onTypeDone?.();
     await this.wait(this.punchlineHoldMs());
     this.closeTerminal();
   }
 
-  /** Gift bomb: give up typing, slam MULTIPLE CONTACTS ×N. */
+  /** Gift bomb: give up typing, slam MULTIPLE CONTACTS ×N + gifter. */
   private async playGiftBomb(job: ReactionJob): Promise<void> {
     const count = Math.max(5, Math.round(job.count || 5));
+    const who = clampName(job.name || "ANONYMOUS", 14);
     this.openTerminal("giftbomb");
     this.setCursor(true);
     this.setScreenStatus("error");
@@ -584,7 +606,7 @@ export class OperatorReactions {
     this.hooks.onSigh?.();
     this.hooks.onTableSmash?.();
     this.setMain(`MULTIPLE CONTACTS ×${count}`);
-    this.setSub("GIFT BOMB — CONTACT CLUSTER", "ok");
+    this.setSub(`GIFTER // ${who}`, "ok");
     this.setScreenStatus("ok");
     await this.wait(this.punchlineHoldMs());
     this.closeTerminal();
